@@ -1,5 +1,5 @@
 import unittest
-from lex import preserving_split
+from munge.lex.lex import preserving_split
 
 class TestLex(unittest.TestCase):
     def setUp(self):
