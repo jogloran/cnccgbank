@@ -5,6 +5,23 @@ class TestLex(unittest.TestCase):
     def setUp(self):
         pass
 
+    def testAdjacentSplitters(self):
+        result = []
+        for tok in preserving_split(r'a.b.cd.ef..g', '.'):
+            result.append(tok)
+        self.assertEqual(result, r'a . b . cd . ef . . g'.split(" "))
+
+    def testPeek(self):
+        stream = preserving_split('abc/def.ghi', './')
+        for expected_tok in ('abc', '/', 'def', '.', 'ghi'):
+            self.assertEqual(stream.peek(), expected_tok)
+            stream.next()
+
+    def testEmptyPeek(self):
+        stream = preserving_split('', '@#$')
+        self.assertRaises(StopIteration, stream.next)
+        self.failIf(stream.peek()) # peek must yield None
+
     def testPreserves(self):
         s = r'<a href="index.html">Text</a>'
         result = []

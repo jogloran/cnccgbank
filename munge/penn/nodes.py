@@ -9,6 +9,9 @@ class Node:
     def __iter__(self):
         for kid in self.kids: yield kid
 
+    def count(self):
+        return len(self.kids)
+
 class Leaf:
     def __init__(self, tag, lex):
         self.tag = tag
