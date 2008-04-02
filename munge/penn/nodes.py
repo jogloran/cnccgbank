@@ -1,5 +1,3 @@
-from ..lex.lex import preserving_split
-
 class Node:
     def __init__(self, tag, kids):
         self.tag = tag
