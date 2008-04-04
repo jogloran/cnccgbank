@@ -1,7 +1,7 @@
 import unittest
 from munge.penn.parse import *
 
-class TestPennParse(unittest.TestCase):
+class PennParseTests(unittest.TestCase):
     def testParseSinglePennDeriv(self):
         deriv = '''
 ( (S 

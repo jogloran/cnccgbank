@@ -1,5 +1,5 @@
-from ..lex.lex import preserving_split
-from ..util.exceptions import PennParseException
+from munge.lex.lex import preserving_split
+from munge.util.exceptions import PennParseException
 from nodes import Node, Leaf
 
 def with_parens(func, toks):
