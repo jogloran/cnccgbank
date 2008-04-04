@@ -1,7 +1,7 @@
 import unittest
 from munge.penn.penn import Node, Leaf
 
-class TestPenn(unittest.TestCase):
+class PennTests(unittest.TestCase):
     def setUp(self):
         self.n = Node('a', [Leaf('L', lex) for lex in ('b', 'c', 'd', 'e')])
 
