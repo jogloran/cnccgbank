@@ -1,17 +1,8 @@
 # Parses the PTB string representation of a derivation.
 from munge.lex.lex import preserving_split
 from munge.util.exceptions import PennParseException
+from munge.util.parse_utils import with_parens, shift_and_check
 from nodes import Node, Leaf
-
-def with_parens(func, toks):
-    shift_and_check( '(', toks )
-    value = func(toks)
-    shift_and_check( ')', toks )
-    return value
-
-def shift_and_check(tok, toks):
-    next = toks.next()
-    if tok != next: raise PennParseException("Expected %s, got %s" % (tok, next))
 
 def parse_tree(tree_string):
     toks = preserving_split(tree_string, "()")

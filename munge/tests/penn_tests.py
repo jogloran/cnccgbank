@@ -1,5 +1,5 @@
 import unittest
-from munge.penn.penn import Node, Leaf
+from munge.penn.nodes import Node, Leaf
 
 class PennTests(unittest.TestCase):
     def setUp(self):
