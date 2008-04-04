@@ -1,4 +1,14 @@
+
 def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors=''):
+    '''Returns an iterator yielding successive tokens from _str_ as split on three
+    kinds of separators. 
+      - _split_chars_ will split the string, and appear in the resulting stream.
+      - _skip_chars_ will split the string, but will not appear in the stream.
+      - Any text between the pair of _suppressors_ (if given) will be split only
+        on skip_chars and not on split_chars.
+    The returned iterator supports an additional _peek_ method which returns the same
+    value as _next_ without consuming a value from the stream.'''
+
     class PressplitIterator:
         def __init__(self, str, split_chars, skip_chars, suppressors):
             def _preserving_split():

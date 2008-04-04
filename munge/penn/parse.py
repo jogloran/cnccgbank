@@ -1,3 +1,4 @@
+# Parses the PTB string representation of a derivation.
 from munge.lex.lex import preserving_split
 from munge.util.exceptions import PennParseException
 from nodes import Node, Leaf

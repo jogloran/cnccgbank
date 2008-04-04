@@ -1,4 +1,5 @@
 class Node:
+    '''Representation of a PTB internal node.'''
     def __init__(self, tag, kids):
         self.tag = tag
         self.kids = kids
@@ -13,6 +14,7 @@ class Node:
         return len(self.kids)
 
 class Leaf:
+    '''Representation of a PTB leaf.'''
     def __init__(self, tag, lex):
         self.tag = tag
         self.lex = lex
