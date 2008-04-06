@@ -24,6 +24,13 @@ class Node:
         self.rch.parent = self
     rch = property(get_rch, set_rch)
 
+    def __eq__(self, other):
+        return self.cat == other.cat and \
+               self.lch == other.lch and \
+               self.rch == other.rch and \
+               self.ind1 == other.ind1 and \
+               self.ind2 == other.ind2
+
 class Leaf:
     '''Representation of a CCGbank leaf.'''
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
@@ -36,4 +43,11 @@ class Leaf:
     def __repr__(self):
         return "(<L %s %s %s %s %s>)" % \
                 (self.cat, self.pos1, self.pos2, \
-                self.lex, self.catfix)
+                 self.lex, self.catfix)
+
+    def __eq__(self, other):
+        return self.cat == other.cat and \
+               self.pos1 == other.pos1 and \
+               self.pos2 == other.pos2 and \
+               self.lex == other.lex and \
+               self.catfix == other.catfix

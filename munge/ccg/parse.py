@@ -15,17 +15,19 @@ def read_paren(toks, parent=None):
     node_type = toks.peek()
     if node_type == 'T':
         result = read_internal_node(toks, parent)
-        lch = read_paren(toks, root)
-        if toks.peek() == '(': rch = read_paren(toks, root)
+        shift_and_check( '>', toks )
+
+        lch = read_paren(toks, result)
+        if toks.peek() == '(': rch = read_paren(toks, result)
 
         result.lch, result.rch = lch, rch
     elif node_type == 'L':
         result = read_leaf_node(toks, parent)
+        shift_and_check( '>', toks )
     else:
         raise CCGbankParseException, \
                 "Node type (T, L) expected here."
 
-    shift_and_check( '>', toks )
     shift_and_check( ')', toks )
 
     return result
