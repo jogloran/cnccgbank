@@ -12,6 +12,10 @@ class Node:
                 (self.cat, self.ind1, self.ind2, \
                  self.lch, self.rch or '')
 
+    def __iter__(self):
+        yield self.lch
+        if self.rch: yield self.rch
+
     def get_lch(self): return self.lch
     def set_lch(self, new_lch):
         self.lch = new_lch

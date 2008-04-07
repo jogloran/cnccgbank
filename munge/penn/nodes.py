@@ -22,5 +22,3 @@ class Leaf:
     def __repr__(self):
         return "<%s %s>" % (self.tag, self.lex)
 
-    def __iter__(self): yield self
-
