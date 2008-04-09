@@ -1,3 +1,5 @@
+from itertools import *
+
 from munge.lex.lex import preserving_split
 from munge.cats.repr import BACKWARD, FORWARD, AtomicCategory, CompoundCategory
 from munge.util.parse_utils import *
@@ -36,7 +38,7 @@ def is_direction(char):
     return char in ('/', '\\')
 
 def parse_feature(toks):
-    return with_squares(toks.next)
+    return with_squares(lambda toks: toks.next(), toks)
 
 def parse_compound(toks):
     if toks.peek() == '(':

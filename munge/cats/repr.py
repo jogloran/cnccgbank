@@ -1,8 +1,9 @@
 from copy import copy
+import re
 
 BACKWARD, FORWARD = 1, 2
 
-class AtomicCategory:
+class AtomicCategory(object):
     def __init__(self, cat, features=None):
         self.cat = cat
         self.features = features or []
@@ -14,6 +15,8 @@ class AtomicCategory:
 
     def __repr__(self):
         return self.cat + self.feature_repr()
+    
+    def make_repr(self, first=True): return self.__repr__()
 
     # AtomicCategory is immutable
     def clone(self): return self
@@ -33,7 +36,10 @@ class AtomicCategory:
 
     def slash_count(self): return 0
 
-class CompoundCategory:
+    def is_leaf(self): return True
+    def label_text(self): return re.escape(self.cat)
+
+class CompoundCategory(object):
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         self.left, self.direction, self.right = left, direction, right
         self.mode = mode
@@ -45,15 +51,18 @@ class CompoundCategory:
     def feature_repr(self):
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def __repr__(self, first=True):
+    def make_repr(self, first=True):
         return "%(open)s%(lch)s%(slash)s%(rch)s%(close)s%(feats)s" % {
                 'open': "" if first else "(",
-                'lch': self.left.__repr__(False),
+                'lch': self.left.make_repr(False),
                 'slash': self.slash,
-                'rch': self.right.__repr__(False),
+                'rch': self.right.make_repr(False),
                 'close': "" if first else ")",
                 'feats': self.feature_repr()
                 }
+
+    def __repr__(self):
+        return self.make_repr()
 
     def clone(self): return CompoundCategory(self.left.clone(), self.direction, self.right and self.right.clone(), self.mode, copy(self.features))
 
@@ -78,3 +87,10 @@ class CompoundCategory:
 
     def slash_count(self):
         return 1 + self.left.slash_count() + self.right.slash_count()
+
+    def __iter__(self):
+        yield self.left
+        yield self.right
+
+    def is_leaf(self): return False
+    def label_text(self): return re.escape(self.slash)

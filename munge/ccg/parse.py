@@ -18,6 +18,7 @@ def read_paren(toks, parent=None):
         shift_and_check( '>', toks )
 
         lch = read_paren(toks, result)
+        rch = None
         if toks.peek() == '(': rch = read_paren(toks, result)
 
         result.lch, result.rch = lch, rch

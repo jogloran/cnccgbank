@@ -1,3 +1,5 @@
+import re
+
 class Node:
     '''Representation of a CCGbank internal node.'''
     def __init__(self, cat, ind1, ind2, parent, lch=None, rch=None):
@@ -35,6 +37,9 @@ class Node:
                self.ind1 == other.ind1 and \
                self.ind2 == other.ind2
 
+    def is_leaf(self): return False
+    def label_text(self): return re.escape(str(self.cat))
+
 class Leaf:
     '''Representation of a CCGbank leaf.'''
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
@@ -55,3 +60,6 @@ class Leaf:
                self.pos2 == other.pos2 and \
                self.lex == other.lex and \
                self.catfix == other.catfix
+               
+    def is_leaf(self): return True
+    def label_text(self): return """%s '%s'""" % (re.escape(str(self.cat)), self.lex)

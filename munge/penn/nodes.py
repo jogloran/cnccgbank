@@ -1,4 +1,6 @@
-class Node:
+import re
+
+class Node(object):
     '''Representation of a PTB internal node.'''
     def __init__(self, tag, kids):
         self.tag = tag
@@ -13,7 +15,10 @@ class Node:
     def count(self):
         return len(self.kids)
 
-class Leaf:
+    def is_leaf(self): return False
+    def label_text(self): return re.escape(self.tag)
+
+class Leaf(object):
     '''Representation of a PTB leaf.'''
     def __init__(self, tag, lex):
         self.tag = tag
@@ -22,3 +27,5 @@ class Leaf:
     def __repr__(self):
         return "<%s %s>" % (self.tag, self.lex)
 
+    def is_leaf(self): return True
+    def label_text(self): return "%s '%s'" % (self.tag, self.lex)
