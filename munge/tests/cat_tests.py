@@ -15,3 +15,13 @@ class CatTests(unittest.TestCase):
     def testWriteCategoryTree(self):
         write_graph(self.n2, 'cat.dot')
         self.assert_(os.path.exists('cat.dot'))
+
+    def testModedCategoryRepr(self):
+        cat = ComplexCategory(
+                ComplexCategory( AtomicCategory('S'), BACKWARD, AtomicCategory('NP', ['b']), NULL ),
+                FORWARD,
+                ComplexCategory( AtomicCategory('S', ['c']), FORWARD, AtomicCategory('NP'), COMP ),
+                ALL, ['feat'])
+
+        self.assertEqual(repr(cat), r'(S\-NP[b])/.(S[c]/@NP)[feat]')
+

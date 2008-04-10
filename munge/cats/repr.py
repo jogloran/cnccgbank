@@ -1,7 +1,11 @@
 from copy import copy
+from munge.util.exceptions import CatParseException
 import re
 
-BACKWARD, FORWARD = 1, 2
+ShowModes = True
+
+BACKWARD, FORWARD = range(2)
+APPLY, ALL, COMP, NULL = range(4)
 
 class AtomicCategory(object):
     def __init__(self, cat, features=None):
@@ -32,7 +36,8 @@ class AtomicCategory(object):
         if not isinstance(other, AtomicCategory): return False
         return self.cat == other.cat
 
-    def labelled(index=0): return index
+    def labelled(self, index=0): return index
+    def is_labelled(self): return False
 
     def slash_count(self): return 0
 
@@ -40,6 +45,14 @@ class AtomicCategory(object):
     def label_text(self): return re.escape(self.cat)
 
 class ComplexCategory(object):
+    # Index i into mode_symbols references the mode with integer representation i.
+    mode_symbols = "*.@-"
+    def get_mode_symbol(self, mode_index):
+        if not mode_index: return ''
+
+        if 0 <= mode_index < len(self.mode_symbols): return self.mode_symbols[mode_index]
+        else: raise CatParseException('Mode index %s invalid or out of range.' % mode_index)
+
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         self.left, self.direction, self.right = left, direction, right
         self.mode = mode
@@ -53,10 +66,11 @@ class ComplexCategory(object):
 
     def __repr__(self, first=True):
         '''A (non-evaluable) representation of this category.'''
-        return "%(open)s%(lch)s%(slash)s%(rch)s%(close)s%(feats)s" % {
+        return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
                 'open': "" if first else "(",
                 'lch': self.left.__repr__(False),
                 'slash': self.slash,
+                'mode': self.get_mode_symbol(self.mode) if ShowModes else "",
                 'rch': self.right.__repr__(False),
                 'close': "" if first else ")",
                 'feats': self.feature_repr()
@@ -65,23 +79,26 @@ class ComplexCategory(object):
     def clone(self): return ComplexCategory(self.left.clone(), self.direction, self.right and self.right.clone(), self.mode, copy(self.features))
 
     def __eq__(self, other):
-        if not isinstance(other, ComplexCategory): return false
+        if not isinstance(other, ComplexCategory): return False
 
         return self.equal_ignoring_features(other) or self.features == other.features
 
     def equal_ignoring_features(self, other):
-        if not isinstance(other, ComplexCategory): return false
+        if not isinstance(other, ComplexCategory): return False
 
         return self.direction == other.direction and \
                 self.left == other.left and \
                 self.right == other.right
 
-    def labelled(index=0):
+    def labelled(self, index=0):
         self.label = index
         index += 1 # the current node gets the label _index_
         index = self.left.labelled(index)
         index = self.right.labelled(index)
         return index
+
+    def is_labelled(self):
+        return self.label or any(kid.is_labelled() for kid in self)
 
     def slash_count(self):
         return 1 + self.left.slash_count() + self.right.slash_count()
