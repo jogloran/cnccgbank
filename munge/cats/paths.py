@@ -23,11 +23,13 @@ def category_path_to_root(node):
     the path are returned, instead of the nodes themselves.'''
     def extract_categories(left, right, was_flipped):
         return (left.cat, right.cat if right else None, was_flipped)
+
     return starmap(extract_categories, path_to_root(node))
 
 def cloned_category_path_to_root(node):
     def copy_nodes(lcat, rcat, was_flipped):
         return (lcat.clone(), rcat.clone() if rcat else None, was_flipped)
+
     return starmap(copy_nodes, category_path_to_root(node))
 
 def applications(node):
@@ -36,17 +38,20 @@ def applications(node):
         yield analyse(prev_l, prev_r, r if was_flipped else l)
 
 def applications_per_slash(node, examine_modes=False):
+    '''Returns a list of length _n_, the number of slashes in the category of _node_.
+    Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
+
     result = []
 
     for slash in range(node.cat.slash_count()):
-        consumer = None
+        consumer = None # the rule which consumed this slash, if any
         first = True
 
         for (prev_l, prev_r, prev_was_flipped), (l, r, was_flipped) in each_pair(cloned_category_path_to_root(node)):
             if first:
-                if prev_was_flipped:
-                    if prev_r: prev_r.labelled()
-                else:
+                if prev_was_flipped and prev_r:
+                    prev_r.labelled()
+                elif not prev_was_flipped:
                     prev_l.labelled()
                 first = False
 
