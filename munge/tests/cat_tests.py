@@ -1,6 +1,6 @@
 import os
 import unittest
-from munge.cats.repr import *
+from munge.cats.nodes import *
 from munge.cats.parse import *
 from munge.vis.dot import *
 

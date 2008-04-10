@@ -2,7 +2,7 @@ import os
 import unittest
 from munge.ccg.nodes import Node, Leaf
 from munge.ccg.parse import parse_tree
-from munge.cats.repr import AtomicCategory
+from munge.cats.nodes import AtomicCategory
 from munge.vis.dot import *
 
 class CCGTests(unittest.TestCase):

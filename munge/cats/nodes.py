@@ -27,12 +27,12 @@ class AtomicCategory(object):
 
     def has_feature(self, feature): return feature in self.features
 
-    def __eq__(self, other):
+    def equal_respecting_features(self, other):
         if not isinstance(other, AtomicCategory): return False
-        return self.equal_ignoring_features(other) and \
-                self.features == other.features
+        return self == other and \
+               self.features == other.features
 
-    def equal_ignoring_features(self, other):
+    def __eq__(self, other):
         if not isinstance(other, AtomicCategory): return False
         return self.cat == other.cat
 
@@ -82,12 +82,12 @@ class ComplexCategory(object):
                                self.right and self.right.clone(),
                                self.mode, copy(self.features))
 
-    def __eq__(self, other):
+    def equal_respecting_features(self, other):
         if not isinstance(other, ComplexCategory): return False
 
-        return self.equal_ignoring_features(other) or self.features == other.features
+        return self == other or self.features == other.features
 
-    def equal_ignoring_features(self, other):
+    def __eq__(self, other):
         if not isinstance(other, ComplexCategory): return False
 
         return self.direction == other.direction and \

@@ -1,7 +1,7 @@
 from itertools import *
 
 from munge.lex.lex import preserving_split
-from munge.cats.repr import BACKWARD, FORWARD, AtomicCategory, ComplexCategory
+from munge.cats.nodes import BACKWARD, FORWARD, AtomicCategory, ComplexCategory
 from munge.util.parse_utils import *
 from munge.util.exceptions import CatParseException
 
