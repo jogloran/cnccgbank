@@ -5,10 +5,10 @@ def label_result(cur, prev, app, flipped):
     _flipped_ is true when prev was the right child of its parent.'''
 
     if app == "fwd_appl":
-        if (not flipped) and prev.left.label # _X/Y_ Y -> X
+        if (not flipped) and prev.left.label: # _X/Y_ Y -> X
             cur.labelled(prev.left.label)
     elif app == "bwd_appl":
-        if flipped and prev.left.label # Y _X\Y_ -> X
+        if flipped and prev.left.label: # Y _X\Y_ -> X
             cur.labelled(prev.left.label)
     elif app in ("fwd_comp", "fwd_xcomp"):
         if flipped: # X/Y _Y/Z_ -> X/Z 
