@@ -8,7 +8,7 @@ class CatTests(unittest.TestCase):
     def setUp(self):
         self.lch = AtomicCategory('S')
         self.rch = AtomicCategory('NP')
-        self.n = CompoundCategory(self.lch, BACKWARD, self.rch)
+        self.n = ComplexCategory(self.lch, BACKWARD, self.rch)
 
         self.n2 = parse_category('(S\\NP)/(S\\NP)')
 

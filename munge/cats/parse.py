@@ -1,7 +1,7 @@
 from itertools import *
 
 from munge.lex.lex import preserving_split
-from munge.cats.repr import BACKWARD, FORWARD, AtomicCategory, CompoundCategory
+from munge.cats.repr import BACKWARD, FORWARD, AtomicCategory, ComplexCategory
 from munge.util.parse_utils import *
 from munge.util.exceptions import CatParseException
 
@@ -68,7 +68,7 @@ def parse_compound(toks):
             else:
                 right = parse_atom(toks)
 
-            return CompoundCategory(left, dir, right, None) # TODO: add mode recognition here
+            return ComplexCategory(left, dir, right, None) # TODO: add mode recognition here
 
         else: return left
 
@@ -92,6 +92,6 @@ def parse_compound(toks):
             else:
                 right = parse_atom(toks)
 
-            return CompoundCategory(left, dir, right, None)
+            return ComplexCategory(left, dir, right, None)
 
         else: return left

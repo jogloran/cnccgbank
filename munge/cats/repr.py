@@ -15,7 +15,7 @@ class AtomicCategory(object):
 
     def __repr__(self, first=True):
         '''A (non-evaluable) representation of this category. Ignores its first argument
-        so it can be treated uniformly with CompoundCategory.'''
+        so it can be treated uniformly with ComplexCategory.'''
         return self.cat + self.feature_repr()
 
     # AtomicCategory is immutable
@@ -39,7 +39,7 @@ class AtomicCategory(object):
     def is_leaf(self): return True
     def label_text(self): return re.escape(self.cat)
 
-class CompoundCategory(object):
+class ComplexCategory(object):
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         self.left, self.direction, self.right = left, direction, right
         self.mode = mode
@@ -62,15 +62,15 @@ class CompoundCategory(object):
                 'feats': self.feature_repr()
                 }
 
-    def clone(self): return CompoundCategory(self.left.clone(), self.direction, self.right and self.right.clone(), self.mode, copy(self.features))
+    def clone(self): return ComplexCategory(self.left.clone(), self.direction, self.right and self.right.clone(), self.mode, copy(self.features))
 
     def __eq__(self, other):
-        if not isinstance(other, CompoundCategory): return false
+        if not isinstance(other, ComplexCategory): return false
 
         return self.equal_ignoring_features(other) or self.features == other.features
 
     def equal_ignoring_features(self, other):
-        if not isinstance(other, CompoundCategory): return false
+        if not isinstance(other, ComplexCategory): return false
 
         return self.direction == other.direction and \
                 self.left == other.left and \
