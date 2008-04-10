@@ -27,5 +27,7 @@ class Leaf(object):
     def __repr__(self):
         return "<%s %s>" % (self.tag, self.lex)
 
+    def __iter__(self): raise StopIteration
+
     def is_leaf(self): return True
     def label_text(self): return "%s '%s'" % (self.tag, self.lex)

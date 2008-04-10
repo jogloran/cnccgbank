@@ -55,9 +55,9 @@ class CompoundCategory(object):
         '''A (non-evaluable) representation of this category.'''
         return "%(open)s%(lch)s%(slash)s%(rch)s%(close)s%(feats)s" % {
                 'open': "" if first else "(",
-                'lch': self.left.make_repr(False),
+                'lch': self.left.__repr__(False),
                 'slash': self.slash,
-                'rch': self.right.make_repr(False),
+                'rch': self.right.__repr__(False),
                 'close': "" if first else ")",
                 'feats': self.feature_repr()
                 }

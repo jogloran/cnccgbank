@@ -46,7 +46,8 @@ def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors=''):
 
         def peek(self): return self.top
         def next(self):
-            if self.top is None: raise StopIteration
+            if self.top is None: 
+                raise StopIteration
 
             previous_top = self.top
             try:
