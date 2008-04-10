@@ -1,4 +1,5 @@
 from munge.cats.parse import parse_category
+from munge.cats.nodes import APPLY, COMP, NULL, ALL
 
 LeftAbsorbedPunctuationCats = ", . `` : ; LRB RRB".split()
 RightAbsorbedPunctuationCats = ", . '' : ; LRB RRB".split()
@@ -9,9 +10,9 @@ SbS, SfS, SbNPfSbNP, NP = [parse_category(cat) for cat in
                            S\\S  S/S (S\\NP)/(S\\NP) NP'''.split()]
 
 def analyse(l, r, cur, examine_modes=False):
-    return (try_unary_rules(l, r, cur) if not r else
-            try_application(l, r, cur, examine_modes) or
-            try_absorption(l, r, cur) or
+    return (try_unary_rules(l, r, cur) if not r else \
+            try_application(l, r, cur, examine_modes) or \
+            try_absorption(l, r, cur) or \
             try_composition_or_substitution(l, r, cur, examine_modes))
 
 def try_unary_rules(l, r, cur):
@@ -48,6 +49,9 @@ def try_unary_rules(l, r, cur):
 
     return None # no rule matched
 
+def allows_application(mode_index):
+    return mode_index in (APPLY, COMP, ALL)
+
 def is_application(appl, arg, result, examine_modes=False):
     return ((not examine_modes) or allows_appl(appl.mode)) and \
             appl.right == arg and appl.left == result 
@@ -61,6 +65,9 @@ def try_application(l, r, cur, examine_modes=False):
         if r.direction == BACKWARD: return "bwd_appl"
 
     return None
+
+def allows_composition(mode_index):
+    return mode_index in (COMP, ALL)
 
 def is_composition(l, r, result, examine_modes=False):
     return ((not examine_modes) or (allows_comp(lhs.mode) and allows_comp(rhs.mode))) and \
@@ -103,25 +110,25 @@ def is_substitution(l, r, cur, examine_modes=False):
 
 def try_substitution(l, r, cur, examine_modes=False):
     if l.left.is_compound():
-        if is_substitution(l, r, cur, examine_modes) and
+        if is_substitution(l, r, cur, examine_modes) and \
            l.left.direction == FORWARD:
-            if l.direction == FORWARD and
-               r.direction == FORWARD and
+            if l.direction == FORWARD and \
+               r.direction == FORWARD and \
                cur.direction == FORWARD:
                 return "fwd_subst"
-            elif l.direction == BACKWARD and
-                 r.direction == BACKWARD and
+            elif l.direction == BACKWARD and \
+                 r.direction == BACKWARD and \
                  cur.direction == BACKWARD:
                 return "fwd_xsubst"
     elif r.left.is_compound():
-        if is_substitution(r, l, cur, examine_modes) and
-           r.left.direction == BACKWARD
-            if r.direction == FORWARD and
-               l.direction == FORWARD and
+        if is_substitution(r, l, cur, examine_modes) and \
+           r.left.direction == BACKWARD:
+            if r.direction == FORWARD and \
+               l.direction == FORWARD and \
                cur.direction == FORWARD:
                 return "bwd_xsubst"
-            elif r.direction == BACKWARD and
-                 l.direction == BACKWARD and
+            elif r.direction == BACKWARD and \
+                 l.direction == BACKWARD and \
                  cur.direction == BACKWARD:
                 return "bwd_subst"
 
