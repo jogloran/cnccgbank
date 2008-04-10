@@ -15,6 +15,7 @@ class Node(object):
                  self.lch, self.rch or '')
 
     def __iter__(self):
+        '''Iterates over each child of this node.'''
         yield self.lch
         if self.rch: yield self.rch
 
