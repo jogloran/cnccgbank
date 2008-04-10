@@ -76,7 +76,11 @@ class ComplexCategory(object):
                 'feats': self.feature_repr()
                 }
 
-    def clone(self): return ComplexCategory(self.left.clone(), self.direction, self.right and self.right.clone(), self.mode, copy(self.features))
+    def clone(self): 
+        return ComplexCategory(self.left.clone(),
+                               self.direction, 
+                               self.right and self.right.clone(),
+                               self.mode, copy(self.features))
 
     def __eq__(self, other):
         if not isinstance(other, ComplexCategory): return False

@@ -1,13 +1,13 @@
 import re
 
-class Node:
+class Node(object):
     '''Representation of a CCGbank internal node.'''
     def __init__(self, cat, ind1, ind2, parent, lch=None, rch=None):
         self.cat = cat
         self.ind1, self.ind2 = ind1, ind2
         self.parent = parent
 
-        self.lch, self.rch = lch, rch
+        self._lch, self._rch = lch, rch
 
     def __repr__(self):
         return "(<T %s %s %s> %s %s)" % \
@@ -18,16 +18,18 @@ class Node:
         yield self.lch
         if self.rch: yield self.rch
 
-    def get_lch(self): return self.lch
+    def get_lch(self): return self._lch
     def set_lch(self, new_lch):
-        self.lch = new_lch
-        self.lch.parent = self
+        if not new_lch: return
+        self._lch = new_lch
+        self._lch.parent = self
     lch = property(get_lch, set_lch)
 
-    def get_rch(self): return self.rch
+    def get_rch(self): return self._rch
     def set_rch(self, new_rch):
-        self.rch = new_rch
-        self.rch.parent = self
+        if not new_rch: return
+        self._rch = new_rch
+        self._rch.parent = self
     rch = property(get_rch, set_rch)
 
     def __eq__(self, other):
@@ -40,7 +42,7 @@ class Node:
     def is_leaf(self): return False
     def label_text(self): return re.escape(str(self.cat))
 
-class Leaf:
+class Leaf(object):
     '''Representation of a CCGbank leaf.'''
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
         self.cat = cat
