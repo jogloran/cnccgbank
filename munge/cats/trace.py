@@ -1,5 +1,5 @@
 from munge.cats.parse import parse_category
-from munge.cats.nodes import APPLY, COMP, NULL, ALL
+from munge.cats.nodes import APPLY, COMP, NULL, ALL, BACKWARD, FORWARD
 
 LeftAbsorbedPunctuationCats = ", . `` : ; LRB RRB".split()
 RightAbsorbedPunctuationCats = ", . '' : ; LRB RRB".split()

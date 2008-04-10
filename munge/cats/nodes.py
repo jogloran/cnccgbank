@@ -44,6 +44,8 @@ class AtomicCategory(object):
     def is_leaf(self): return True
     def label_text(self): return re.escape(self.cat)
 
+    def is_compound(self): return not self.is_leaf()
+
 class ComplexCategory(object):
     # Index i into mode_symbols references the mode with integer representation i.
     mode_symbols = "*.@-"
@@ -113,3 +115,5 @@ class ComplexCategory(object):
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.slash)
+
+    def is_compound(self): return not self.is_leaf()
