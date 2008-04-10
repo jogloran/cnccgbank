@@ -13,10 +13,10 @@ class AtomicCategory(object):
     def feature_repr(self):
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def __repr__(self):
+    def __repr__(self, first=True):
+        '''A (non-evaluable) representation of this category. Ignores its first argument
+        so it can be treated uniformly with CompoundCategory.'''
         return self.cat + self.feature_repr()
-    
-    def make_repr(self, first=True): return self.__repr__()
 
     # AtomicCategory is immutable
     def clone(self): return self
@@ -51,7 +51,8 @@ class CompoundCategory(object):
     def feature_repr(self):
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def make_repr(self, first=True):
+    def __repr__(self, first=True):
+        '''A (non-evaluable) representation of this category.'''
         return "%(open)s%(lch)s%(slash)s%(rch)s%(close)s%(feats)s" % {
                 'open': "" if first else "(",
                 'lch': self.left.make_repr(False),
@@ -60,9 +61,6 @@ class CompoundCategory(object):
                 'close': "" if first else ")",
                 'feats': self.feature_repr()
                 }
-
-    def __repr__(self):
-        return self.make_repr()
 
     def clone(self): return CompoundCategory(self.left.clone(), self.direction, self.right and self.right.clone(), self.mode, copy(self.features))
 
