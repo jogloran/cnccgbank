@@ -4,6 +4,7 @@ import re
 
 id = 0
 def get_id():
+    '''Gets a unique ID identifying a DOT node.'''
     global id
 
     ret = "n%d" % id
@@ -11,6 +12,7 @@ def get_id():
     return ret
 
 def make_derivation(deriv, assigned_id=None):
+    '''Generates the body of the DOT representation.'''
     if deriv.is_leaf():
         return '''%s [shape="none",height=0.17,label="%s"]\n''' % (assigned_id, deriv.label_text())
         
@@ -29,8 +31,10 @@ def make_derivation(deriv, assigned_id=None):
         return ''.join(ret)
 
 def make_graph(deriv):
+    '''Generates the DOT representation.'''
     return '''digraph G {\n%s}''' % make_derivation(deriv)
 
 def write_graph(deriv, fn):
+    '''Writes the DOT representation to a file.'''
     with open(fn, 'w') as f:
         f.write(make_graph(deriv))

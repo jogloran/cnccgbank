@@ -6,6 +6,7 @@ def nodes(deriv):
             yield kid_node
             
 def nodes_reversed(deriv):
+    '''Iterates over each node in a derivation, backwards.'''
     yield deriv
     for kid in reversed(list(deriv)):
         for kid_node in nodes_reversed(kid):

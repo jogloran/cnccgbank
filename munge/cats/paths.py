@@ -6,7 +6,8 @@ from munge.cats.labels import label_result
 def path_to_root(node):
     '''Yields a sequence of triples ( (l0, r0, f0), (l1, r1, f1), ... ) representing
     the path of a node and its sibling from the given _node_ up to the root.
-    If f0 is true, then [l0 r0 -> r1]. Otherwise, [l0 r0 -> l1].'''
+    If f0 is true, then r0 is the 'focus' of the triple. Otherwise, l0 is. The focus
+    is the node which actually lies on the sought path, the non-focus node is its sibling.'''
     while node.parent:
         if node.parent.rch == node:
             yield node.parent.lch, node, True
@@ -26,29 +27,23 @@ def category_path_to_root(node):
 
     return starmap(extract_categories, path_to_root(node))
 
-def cloned_category_path_to_root(node):
-    def copy_nodes(lcat, rcat, was_flipped):
-        return (lcat.clone(), rcat.clone() if rcat else None, was_flipped)
-
-    return starmap(copy_nodes, category_path_to_root(node))
-
 def applications(node):
     '''Yields a sequence of rule applications starting from the given _node_ up to the root.'''
     return applications_with_path(category_path_to_root(node))
         
 def applications_with_path(path):
+    '''Yields a sequence of rule applications applied along a _path_ to the root.'''
     for (prev_l, prev_r, _), (l, r, was_flipped) in each_pair(path):
         yield analyse(prev_l, prev_r, r if was_flipped else l)
         
 def applications_per_slash(node, examine_modes=False):
+    '''Returns a list of length _n_, the number of slashes in the category of _node_.
+    Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
     return applications_per_slash_with_path(category_path_to_root(node),
                                             node.cat.slash_count(),
                                             examine_modes)
 
 def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False):
-    '''Returns a list of length _n_, the number of slashes in the category of _node_.
-    Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
-    
     result = []
 
     for slash in range(slash_count):
