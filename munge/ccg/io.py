@@ -10,6 +10,8 @@ class Derivation(object):
         self.sec_no, self.doc_no, self.der_no = sec_no, doc_no, der_no
         self.derivation = derivation
         
+    def label(self): return "%2d:%2d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+    
     @staticmethod
     def from_header_and_derivation(header, deriv_string):
         matches = re.match(r'ID=wsj_(\d\d)(\d\d).(\d+) PARSER=GOLD NUMPARSE=1', header)
@@ -24,13 +26,13 @@ class Derivation(object):
             
         return None
 
-class CCGbankReader(object):
+class CCGbankReader(BaseReader):
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'r')
         self.lines = imap(lambda line: line[0:-1] if line[-1] == '\n' else line,
                           self.file.xreadlines())
-        
+                          
     def __iter__(self):
         while True:
             try:

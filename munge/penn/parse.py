@@ -10,7 +10,7 @@ def parse_tree(tree_string):
 
 def read_docs(toks):
     docs = []
-    if toks.peek() == '(':
+    while toks.peek() == '(':
         docs.append( read_paren(toks) )
     return docs
 
@@ -34,4 +34,3 @@ def read_deriv(toks):
             return Node(tag, kids)
 
     return with_parens(body, toks)
-
