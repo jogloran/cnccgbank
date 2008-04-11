@@ -1,12 +1,16 @@
 from itertools import *
 
 from munge.lex.lex import preserving_split
-from munge.cats.nodes import BACKWARD, FORWARD, AtomicCategory, ComplexCategory
+from munge.cats.nodes import BACKWARD, FORWARD, AtomicCategory, ComplexCategory, ALL
 from munge.util.parse_utils import *
 from munge.util.exceptions import CatParseException
 
+DefaultMode = ALL
+
 def parse_category(cat_string):
-    toks = preserving_split(cat_string, "(\\/)[]")
+    # Return each mode symbol as a token too when encountered.
+    # Important: avoid using mode symbols in atomic category labels.
+    toks = preserving_split(cat_string, "(\\/)[]" + ComplexCategory.mode_symbols)
 
     result = parse_compound(toks)
     if toks.peek() is not None:
@@ -53,7 +57,11 @@ def parse_compound(toks):
 
         if is_direction(toks.peek()):
             dir = parse_direction(toks)
-            # TODO: add mode recognition here
+            
+            # see if a mode symbol is present
+            mode = None
+            if toks.peek() in ComplexCategory.mode_symbols:
+                mode = ComplexCategory.mode_symbols.find(toks.next())
 
             if toks.peek() == '(':
                 toks.next()
@@ -68,16 +76,20 @@ def parse_compound(toks):
             else:
                 right = parse_atom(toks)
 
-            return ComplexCategory(left, dir, right, None) # TODO: add mode recognition here
+            return ComplexCategory(left, dir, right, mode or DefaultMode) # TODO: add mode recognition here
 
         else: return left
 
-    else:
+    else: # TODO: this duplicates the above exactly. write this better.
         left = parse_atom(toks)
 
         if is_direction(toks.peek()):
             dir = parse_direction(toks)
-            # TODO: add mode recognition here
+
+            # see if a mode symbol is present
+            mode = None
+            if toks.peek() in ComplexCategory.mode_symbols:
+                mode = ComplexCategory.mode_symbols.find(toks.next())
 
             if toks.peek() == '(':
                 toks.next()
@@ -92,6 +104,6 @@ def parse_compound(toks):
             else:
                 right = parse_atom(toks)
 
-            return ComplexCategory(left, dir, right, None)
+            return ComplexCategory(left, dir, right, mode or DefaultMode)
 
         else: return left

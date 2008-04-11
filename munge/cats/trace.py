@@ -10,9 +10,9 @@ SbS, SfS, SbNPfSbNP, NP = [parse_category(cat) for cat in
                            S\\S  S/S (S\\NP)/(S\\NP) NP'''.split()]
 
 def analyse(l, r, cur, examine_modes=False):
-    return (try_unary_rules(l, r, cur) if not r else \
-            try_application(l, r, cur, examine_modes) or \
-            try_absorption(l, r, cur) or \
+    return (try_unary_rules(l, r, cur) if not r else
+            try_application(l, r, cur, examine_modes) or
+            try_absorption(l, r, cur) or
             try_composition_or_substitution(l, r, cur, examine_modes))
 
 def try_unary_rules(l, r, cur):
@@ -44,8 +44,8 @@ def try_unary_rules(l, r, cur):
                 if cur == SbNPbSbNP:
                     return "clause_mod_typechange"
 
-        elif not l.is_compound(): # Atomic -> atomic rules
-            if l.cat == 'N' and cur.cat == 'NP': return "np_typechange"
+    elif not l.is_compound(): # Atomic -> atomic rules
+        if str(l.cat) == 'N' and str(cur.cat) == 'NP': return "np_typechange"
 
     return None # no rule matched
 
@@ -105,8 +105,8 @@ def try_composition(l, r, cur, examine_modes=False):
 
 def is_substitution(l, r, cur, examine_modes=False):
     return ((not examine_modes) or (allows_comp(lhs.mode) and allows_comp(rhs.mode))) and \
-            l.left.left == result.left and l.left.right == r.left and \
-            l.right == r.right and r.right == result.right
+            l.left.left == cur.left and l.left.right == r.left and \
+            l.right == r.right and r.right == cur.right
 
 def try_substitution(l, r, cur, examine_modes=False):
     if l.left.is_compound():
@@ -142,7 +142,8 @@ def try_composition_or_substitution(l, r, cur, examine_modes=False):
     return None
 
 def try_absorption(l, r, cur):
-    if r.has_feature("conj") and l == r and l == cur: return "conjoin"
+    if r.has_feature("conj") and l == r and l == cur:
+        return "conjoin" # X X[conj] -> X
 
     if not l.is_compound():
         if cur.has_feature("conj"):

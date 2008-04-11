@@ -1,4 +1,4 @@
-from itertools import imap, starmap
+from itertools import imap, starmap, tee
 from munge.util.iter_utils import each_pair
 from munge.cats.trace import analyse
 from munge.cats.labels import label_result
@@ -34,20 +34,32 @@ def cloned_category_path_to_root(node):
 
 def applications(node):
     '''Yields a sequence of rule applications starting from the given _node_ up to the root.'''
-    for (prev_l, prev_r, _), (l, r, was_flipped) in each_pair(category_path_to_root(node)):
+    return applications_with_path(category_path_to_root(node))
+        
+def applications_with_path(path):
+    for (prev_l, prev_r, _), (l, r, was_flipped) in each_pair(path):
         yield analyse(prev_l, prev_r, r if was_flipped else l)
-
+        
 def applications_per_slash(node, examine_modes=False):
+    return applications_per_slash_with_path(category_path_to_root(node),
+                                            node.cat.slash_count(),
+                                            examine_modes)
+
+def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False):
     '''Returns a list of length _n_, the number of slashes in the category of _node_.
     Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
-
+    
     result = []
 
-    for slash in range(node.cat.slash_count()):
+    for slash in range(slash_count):
         consumer = None # the rule which consumed this slash, if any
         first = True
-
-        for (prev_l, prev_r, prev_was_flipped), (l, r, was_flipped) in each_pair(cloned_category_path_to_root(node)):
+        
+        # We need to copy the path for each slash, because in each iteration we label
+        # the categories in-place.
+        orig_path, path = tee(orig_path, 2)
+        
+        for (prev_l, prev_r, prev_was_flipped), (l, r, was_flipped) in each_pair(path):
             if first:
                 if prev_was_flipped and prev_r:
                     prev_r.labelled()

@@ -4,6 +4,12 @@ def nodes(deriv):
     for kid in deriv:
         for kid_node in nodes(kid):
             yield kid_node
+            
+def nodes_reversed(deriv):
+    yield deriv
+    for kid in reversed(list(deriv)):
+        for kid_node in nodes_reversed(kid):
+            yield kid_node
 
 def nodes_inorder(deriv):
     '''Inorder iterates over the nodes of a binary branching derivation.'''
@@ -22,6 +28,14 @@ def leaves(deriv):
     else:
         for kid in deriv:
             for kid_node in leaves(kid):
+                yield kid_node
+                
+def leaves_reversed(deriv):
+    '''Iterates from right to left over the leaves of a derivation.'''
+    if deriv.is_leaf(): yield deriv
+    else:
+        for kid in reversed(list(deriv)):
+            for kid_node in leaves_reversed(kid):
                 yield kid_node
 
 def text(deriv):

@@ -12,8 +12,6 @@ class AtomicCategory(object):
         self.cat = cat
         self.features = features or []
 
-    def label(self): return self
-
     def feature_repr(self):
         return ''.join("[%s]" % feature for feature in self.features)
 
@@ -21,6 +19,9 @@ class AtomicCategory(object):
         '''A (non-evaluable) representation of this category. Ignores its first argument
         so it can be treated uniformly with ComplexCategory.'''
         return self.cat + self.feature_repr()
+        
+    @property
+    def label(self): return None
 
     # AtomicCategory is immutable
     def clone(self): return self
@@ -29,8 +30,8 @@ class AtomicCategory(object):
 
     def equal_respecting_features(self, other):
         if not isinstance(other, AtomicCategory): return False
-        return self == other and \
-               self.features == other.features
+        return (self == other and
+                self.features == other.features)
 
     def __eq__(self, other):
         if not isinstance(other, AtomicCategory): return False
@@ -40,6 +41,8 @@ class AtomicCategory(object):
     def is_labelled(self): return False
 
     def slash_count(self): return 0
+    
+    def nested_compound_categories(self): return []
 
     def is_leaf(self): return True
     def label_text(self): return re.escape(self.cat)
@@ -50,10 +53,12 @@ class ComplexCategory(object):
     # Index i into mode_symbols references the mode with integer representation i.
     mode_symbols = "*.@-"
     def get_mode_symbol(self, mode_index):
-        if not mode_index: return ''
-
-        if 0 <= mode_index < len(self.mode_symbols): return self.mode_symbols[mode_index]
-        else: raise CatParseException('Mode index %s invalid or out of range.' % mode_index)
+        if not mode_index: return '' # for when cat.mode is None
+        
+        try:
+            return self.mode_symbols[mode_index]
+        except (IndexError, TypeError):
+            raise CatParseException('Invalid mode index %s.' % mode_index)
 
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         self.left, self.direction, self.right = left, direction, right
@@ -69,32 +74,40 @@ class ComplexCategory(object):
     def __repr__(self, first=True):
         '''A (non-evaluable) representation of this category.'''
         return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
-                'open': "" if first else "(",
-                'lch': self.left.__repr__(False),
-                'slash': self.slash,
-                'mode': self.get_mode_symbol(self.mode) if ShowModes else "",
-                'rch': self.right.__repr__(False),
-                'close': "" if first else ")",
-                'feats': self.feature_repr()
-                }
+            'open': "" if first else "(",
+            'lch': self.left.__repr__(False),
+            'slash': self.slash,
+            'mode': self.get_mode_symbol(self.mode) if ShowModes else "",
+            'rch': self.right.__repr__(False),
+            'close': "" if first else ")",
+            'feats': self.feature_repr()
+        }
 
     def clone(self): 
         return ComplexCategory(self.left.clone(),
                                self.direction, 
                                self.right and self.right.clone(),
                                self.mode, copy(self.features))
+                               
+    def has_feature(self, feat):
+        return (feat in self.features or
+                self.left.has_feature(feat) or
+                self.right.has_feature(feat))
 
     def equal_respecting_features(self, other):
         if not isinstance(other, ComplexCategory): return False
 
-        return self == other or self.features == other.features
+        return (self.direction == other.direction and 
+                self.features == other.features and
+                self.left.equal_respecting_features(other.left) and
+                self.right.equal_respecting_features(other.right))
 
     def __eq__(self, other):
         if not isinstance(other, ComplexCategory): return False
 
-        return self.direction == other.direction and \
-                self.left == other.left and \
-                self.right == other.right
+        return (self.direction == other.direction and
+                self.left == other.left and
+                self.right == other.right)
 
     def labelled(self, index=0):
         self.label = index
@@ -112,6 +125,11 @@ class ComplexCategory(object):
     def __iter__(self):
         yield self.left
         yield self.right
+        
+    def nested_compound_categories(self):
+        return ([self] + 
+                 self.left.nested_compound_categories() + 
+                 self.right.nested_compound_categories())    
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.slash)
