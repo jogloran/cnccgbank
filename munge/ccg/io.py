@@ -26,12 +26,18 @@ class Derivation(object):
             
         return None
 
-class CCGbankReader(BaseReader):
+class CCGbankReader(object):
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'r')
         self.lines = imap(lambda line: line[0:-1] if line[-1] == '\n' else line,
                           self.file.xreadlines())
+                          
+    def __getitem__(self, index):
+        for deriv in self:
+            if deriv.der_no == index: return deriv
+            
+        return None
                           
     def __iter__(self):
         while True:

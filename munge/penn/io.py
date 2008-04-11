@@ -26,6 +26,12 @@ class PTBReader(object):
         else:
             # TODO: Should ideally be a warning condition
             return 0, 0
+    
+    def __getitem__(self, index):
+        for deriv in self:
+            if deriv.der_no == index: return deriv
+            
+        return None
         
     def __iter__(self):
         for deriv, der_no in izip(self.derivs, count()):
