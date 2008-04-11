@@ -10,9 +10,9 @@ class Node(object):
         self._lch, self._rch = lch, rch
 
     def __repr__(self):
-        return "(<T %s %s %s> %s %s)" % \
-                (self.cat, self.ind1, self.ind2, \
-                 self.lch, self.rch or '')
+        return ("(<T %s %s %s> %s %s)" %
+                (self.cat, self.ind1, self.ind2,
+                 self.lch, self.rch or ''))
 
     def __iter__(self):
         '''Iterates over each child of this node.'''
@@ -36,11 +36,11 @@ class Node(object):
     def __eq__(self, other):
         if not isinstance(other, Node): return False
         
-        return self.cat == other.cat and \
-               self.lch == other.lch and \
-               self.rch == other.rch and \
-               self.ind1 == other.ind1 and \
-               self.ind2 == other.ind2
+        return (self.cat == other.cat and
+                self.lch == other.lch and
+                self.rch == other.rch and
+                self.ind1 == other.ind1 and
+                self.ind2 == other.ind2)
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(str(self.cat))
@@ -62,11 +62,11 @@ class Leaf(object):
     def __eq__(self, other):
         if not isinstance(other, Leaf): return False
         
-        return self.cat == other.cat and \
-               self.pos1 == other.pos1 and \
-               self.pos2 == other.pos2 and \
-               self.lex == other.lex and \
-               self.catfix == other.catfix
+        return (self.cat == other.cat and
+                self.pos1 == other.pos1 and
+                self.pos2 == other.pos2 and
+                self.lex == other.lex and
+                self.catfix == other.catfix)
                
     def is_leaf(self): return True
     def label_text(self): return """%s '%s'""" % (re.escape(str(self.cat)), self.lex)
