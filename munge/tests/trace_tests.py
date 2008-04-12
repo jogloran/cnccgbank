@@ -10,26 +10,14 @@ from munge.cats.trace import analyse
 from munge.util.iter_utils import each_pair
 from munge.trees.traverse import leaves, leaves_reversed
 from munge.ccg.io import CCGbankReader, Derivation
+
+from munge.trees.traverse import get_leaf
     
 def load_ccgbank_tree(fn, deriv_no):
     for doc, i in izip(CCGbankReader(fn), count()):
         if i == deriv_no: return doc.derivation
     return None
-    
-def get_ccgbank_leaf(derivation, token_no, direction):
-    cur_token_no = 0
-    
-    if direction == "forwards":
-        for leaf in leaves(derivation):
-            if cur_token_no == token_no: return leaf
-            cur_token_no += 1
-            
-    else:
-        for leaf in leaves_reversed(derivation):
-            if cur_token_no == token_no: return leaf
-            cur_token_no += 1
-            
-    return None
+
 
 class TraceTests(unittest.TestCase):
     def testEquality(self):
@@ -58,7 +46,7 @@ class TraceTests(unittest.TestCase):
                              ["(S/NP)"   , "NP", False],
                              ["S", ".", False],
                              ["S", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["fwd_appl", "fwd_appl", "r_punct_absorb"], apps)
 
     
@@ -67,7 +55,7 @@ class TraceTests(unittest.TestCase):
                              ["NP", "S\\NP", True],
                              ["S",    ".", False],
                              ["S", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["bwd_appl", "bwd_appl", "r_punct_absorb"], apps)
 
     
@@ -75,7 +63,7 @@ class TraceTests(unittest.TestCase):
         catseq = self.build_seq([ ["NP", None, False],
                              ["S/(S\\NP)", ".", False],
                              ["S/(S\\NP)", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["fwd_raise", "r_punct_absorb"], apps)
 
     
@@ -83,7 +71,7 @@ class TraceTests(unittest.TestCase):
         catseq = self.build_seq([ ["NP", None, False],
                              ["S\\(S/NP)", ".", False],
                              ["S\\(S/NP)", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["bwd_raise", "r_punct_absorb"], apps)
 
     
@@ -92,7 +80,7 @@ class TraceTests(unittest.TestCase):
                              ["S/(S\\NP)", "(S\\NP)/NP", False],
                              ["S/NP", ".", False],
                              ["S/NP", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["fwd_raise", "fwd_comp", "r_punct_absorb"], apps)
 
     
@@ -102,7 +90,7 @@ class TraceTests(unittest.TestCase):
                              ["NP", "S\\NP", True],
                              ["S", ".", False],
                              ["S", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["bwd_raise", "bwd_appl", "bwd_appl", "r_punct_absorb"], apps)
 
     
@@ -110,7 +98,7 @@ class TraceTests(unittest.TestCase):
         catseq = self.build_seq([ ["NP", ".", False],
                              ["NP", ",", False],
                              ["NP", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["r_punct_absorb", "r_punct_absorb"], apps)
 
     
@@ -118,7 +106,7 @@ class TraceTests(unittest.TestCase):
         catseq = self.build_seq([ ["NP", ".", False],
                              [",", "NP", True],
                              ["NP", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["r_punct_absorb", "l_punct_absorb"], apps)
 
     
@@ -129,16 +117,16 @@ class TraceTests(unittest.TestCase):
                              ["S/VP", "VP/NP", True],
                              ["(N\\N)/(S/NP)", "S/NP", True],
                              ["N\\N", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["fwd_comp", "bwd_xsubst", "fwd_comp", "fwd_appl"], apps)
 
     
     def test_wsj0003_1(self):
         tree = load_ccgbank_tree("munge/tests/wsj_0003.auto", 0)
-        leaf = get_ccgbank_leaf(tree, 10, "forwards")
+        leaf = get_leaf(tree, 10, "forwards")
         
         self.assertEqual("filters", leaf.lex)
-        appls = [i for i in applications(leaf)]
+        appls = list(applications(leaf))
         
         self.assertEqual(["fwd_appl", "fwd_appl", "np_typechange", "fwd_appl", "fwd_appl",
                       "fwd_appl", "fwd_appl", "appositive_typechange", "bwd_appl",
@@ -147,10 +135,10 @@ class TraceTests(unittest.TestCase):
     
     def test_wsj0087_8(self):
         tree = load_ccgbank_tree("munge/tests/wsj_0087.auto", 7)
-        leaf = get_ccgbank_leaf(tree, 6, "backwards")
+        leaf = get_leaf(tree, 6, "backwards")
         
         self.assertEqual("to", leaf.lex)
-        appls = [i for i in applications(leaf)]
+        appls = list(applications(leaf))
         
         self.assertEqual(["fwd_appl", "conj_absorb", "conjoin", "bwd_appl", "fwd_appl",
                       "bwd_appl", "fwd_appl", "fwd_appl", "r_punct_absorb"], appls)
@@ -161,21 +149,21 @@ class TraceTests(unittest.TestCase):
         catseq = self.build_seq([ [";", "NP", False],
                              [";", "NP[conj]", True],
                              ["NP[conj]", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["conj_comma_absorb", "conj_comma_absorb"], apps)
 
     
     def test_punct_conj_with_existing_feature(self):
         catseq = self.build_seq([ [":", "PP[b]", False],
                              ["PP[b][conj]", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["conj_comma_absorb"], apps)
 
     
     def test_appositive_comma_absorb(self):
         catseq = self.build_seq([ [",", "NP", False ],
                              ["(S\\NP)\\(S\\NP)", None, False ]])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["appositive_comma_absorb"], apps)
 
     
@@ -183,20 +171,20 @@ class TraceTests(unittest.TestCase):
         catseq = self.build_seq([ ["NP[f]", "NP[conj]", False],
                              ["NP"   , "NP[conj]", False],
                              ["NP"   , None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["conjoin", "conjoin"], apps)
 
     
     def test_funny_conj(self):
         catseq = self.build_seq([ ["conj", "N", False],
                              ["N", None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual(["funny_conj"], apps)
 
     
     def assert_is_unary_conversion(self, frm, to, expect):
         catseq = self.build_seq([ [frm, None, False], [to, None, False] ])
-        apps = [i for i in applications_with_path(catseq)]
+        apps = list(applications_with_path(catseq))
         self.assertEqual([expect], apps)
 
     
@@ -216,7 +204,7 @@ class TraceTests(unittest.TestCase):
                              ["S",    ".", False],
                              ["S", None, False] ])
         
-        apps = [i for i in applications_per_slash_with_path(catseq, 3)]
+        apps = list(applications_per_slash_with_path(catseq, 3))
         self.assertEqual(["bwd_appl", # slash 0
                       "bwd_appl", # slash 1
                        None], apps)
@@ -228,7 +216,7 @@ class TraceTests(unittest.TestCase):
                              ["S/VP", "VP/NP", True],
                              ["(N\\N)/(S/NP)", "S/NP", True],
                              ["N\\N", None, False] ])
-        apps = [i for i in applications_per_slash_with_path(catseq, 2)]
+        apps = list(applications_per_slash_with_path(catseq, 2))
         self.assertEqual(["fwd_comp", # slash 0
                       None],#"bwd_xsubst"], # slash 1
                       apps)
@@ -241,7 +229,7 @@ class TraceTests(unittest.TestCase):
                              ["C/(D/(E/(F/G)))", "D/(E/(F/G))", False],
                              ["C", None, False] ])
         
-        apps = [i for i in applications_per_slash_with_path(catseq, 6)]
+        apps = list(applications_per_slash_with_path(catseq, 6))
         self.assertEqual(["fwd_comp",
                       "fwd_appl",
                       None,
@@ -256,7 +244,7 @@ class TraceTests(unittest.TestCase):
                              ["g/(g\\(((((a/b)/c)/d)/e)/f))", ",", False],
                              ["g/(g\\(((((a/b)/c)/d)/e)/f))", "g\\(((((a/b)/c)/d)/e)/f)", False],
                              ["g", None, False] ])
-        apps = [i for i in applications_per_slash_with_path(catseq, 5)]
+        apps = list(applications_per_slash_with_path(catseq, 5))
         self.assertEqual([ None, None, None, None, None
                      ], apps)
     
@@ -264,14 +252,14 @@ class TraceTests(unittest.TestCase):
     def test_by_slash4(self):
         catseq = self.build_seq([ ["a/b", None, False],
                              ["t/(t\\(a/b))", None, False] ])
-        apps = [i for i in applications_per_slash_with_path(catseq, 1)]
+        apps = list(applications_per_slash_with_path(catseq, 1))
         self.assertEqual([ None ], apps)
     
     
     def test_by_slash5(self):
         catseq = self.build_seq([ ["a/b", ",", False],
                              ["a/b", None, False] ])
-        apps = [i for i in applications_per_slash_with_path(catseq, 1)]
+        apps = list(applications_per_slash_with_path(catseq, 1))
         # Defines comma absorption as consuming the slash (although it doesn't)
         self.assertEqual([None], apps)
     
@@ -282,6 +270,6 @@ class TraceTests(unittest.TestCase):
                              ["(a\\b)/b", "b", False ],
                              ["b", "a\\b", True],
                              ["a", None, False] ])
-        apps = [i for i in applications_per_slash_with_path(catseq, 4)]
+        apps = list(applications_per_slash_with_path(catseq, 4))
         self.assertEqual([ "fwd_appl", "fwd_appl", "bwd_appl", None ], apps)
     

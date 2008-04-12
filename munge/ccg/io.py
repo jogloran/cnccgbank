@@ -20,6 +20,7 @@ class Derivation(object):
         This retrieves the section, document and derivation number from the header line,
         expecting it to be of the form 
         ID=wsj_SSDD.dd PARSER=GOLD NUMPARSE=1'''
+        
         matches = re.match(r'ID=wsj_(\d\d)(\d\d).(\d+) PARSER=GOLD NUMPARSE=1', header)
         if matches:
             if len(matches.groups()) != 3:

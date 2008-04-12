@@ -43,3 +43,17 @@ def text(deriv):
     '''Returns a list of the tokens at the leaves of a derivation.'''
     return [node.lex for node in leaves(deriv)]
 
+def get_leaf(derivation, token_index, direction="forwards"):
+    cur_index = 0
+
+    if direction == "forwards":
+        for leaf in leaves(derivation):
+            if cur_index == token_index: return leaf
+            cur_index += 1
+
+    else:
+        for leaf in leaves_reversed(derivation):
+            if cur_index == token_index: return leaf
+            cur_index += 1
+
+    return None
