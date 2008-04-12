@@ -12,7 +12,7 @@ class Derivation(object):
         
     def label(self): 
         '''Returns a label representing this derivation.'''
-        return "%2d:%2d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
         
 class PTBReader(object):
     '''An iterator over each derivation in a PTB document.'''

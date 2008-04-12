@@ -12,7 +12,7 @@ class Derivation(object):
         
     def label(self): 
         '''Returns a label representing this derivation.'''
-        return "%2d:%2d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
     
     @staticmethod
     def from_header_and_derivation(header, deriv_string):
