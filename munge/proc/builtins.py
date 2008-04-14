@@ -1,5 +1,7 @@
 import os
-from munge.proc.trace import Filter    
+from munge.proc.trace import Filter  
+  
+from munge.vis.dot import write_graph
 
 class WriteDOT(Filter):
     "Writes each derivation to a DOT file under the given directory."

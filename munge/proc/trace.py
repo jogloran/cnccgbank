@@ -8,7 +8,6 @@ from sets import Set
 from munge.io.guess import GuessReader
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
-from munge.vis.dot import write_graph
 
 from munge.util.err_utils import warn
 
