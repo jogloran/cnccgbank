@@ -15,7 +15,6 @@ from munge.util.err_utils import warn
 from exceptions import NotImplementedError
 
 from munge.proc.dynload import * # TODO: correct these
-from munge.proc.builtins import *
 
 BuiltInPackages = ['munge.proc.builtins']
 
@@ -81,6 +80,18 @@ def register_filter(option, opt_string, value, parser, *args, **kwargs):
             del rargs[0]
             
     parser.values.filters_to_run.append( (filter_name, filter_args) )
+    
+def test():
+    main('''-q -r ListCategoriesForLex the -0 /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0001.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0011.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0021.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0031.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0041.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0051.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0061.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0071.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0081.auto
+    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0091.auto'''.split())
 
 def main(argv):
     parser = OptionParser()
@@ -99,7 +110,8 @@ def main(argv):
     parser.add_option("-r", "--run", help="Runs a filter.", type='string', nargs=1,
                       action='callback', callback=register_filter)
                       
-    parser.add_option("-0", "--end", help="Dummy option to separate -r arguments from input arguments.")
+    parser.add_option("-0", "--end", help="Dummy option to separate -r arguments from input arguments.", 
+                      action='store_true')
     
     parser.add_option("-q", "--quiet", help="Suppress diagnostic messages.", 
                       action='store_false', dest='verbose')
@@ -116,16 +128,14 @@ def main(argv):
     
     if opts.do_list_filters:
         list_filters(available_filters_dict)
-    
+
     filters = []
     
-    filters_to_run = opts.filters_to_run # TODO: make filter instances from these and args
-    for filter_name, args in filters_to_run:
-        # TODO: handle key not in dict gracefully
-        filter_class = available_filters_dict[filter_name]
-        print filter_class
-        print args
-        filters.append(filter_class(*args))
+    # filters_to_run = opts.filters_to_run # TODO: make filter instances from these and args
+    # for filter_name, args in filters_to_run:
+    #     # TODO: handle key not in dict gracefully
+    #     filter_class = available_filters_dict[filter_name]
+    #     filters.append(filter_class(*args))
     
     for file in files:
         for derivation in GuessReader(file):
