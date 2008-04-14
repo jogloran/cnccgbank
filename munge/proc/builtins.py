@@ -1,3 +1,4 @@
+import os
 from munge.proc.trace import Filter    
 
 class WriteDOT(Filter):
