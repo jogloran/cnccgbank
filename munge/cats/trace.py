@@ -135,7 +135,7 @@ def try_substitution(l, r, cur, examine_modes=False):
     return None
 
 def try_composition_or_substitution(l, r, cur, examine_modes=False):
-    if l.is_compound() or r.is_compound() or cur.is_compound():
+    if l.is_compound() and r.is_compound() and cur.is_compound():
         return try_composition(l, r, cur, examine_modes) or \
                try_substitution(l, r, cur, examine_modes)
 
