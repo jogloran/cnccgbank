@@ -64,6 +64,7 @@ def list_filters(filters):
     for filter in filters:
         print filter
         
+# From Python Library Reference
 def register_filter(option, opt_string, value, parser, *args, **kwargs):
     filter_name = value
     filter_args = []
@@ -131,11 +132,11 @@ def main(argv):
 
     filters = []
     
-    # filters_to_run = opts.filters_to_run # TODO: make filter instances from these and args
-    # for filter_name, args in filters_to_run:
-    #     # TODO: handle key not in dict gracefully
-    #     filter_class = available_filters_dict[filter_name]
-    #     filters.append(filter_class(*args))
+    filters_to_run = opts.filters_to_run # TODO: make filter instances from these and args
+    for filter_name, args in filters_to_run:
+        # TODO: handle key not in dict gracefully
+        filter_class = available_filters_dict[filter_name]
+        filters.append(filter_class(*args))
     
     for file in files:
         for derivation in GuessReader(file):
