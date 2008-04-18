@@ -1,3 +1,4 @@
+from psyco import bind
 
 def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors=''):
     '''Returns an iterator yielding successive tokens from _str_ as split on three
@@ -58,3 +59,4 @@ def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors=''):
 
     return PressplitIterator(str, split_chars, skip_chars, suppressors)
 
+bind(preserving_split)

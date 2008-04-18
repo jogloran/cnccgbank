@@ -2,8 +2,6 @@ from copy import copy
 from munge.util.exceptions import CatParseException
 import re
 
-ShowModes = True
-
 BACKWARD, FORWARD = range(2)
 APPLY, ALL, COMP, NULL = range(4)
 
@@ -17,8 +15,8 @@ class AtomicCategory(object):
         '''Returns the concatenation of each feature in this category's feature set.'''
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def __repr__(self, first=True):
-        '''A (non-evaluable) representation of this category. Ignores its first argument
+    def __repr__(self, first=True, show_modes=True):
+        '''A (non-evaluable) representation of this category. Ignores both its arguments
         so it can be treated uniformly with ComplexCategory.'''
         return self.cat + self.feature_repr()
         
@@ -83,13 +81,14 @@ class ComplexCategory(object):
         '''Returns the concatenation of each feature in this category's feature set.'''
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def __repr__(self, first=True):
+    def __repr__(self, first=True, show_modes=True):
         '''A (non-evaluable) representation of this category.'''
-        return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
+        return "%(open)s%(lch)s%(slash)s%(label)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",
             'lch': self.left.__repr__(False),
             'slash': self.slash,
-            'mode': self.get_mode_symbol(self.mode) if ShowModes else "",
+            'label': self.label if self.is_labelled() else "",
+            'mode': self.get_mode_symbol(self.mode) if show_modes else "",
             'rch': self.right.__repr__(False),
             'close': "" if first else ")",
             'feats': self.feature_repr()

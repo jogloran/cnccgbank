@@ -13,7 +13,7 @@ from munge.util.err_utils import warn
 
 from exceptions import NotImplementedError
 
-from munge.proc.dynload import * # TODO: correct these
+from munge.proc.dynload import get_available_filters_dict, load_requested_packages, get_argcount_for_method
 
 BuiltInPackages = ['munge.proc.builtins']
 
@@ -35,10 +35,8 @@ class Filter(object):
         '''This is invoked by the framework after each derivation has been processed.'''
         pass
 
-    @property
-    def long_opt(): pass
-    @property
-    def opt(): raise NotImplementedError, "Filters must provide at least a short name."
+    long_opt = "??"
+    opt = "?"
     
     arg_names = ()
     
@@ -46,9 +44,9 @@ def add_filter_to_optparser(parser, filter):
     argcount = get_argcount_for_method(filter.__init__)
     
     opt_dict = {
-        'help': filter.__doc__,
-        'dest': filter.long_opt,
-        'metavar': filter.arg_names
+        'help': filter.__doc__,     # Help string is the filter docstring
+        'dest': filter.long_opt,    # Destination variable is the same as the long option name
+        'metavar': filter.arg_names # Metavar names are supplied by the filter
     }
     
     if argcount > 0:
@@ -59,11 +57,17 @@ def add_filter_to_optparser(parser, filter):
     
     parser.add_option("-" + filter.opt, "--" + filter.long_opt, **opt_dict)
     
-def list_filters(filters):
-    for filter in filters:
-        print filter
+def list_filters(modules_loaded, filters):
+    print "%d packages loaded (%s), %d filters available:" % (len(modules_loaded), 
+                                                              ", ".join(mod.__name__ for mod in modules_loaded),
+                                                              len(filters))
+    for (filter_name, filter) in filters.iteritems():
+        print "\t%s\n\t\t(%d args, -%s, --%s)" % (filter_name, 
+                                             get_argcount_for_method(filter.__init__), 
+                                             filter.opt, 
+                                             filter.long_opt)
         
-# From Python Library Reference
+# Adapted from Python Library Reference
 def register_filter(option, opt_string, value, parser, *args, **kwargs):
     filter_name = value
     filter_args = []
@@ -81,30 +85,9 @@ def register_filter(option, opt_string, value, parser, *args, **kwargs):
             
     parser.values.filters_to_run.append( (filter_name, filter_args) )
     
-def test():
-    main('''-q -r ListCategoriesForLex the -0 /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0001.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0011.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0021.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0031.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0041.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0051.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0061.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0071.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0081.auto
-    /Users/jogloran/Documents/Work/svn0/Honours/parse/AUTO/00/wsj_0091.auto'''.split())
-
-def main(argv):
-    parser = OptionParser()
-    
-    parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
-    
-    loaded_modules = load_requested_packages(BuiltInPackages)
-    available_filters_dict = get_available_filters_dict(loaded_modules)
-
-    for filter in available_filters_dict.values(): add_filter_to_optparser(parser, filter)
-    
+def register_builtin_switches(parser):
     parser.add_option("-l", "--load-package", help="Makes available all filters from the given package.",
-                      action='append', dest='packages')
+                      action='append', dest='packages', metavar="PKG")
     parser.add_option("-L", "--list-filters", help="Lists all loaded filters.",
                       action='store_true', dest='do_list_filters')
     parser.add_option("-r", "--run", help="Runs a filter.", type='string', nargs=1,
@@ -117,25 +100,46 @@ def main(argv):
                       action='store_false', dest='verbose')
     parser.add_option("-v", "--verbose", help="Print diagnostic messages.", 
                       action='store_true', dest='verbose')
-    # TODO: Add option which forces the choice of a given Guesser
+
+def main(argv):
+    parser = OptionParser()
+    parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
     
+    # Load built-in filters (those under BuiltInPackages)
+    loaded_modules = set(load_requested_packages(BuiltInPackages))
+    available_filters_dict = get_available_filters_dict(loaded_modules)
+
+    # Built-in filters are accessible as command line switches, and are visible in optparse help
+    for filter in available_filters_dict.values(): add_filter_to_optparser(parser, filter)
+    
+    # Load built-in optparse switches
+    register_builtin_switches(parser)
+    
+    # Perform option parse, check for user-requested filter classes
     opts, remaining_args = parser.parse_args(argv)
     
-    loaded_modules.extend( load_requested_packages(opts.packages) )
+    # Load user-requested filter classes
+    loaded_modules.update( load_requested_packages(opts.packages) )
     available_filters_dict.update( get_available_filters_dict(loaded_modules) )
     
+    # Take remaining arguments as input file names
     files = remaining_args[1:] # remaining_args[0] seems to be sys.argv[0]
     
+    # If switch -L was passed, dump out all available filter names and quit
     if opts.do_list_filters:
-        list_filters(available_filters_dict)
+        list_filters(loaded_modules, available_filters_dict)
+        sys.exit()
 
+    # Run requested filters
     filters = []
     
-    filters_to_run = opts.filters_to_run # TODO: make filter instances from these and args
+    filters_to_run = opts.filters_to_run
     for filter_name, args in filters_to_run:
-        # TODO: handle key not in dict gracefully
-        filter_class = available_filters_dict[filter_name]
-        filters.append(filter_class(*args))
+        try:
+            filter_class = available_filters_dict[filter_name]
+            filters.append(filter_class(*args))
+        except KeyError:
+            warn("No filter with name `%s' found." % filter_name)
     
     for file in files:
         for derivation in GuessReader(file):
@@ -155,4 +159,7 @@ def main(argv):
         filter.output()
     
 if __name__ == '__main__':
+    import psyco
+    psyco.full()
+
     main(sys.argv)
