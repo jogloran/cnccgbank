@@ -45,7 +45,6 @@ def applications_with_path(path):
         yield analyse(prev_l, prev_r, r if was_flipped else l)
         
 def applications_per_slash(node, examine_modes=False):
-    #print "** node %s" % node
     '''Returns a list of length _n_, the number of slashes in the category of _node_.
     Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
     return applications_per_slash_with_path(cloned_category_path_to_root(node),
@@ -53,9 +52,7 @@ def applications_per_slash(node, examine_modes=False):
                                             examine_modes)
 
 def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False):
-    #print "apps(orig, %s, %s)" % (slash_count, examine_modes)
     result = []
-#    #print list(orig_path)
 
     for slash in range(slash_count):
         consumer = None # the rule which consumed this slash, if any
@@ -64,11 +61,8 @@ def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False
         # We need to copy the path for each slash, because in each iteration we label
         # the categories in-place.
         orig_path, path = tee(orig_path, 2)
-#        #print list(orig_path)
-#        #print list(path)
         
         for (prev_l, prev_r, prev_was_flipped), (l, r, was_flipped) in each_pair(path):
-            #print "Considering (%s %s) (%s %s)" % (prev_l, prev_r, l, r)
             if first:
                 if prev_was_flipped and prev_r:
                     prev_r.labelled()
@@ -80,7 +74,6 @@ def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False
             prev_cur = prev_r if prev_was_flipped else prev_l
 
             rule = analyse(prev_l, prev_r, cur, examine_modes)
-            #print "[%s %s -> %s] %s" % (prev_l, prev_r, cur, rule)
             label_result(cur, prev_cur, rule, prev_was_flipped)
 
             if   rule == 'fwd_appl': consumed_category = prev_l
@@ -89,7 +82,6 @@ def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False
             else: consumed_category = None
 
             if consumed_category and consumed_category.label == slash:
-                #print "rule %s consumed slash %d" % (rule, slash)
                 consumer = rule
                 break
 
