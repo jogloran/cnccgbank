@@ -1,8 +1,12 @@
-import munge # Required to use the qualified name munge.proc.trace.Filter (just 'Filter' doesn't work)
 from types import TypeType
+
+import munge # Required to use the qualified name munge.proc.trace.Filter (just 'Filter' doesn't work)
 from munge.util.err_utils import warn
 
 def get_available_filters_dict(loaded_modules):
+    '''Given a list of module objects, returns a dictionary mapping from filter names to valid filter objects
+    found in that module's namespace.'''
+    
     filters_found = {}
     
     for module in loaded_modules:
@@ -18,6 +22,7 @@ def get_available_filters_dict(loaded_modules):
     return filters_found
 
 def load_requested_packages(module_names):
+    '''Tries to load each module named in _module_names_, returning an array of the loadable module objects.'''
     loaded_modules = []
     
     for module in module_names:
