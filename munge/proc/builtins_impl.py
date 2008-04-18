@@ -88,7 +88,7 @@ class NullModeCandidates(AcceptRejectWithThreshold):
     def __init__(self, threshold):
         AcceptRejectWithThreshold.__init__(self, threshold, (None,))
 
-    opt = "-Z"
+    opt = "Z"
     long_opt = "null-mode-cands"
 
     arg_names = "THR"
