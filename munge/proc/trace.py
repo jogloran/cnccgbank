@@ -133,6 +133,7 @@ def main(argv):
     # Run requested filters
     filters = []
     
+    # TODO: Currently built-in classes specified with a switch aren't being run
     filters_to_run = opts.filters_to_run
     for filter_name, args in filters_to_run:
         try:
