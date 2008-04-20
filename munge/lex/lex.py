@@ -88,6 +88,7 @@ class PressplitIterator(object):
             self.top = self.generator.next()
         except StopIteration: 
             self.top = None
+
         return previous_top
 
 def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=PressplitIterator):

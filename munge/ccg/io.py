@@ -13,6 +13,9 @@ class Derivation(object):
     def label(self): 
         '''Returns a label representing this derivation.'''
         return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        
+    def header(self):
+        return "ID=wsj_%02d%02d.%d PARSER=GOLD NUMPARSE=1" % (self.sec_no, self.doc_no, self.der_no)
     
     @staticmethod
     def from_header_and_derivation(header, deriv_string):
@@ -26,6 +29,7 @@ class Derivation(object):
             if len(matches.groups()) != 3:
                 raise CCGbankParseException, "Malformed CCGbank header: %s" % header
             sec_no, doc_no, der_no = [int(i) for i in matches.groups()]
+            print header
             
             derivation = parse_tree(deriv_string)
         

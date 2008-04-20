@@ -39,9 +39,30 @@ def leaves_reversed(deriv):
             for kid_node in leaves_reversed(kid):
                 yield kid_node
 
-def text(deriv):
+def text(deriv, pred=lambda e: True):
     '''Returns a list of the tokens at the leaves of a derivation.'''
-    return [node.lex for node in leaves(deriv)]
+    return [node.lex for node in leaves(deriv) if pred(node)]
+    
+import re
+def is_ignored(node, ignoring_quotes=True):
+    return (re.match(r'-?NONE-?', node.tag) or
+            (ignoring_quotes and
+                (re.match(r'^``?$', node.lex) or
+                (node.tag != "POS" and re.match(r"^''?", node.lex)))))
+    
+def text_without_quotes_or_traces(deriv):
+    return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=True))
+    
+def text_without_traces(deriv):
+    return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=False))
+
+from itertools import izip, count    
+def text_in_span(deriv, begin, end):
+    for leaf, cur_index in izip(leaves(deriv), count()):
+        if begin <= cur_index < end:
+            yield leaf.lex
+        elif cur_index >= end:
+            return
 
 def get_leaf(derivation, token_index, direction="forwards"):
     cur_index = 0

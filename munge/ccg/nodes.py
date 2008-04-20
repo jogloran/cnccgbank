@@ -1,13 +1,21 @@
 import re
+import copy
 
 class Node(object):
     '''Representation of a CCGbank internal node.'''
+    # We allow lch to be None to make easier the incremental construction of Node structures in
+    # the parser. Conventionally, lch can never be None.
     def __init__(self, cat, ind1, ind2, parent, lch=None, rch=None):
         self.cat = cat
         self.ind1, self.ind2 = ind1, ind2
         self.parent = parent
 
         self._lch, self._rch = lch, rch
+        
+        if self._lch:
+            self._lch.parent = self
+        if self._rch:
+            self._rch.parent = self
 
     def __repr__(self):
         return ("(<T %s %s %s> %s %s)" %
@@ -44,6 +52,14 @@ class Node(object):
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(str(self.cat))
+    
+    def leaf_count(self):
+        count = 1 + self._lch.leaf_count()
+        if self._rch: count += self._rch.leaf_count()
+        
+        return count
+        
+    def clone(self): return copy.copy(self)
 
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
@@ -70,3 +86,7 @@ class Leaf(object):
                
     def is_leaf(self): return True
     def label_text(self): return """%s '%s'""" % (re.escape(str(self.cat)), self.lex)
+    
+    def leaf_count(self): return 1
+    
+    def clone(self): return copy.copy(self)

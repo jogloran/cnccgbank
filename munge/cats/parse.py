@@ -60,6 +60,7 @@ def parse_compound(toks):
             
             # see if a mode symbol is present
             mode = None
+            # Derivation 5:95(15) is broken; there is a malformed category ((S[b]\NP)/NP)/
             if toks.peek() in ComplexCategory.mode_symbols:
                 mode = ComplexCategory.mode_symbols.find(toks.next())
 
