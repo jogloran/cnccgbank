@@ -1,3 +1,6 @@
+import re
+from itertools import izip, count
+
 def nodes(deriv):
     '''Preorder iterates over each node in a derivation.'''
     yield deriv
@@ -43,7 +46,6 @@ def text(deriv, pred=lambda e: True):
     '''Returns a list of the tokens at the leaves of a derivation.'''
     return [node.lex for node in leaves(deriv) if pred(node)]
     
-import re
 def is_ignored(node, ignoring_quotes=True):
     return (re.match(r'-?NONE-?', node.tag) or
             (ignoring_quotes and
@@ -55,8 +57,7 @@ def text_without_quotes_or_traces(deriv):
     
 def text_without_traces(deriv):
     return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=False))
-
-from itertools import izip, count    
+    
 def text_in_span(deriv, begin, end):
     for leaf, cur_index in izip(leaves(deriv), count()):
         if begin <= cur_index < end:

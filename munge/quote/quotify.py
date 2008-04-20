@@ -1,8 +1,5 @@
 from __future__ import with_statement
-
-import sys
-import re
-import os
+import sys, re, os
 
 from optparse import OptionParser
 from glob import glob
