@@ -12,6 +12,12 @@ from munge.util.err_utils import warn, info
 from munge.quote.span import SpanQuoter
 from munge.quote.shift import ShiftComma
 
+from munge.penn.io import PTBReader
+from munge.ccg.io import CCGbankReader
+from munge.ccg.deps_io import CCGbankDepsReader
+
+from munge.trees.traverse import text, text_without_quotes_or_traces, text_without_traces
+
 DefaultLogFile = "quote_error"
 
 def register_builtin_switches(parser):
@@ -62,9 +68,7 @@ def parse_requested_derivs(args):
             result.append( (sec, doc) )
             
     return result
-    
-from itertools import tee
-from munge.trees.traverse import text, text_without_quotes_or_traces, text_without_traces
+
 def match_trees(penn_trees, ccg_trees):
     cur_ptb_index = 0
     result = []
@@ -115,11 +119,7 @@ def fix_dependencies(dep, quote_indices):
         quote_indices = map(lambda e: e and e+1, quote_indices)
         
     return dep
-    
-from munge.penn.io import PTBReader
-from munge.ccg.io import CCGbankReader
-from munge.ccg.deps_io import CCGbankDepsReader
-from itertools import izip
+
 def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, quotes, quoter):
     with file(ccg_auto_out, 'w') as ccg_out:
         with file(ccg_parg_out, 'w') as parg_out:
