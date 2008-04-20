@@ -29,7 +29,6 @@ class Derivation(object):
             if len(matches.groups()) != 3:
                 raise CCGbankParseException, "Malformed CCGbank header: %s" % header
             sec_no, doc_no, der_no = [int(i) for i in matches.groups()]
-            print header
             
             derivation = parse_tree(deriv_string)
         

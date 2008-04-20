@@ -12,7 +12,7 @@ from munge.util.err_utils import warn, info
 from munge.quote.span import SpanQuoter
 from munge.quote.shift import ShiftComma
 
-DefaultLogFile = "quote_error#prints"
+DefaultLogFile = "quote_error"
 
 def register_builtin_switches(parser):
     parser.set_defaults(punct_method="shift",
@@ -136,7 +136,6 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     if not (span_start or span_end): continue
                     
                     info("Reinstating quotes to %s" % ccg_bundle.label())
-                    print (span_start, span_end)
                     
                     ccg_tree, quote_indices = quoter.attach_quotes(ccg_tree, span_start, span_end, higher, quotes)
                     dep = fix_dependencies(dep, quote_indices) # TODO: implement fix_dependencies
