@@ -5,7 +5,7 @@ from munge.util.err_utils import warn
 
 def get_available_filters_dict(loaded_modules):
     '''Given a list of module objects, returns a dictionary mapping from filter names to valid filter objects
-    found in that module's namespace.'''
+    found in those modules' namespaces.'''
     
     filters_found = {}
     
