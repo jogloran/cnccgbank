@@ -16,6 +16,9 @@ class Derivation(object):
         
     def header(self):
         return "ID=wsj_%02d%02d.%d PARSER=GOLD NUMPARSE=1" % (self.sec_no, self.doc_no, self.der_no)
+        
+    def __str__(self):
+        return '\n'.join((self.header(), str(self.derivation)))
     
     @staticmethod
     def from_header_and_derivation(header, deriv_string):

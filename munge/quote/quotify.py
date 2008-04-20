@@ -140,12 +140,8 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     ccg_tree, quote_indices = quoter.attach_quotes(ccg_tree, span_start, span_end, higher, quotes)
                     dep = fix_dependencies(dep, quote_indices) # TODO: implement fix_dependencies
                     
-                print >> parg_out, dep.header
-                print >> parg_out, '\n'.join(str(dep_row) for dep_row in dep) # TODO: Allow these to be written to file
-                print >> parg_out, r'<\s>'
-                
-                print >> ccg_out, ccg_bundle.header()
-                print >> ccg_out, ccg_tree
+                print >> parg_out, dep
+                print >> ccg_out, ccg_bundle
                 
     
 ptb_file_re = re.compile(r'(\d{2})/wsj_\d{2}(\d{2})\.mrg$')

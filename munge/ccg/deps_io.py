@@ -15,9 +15,10 @@ class Dep(object):
         self.dep_rows = dep_rows or []
     
     def __str__(self):
-        s = self.header
+        s = self.header + "\n"
         s += "\n".join(str(row) for row in self.dep_rows)
-        s += r'<\s>'
+        s += "\n<\\s>"
+        return s
         
     def append(self, row):
         self.dep_rows.append(row)
