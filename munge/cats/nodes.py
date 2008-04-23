@@ -61,11 +61,12 @@ class ComplexCategory(object):
     
     # Index i into mode_symbols references the mode with integer representation i.
     mode_symbols = "*.@-"
-    def get_mode_symbol(self, mode_index):
+    @staticmethod
+    def get_mode_symbol(mode_index):
         if mode_index is None: return '' # for when cat.mode is None
         
         try:
-            return self.mode_symbols[mode_index]
+            return ComplexCategory.mode_symbols[mode_index]
         except (IndexError, TypeError):
             raise CatParseException('Invalid mode index %s.' % mode_index)
 
@@ -83,13 +84,13 @@ class ComplexCategory(object):
 
     def __repr__(self, first=True, show_modes=True):
         '''A (non-evaluable) representation of this category.'''
-        return "%(open)s%(lch)s%(slash)s%(label)s%(mode)s%(rch)s%(close)s%(feats)s" % {
+        return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",
-            'lch': self.left.__repr__(False),
+            'lch': self.left.__repr__(False, show_modes),
             'slash': self.slash,
-            'label': self.label if self.is_labelled() else "",
-            'mode': self.get_mode_symbol(self.mode) if show_modes else "",
-            'rch': self.right.__repr__(False),
+          #  'label': self.label if self.is_labelled() else "",
+            'mode': ComplexCategory.get_mode_symbol(self.mode) if show_modes else "",
+            'rch': self.right.__repr__(False, show_modes),
             'close': "" if first else ")",
             'feats': self.feature_repr()
         }

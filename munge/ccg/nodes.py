@@ -20,7 +20,7 @@ class Node(object):
     def __repr__(self):
         return ("(<T %s %s %s> %s %s)" %
                 (self.cat, self.ind1, self.ind2,
-                 self.lch, self.rch or ''))
+                 self.lch, str(self.rch)+' ' if self.rch else ''))
 
     def __iter__(self):
         '''Iterates over each child of this node.'''

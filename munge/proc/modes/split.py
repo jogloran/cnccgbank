@@ -7,30 +7,113 @@ from munge.proc.trace import Filter
 from munge.proc.modes.treeop import percolate, ModeTier
 from munge.cats.parse import parse_category
 from munge.util.err_utils import warn, debug
+from munge.util.exceptions import FilterException
 from munge.util.list_utils import find
 from munge.cats.paths import applications_per_slash
 from munge.util.iter_utils import reject
+from munge.cats.nodes import APPLY, COMP, NULL, ALL
 
-class Subst(Filter):
+
+class DerivationOutput(object):    
+    def write_derivation(self, deriv, output_dir):
+        output_path = os.path.join(output_dir, 'AUTO', "%02d" % deriv.sec_no)
+        if not os.path.exists(output_path): os.makedirs(output_path)
+
+        output_filename = os.path.join(output_path, "wsj_%02d%02d.auto" % (deriv.sec_no, deriv.doc_no))
+        # TODO: write PARG too (for this filter it would suffice to copy them unchanged)
+        #print output_filename
+        with file(output_filename, 'a') as output_file:
+            print >> output_file, deriv.header()
+            print >> output_file, deriv.derivation
+
+class Subst(DerivationOutput, Filter):
     '''Substitutes categories based on a map.'''
-    def __init__(self, substs):
+    def __init__(self, substs, output_dir):
         # substs maps from the _name_ of each old category to its replacement category _object_.
         self.substs = substs
+        self.output_dir = output_dir
         
     def accept_leaf(self, leaf):
-        cat_string_without_modes = str(leaf.cat, show_modes=False) # Hide modes
+        cat_string_without_modes = leaf.cat.__repr__(show_modes=False) # Hide modes
         if cat_string_without_modes in self.substs:
+            debug("Substituting %s with %s", cat_string_without_modes, self.substs[cat_string_without_modes])
             leaf.cat = self.substs[cat_string_without_modes]
     
     def accept_derivation(self, deriv):
         percolate(deriv.derivation)
+        self.write_derivation(deriv, self.output_dir)
         
     opt = "s"
     long_opt = "subst"
     
-    arg_names = "FILE"
+    arg_names = "SUBSTS,OUTDIR"
+    
+class SubstFromAnnotatorFile(Filter):
+    '''Performs category substitution given an annotator file.'''
+    def __init__(self, anno_filename, output_dir):
+        self.anno_filename = anno_filename
+        self.substs = self.process_annotator_into_substs(anno_filename)
+        self.output_dir = output_dir
         
-class AssignModeSplit(Filter):
+        self.filter = Subst(self.substs, self.output_dir)
+        
+    def accept_leaf(self, leaf):
+        self.filter.accept_leaf(leaf)
+        
+    def accept_derivation(self, deriv):
+        self.filter.accept_derivation(deriv)
+        
+    mode_string_map = {
+        "null": NULL,
+        "apply": APPLY,
+        "comp": COMP,
+        "all": ALL
+    }
+    def mode_string_to_index(self, mode_string):
+        if mode_string not in self.mode_string_map:
+            raise FilterException, "Invalid mode string %s encountered in annotator file." % mode_string
+        
+        return self.mode_string_map[mode_string]
+        
+    def process_annotator_into_substs(self, fn):
+        substs = {}
+        
+        slashes = defaultdict(set)
+        with file(fn, 'r') as f:
+            for (line, lineno) in izip(f, count()):
+                line = line.rstrip()
+                
+                fields = line.split()
+                if len(fields) != 3:
+                    raise FilterException, ("Missing field at line %d of annotator file %s." 
+                                            % (lineno, self.anno_filename))
+                                            
+                category_string, replacement_mode_string, slash_index = fields
+                debug("Slash %s of %s goes to %s=%d" % (slash_index, re.sub(r'[-.*@]', '', category_string), replacement_mode_string,self.mode_string_to_index(replacement_mode_string)))
+                slashes[re.sub(r'[-.*@]', '', category_string)].add(
+                                        ( int(slash_index), self.mode_string_to_index(replacement_mode_string) ))
+                
+            for (category_string, replacements) in slashes.iteritems():
+                moded_category = parse_category(category_string)
+                moded_category.labelled()
+                
+                for (subcategory, slash_index) in moded_category.slashes():
+                    result = find(lambda (index, mode): index == slash_index, replacements)
+                    if result:
+                        replacement_slash, replacement_mode = result
+                        debug("Setting mode of slash %s of %s to %s", slash_index, moded_category, replacement_mode)
+                        subcategory.mode = replacement_mode
+                        
+                substs[category_string] = moded_category
+        
+        return substs
+                    
+    opt = "F"
+    long_opt = "subst-from-anno"
+    
+    arg_names = "ANNO,OUTDIR"
+        
+class AssignModeSplit(DerivationOutput, Filter):
     '''Implements mode splitting, where modes are weakened to the minimum necessary to maintain the
     correctness of existing derivations.'''
     def load_splitdef_file(self, splitdef_file):
@@ -52,7 +135,7 @@ class AssignModeSplit(Filter):
                     cats_to_split.append( (parse_category(cat), int(slash)) )
                 else:
                     old, new = line.split()
-                    old = re.sub(r'[@*-]', '', old)
+                    old = re.sub(r'[-.*@]', '', old)
                     
                     permitted_cats[old].append( parse_category(new) )
         
@@ -83,7 +166,7 @@ class AssignModeSplit(Filter):
         return result
         
     def fix_cat_for(self, leaf, slash_index, mode):
-        key_category = re.sub(r'[@*-.]', '', str(leaf.cat))
+        key_category = re.sub(r'[-.*@]', '', str(leaf.cat))
         if not (key_category in self.permitted_cats):
             warn("No entry in splitdef file for category %s" % str(leaf.cat))
             return
@@ -125,31 +208,21 @@ class AssignModeSplit(Filter):
         try:
             appl = appls[slash_index]
             if str(appl).endswith('comp'):
-                if self.mode_on_slash(leaf.cat, slash_index) != "comp":
+                if self.mode_on_slash(leaf.cat, slash_index) != COMP:
                     self.fix_cat_for(leaf, slash_index, "comp")
                     
             elif str(appl).endswith('appl'):
-                if self.mode_on_slash(leaf.cat, slash_index) != "apply":
+                if self.mode_on_slash(leaf.cat, slash_index) != APPLY:
                     self.fix_cat_for(leaf, slash_index, "apply")
                     
         except IndexError:
             pass
-            
-    def write_derivation(self, deriv, output_dir):
-        output_path = os.path.join(output_dir, 'AUTO', "%02d" % deriv.sec_no)
-        if not os.path.exists(output_path): os.makedirs(output_path)
-            
-        output_filename = os.path.join(output_path, "wsj_%02d%02d.auto" % (deriv.sec_no, deriv.doc_no))
-        # TODO: write PARG too (for this filter it would suffice to copy them unchanged)
-        #print output_filename
-        with file(output_filename, 'a') as output_file:
-            print >> output_file, deriv.header()
-            print >> output_file, deriv.derivation
         
+    
     def accept_derivation(self, deriv):
         percolate(deriv.derivation)
         self.write_derivation(deriv, self.output_dir)
-        
+                
     opt = "S"
     long_opt = "split"
     

@@ -1,7 +1,10 @@
 from __future__ import with_statement
 
+import re
+
 from munge.proc.trace import Filter
 from munge.proc.bases import AnnotatorFormReporter, AcceptRejectWithThreshold
+from munge.util.err_utils import debug
 
 from collections import defaultdict
 
@@ -38,8 +41,9 @@ and composition mode candidates (determined manually).'''
         
         with file(manual_fn, 'r') as f:
             for line in f:
-                line.rstrip()
+                line = line.rstrip()
                 category, replacement_mode_name, slash_index = line.split()
+                slash_index = int(slash_index)
                 # TODO: check no of fields
                 
                 result[category][slash_index] = replacement_mode_name
@@ -54,18 +58,32 @@ and composition mode candidates (determined manually).'''
         appl_accepted, _ = self.appl_only_filter.compute_accepts_and_rejects()
         null_accepted, _ = self.null_only_filter.compute_accepts_and_rejects()
         
+        # TODO: Make sure that, for example, if ApplicationModeAnnotator says that
+        # the slash of N/N should get *, and a manual file says it should get @,
+        # we prefer the manual file, so we can let our intuition override the
+        # frequency-based analysis.
+        
         # Start by collecting the manually annotated slashes from the file
         aggregate = self.parse_annoform(self.manual_fn)
 
-        for (set, mode_name) in ( (appl_accepted, 'appl'), (null_accepted, 'null') ):
-            for (cat, slash_index, applied_frequency, total_frequency) in \
+        for (set, mode_name) in ( (appl_accepted, 'apply'), (null_accepted, 'null') ):
+            for (cat_string, slash_index, applied_frequency, total_frequency) in \
                 sorted(set, key=lambda this: this[2], reverse=True):
                 
-                aggregate[cat][slash_index] = mode_name
+#                 aggregate[re.sub(r'[-*@.]', '', cat_string)][slash_index] = mode_name
+                # If there is a slash-mode entry in _aggregate_ already (from the manual list),
+                # do not overwrite it.
+                slash_to_mode_map = aggregate[re.sub(r'[-*@.]', '', cat_string)]
+                if slash_index not in slash_to_mode_map:
+                    debug("Slash %d of %s will have mode %s", slash_index, cat_string, mode_name)
+                    slash_to_mode_map[slash_index] = mode_name
+                else:
+                    debug("Not overwriting slash %d of %s", slash_index, cat_string)
                 
-        for (category, slashes) in aggregate.iteritems():
-            for (slash_index, mode) in slashes.iteritems():
-                print " ".join((category, mode, str(slash_index)))
+        for (category_string, slashes) in aggregate.iteritems():
+            for (slash_index, mode_name) in slashes.iteritems():
+                print " ".join((category_string, mode_name, str(slash_index)))
+                
                 
     opt = "V"
     long_opt = "make-annotator"
