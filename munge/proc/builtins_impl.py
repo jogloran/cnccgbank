@@ -83,9 +83,9 @@ class CollectExamples(CountWordFrequencyByCategory):
     
     arg_names = "N"
     
-# Do not change the order of inheritance; this would change the resolution order for output.
+# Do not change the order of inheritance; this would change the resolution order for output().
 class NullModeCandidates(AcceptRejectReporter, AcceptRejectWithThreshold):
-    '''Thresholding filter which processes candidates for the null mode (those reported as consumed by 'None').'''
+    '''Thresholding filter for the null mode (those reported as consumed by 'None').'''
     def __init__(self, threshold):
         AcceptRejectWithThreshold.__init__(self, threshold, (None,))
 
@@ -94,7 +94,9 @@ class NullModeCandidates(AcceptRejectReporter, AcceptRejectWithThreshold):
 
     arg_names = "THR"
 
+# Do not change the order of inheritance; this would change the resolution order for output().
 class ApplicationModeCandidates(AcceptRejectReporter, AcceptRejectWithThreshold):
+    '''Thresholding filter for the application-only mode.'''
     def __init__(self, threshold):
         AcceptRejectWithThreshold.__init__(self, threshold, ("fwd_appl", "bwd_appl"))
         

@@ -11,9 +11,10 @@ from munge.util.list_utils import find
 from munge.cats.paths import applications_per_slash
 from munge.util.iter_utils import reject
 
-class SubstituteAtLeaves(Filter):
+class Subst(Filter):
+    '''Substitutes categories based on a map.'''
     def __init__(self, substs):
-        # substs maps from the _name_ of the old category to its replacement category _object_.
+        # substs maps from the _name_ of each old category to its replacement category _object_.
         self.substs = substs
         
     def accept_leaf(self, leaf):
@@ -25,7 +26,7 @@ class SubstituteAtLeaves(Filter):
         percolate(deriv.derivation)
         
     opt = "s"
-    long_opt = "subst-file"
+    long_opt = "subst"
     
     arg_names = "FILE"
         
