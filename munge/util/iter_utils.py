@@ -13,3 +13,8 @@ def flatten(seq):
                 yield subelement
         else:
             yield element
+            
+def reject(orig_seq, pred):
+    orig_seq, seq = tee(orig_seq, 2)
+    
+    return (element for element in seq if not pred(element))

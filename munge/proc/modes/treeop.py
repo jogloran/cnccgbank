@@ -1,8 +1,11 @@
+from munge.cats.nodes import NULL, APPLY, COMP, ALL
+from munge.cats.trace import analyse
+
 ModeTier = {
-    "null": 0, 
-    "apply": 1,
-    "comp": 2, 
-    "all": 2
+    NULL: 0, 
+    APPLY: 1,
+    COMP: 2, 
+    ALL: 2
 }
 
 def mode_min(m1, m2):

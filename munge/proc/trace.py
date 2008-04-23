@@ -15,7 +15,7 @@ from exceptions import NotImplementedError
 
 from munge.proc.dynload import get_available_filters_dict, load_requested_packages, get_argcount_for_method
 
-BuiltInPackages = ['munge.proc.builtins']
+BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno']
 
 class Filter(object):
     '''Every filter extends this class, which defines `don't care' implementations of the four hook
@@ -38,7 +38,15 @@ class Filter(object):
     long_opt = "??"
     opt = "?"
     
-    arg_names = ()
+    arg_names = ''
+    
+def run_builtin_filter(option, opt_string, value, parser, *args, **kwargs):
+    filter_class_name = args[0]
+    if not isinstance(value, (list, tuple)):
+        value = (value, )
+        
+    parser.values.filters_to_run.append( (filter_class_name, value) )
+    
     
 def add_filter_to_optparser(parser, filter):
     argcount = get_argcount_for_method(filter.__init__)
@@ -46,14 +54,15 @@ def add_filter_to_optparser(parser, filter):
     opt_dict = {
         'help': filter.__doc__,     # Help string is the filter docstring
         'dest': filter.long_opt,    # Destination variable is the same as the long option name
-        'metavar': filter.arg_names # Metavar names are supplied by the filter
+        'metavar': filter.arg_names,# Metavar names are supplied by the filter
+        'action': 'callback',
+        'callback': run_builtin_filter,
+        'callback_args': (filter.__name__, ) # Pass in the filter's class name
     }
     
     if argcount > 0:
-        opt_dict['action'] = 'store'
         opt_dict['nargs'] = argcount
-    else:
-        opt_dict['action'] = 'store_true'
+        opt_dict['type'] = 'string'
     
     parser.add_option("-" + filter.opt, "--" + filter.long_opt, **opt_dict)
     
@@ -61,11 +70,12 @@ def list_filters(modules_loaded, filters):
     print "%d packages loaded (%s), %d filters available:" % (len(modules_loaded), 
                                                               ", ".join(mod.__name__ for mod in modules_loaded),
                                                               len(filters))
-    for (filter_name, filter) in filters.iteritems():
-        print "\t%s\n\t\t(%d args, -%s, --%s)" % (filter_name, 
+    for (filter_name, filter) in sorted(filters.iteritems(), key=lambda (name, filter): name):
+        print "\t%s\n\t\t(%d args, -%s, --%s%s)" % (filter_name, 
                                              get_argcount_for_method(filter.__init__), 
                                              filter.opt, 
-                                             filter.long_opt)
+                                             filter.long_opt,
+                                             (' '+filter.arg_names) if filter.arg_names else '')
         
 # Adapted from Python Library Reference
 def register_filter(option, opt_string, value, parser, *args, **kwargs):
@@ -102,7 +112,7 @@ def register_builtin_switches(parser):
                       action='store_true', dest='verbose')
 
 def main(argv):
-    parser = OptionParser()
+    parser = OptionParser(conflict_handler='resolve')
     parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
     
     # Load built-in filters (those under BuiltInPackages)
@@ -117,6 +127,8 @@ def main(argv):
     
     # Perform option parse, check for user-requested filter classes
     opts, remaining_args = parser.parse_args(argv)
+    # Done with parser
+    parser.destroy()
     
     # Load user-requested filter classes
     loaded_modules.update( load_requested_packages(opts.packages) )
@@ -133,9 +145,10 @@ def main(argv):
     # Run requested filters
     filters = []
     
-    # TODO: Currently built-in classes specified with a switch aren't being run
     filters_to_run = opts.filters_to_run
     for filter_name, args in filters_to_run:
+        if not args: args = ()
+
         try:
             filter_class = available_filters_dict[filter_name]
             filters.append(filter_class(*args))

@@ -60,6 +60,7 @@ class AcceptRejectWithThreshold(CountRuleFrequencyBySlash):
         
         return accepted, rejected
     
+class AcceptRejectReporter(object):
     def output(self):
         accepted, rejected = self.compute_accepts_and_rejects()
 
@@ -71,3 +72,12 @@ class AcceptRejectWithThreshold(CountRuleFrequencyBySlash):
                 print "% 60s | %2d | %5d /%5d (%3.2f%%) " % (cat, slash_index, applied_frequency, total_frequency, percentage)
             print "-" * 100
         
+class AnnotatorFormReporter(object):
+    def output(self):
+        appl_only, rejected = self.compute_accepts_and_rejects()
+        
+        for (cat, slash_index, applied_frequency, total_frequency) in \
+             sorted(set, key=lambda this: this[2], reverse=True):
+             
+             print " ".join(cat, slash_index)
+             

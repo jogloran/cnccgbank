@@ -1,7 +1,11 @@
 import os
 from munge.proc.trace import Filter  
-  
+
 from munge.vis.dot import write_graph
+from munge.util.dict_utils import CountDict
+from munge.cats.paths import applications  
+from munge.proc.bases import CountWordFrequencyByCategory
+from munge.proc.bases import AcceptRejectWithThreshold, AcceptRejectReporter
 
 class WriteDOT(Filter):
     "Writes each derivation to a DOT file under the given directory."
@@ -45,8 +49,6 @@ class ListCategoriesForLex(Filter):
     
     arg_names = "LEX"
         
-from munge.util.dict_utils import CountDict
-from munge.cats.paths import applications  
 class CombinatorCounter(Filter):
     "Gives the frequency with which each combinator has been used."
     def __init__(self):
@@ -64,7 +66,6 @@ class CombinatorCounter(Filter):
     opt = "m"
     long_opt = "count-combinators"
 
-from munge.proc.bases import CountWordFrequencyByCategory
 class CollectExamples(CountWordFrequencyByCategory):
     def __init__(self, example_count):
         CountWordFrequencyByCategory.__init__(self)
@@ -82,22 +83,22 @@ class CollectExamples(CountWordFrequencyByCategory):
     
     arg_names = "N"
     
-from munge.proc.bases import AcceptRejectWithThreshold
-class NullModeCandidates(AcceptRejectWithThreshold):
+# Do not change the order of inheritance; this would change the resolution order for output.
+class NullModeCandidates(AcceptRejectReporter, AcceptRejectWithThreshold):
     '''Thresholding filter which processes candidates for the null mode (those reported as consumed by 'None').'''
     def __init__(self, threshold):
         AcceptRejectWithThreshold.__init__(self, threshold, (None,))
 
-    opt = "Z"
-    long_opt = "null-mode-cands"
+    opt = "z"
+    long_opt = "list-null-mode-cands"
 
     arg_names = "THR"
 
-class ApplicationModeCandidates(AcceptRejectWithThreshold):
+class ApplicationModeCandidates(AcceptRejectReporter, AcceptRejectWithThreshold):
     def __init__(self, threshold):
         AcceptRejectWithThreshold.__init__(self, threshold, ("fwd_appl", "bwd_appl"))
-
+        
     opt = "a"
-    long_opt = "appl-mode-cands"
+    long_opt = "list-appl-mode-cands"
 
     arg_names = "THR"

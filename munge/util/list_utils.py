@@ -14,3 +14,9 @@ def is_sublist(smaller, larger):
         if larger[start:(start+m)] == smaller: return True
         
     return False
+    
+def find(pred, l):
+    for e in l:
+        if pred(e): return e
+        
+    return None

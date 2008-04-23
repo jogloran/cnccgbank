@@ -62,7 +62,7 @@ class ComplexCategory(object):
     # Index i into mode_symbols references the mode with integer representation i.
     mode_symbols = "*.@-"
     def get_mode_symbol(self, mode_index):
-        if not mode_index: return '' # for when cat.mode is None
+        if mode_index is None: return '' # for when cat.mode is None
         
         try:
             return self.mode_symbols[mode_index]
@@ -142,6 +142,14 @@ class ComplexCategory(object):
         yield self.left
         yield self.right
         
+    def slashes(self):
+        yield (self, self.label)
+        
+        for child in (self.left, self.right):
+            if child.is_compound():
+                for (node, slash_index) in child.slashes(): 
+                    yield (node, slash_index)
+                        
     def nested_compound_categories(self):
         return ([self] + 
                  self.left.nested_compound_categories() + 

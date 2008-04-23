@@ -44,7 +44,7 @@ class CCGbankDepsReader(object):
                 state = IN_DERIV
                 cur.header = line
                 
-            elif line.startswith(r'<\s>'):
+            elif line.startswith(r'<\s'):
                 state = OUTSIDE_DERIV
                 yield cur
                 

@@ -60,10 +60,11 @@ def parse_compound(toks):
             
             # see if a mode symbol is present
             mode = None
-            # Derivation 5:95(15) is broken; there is a malformed category ((S[b]\NP)/NP)/
+            # Derivation 5:95(15) is broken; there are two instances of malformed categories:
+            # ((S[b]\NP)/NP)/ with lexical items 'own' and 'keep'.
             if toks.peek() in ComplexCategory.mode_symbols:
                 mode = ComplexCategory.mode_symbols.find(toks.next())
-
+                
             if toks.peek() == '(':
                 toks.next()
 
@@ -77,7 +78,7 @@ def parse_compound(toks):
             else:
                 right = parse_atom(toks)
 
-            return ComplexCategory(left, dir, right, mode or DefaultMode) # TODO: add mode recognition here
+            return ComplexCategory(left, dir, right, DefaultMode if (mode is None) else mode) # TODO: add mode recognition here
 
         else: return left
 
@@ -105,6 +106,6 @@ def parse_compound(toks):
             else:
                 right = parse_atom(toks)
 
-            return ComplexCategory(left, dir, right, mode or DefaultMode)
+            return ComplexCategory(left, dir, right, DefaultMode if (mode is None) else mode)
 
         else: return left
