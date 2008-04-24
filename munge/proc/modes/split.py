@@ -14,14 +14,14 @@ from munge.util.iter_utils import reject
 from munge.cats.nodes import APPLY, COMP, NULL, ALL
 
 
-class DerivationOutput(object):    
+class DerivationOutput(object):
+    '''Mix-in which writes each derivation to a file.'''   
     def write_derivation(self, deriv, output_dir):
         output_path = os.path.join(output_dir, 'AUTO', "%02d" % deriv.sec_no)
         if not os.path.exists(output_path): os.makedirs(output_path)
 
         output_filename = os.path.join(output_path, "wsj_%02d%02d.auto" % (deriv.sec_no, deriv.doc_no))
         # TODO: write PARG too (for this filter it would suffice to copy them unchanged)
-        #print output_filename
         with file(output_filename, 'a') as output_file:
             print >> output_file, deriv.header()
             print >> output_file, deriv.derivation
@@ -114,8 +114,7 @@ class SubstFromAnnotatorFile(Filter):
     arg_names = "ANNO,OUTDIR"
         
 class AssignModeSplit(DerivationOutput, Filter):
-    '''Implements mode splitting, where modes are weakened to the minimum necessary to maintain the
-    correctness of existing derivations.'''
+    '''Implements mode splitting, weakening modes as much as possible while maintaining existing analyses.'''
     def load_splitdef_file(self, splitdef_file):
         cats_to_split = []
         permitted_cats = defaultdict(list)
