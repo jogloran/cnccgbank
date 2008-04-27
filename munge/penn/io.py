@@ -40,5 +40,6 @@ class PTBReader(object):
         
     def __iter__(self):
         '''Yields an iterator over this document.'''
-        for deriv, der_no in izip(self.derivs, count()):
+        # Number derivations starting from 1, in common with CCGbank IDs
+        for deriv, der_no in izip(self.derivs, count(1)):
             yield Derivation(self.sec_no, self.doc_no, der_no, deriv)
