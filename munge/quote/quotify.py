@@ -4,7 +4,7 @@ import sys, re, os
 from optparse import OptionParser
 from glob import glob
 
-from munge.util.err_utils import warn, info
+from munge.util.err_utils import warn, info, err
 
 from munge.quote.span import SpanQuoter
 from munge.quote.shift import ShiftComma
@@ -46,7 +46,27 @@ def register_builtin_switches(parser):
     parser.add_option("--log", help="Log derivations which cause problems to a file", dest="logfile", metavar="FILE")
     parser.add_option("-q", "--quiet", help="Produce less output", action="store_true", dest="quiet")
     
+# required_args maps the name of the 'dest' variable of each required option to a summary of its switches (this text is
+# shown to the user)
+required_args = {
+    "penn_in": "-i (--penn-in)",
+    "ccg_in" : "-I (--ccgbank-in)",
+    "outdir" : "-o (--output)"
+}
+def check_for_required_args(opts):
+    '''Ensures that the required arguments are all present, and notifies the user as to which of them are not.'''
+    arg_missing = False
+    for (required_arg, arg_switches) in required_args.iteritems():
+        if getattr(opts, required_arg, None) is None:
+            err("Argument %s is mandatory.", arg_switches)
+            arg_missing = True
+
+    if arg_missing:
+        sys.exit(1)
+            
 def fix_secdoc_string(secdoc):
+    '''Given a section/document specifier of the form S:D, where S or D may be absent, returns a specifier string
+with S and D padded by a zero to 2 digits if necessary, or with an absent S or D component replaced by an asterisk.'''
     if secdoc is None:
         return '*'
     if len(secdoc) == 1:
@@ -55,6 +75,7 @@ def fix_secdoc_string(secdoc):
     
 deriv_re = re.compile(r'([*\d]+)?:([*\d]+)?')
 def parse_requested_derivs(args):
+    '''Makes each section/document specifier canonical using fix_secdoc_string.'''
     result = []
     
     for arg in args:
@@ -67,6 +88,8 @@ def parse_requested_derivs(args):
     return result
 
 def match_trees(penn_trees, ccg_trees):
+    '''Given two lists, of PTB and CCGbank trees which we believe to belong to the same document file, this removes
+those PTB trees which do not correspond to any CCGbank tree.'''
     cur_ptb_index = 0
     result = []
     
@@ -94,12 +117,19 @@ def match_trees(penn_trees, ccg_trees):
             
 from munge.util.list_utils import first_index_such_that, last_index_such_that
 def spans(ptb_tree):
+    '''Returns a sequence of tuples (B, E), where the Bth token from the start, and the Eth token from the end
+of the given PTB derivation span a quoted portion of the text.'''
+    # This is implemented as returning a sequence for generality: our naive implementation only ever locates a
+    # single (outermost) span of quoted text, so this implementation only ever returns a sequence of at most one
+    # tuple. A smarter implementation would handle and identify nested quotes, as well as multiple spans.
     ptb_tokens = text_without_traces(ptb_tree)
 
     yield (first_index_such_that(lambda e: e in ("``", "`"), ptb_tokens),
            first_index_such_that(lambda e: e in ("''", "'"), reversed(ptb_tokens)))
            
 def fix_dependency(dep, quote_index):
+    '''Updates the dependency data to accommodate the insertion of a new leaf at a given index. This means that
+every index to the right of the newly inserted node must be incremented.'''
     for dep_row in dep:
         if quote_index >= dep_row.fields[0]:
             dep_row.fields[0] += 1
@@ -109,6 +139,8 @@ def fix_dependency(dep, quote_index):
     return dep
            
 def fix_dependencies(dep, quote_indices):
+    '''Updates the dependency data to accommodate the insertion of an open and/or close quote node, given the indices
+at which each occurs.'''
     open_quote_index, close_quote_index = quote_indices
     
     if open_quote_index:
@@ -118,7 +150,7 @@ def fix_dependencies(dep, quote_indices):
         dep = fix_dependency(dep, close_quote_index + 1)
         quote_indices = map(lambda e: e and e+1, quote_indices)
         
-    return dep
+    return dep 
 
 def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, quotes, quoter):
     with file(ccg_auto_out, 'w') as ccg_out:
@@ -142,7 +174,6 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     
                 print >> parg_out, dep
                 print >> ccg_out, ccg_bundle
-                
     
 ptb_file_re = re.compile(r'(\d{2})/wsj_\d{2}(\d{2})\.mrg$')
 def main(argv):
@@ -150,6 +181,8 @@ def main(argv):
 
     register_builtin_switches(parser)                        
     opts, args = parser.parse_args(argv)
+    
+    check_for_required_args(opts)
     
     quoter_class = {
         'span': SpanQuoter,
@@ -163,6 +196,10 @@ def main(argv):
     quoter = quoter_class(punct_class)
     
     remaining_args = args[1:]
+    if not remaining_args:
+        # If no sec/doc specifiers are given, assume 'all sections all documents'
+        remaining_args.append(':')
+        
     ptb_files_spec = parse_requested_derivs(remaining_args)
     
     for sec_glob, doc_glob in ptb_files_spec:

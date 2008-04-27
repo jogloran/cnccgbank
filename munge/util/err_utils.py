@@ -4,6 +4,9 @@ import time
 def stream_report(stream, preface, msg, *fmts):
     print >> stream, "%s: %s" % (preface, (msg % fmts))
     
+def err(msg, *fmts):
+    stream_report(sys.stderr, "error", msg, *fmts)
+    
 def warn(msg, *fmts):
     stream_report(sys.stderr, "warning", msg, *fmts)
     
