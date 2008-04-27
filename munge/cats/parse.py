@@ -14,6 +14,7 @@ def parse_category(cat_string):
 
     result = parse_compound(toks)
     if toks.peek() is not None:
+        print list(toks)
         raise CatParseException, "Tokens at end of input while parsing category %s." % cat_string
 
     return result

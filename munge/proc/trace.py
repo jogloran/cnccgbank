@@ -147,8 +147,8 @@ def main(argv):
     
     filters_to_run = opts.filters_to_run
     for filter_name, args in filters_to_run:
-        if not args: args = ()
-
+        if args[0] is None: args = ()
+        
         try:
             filter_class = available_filters_dict[filter_name]
             filters.append(filter_class(*args))

@@ -35,13 +35,16 @@ class AtomicCategory(object):
 
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
-        if not isinstance(other, AtomicCategory): return False
+#        if self is other: return True
+        if not other.is_leaf(): return False
+        
         return (self == other and
                 self.features == other.features)
 
     def __eq__(self, other):
         '''Determines if this category is equal to another, without inspecting any features.'''
-        if not isinstance(other, AtomicCategory): return False
+#        if self is other: return True
+        if not other.is_leaf(): return False
         return self.cat == other.cat
 
     def labelled(self, index=0): return index
@@ -110,7 +113,8 @@ class ComplexCategory(object):
 
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
-        if not isinstance(other, ComplexCategory): return False
+#        if self is other: return True
+        if not other.is_compound(): return False
 
         return (self.direction == other.direction and 
                 self.features == other.features and
@@ -119,7 +123,8 @@ class ComplexCategory(object):
 
     def __eq__(self, other):
         '''Determines if this category is equal to another, without inspecting any features.'''
-        if not isinstance(other, ComplexCategory): return False
+#        if self is other: return True
+        if not other.is_compound(): return False
 
         return (self.direction == other.direction and
                 self.left == other.left and

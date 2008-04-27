@@ -9,9 +9,9 @@ def path_to_root(node):
     If f0 is true, then r0 is the 'focus' of the triple. Otherwise, l0 is. The focus
     is the node which actually lies on the sought path, the non-focus node is its sibling.'''
     while node.parent:
-        if node.parent.rch == node:
+        if node.parent.rch is node:
             yield node.parent.lch, node, True
-        elif node.parent.lch == node:
+        elif node.parent.lch is node:
             yield node, node.parent.rch, False
 
         node = node.parent

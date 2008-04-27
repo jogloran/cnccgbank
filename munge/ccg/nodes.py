@@ -42,7 +42,8 @@ class Node(object):
     rch = property(get_rch, set_rch)
 
     def __eq__(self, other):
-        if not isinstance(other, Node): return False
+        #if not isinstance(other, Node): return False
+        if other is None or other.is_leaf(): return False
         
         return (self.cat == other.cat and
                 self.lch == other.lch and
@@ -76,7 +77,8 @@ class Leaf(object):
                  self.lex, self.catfix)
 
     def __eq__(self, other):
-        if not isinstance(other, Leaf): return False
+#        if not isinstance(other, Leaf): return False
+        if other is None or not other.is_leaf(): return False
         
         return (self.cat == other.cat and
                 self.pos1 == other.pos1 and
