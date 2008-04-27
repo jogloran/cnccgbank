@@ -89,7 +89,7 @@ class SubstFromAnnotatorFile(Filter):
                                             % (lineno, self.anno_filename))
                                             
                 category_string, replacement_mode_string, slash_index = fields
-                debug("Slash %s of %s goes to %s=%d" % (slash_index, re.sub(r'[-.*@]', '', category_string), replacement_mode_string,self.mode_string_to_index(replacement_mode_string)))
+                debug("Slash %s of %s goes to %s=%d", slash_index, re.sub(r'[-.*@]', '', category_string), replacement_mode_string,self.mode_string_to_index(replacement_mode_string))
                 slashes[re.sub(r'[-.*@]', '', category_string)].add(
                                         ( int(slash_index), self.mode_string_to_index(replacement_mode_string) ))
                 
@@ -167,7 +167,7 @@ class AssignModeSplit(DerivationOutput, Filter):
     def fix_cat_for(self, leaf, slash_index, mode):
         key_category = re.sub(r'[-.*@]', '', str(leaf.cat))
         if not (key_category in self.permitted_cats):
-            warn("No entry in splitdef file for category %s" % str(leaf.cat))
+            warn("No entry in splitdef file for category %s", leaf.cat)
             return
             
         alternatives = self.permitted_cats[key_category]
@@ -178,7 +178,7 @@ class AssignModeSplit(DerivationOutput, Filter):
         def is_invalid_alternative(alt):
             alt_modes = self.modes_for_cat(alt)
             if len(alt_modes) != len(old_modes):
-                warn("Replacement category %s has different size to original category %s" % (str(alt), str(leaf.cat)))
+                warn("Replacement category %s has different size to original category %s", alt, leaf.cat))
                 
             modes_for_comparison = zip(alt_modes, old_modes)
             del modes_for_comparison[slash_index]
@@ -193,7 +193,7 @@ class AssignModeSplit(DerivationOutput, Filter):
             
         #print "Alternatives: %s" % valids
         alternative = min(valids, key=lambda e: self.permissiveness(e, slash_index))
-        debug("%s `%s' -> %s" % (leaf.cat, leaf.lex, alternative))
+        debug("%s `%s' -> %s", leaf.cat, leaf.lex, alternative)
         
         leaf.cat = alternative
         

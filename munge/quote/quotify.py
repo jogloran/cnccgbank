@@ -153,24 +153,25 @@ at which each occurs.'''
     return dep 
 
 def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, quotes, quoter):
+    '''Reinstates quotes given a PTB file and its corresponding CCGbank file and deps file.'''
     with file(ccg_auto_out, 'w') as ccg_out:
         with file(ccg_parg_out, 'w') as parg_out:
             penn_trees = list(PTBReader(ptb_file))
             ccg_trees  = list(CCGbankReader(ccg_file))
-            deps       = list(CCGbankDepsReader(deps_file)) # TODO: implement the reader
+            deps       = list(CCGbankDepsReader(deps_file))
             
-            matched_penn_trees = match_trees(penn_trees, ccg_trees) # TODO: implement match_trees
+            matched_penn_trees = match_trees(penn_trees, ccg_trees)
 
             for (ptb_bundle, ccg_bundle, dep) in zip(matched_penn_trees, ccg_trees, deps):
                 ptb_tree, ccg_tree = ptb_bundle.derivation, ccg_bundle.derivation
 
-                for (span_start, span_end) in spans(ptb_tree): # TODO: Implement spans
+                for (span_start, span_end) in spans(ptb_tree):
                     if not (span_start or span_end): continue
                     
-                    info("Reinstating quotes to %s" % ccg_bundle.label())
+                    info("Reinstating quotes to %s", ccg_bundle.label())
                     
                     ccg_tree, quote_indices = quoter.attach_quotes(ccg_tree, span_start, span_end, higher, quotes)
-                    dep = fix_dependencies(dep, quote_indices) # TODO: implement fix_dependencies
+                    dep = fix_dependencies(dep, quote_indices)
                     
                 print >> parg_out, dep
                 print >> ccg_out, ccg_bundle
@@ -204,7 +205,8 @@ def main(argv):
     
     for sec_glob, doc_glob in ptb_files_spec:
         for ptb_file in glob(os.path.join(opts.penn_in, sec_glob, "wsj_%s%s.mrg" % (sec_glob, doc_glob))):
-            print "Processing %s" % ptb_file
+            info("Processing %s", ptb_file)
+            
             matches = ptb_file_re.search(ptb_file)
             if matches and len(matches.groups()) == 2:
                 sec, doc = matches.groups()
@@ -214,9 +216,9 @@ def main(argv):
                 
                 if not opts.quiet:
                     if not os.path.exists(ccg_file):
-                        warn("No corresponding CCGbank file %s for Penn file %s" % (ccg_file, ptb_file))
+                        warn("No corresponding CCGbank file %s for Penn file %s", ccg_file, ptb_file)
                     if not os.path.exists(deps_file):
-                        warn("No corresponding CCGbank dependency file %s for CCG file %s" % (deps_file, ccg_file))
+                        warn("No corresponding CCGbank dependency file %s for CCG file %s", deps_file, ccg_file)
                         
                 ccg_auto_dir, ccg_parg_dir = [os.path.join(opts.outdir, part, sec) for part in ('AUTO', 'PARG')]
                 if not os.path.exists(ccg_auto_dir): os.makedirs(ccg_auto_dir)
@@ -229,7 +231,7 @@ def main(argv):
                                      opts.higher, opts.quotes, quoter)
                 
             else:
-                warn("Could not find, so ignoring %s" % ptb_file)
+                warn("Could not find, so ignoring %s", ptb_file)
 
 if __name__ == '__main__':
     main(sys.argv)

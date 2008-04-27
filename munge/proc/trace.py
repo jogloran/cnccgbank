@@ -153,7 +153,7 @@ def main(argv):
             filter_class = available_filters_dict[filter_name]
             filters.append(filter_class(*args))
         except KeyError:
-            warn("No filter with name `%s' found." % filter_name)
+            warn("No filter with name `%s' found.", filter_name)
     
     for file in files:
         for derivation in GuessReader(file):

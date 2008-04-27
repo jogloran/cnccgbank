@@ -2,18 +2,18 @@ from pressplit import split
 
 class CPressplitIterator(object):
     def __init__(self, str, split_chars, skip_chars, suppressors):
-        self.toks = list(reversed(split(str, split_chars, skip_chars, suppressors)))
+        self.toks = split(str, split_chars, skip_chars, suppressors)
         
     def __iter__(self):
         for tok in self.toks: yield tok
         
     def peek(self):
         if not self.toks: return None
-        return self.toks[-1]
+        return self.toks[0]
     
     def next(self):
         if not self.toks: raise StopIteration
-        return self.toks.pop()
+        return self.toks.pop(0)
 
 class EagerPressplitIterator(object):
     def __init__(self, str, split_chars, skip_chars, suppressors):
