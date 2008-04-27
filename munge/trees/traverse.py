@@ -47,18 +47,23 @@ def text(deriv, pred=lambda e: True):
     return [node.lex for node in leaves(deriv) if pred(node)]
     
 def is_ignored(node, ignoring_quotes=True):
+    '''Is true for a PTB node which corresponds to no CCGbank node (traces or quote symbols).'''
     return (re.match(r'-?NONE-?', node.tag) or
             (ignoring_quotes and
                 (re.match(r'^``?$', node.lex) or
                 (node.tag != "POS" and re.match(r"^''?", node.lex)))))
     
 def text_without_quotes_or_traces(deriv):
+    '''Returns a list of the text under this node, ignoring quote symbols or traces.'''
     return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=True))
     
 def text_without_traces(deriv):
+    '''Returns a list of the text under this node, ignoring traces.'''
     return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=False))
     
 def text_in_span(deriv, begin, end):
+    '''Returns a subset of the text under this node, as specified by a pair of indices
+(0 would be the leftmost leaf under this node).'''
     for leaf, cur_index in izip(leaves(deriv), count()):
         if begin <= cur_index < end:
             yield leaf.lex
@@ -66,6 +71,8 @@ def text_in_span(deriv, begin, end):
             return
 
 def get_leaf(derivation, token_index, direction="forwards"):
+    '''Retrieves the nth leaf under this node, either counting from the leftmost or rightmost
+leaf under this node.'''
     cur_index = 0
 
     if direction == "forwards":

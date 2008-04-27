@@ -2,7 +2,7 @@ from munge.io.guess_ptb import PTBGuesser
 from munge.io.guess_ccgbank import CCGbankGuesser
 
 class GuessReader(object):
-    def __init__(self, filename, guessers=(PTBGuesser, CCGbankGuesser), default=CCGbankGuesser):
+    def __init__(self, filename, guessers=(CCGbankGuesser, PTBGuesser, CPTBGuesser), default=CCGbankGuesser):
         self.guessers = list(guessers)
         self.default = default
         

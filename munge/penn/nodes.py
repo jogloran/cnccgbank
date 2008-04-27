@@ -7,7 +7,7 @@ class Node(object):
         self.kids = kids
 
     def __repr__(self):
-        return "<%s %s>" % (self.tag, ' '.join(repr(kid) for kid in self.kids))
+        return "(%s %s)" % (self.tag, ' '.join(repr(kid) for kid in self.kids))
 
     def __iter__(self):
         for kid in self.kids: yield kid
@@ -25,7 +25,7 @@ class Leaf(object):
         self.lex = lex
 
     def __repr__(self):
-        return "<%s %s>" % (self.tag, self.lex)
+        return "(%s %s)" % (self.tag, self.lex)
 
     def __iter__(self): raise StopIteration
 

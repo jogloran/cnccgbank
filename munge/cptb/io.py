@@ -1,33 +1,76 @@
+from itertools import izip, count
 from munge.penn.parse import parse_tree
 
 class Derivation(object):
-    def __init__(self, ):
-        pass
+    def __init__(self, sec_no, doc_no, der_no, derivation):
+        self.sec_no, self.doc_no, self.der_no = sec_no, doc_no, der_no
+        self.derivation = derivation
+        
+    def label(self):
+        return "CTB:%d%02d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+    
+import sys
+from sgmllib import SGMLParser    
+from collections import defaultdict
+class SGMLBag(SGMLParser):
+    def __init__(self):
+        SGMLParser.__init__(self)
+
+    def reset(self):
+        SGMLParser.reset(self)
+        self.fields = defaultdict(list)
+
+    def handle_data(self, data):
+        if self.topmost in ("p", "headline"):
+            data = unicode(data, 'gb2312').encode('utf8')
+            
+        self.fields[self.topmost].append(data)
+        
+    def start_p(self, attrs):
+        self.topmost = "p"
+        self.topmost_attrs = None
+
+    def unknown_starttag(self, tag, attrs):
+        self.topmost = tag
+        self.topmost_attrs = attrs
+
+    def unknown_endtag(self, tag):
+        self.topmost = self.topmost_attrs = None
+        
+    def __getitem__(self, key):
+        return self.fields.get(key, None)
     
 class CPTBReader(object):
-    def get_derivs_text(self, f):
-        INSIDE, OUTSIDE = 1, 2
-        derivs = []
-        cur = ''
-        state = OUTSIDE
-        for line in f:
-            if line.startswith('<P>'):
-                state = INSIDE
-            elif line.startswith('</P>'):
-                state = OUTSIDE
-                derivs.append(cur)
-                cur = ''
-            elif line.startswith('<'):
-                continue
-            else:
-                cur += line.rstrip()
-                
-        derivs = map(lambda s: unicode(s, 'gb-2312'))
-        return derivs
-            
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'r')
         
-        self.derivs_text = self.get_derivs_text(self.file)
-        self.trees = parse_tree('\n'.join(self.derivs_text))
+        self.contents = SGMLBag()
+        self.contents.feed(self.file.read())
+        
+        self.derivs = parse_tree('\n'.join(self.contents['p']))
+        self.sec_no, self.doc_no = self.determine_sec_and_doc()
+        
+    def determine_sec_and_doc(self):
+        ctb_id = self.contents['ctbid'][0]
+        assert len(ctb_id) == 3
+        
+        return int(ctb_id[0]), int(ctb_id[1:])
+        
+    def __getitem__(self, index):
+        for deriv in self:
+            if deriv.der_no == index: return deriv
+            
+        return None
+        
+    def __iter__(self):
+        for deriv, der_no in izip(self.derivs, count()):
+            yield Derivation(self.sec_no, self.doc_no, der_no, deriv)
+        
+if __name__ == '__main__':
+    from munge.trees.traverse import *
+
+    r=CPTBReader('chtb_001.fid')
+    
+    for f in r:
+        print ''.join(text(f.derivation))
