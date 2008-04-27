@@ -80,6 +80,9 @@ def match_trees(penn_trees, ccg_trees):
             ptb_text = text_without_quotes_or_traces(penn_trees[cur_ptb_index].derivation)
         
             if ptb_text != ccg_text:
+                warn("In document %s:", ccg_bundle.label())
+                warn("\tCCG tokens: %s", ' '.join(ccg_text))
+                warn("\tPTB tokens: %s", ' '.join(ptb_text))
                 pass
             else:
                 result.append( penn_trees[cur_ptb_index] )
@@ -164,6 +167,7 @@ def main(argv):
     
     for sec_glob, doc_glob in ptb_files_spec:
         for ptb_file in glob(os.path.join(opts.penn_in, sec_glob, "wsj_%s%s.mrg" % (sec_glob, doc_glob))):
+            print "Processing %s" % ptb_file
             matches = ptb_file_re.search(ptb_file)
             if matches and len(matches.groups()) == 2:
                 sec, doc = matches.groups()
