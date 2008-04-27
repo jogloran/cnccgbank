@@ -25,7 +25,7 @@ def is_non_raised_comma_leaf(leaf):
    return leaf.lex == "," and str(leaf.parent.cat) != r'(S\NP)\(S\NP)'
 
 def is_period_leaf(leaf):
-   return leaf.lex == "." and leaf.cat == "."
+   return leaf.lex == "." and str(leaf.cat) == "."
 
 def is_prequote_punctuation(leaf):
    return (is_non_raised_comma_leaf(leaf) and is_non_conjunction_comma_leaf(leaf)) or is_period_leaf(leaf)
