@@ -1,4 +1,5 @@
 from munge.io.guess_ptb import PTBGuesser
+from munge.io.guess_cptb import CPTBGuesser
 from munge.io.guess_ccgbank import CCGbankGuesser
 
 class GuessReader(object):
