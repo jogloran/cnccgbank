@@ -7,4 +7,5 @@ class JustTokens(Filter):
         self.f = file(self.outfile, 'w')
     
     def accept_derivation(self, deriv):
-        print >>self.f, "%s|%s" % (deriv.label(), ' '.join(text(deriv.derivation)))
+        print >>self.f, "%s|%s" % (deriv.label(), ' '.join(deriv.derivation.text()))
+        

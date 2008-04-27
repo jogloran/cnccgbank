@@ -1,4 +1,5 @@
 import re
+from munge.trees.traverse import text_without_traces
 
 class Node(object):
     '''Representation of a PTB internal node.'''
@@ -17,6 +18,9 @@ class Node(object):
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.tag)
+    
+    def text(self):
+        return text_without_traces(self)
 
 class Leaf(object):
     '''Representation of a PTB leaf.'''
@@ -31,3 +35,6 @@ class Leaf(object):
 
     def is_leaf(self): return True
     def label_text(self): return "%s '%s'" % (self.tag, self.lex)
+    
+    def text(self):
+        return text_without_traces(self)

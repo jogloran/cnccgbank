@@ -1,5 +1,6 @@
 import re
 import copy
+from munge.trees.traverse import text
 
 class Node(object):
     '''Representation of a CCGbank internal node.'''
@@ -61,6 +62,9 @@ class Node(object):
         return count
         
     def clone(self): return copy.copy(self)
+    
+    def text(self):
+        return text(self)
 
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
@@ -92,3 +96,6 @@ class Leaf(object):
     def leaf_count(self): return 1
     
     def clone(self): return copy.copy(self)
+    
+    def text(self):
+        return text(self)
