@@ -157,16 +157,23 @@ of the given PTB derivation span a quoted portion of the text.'''
                 # we treat the span end index as leaf_count-index, not that minus one,
                 # because when we encounter the close quote, we are already one index
                 # past the end of the quoted span.
-                result.append( (span_begin, leaf_count-index) )
+                result.append( (span_begin, leaf_count-index, open_quote) )
             else:
-                result.append( (None, leaf_count-index) )
+                if leaf.lex == "''":
+                    quote_type = "``"
+                elif leaf.lex == "'":
+                    quote_type = "`"
+                else:
+                    err("spans: should not reach")
+                    
+                result.append( (None, leaf_count-index, quote_type) )
         else:
             index += 1
                 
     while quote_stack:
         remaining_quote, span_begin = quote_stack.pop()
-        if remaining_quote in ("``", "'"):
-            result.append( (span_begin, None) )
+        if remaining_quote in ("``", "`"):
+            result.append( (span_begin, None, remaining_quote) )
         else:
             warn("Unexpected quote %s after exhausting input.", remaining_quote)
             
@@ -211,8 +218,22 @@ def fix_quote_spans(quote_spans, quote_indices):
     # to right, and the end quote indices are counted from the right end of the string.
     # This means that no addition of quotes starting from the left can affect an end quote
     # index.
-    return map(lambda (b, e): (b + inserted_quotes if (b is not None) else None,
-                               e), quote_spans)
+    # We adjust every start index lying strictly to the right of the greater of the inserted
+    # open quote index, by the number of quotes inserted.
+    def _fix_quote_spans(bep):
+        b, e, p = bep
+        b_ = None if (b is None) else b
+        
+        if b is None:
+            b_ = None
+        else:
+            b_ = b
+            if b_ > open_quote_index:
+                b_ += inserted_quotes
+        
+        return (b_, e, p)
+        
+    return map(_fix_quote_spans, quote_spans)
 
 def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, quotes, quoter):
     '''Reinstates quotes given a PTB file and its corresponding CCGbank file and deps file.'''
@@ -232,12 +253,12 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     print quote_spans
                     v = quote_spans.pop(0)
                     print v
-                    span_start, span_end = v
+                    span_start, span_end, quote_type = v
                     if span_start is None and span_end is None: continue
                     
                     info("Reinstating quotes to %s (%s, %s)", ccg_bundle.label(), span_start, span_end)
                     
-                    ccg_tree, quote_indices = quoter.attach_quotes(ccg_tree, span_start, span_end, higher, quotes)
+                    ccg_tree, quote_indices = quoter.attach_quotes(ccg_tree, span_start, span_end, quote_type, higher, quotes)
                     # In case a new root has been installed, re-assign the new root to the CCGbank bundle
                     ccg_bundle.derivation = ccg_tree
                     
