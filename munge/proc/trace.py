@@ -158,7 +158,7 @@ def main(argv):
     
     for file in files:
         for derivation_bundle in GuessReader(file):
-            if opts.verbose: print >> sys.stderr, "Processing %s..." % derivation.label()
+            if opts.verbose: print >> sys.stderr, "Processing %s..." % derivation_bundle.label()
             
             for leaf in leaves(derivation_bundle.derivation):
                 for filter in filters:

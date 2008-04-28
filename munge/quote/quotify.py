@@ -8,6 +8,7 @@ from munge.util.err_utils import warn, info, err
 
 from munge.quote.span import SpanQuoter
 from munge.quote.shift import ShiftComma
+from munge.quote.swap import SwapComma
 
 from munge.penn.io import PTBReader
 from munge.ccg.io import CCGbankReader
@@ -202,7 +203,6 @@ def main(argv):
         'swap' : SwapComma,
         'shift': ShiftComma
     }.get(opts.punct_method, None)
-    
     quoter = quoter_class(punct_class)
     
     remaining_args = args[1:]
