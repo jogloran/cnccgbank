@@ -199,7 +199,7 @@ def main(argv):
 #        'lca' : LCAQuoter
     }[opts.quote_method]
     punct_class = {
-#        'swap' : SwapComma,
+        'swap' : SwapComma,
         'shift': ShiftComma
     }.get(opts.punct_method, None)
     

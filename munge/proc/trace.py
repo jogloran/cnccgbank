@@ -157,10 +157,10 @@ def main(argv):
             warn("No filter with name `%s' found.", filter_name)
     
     for file in files:
-        for derivation in GuessReader(file):
+        for derivation_bundle in GuessReader(file):
             if opts.verbose: print >> sys.stderr, "Processing %s..." % derivation.label()
             
-            for leaf in leaves(derivation.derivation):
+            for leaf in leaves(derivation_bundle.derivation):
                 for filter in filters:
                     filter.accept_leaf(leaf)
 
@@ -171,7 +171,7 @@ def main(argv):
                         pass
 
             for filter in filters:
-                filter.accept_derivation(derivation)
+                filter.accept_derivation(derivation_bundle)
     
     for filter in filters:
         filter.output()

@@ -83,7 +83,7 @@ def move_punctuation_leaf_to_left_subtree(node):
    
 class ShiftComma(object):
     @staticmethod
-    def process_punct(node):
+    def process_punct(deriv, node, at):
         if is_prequote_punctuation(node) and is_leftmost_leaf_of_right_subtree(node):
             return move_punctuation_leaf_to_left_subtree(node)
         return node

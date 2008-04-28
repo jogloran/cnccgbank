@@ -59,7 +59,7 @@ class SpanQuoter(BaseQuoter):
         if (at is not None) and node:
             if quote == "end": # Process absorbed punctuation
                 if self.punct_class:
-                    node = self.punct_class.process_punct(node)
+                    node = self.punct_class.process_punct(deriv, node, at)
             
             if node and is_sublist(smaller=text(node), larger=tokens):
                 attachment_node = node
