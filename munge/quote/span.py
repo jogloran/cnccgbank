@@ -20,7 +20,7 @@ class SpanQuoter(BaseQuoter):
     def attach_quotes(self, deriv, span_begin, span_end, quote_type, higher, quotes):
         do_left = quotes in ("both", "left")
         do_right = quotes in ("both", "right")
-        double = (quotes == "``")
+        double = (quote_type == "``")
         
         first_index = 0 if (span_begin is None) else span_begin
         last_index = 0 if (span_end is None) else span_end
