@@ -50,8 +50,8 @@ def is_ignored(node, ignoring_quotes=True):
     '''Is true for a PTB node which corresponds to no CCGbank node (traces or quote symbols).'''
     return (re.match(r'-?NONE-?', node.tag) or
             (ignoring_quotes and
-                (re.match(r'^``?$', node.lex) or
-                (node.tag != "POS" and re.match(r"^''?$", node.lex)))))
+               ((re.match(r'^``?$', node.lex) or
+                (node.tag != "POS" and re.match(r"^''?$", node.lex))))))
     
 def text_without_quotes_or_traces(deriv):
     '''Returns a list of the text under this node, ignoring quote symbols or traces.'''

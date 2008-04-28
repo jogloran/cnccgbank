@@ -178,7 +178,7 @@ class AssignModeSplit(DerivationOutput, Filter):
         def is_invalid_alternative(alt):
             alt_modes = self.modes_for_cat(alt)
             if len(alt_modes) != len(old_modes):
-                warn("Replacement category %s has different size to original category %s", alt, leaf.cat))
+                warn("Replacement category %s has different size to original category %s", alt, leaf.cat)
                 
             modes_for_comparison = zip(alt_modes, old_modes)
             del modes_for_comparison[slash_index]

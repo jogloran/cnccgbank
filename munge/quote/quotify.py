@@ -124,6 +124,7 @@ of the given PTB derivation span a quoted portion of the text.'''
     # tuple. A smarter implementation would handle and identify nested quotes, as well as multiple spans.
     ptb_tokens = text_without_traces(ptb_tree)
 
+    # TODO: this definition of a quote tag is broken!!
     yield (first_index_such_that(lambda e: e in ("``", "`"), ptb_tokens),
            first_index_such_that(lambda e: e in ("''", "'"), reversed(ptb_tokens)))
            
