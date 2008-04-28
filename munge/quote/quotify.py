@@ -123,18 +123,6 @@ def spans(ptb_tree):
     '''Returns a sequence of tuples (B, E), where the Bth token from the start, and the Eth token from the end
 of the given PTB derivation span a quoted portion of the text.'''
     
-    #  # This is implemented as returning a sequence for generality: our naive implementation only ever locates a
-    #     # single (outermost) span of quoted text, so this implementation only ever returns a sequence of at most one
-    #     # tuple. A smarter implementation would handle and identify nested quotes, as well as multiple spans.
-    # 
-    #     leaf_nodes = [leaf for leaf in leaves(ptb_tree) if not is_ignored(leaf, ignoring_quotes=False)]
-    # 
-    #     # TODO: This doesn't actually handle the case when you have `` ... `...' (s
-    #     fi, li = (first_index_such_that(lambda node: node.tag == "``" and node.lex in ("``", "`"), leaf_nodes), 
-    #           first_index_such_that(lambda node: node.tag == "''" and node.lex in ("''", "'"), reversed(leaf_nodes)))
-    # 
-    # #    if li is not None: li += 1
-    #     yield (fi,li)
     leaf_nodes = [leaf for leaf in leaves(ptb_tree) if not is_ignored(leaf, ignoring_quotes=False)]
     # TODO: do this without incurring another full pass through the full nodes list
     leaf_nodes_without_quotes = [leaf for leaf in leaf_nodes if not is_ignored(leaf, ignoring_quotes=True)]

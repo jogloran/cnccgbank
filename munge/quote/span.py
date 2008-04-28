@@ -20,7 +20,6 @@ class SpanQuoter(BaseQuoter):
     def attach_quotes(self, deriv, span_begin, span_end, quote_type, higher, quotes):
         do_left = quotes in ("both", "left")
         do_right = quotes in ("both", "right")
-        double = (quote_type == "``")
         
         first_index = 0 if (span_begin is None) else span_begin
         last_index = 0 if (span_end is None) else span_end
@@ -31,14 +30,14 @@ class SpanQuoter(BaseQuoter):
         if (first_index is not None) or (last_index is not None):
             if higher == "left":
                 if do_right:
-                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_end, quote="end", double=double)
+                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_end, quote="end", quote_type=quote_type)
                 if do_left:
-                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_begin, quote="begin", double=double)
+                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_begin, quote="begin", quote_type=quote_type)
             elif higher == "right":
                 if do_left:
-                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_begin, quote="begin", double=double)
+                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_begin, quote="begin", quote_type=quote_type)
                 if do_right:
-                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_end, quote="end", double=double)
+                    deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_end, quote="end", quote_type=quote_type)
                     
         quote_indices = []
         if (span_begin is not None) and do_left:
@@ -53,9 +52,11 @@ class SpanQuoter(BaseQuoter):
             
         return deriv, quote_indices
         
-    def insert_quote(self, deriv, tokens, at, quote, double):
+    def insert_quote(self, deriv, tokens, at, quote, quote_type):
         if quote == "begin": direction = "forwards"
         elif quote == "end": direction = "backwards"
+        
+        double = (quote_type == "``")
         
         node = get_leaf(deriv, at, direction)
         
