@@ -159,14 +159,14 @@ of the given PTB derivation span a quoted portion of the text.'''
                 # past the end of the quoted span.
                 result.append( (span_begin, leaf_count-index) )
             else:
-                result.append( (0, leaf_count-index) )
+                result.append( (None, leaf_count-index) )
         else:
             index += 1
                 
     while quote_stack:
         remaining_quote, span_begin = quote_stack.pop()
         if remaining_quote in ("``", "'"):
-            result.append( (span_begin, 0) )
+            result.append( (span_begin, None) )
         else:
             warn("Unexpected quote %s after exhausting input.", remaining_quote)
             
@@ -197,6 +197,22 @@ at which each occurs.'''
         quote_indices = map(lambda e: e and e+1, quote_indices)
         
     return dep 
+    
+def fix_quote_spans(quote_spans, quote_indices):
+    open_quote_index, close_quote_index = quote_indices
+    
+    inserted_quotes = 0
+    if open_quote_index is not None:
+        inserted_quotes += 1
+    if close_quote_index is not None:
+        inserted_quotes += 1
+    
+    # The adjustment is unnecessary for the end quote because we are adding quotes from left
+    # to right, and the end quote indices are counted from the right end of the string.
+    # This means that no addition of quotes starting from the left can affect an end quote
+    # index.
+    return map(lambda (b, e): (b + inserted_quotes if (b is not None) else None,
+                               e), quote_spans)
 
 def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, quotes, quoter):
     '''Reinstates quotes given a PTB file and its corresponding CCGbank file and deps file.'''
@@ -211,7 +227,12 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
             for (ptb_bundle, ccg_bundle, dep) in zip(matched_penn_trees, ccg_trees, deps):
                 ptb_tree, ccg_tree = ptb_bundle.derivation, ccg_bundle.derivation
 
-                for (span_start, span_end) in spans(ptb_tree):
+                quote_spans = spans(ptb_tree)
+                while quote_spans:
+                    print quote_spans
+                    v = quote_spans.pop(0)
+                    print v
+                    span_start, span_end = v
                     if span_start is None and span_end is None: continue
                     
                     info("Reinstating quotes to %s (%s, %s)", ccg_bundle.label(), span_start, span_end)
@@ -220,6 +241,8 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     # In case a new root has been installed, re-assign the new root to the CCGbank bundle
                     ccg_bundle.derivation = ccg_tree
                     
+                    # Shift remaining quote span indices by the number of quotes that have been inserted
+                    quote_spans = fix_quote_spans(quote_spans, quote_indices)
                     dep = fix_dependencies(dep, quote_indices)
                     
                 print >> parg_out, dep
