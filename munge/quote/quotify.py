@@ -118,6 +118,7 @@ those PTB trees which do not correspond to any CCGbank tree.'''
             
 from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.trees.traverse import is_ignored, leaves
+from itertools import izip, count
 def spans(ptb_tree):
     '''Returns a sequence of tuples (B, E), where the Bth token from the start, and the Eth token from the end
 of the given PTB derivation span a quoted portion of the text.'''
@@ -134,11 +135,43 @@ of the given PTB derivation span a quoted portion of the text.'''
     # 
     # #    if li is not None: li += 1
     #     yield (fi,li)
+    leaf_nodes = [leaf for leaf in leaves(ptb_tree) if not is_ignored(leaf, ignoring_quotes=False)]
+    # TODO: do this without incurring another full pass through the full nodes list
+    leaf_nodes_without_quotes = [leaf for leaf in leaf_nodes if not is_ignored(leaf, ignoring_quotes=True)]
+    leaf_count = len(leaf_nodes_without_quotes)
     
+    result = []
     quote_stack = []
-    for leaf, index in izip(text_without_traces(ptb_tree), count()):
-        
-           
+    index = 0
+    for leaf in leaf_nodes:
+        if leaf.lex in ("``", "`"):
+            quote_stack.append( (leaf.lex, index) )
+        elif leaf.tag != "POS" and leaf.lex in ("''", "'"):
+            if quote_stack:
+                open_quote, span_begin = quote_stack.pop()
+                if (open_quote == "``" and leaf.lex != "''" or
+                    open_quote == "`"  and leaf.lex != "'"):
+                    warn("Unbalanced quotes, abandoning.")
+                    break
+                
+                # we treat the span end index as leaf_count-index, not that minus one,
+                # because when we encounter the close quote, we are already one index
+                # past the end of the quoted span.
+                result.append( (span_begin, leaf_count-index) )
+            else:
+                result.append( (0, leaf_count-index) )
+        else:
+            index += 1
+                
+    while quote_stack:
+        remaining_quote, span_begin = quote_stack.pop()
+        if remaining_quote in ("``", "'"):
+            result.append( (span_begin, 0) )
+        else:
+            warn("Unexpected quote %s after exhausting input.", remaining_quote)
+            
+    return result
+
            
 def fix_dependency(dep, quote_index):
     '''Updates the dependency data to accommodate the insertion of a new leaf at a given index. This means that
