@@ -127,8 +127,8 @@ of the given PTB derivation span a quoted portion of the text.'''
            
     leaf_nodes = [leaf for leaf in leaves(ptb_tree) if not is_ignored(leaf, ignoring_quotes=False)]
     
-    fi, li = (first_index_such_that(lambda node: node.lex in ("``", "`"), leaf_nodes), 
-          first_index_such_that(lambda node: node.lex in ("''", "'"), reversed(leaf_nodes)))
+    fi, li = (first_index_such_that(lambda node: node.tag == "``" and node.lex in ("``", "`"), leaf_nodes), 
+          first_index_such_that(lambda node: node.tag == "''" and node.lex in ("''", "'"), reversed(leaf_nodes)))
 
 #    if li is not None: li += 1
     yield (fi,li)
@@ -184,7 +184,7 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     dep = fix_dependencies(dep, quote_indices)
                     
                 print >> parg_out, dep
-                print >> ccg_out, ccg_bundle
+                print >> ccg_out , ccg_bundle
     
 ptb_file_re = re.compile(r'(\d{2})/wsj_\d{2}(\d{2})\.mrg$')
 def main(argv):
