@@ -44,7 +44,7 @@ def run_builtin_filter(option, opt_string, value, parser, *args, **kwargs):
     filter_class_name = args[0]
     
     # Wrap a single argument in a tuple for consistency
-    if not isinstance(value, (list, tuple)):
+    if (value is not None) and not isinstance(value, (list, tuple)):
         value = (value, )
         
     parser.values.filters_to_run.append( (filter_class_name, value) )
@@ -148,7 +148,7 @@ def main(argv):
     
     filters_to_run = opts.filters_to_run
     for filter_name, args in filters_to_run:
-        if (not args) or args[0] is None: args = ()
+        if not args: args = ()
         
         try:
             filter_class = available_filters_dict[filter_name]
