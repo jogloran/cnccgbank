@@ -14,6 +14,22 @@ class CPressplitIterator(object):
     def next(self):
         if not self.toks: raise StopIteration
         return self.toks.pop(0)
+        
+class CStackbasedPressplitIterator(object):
+    def __init__(self, str, split_chars, skip_chars, suppressors):
+        self.toks = split(str, split_chars, skip_chars, suppressors)
+        self.toks.reverse()
+        
+    def __iter__(self):
+        for tok in self.toks[::-1]: yield tok
+        
+    def peek(self):
+        if not self.toks: return None
+        return self.toks[-1]
+    
+    def next(self):
+        if not self.toks: raise StopIteration
+        return self.toks.pop()
 
 class EagerPressplitIterator(object):
     def __init__(self, str, split_chars, skip_chars, suppressors):
@@ -106,7 +122,7 @@ class PressplitIterator(object):
 
         return previous_top
 
-def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=CPressplitIterator):
+def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=CStackbasedPressplitIterator):
     '''Returns an iterator yielding successive tokens from _str_ as split on three
     kinds of separators. 
       - _split_chars_ will split the string, and appear in the resulting stream.
@@ -118,3 +134,7 @@ def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lex
 
     return lexer_class(str, split_chars, skip_chars, suppressors)
 
+try:
+    import psyco
+    psyco.bind(preserving_split)
+except ImportError: pass

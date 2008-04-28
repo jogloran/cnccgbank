@@ -9,7 +9,7 @@ from munge.io.guess import GuessReader
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
 
-from munge.util.err_utils import warn
+from munge.util.err_utils import warn, info
 
 from exceptions import NotImplementedError
 
@@ -157,8 +157,9 @@ def main(argv):
             warn("No filter with name `%s' found.", filter_name)
     
     for file in files:
+        if opts.verbose: info("Processing %s...", file)
         for derivation_bundle in GuessReader(file):
-            if opts.verbose: print >> sys.stderr, "Processing %s..." % derivation_bundle.label()
+#            if opts.verbose: print >> sys.stderr, "Processing %s..." % derivation_bundle.label()
             
             for leaf in leaves(derivation_bundle.derivation):
                 for filter in filters:
@@ -177,7 +178,9 @@ def main(argv):
         filter.output()
     
 if __name__ == '__main__':
-    import psyco
-    psyco.full()
+    try:
+        import psyco
+        psyco.full()
+    except ImportError: pass
 
     main(sys.argv)
