@@ -116,17 +116,22 @@ those PTB trees which do not correspond to any CCGbank tree.'''
     return result
             
 from munge.util.list_utils import first_index_such_that, last_index_such_that
+from munge.trees.traverse import is_ignored, leaves
 def spans(ptb_tree):
     '''Returns a sequence of tuples (B, E), where the Bth token from the start, and the Eth token from the end
 of the given PTB derivation span a quoted portion of the text.'''
     # This is implemented as returning a sequence for generality: our naive implementation only ever locates a
     # single (outermost) span of quoted text, so this implementation only ever returns a sequence of at most one
     # tuple. A smarter implementation would handle and identify nested quotes, as well as multiple spans.
-    ptb_tokens = text_without_traces(ptb_tree)
+           
+    leaf_nodes = [leaf for leaf in leaves(ptb_tree) if not is_ignored(leaf, ignoring_quotes=False)]
+    
+    fi, li = (first_index_such_that(lambda node: node.lex in ("``", "`"), leaf_nodes), 
+          first_index_such_that(lambda node: node.lex in ("''", "'"), reversed(leaf_nodes)))
 
-    # TODO: this definition of a quote tag is broken!!
-    yield (first_index_such_that(lambda e: e in ("``", "`"), ptb_tokens),
-           first_index_such_that(lambda e: e in ("''", "'"), reversed(ptb_tokens)))
+#    if li is not None: li += 1
+    yield (fi,li)
+           
            
 def fix_dependency(dep, quote_index):
     '''Updates the dependency data to accommodate the insertion of a new leaf at a given index. This means that
@@ -167,11 +172,14 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                 ptb_tree, ccg_tree = ptb_bundle.derivation, ccg_bundle.derivation
 
                 for (span_start, span_end) in spans(ptb_tree):
-                    if not (span_start or span_end): continue
+                    if span_start is None and span_end is None: continue
                     
-                    info("Reinstating quotes to %s", ccg_bundle.label())
+                    info("Reinstating quotes to %s (%s, %s)", ccg_bundle.label(), span_start, span_end)
                     
                     ccg_tree, quote_indices = quoter.attach_quotes(ccg_tree, span_start, span_end, higher, quotes)
+                    # In case a new root has been installed, re-assign the new root to the CCGbank bundle
+                    ccg_bundle.derivation = ccg_tree
+                    
                     dep = fix_dependencies(dep, quote_indices)
                     
                 print >> parg_out, dep

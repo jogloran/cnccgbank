@@ -19,13 +19,13 @@ class SpanQuoter(BaseQuoter):
         do_left = quotes in ("both", "left")
         do_right = quotes in ("both", "right")
         
-        first_index = span_begin or 0
-        last_index = span_end or 0
+        first_index = 0 if (span_begin is None) else span_begin
+        last_index = 0 if (span_end is None) else span_end
         
         leaf_count = len(list(leaves(deriv)))
         quoted_text = list(text_in_span(deriv, first_index, (leaf_count - last_index)))
         
-        if first_index or last_index:
+        if (first_index is not None) or (last_index is not None):
             if higher == "left":
                 if do_right:
                     deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_end, quote="end")
@@ -38,12 +38,12 @@ class SpanQuoter(BaseQuoter):
                     deriv = self.insert_quote(deriv, tokens=quoted_text, at=span_end, quote="end")
                     
         quote_indices = []
-        if span_begin and do_left:
+        if (span_begin is not None) and do_left:
             quote_indices.append(span_begin)
         else:
             quote_indices.append( None ) 
             
-        if span_end and do_right:
+        if (span_end is not None) and do_right:
             quote_indices.append(leaf_count - span_end - 1)
         else:
             quote_indices.append( None )
@@ -56,7 +56,7 @@ class SpanQuoter(BaseQuoter):
         
         node = get_leaf(deriv, at, direction)
         
-        if at is not None and node:
+        if (at is not None) and node:
             if quote == "end": # Process absorbed punctuation
                 if self.punct_class:
                     node = self.punct_class.process_punct(node)
@@ -87,5 +87,5 @@ class SpanQuoter(BaseQuoter):
                         prev_parent.rch = new_node
                 else:
                     return new_node # Replace the old root
-                    
+
         return deriv

@@ -1,12 +1,12 @@
 from itertools import izip, count
 
 def first_index_such_that(pred, l):
-    for e, i in izip(l, count()):
+    for e, i in izip(list(l), count()):
         if pred(e): return i
     return None
     
 def last_index_such_that(pred, l):
-    return first_index_such_that(pred, reversed(l))
+    return first_index_such_that(pred, reversed(list(l)))
     
 def is_sublist(smaller, larger):
     m = len(smaller)
