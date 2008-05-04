@@ -16,8 +16,10 @@ def get_available_filters_dict(loaded_modules):
             
             if (type(obj) is TypeType and issubclass(obj, munge.proc.trace.Filter) and
                 obj is not munge.proc.trace.Filter):
+                if symbol_name in filters_found:
+                    warn("An already loaded filter with the name %s has been overwritten by a filter with the same name.", symbol_name)
+                    
                 filters_found[symbol_name] = obj
-                # TODO: warn or error if key is already in hash
     
     return filters_found
 

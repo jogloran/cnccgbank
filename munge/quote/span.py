@@ -18,6 +18,11 @@ def make_closed_quote_leaf(q, double=True):
 
 class SpanQuoter(BaseQuoter):
     def attach_quotes(self, deriv, span_begin, span_end, quote_type, higher, quotes):
+        '''Given a CCGbank derivation, a pair of indices denoting the span of quoted text, whether single or
+double quotes are to be inserted, and quoting parameters, this does the insertion and returns a tuple (D, (b, e)),
+where D is the new derivation (the root may have been changed through quote attachment) and the indices at which
+the quotes have been inserted. Either b or e may be None to indicate that no opening or closing quote was inserted.'''
+
         do_left = quotes in ("both", "left")
         do_right = quotes in ("both", "right")
         
@@ -53,6 +58,9 @@ class SpanQuoter(BaseQuoter):
         return deriv, quote_indices
         
     def insert_quote(self, deriv, tokens, at, quote, quote_type):
+        '''Performs the actual quote insertion. Returns the root of the newly quoted derivation (which may differ
+from the root of the input derivation).'''
+
         if quote == "begin": direction = "forwards"
         elif quote == "end": direction = "backwards"
         

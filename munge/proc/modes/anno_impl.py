@@ -58,11 +58,6 @@ and composition mode candidates (determined manually).'''
         appl_accepted, _ = self.appl_only_filter.compute_accepts_and_rejects()
         null_accepted, _ = self.null_only_filter.compute_accepts_and_rejects()
         
-        # TODO: Make sure that, for example, if ApplicationModeAnnotator says that
-        # the slash of N/N should get *, and a manual file says it should get @,
-        # we prefer the manual file, so we can let our intuition override the
-        # frequency-based analysis.
-        
         # Start by collecting the manually annotated slashes from the file
         aggregate = self.parse_annoform(self.manual_fn)
 

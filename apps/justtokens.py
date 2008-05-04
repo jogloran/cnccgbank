@@ -36,7 +36,7 @@ class DumpAllWithQuotes(Filter):
             
     def accept_derivation(self, deriv):
         text = list(leaves(deriv.derivation))
-        if any(map(lambda token: token.lex in ("``", "`", "''", "'") and token.tag != "POS", text)):
+        if any(map(lambda token: token.lex in ("``", "`", "''", "'") and token.pos1 != "POS", text)):
             print >>self.f, "%s|%s" % (deriv.label(), ' '.join(deriv.derivation.text()))
             
     opt = '-"'

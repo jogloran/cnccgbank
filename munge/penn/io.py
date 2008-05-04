@@ -14,6 +14,9 @@ class Derivation(object):
         '''Returns a label representing this derivation.'''
         return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
         
+    def __str__(self):
+        return str(self.derivation)
+        
 class PTBReader(object):
     '''An iterator over each derivation in a PTB document.'''
     def __init__(self, filename):
@@ -24,6 +27,7 @@ class PTBReader(object):
         self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
         
     def determine_sec_and_doc(self, filename):
+        '''Determines the section and document number given a filename of the form ``wsj_SSDD.mrg".'''
         matches = re.match(r'wsj_(\d\d)(\d\d)\.(?:.+)', os.path.basename(filename))
         if matches and len(matches.groups()) == 2:
             return (int(i) for i in matches.groups())
@@ -33,10 +37,19 @@ class PTBReader(object):
     
     def __getitem__(self, index):
         '''Index-based retrieval of a derivation.'''
-        for deriv in self:
-            if deriv.der_no == index: return deriv
-            
-        return None
+        # TODO: index 0 should be an error if PTB ids start from 1
+        try:
+            return self.derivs[index-1]
+        except IndexError: return None
+        # for deriv in self:
+        #     if deriv.der_no == index: return deriv
+        #     
+        # return None
+        
+    def __setitem__(self, index, deriv):
+        try:
+            self.derivs[index-1] = deriv
+        except IndexError: pass
         
     def __iter__(self):
         '''Yields an iterator over this document.'''

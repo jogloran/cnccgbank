@@ -25,7 +25,6 @@ def with_paired_delimiters(func, toks, pair):
 def get_context(toks, ntokens=10):
     return ", ".join(islice(toks, 0, ntokens))
 
-
 def shift_and_check(tok, toks):
     next = toks.next()
     if tok != next: 

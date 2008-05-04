@@ -1,6 +1,7 @@
 from pressplit import split
 
 class CPressplitIterator(object):
+    '''preserving_split implemented in C.'''
     def __init__(self, str, split_chars, skip_chars, suppressors):
         self.toks = split(str, split_chars, skip_chars, suppressors)
         
@@ -16,6 +17,7 @@ class CPressplitIterator(object):
         return self.toks.pop(0)
         
 class CStackbasedPressplitIterator(object):
+    '''preserving_split implemented in C, with the backing reversed to avoid pop() operations from the front.'''
     def __init__(self, str, split_chars, skip_chars, suppressors):
         self.toks = split(str, split_chars, skip_chars, suppressors)
         self.toks.reverse()
@@ -32,6 +34,7 @@ class CStackbasedPressplitIterator(object):
         return self.toks.pop()
 
 class EagerPressplitIterator(object):
+    '''preserving_split implemented in Python with the token stream as a list.'''
     def __init__(self, str, split_chars, skip_chars, suppressors):
         def _preserving_split():
             result = []
@@ -75,6 +78,7 @@ class EagerPressplitIterator(object):
         
 
 class PressplitIterator(object):
+    '''preserving_split implementation with the token stream as a generator.'''
     def __init__(self, str, split_chars, skip_chars, suppressors):
         def _preserving_split():
             use_suppressors = len(suppressors) == 2

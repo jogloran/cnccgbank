@@ -1,7 +1,7 @@
 def label_result(cur, prev, app, flipped):
     '''This labels the slashes of the results of combinatory rule applications in a way that 
     preserves the indices attached to the slashes of its arguments.
-    For example, (X\1)/0Y Y/0Z -> (X\1)/0Z.
+    For example, (X\\1)/0Y Y/0Z -> (X\\1)/0Z.
     _flipped_ is true when prev was the right child of its parent.'''
 
     if app == "fwd_appl":

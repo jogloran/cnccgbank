@@ -120,21 +120,25 @@ from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.trees.traverse import is_ignored, leaves
 from itertools import izip, count
 def spans(ptb_tree):
-    '''Returns a sequence of tuples (B, E), where the Bth token from the start, and the Eth token from the end
-of the given PTB derivation span a quoted portion of the text.'''
+    '''Returns a sequence of tuples (B, E, P), P in ("``", "`"), where the Bth token from the start, and the Eth token 
+from the end of the given PTB derivation span a P-quoted portion of the text.'''
     
     leaf_nodes = [leaf for leaf in leaves(ptb_tree) if not is_ignored(leaf, ignoring_quotes=False)]
     # TODO: do this without incurring another full pass through the full nodes list
     leaf_nodes_without_quotes = [leaf for leaf in leaf_nodes if not is_ignored(leaf, ignoring_quotes=True)]
-    leaf_count = len(leaf_nodes_without_quotes)
+    leaf_count = len(leaf_nodes_without_quotes) # should be equal to the CCG leaf count
     
     result = []
     quote_stack = []
     index = 0
+    
     for leaf in leaf_nodes:
+        # Push open quote
         if leaf.lex in ("``", "`"):
             quote_stack.append( (leaf.lex, index) )
+            
         elif leaf.tag != "POS" and leaf.lex in ("''", "'"):
+            # Pop open quote and match with close quote
             if quote_stack:
                 open_quote, span_begin = quote_stack.pop()
                 if (open_quote == "``" and leaf.lex != "''" or
@@ -142,10 +146,12 @@ of the given PTB derivation span a quoted portion of the text.'''
                     warn("Unbalanced quotes, abandoning.")
                     break
                 
-                # we treat the span end index as leaf_count-index, not that minus one,
+                # We treat the span end index as leaf_count-index, not that minus one,
                 # because when we encounter the close quote, we are already one index
                 # past the end of the quoted span.
                 result.append( (span_begin, leaf_count-index, open_quote) )
+                
+            # Quote stack is empty, assume quoted span starts from beginning of string
             else:
                 if leaf.lex == "''":
                     quote_type = "``"
@@ -155,9 +161,12 @@ of the given PTB derivation span a quoted portion of the text.'''
                     err("spans: should not reach")
                     
                 result.append( (None, leaf_count-index, quote_type) )
+        
+        # Only advance the index for a leaf corresponding to a CCGbank leaf        
         else:
             index += 1
                 
+    # While open quotes are still on the stack, assume quoted span continues to end of string
     while quote_stack:
         remaining_quote, span_begin = quote_stack.pop()
         if remaining_quote in ("``", "`"):
@@ -194,6 +203,8 @@ at which each occurs.'''
     return dep 
     
 def fix_quote_spans(quote_spans, quote_indices):
+    '''Returns a fixed list of remaining quote span indices which accommodates the insertion of the given pair of 
+quote indices.'''
     open_quote_index, close_quote_index = quote_indices
     
     inserted_quotes = 0
@@ -255,7 +266,7 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                     dep = fix_dependencies(dep, quote_indices)
                     
                 print >> parg_out, dep
-                print >> ccg_out , ccg_bundle
+                print >> ccg_out,  ccg_bundle
     
 ptb_file_re = re.compile(r'(\d{2})/wsj_\d{2}(\d{2})\.mrg$')
 def main(argv):
