@@ -39,7 +39,7 @@ class PennTests(unittest.TestCase):
         self.assertEqual([kid.lex for kid in kids], ['b', 'c', 'd', 'e'])
 
     def testNodeRepresentation(self):
-        self.assertEqual(repr(self.n), "(a (L b) (L c) (L d) (L e))")
+        self.assertEqual(repr(self.n), "((a (L b) (L c) (L d) (L e)))")
 
     def testWriteDerivation(self):
         trees = parse_tree(self.from_penn)

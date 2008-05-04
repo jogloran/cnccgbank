@@ -7,8 +7,11 @@ class Node(object):
         self.tag = tag
         self.kids = kids
 
-    def __repr__(self):
-        return "(%s %s)" % (self.tag, ' '.join(repr(kid) for kid in self.kids))
+    def __repr__(self, first=True):
+        return "%s(%s %s)%s" % ("(" if first else "", 
+                            self.tag, 
+                            ' '.join(kid.__repr__(False) for kid in self.kids), 
+                            ")" if first else "")
 
     def __iter__(self):
         for kid in self.kids: yield kid
@@ -28,8 +31,10 @@ class Leaf(object):
         self.tag = tag
         self.lex = lex
 
-    def __repr__(self):
-        return "(%s %s)" % (self.tag, self.lex)
+    def __repr__(self, first=True):
+        return "%s(%s %s)%s" % ("(" if first else "", 
+                                self.tag, self.lex, 
+                                ")" if first else "")
 
     def __iter__(self): raise StopIteration
 

@@ -36,17 +36,14 @@ class PTBReader(object):
             return 0, 0
     
     def __getitem__(self, index):
-        '''Index-based retrieval of a derivation.'''
-        # TODO: index 0 should be an error if PTB ids start from 1
+        '''Index-based retrieval of a derivation. Note that derivations are 1-indexed, in line with their derivation IDs.'''
+        if index < 1: return None
         try:
             return self.derivs[index-1]
         except IndexError: return None
-        # for deriv in self:
-        #     if deriv.der_no == index: return deriv
-        #     
-        # return None
-        
+                
     def __setitem__(self, index, deriv):
+        '''Index-based modification of a derivation. 1-indexed like getitem.'''
         try:
             self.derivs[index-1] = deriv
         except IndexError: pass

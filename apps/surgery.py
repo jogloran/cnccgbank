@@ -39,14 +39,14 @@ def process(deriv, locator, instr):
 
     return deriv
 
-#    print deriv
-
 def write_doc(outdir, sec, doc, trees):
     tree_path = os.path.join(outdir, "%02d" % sec)
     tree_file = os.path.join(tree_path, "wsj_%02d%02d.mrg" % (sec, doc))
     if not os.path.exists(tree_path): os.makedirs(tree_path)
 
     with file(tree_file, 'w') as f:
+        # TODO: outer parens needed because wsj derivs are quoted at the top level
+        # TODO: I should put this in the repr method of Derivation by adding a 'first' parameter
         print >>f, "\n".join("(%s)" % str(tree) for tree in trees)
 
 parser = OptionParser(conflict_handler='resolve')
@@ -74,24 +74,18 @@ for line in sys.stdin.readlines():
     matches = spec_re.match(line)
         
     if matches and len(matches.groups()) == 3:
-        sec, doc, deriv = map(maybe_int, matches.groups())
+        sec, doc, deriv = map(int, matches.groups())
         
-        #cur_trees = load_trees(base, sec, doc)
         if (sec, doc) not in changes:
             changes[ (sec, doc) ] = load_trees(base, sec, doc)
-        #cur_tree = cur_trees[deriv]
         cur_tree = changes[ (sec, doc) ][deriv]
         
     else:
         line = line.rstrip()
         locator, instr = line.split(' ')
         locator_bits = map(maybe_int, locator.split(';'))
-        #cur_trees[deriv] = process(cur_tree, locator_bits, instr)
         changes[ (sec, doc) ][deriv] = process(cur_tree, locator_bits, instr)
-        # this means you can only write to a document once
-        # we need to gather all changes to a given document and write only after each document
-        #write_doc(opts.out, sec, doc, deriv, cur_trees.derivs)
 
-print changes
+# Write out aggregated changes
 for ((sec, doc), deriv) in changes.iteritems():
     write_doc(opts.out, sec, doc, deriv.derivs)
