@@ -9,13 +9,20 @@ def load_trees(base, sec, doc):
     reader = PTBReader(path)
     return reader
     
+def check_index(kid_list, locator):
+    if (not (0 <= locator < len(kid_list))) and locator != 'e':
+        raise RuntimeError, "Child index %s out of bounds. Kids are %s" % (locator, kid_list)
+    
 def process(deriv, locator, instr):
     last_locator = locator.pop()
     
     cur_node = deriv
     for kid_index in locator:
+        check_index(cur_node.kids, kid_index)
         cur_node = cur_node.kids[kid_index]
         
+    check_index(cur_node.kids, last_locator)
+    
     if instr == "d":
         # TODO: handle deleting the last kid, have to recursively delete. but PTB nodes have no parent ptr
         # otherwise assume this won't be done.
@@ -47,7 +54,7 @@ def write_doc(outdir, sec, doc, trees):
     with file(tree_file, 'w') as f:
         # TODO: outer parens needed because wsj derivs are quoted at the top level
         # TODO: I should put this in the repr method of Derivation by adding a 'first' parameter
-        print >>f, "\n".join("(%s)" % str(tree) for tree in trees)
+        print >>f, "\n".join("%s" % str(tree) for tree in trees)
 
 parser = OptionParser(conflict_handler='resolve')
 parser.add_option('-i', '--ptb-base', help='Path to wsj/ directory', dest='base')
@@ -82,7 +89,8 @@ for line in sys.stdin.readlines():
         
     else:
         line = line.rstrip()
-        locator, instr = line.split(' ')
+        print line
+        locator, instr = line.split(' ', 2)
         locator_bits = map(maybe_int, locator.split(';'))
         changes[ (sec, doc) ][deriv] = process(cur_tree, locator_bits, instr)
 

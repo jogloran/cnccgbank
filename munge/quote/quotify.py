@@ -7,6 +7,7 @@ from glob import glob
 from munge.util.err_utils import warn, info, err
 
 from munge.quote.span import SpanQuoter
+from munge.quote.lca import LCAQuoter
 from munge.quote.shift import ShiftComma
 from munge.quote.swap import SwapComma
 
@@ -90,7 +91,8 @@ def parse_requested_derivs(args):
 
 def match_trees(penn_trees, ccg_trees):
     '''Given two lists, of PTB and CCGbank trees which we believe to belong to the same document file, this removes
-those PTB trees which do not correspond to any CCGbank tree.'''
+those PTB trees which do not correspond to any CCGbank tree. We assume that the given CCGbank derivations are
+a subsequence of the given PTB derivations.'''
     cur_ptb_index = 0
     result = []
     
@@ -279,7 +281,7 @@ def main(argv):
     
     quoter_class = {
         'span': SpanQuoter,
-#        'lca' : LCAQuoter
+        'lca' : LCAQuoter
     }[opts.quote_method]
     punct_class = {
         'swap' : SwapComma,

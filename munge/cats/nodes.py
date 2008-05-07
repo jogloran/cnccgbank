@@ -131,6 +131,8 @@ class ComplexCategory(object):
                 self.right == other.right)
 
     def labelled(self, index=0):
+        '''Labels this category in-place. Labelling attaches indices to each slash of this
+category in a pre-order traversal of the category tree.'''
         self.label = index
         index += 1 # the current node gets the label _index_
         index = self.left.labelled(index)
@@ -138,6 +140,7 @@ class ComplexCategory(object):
         return index
 
     def is_labelled(self):
+        '''Determines whether this category is labelled.'''
         return self.label or any(kid.is_labelled() for kid in self)
 
     def slash_count(self):

@@ -32,9 +32,7 @@ class Leaf(object):
         self.lex = lex
 
     def __repr__(self, first=True):
-        return "%s(%s %s)%s" % ("(" if first else "", 
-                                self.tag, self.lex, 
-                                ")" if first else "")
+        return "(%s %s)" % (self.tag, self.lex)
 
     def __iter__(self): raise StopIteration
 

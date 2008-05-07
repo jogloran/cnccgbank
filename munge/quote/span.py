@@ -1,20 +1,10 @@
 from munge.trees.traverse import text_in_span, text
-
 from munge.trees.traverse import leaves, get_leaf
 from munge.util.list_utils import is_sublist
 from munge.ccg.nodes import Node, Leaf
-from munge.quote.base import BaseQuoter
 
-def make_open_quote_leaf(q, double=True):
-    if q and not q.is_leaf():
-        q = q.lch
-        
-    lex = "``" if double else "`"
-    return Leaf('LQU', 'LQU', 'LQU', lex, 'LQU', q)
-    
-def make_closed_quote_leaf(q, double=True):
-    lex = "''" if double else "'"
-    return Leaf('RQU', 'RQU', 'RQU', lex, 'RQU', q)
+from munge.quote.base import BaseQuoter
+from munge.quote.utils import make_open_quote_leaf, make_closed_quote_leaf
 
 class SpanQuoter(BaseQuoter):
     def attach_quotes(self, deriv, span_begin, span_end, quote_type, higher, quotes):

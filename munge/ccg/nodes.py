@@ -4,9 +4,11 @@ from munge.trees.traverse import text
 
 class Node(object):
     '''Representation of a CCGbank internal node.'''
+    
     # We allow lch to be None to make easier the incremental construction of Node structures in
     # the parser. Conventionally, lch can never be None.
     def __init__(self, cat, ind1, ind2, parent, lch=None, rch=None):
+        '''Creates a new internal node.'''
         self.cat = cat
         self.ind1, self.ind2 = ind1, ind2
         self.parent = parent
@@ -19,6 +21,7 @@ class Node(object):
             self._rch.parent = self
 
     def __repr__(self):
+        '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
         return ("(<T %s %s %s> %s %s)" %
                 (self.cat, self.ind1, self.ind2,
                  self.lch, str(self.rch)+' ' if self.rch else ''))
@@ -64,11 +67,14 @@ class Node(object):
     def clone(self): return copy.copy(self)
     
     def text(self):
+        '''Returns a list of text tokens corresponding to the leaves under this node.'''
         return text(self)
 
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
+    
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
+        '''Creates a new leaf node.'''
         self.cat = cat
         self.pos1, self.pos2 = pos1, pos2
         self.lex = lex
@@ -76,12 +82,12 @@ class Leaf(object):
         self.parent = parent
 
     def __repr__(self):
+        '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
         return "(<L %s %s %s %s %s>)" % \
                 (self.cat, self.pos1, self.pos2, \
                  self.lex, self.catfix)
 
     def __eq__(self, other):
-#        if not isinstance(other, Leaf): return False
         if other is None or not other.is_leaf(): return False
         
         return (self.cat == other.cat and
@@ -98,4 +104,5 @@ class Leaf(object):
     def clone(self): return copy.copy(self)
     
     def text(self):
+        '''Returns a list of text tokens corresponding to the leaves under this node.'''
         return text(self)

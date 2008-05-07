@@ -3,6 +3,42 @@ from munge.util.iter_utils import each_pair
 from munge.cats.trace import analyse
 from munge.cats.labels import label_result
 
+def preserving_zip(*orig_seqs):
+    seqs = map(lambda e: list(e)[::-1], orig_seqs)
+    result = []
+    
+    def maybe_pop(seq):
+        if not seq: return None
+        else: return seq.pop()
+        
+    while any(seqs):
+        result.append(map(maybe_pop, seqs))
+    print seqs
+    
+    return result
+    
+def simple_path_to_root(node):
+    while node:
+        yield node
+        node = node.parent
+
+def lca(node1, node2):
+    if not node1: return node2
+    if not node2: return node1
+
+    path1 = simple_path_to_root(node1)
+    path2 = simple_path_to_root(node2)
+    
+    pred = None
+    
+    for (node1, node2) in preserving_zip(path1, path2):
+        if node1 == node2:
+            pred = node1
+        else:
+            return pred
+            
+    return pred
+
 def path_to_root(node):
     '''Yields a sequence of triples ( (l0, r0, f0), (l1, r1, f1), ... ) representing
     the path of a node and its sibling from the given _node_ up to the root.

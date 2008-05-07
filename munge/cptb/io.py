@@ -1,7 +1,10 @@
 from itertools import izip, count
 from munge.penn.parse import parse_tree
 
+# Represents a derivation bundle in the Chinese Penn Treebank. This consists of a standard Penn 
+# Treebank bracketing preceded by some additional SGML-like markup.
 class Derivation(object):
+    '''A derivation bundle contains the PTB derivation and its metadata.'''
     def __init__(self, sec_no, doc_no, der_no, derivation):
         self.sec_no, self.doc_no, self.der_no = sec_no, doc_no, der_no
         self.derivation = derivation
@@ -41,6 +44,7 @@ class SGMLBag(SGMLParser):
         return self.fields.get(key, None)
     
 class CPTBReader(object):
+    '''An iterator over a CPTB document yielding derivation bundles.'''
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'r')
