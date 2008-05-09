@@ -86,6 +86,8 @@ class Leaf(object):
         return "(<L %s %s %s %s %s>)" % \
                 (self.cat, self.pos1, self.pos2, \
                  self.lex, self.catfix)
+                 
+    def __iter__(self): raise StopIteration
 
     def __eq__(self, other):
         if other is None or not other.is_leaf(): return False

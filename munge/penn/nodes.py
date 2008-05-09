@@ -9,9 +9,9 @@ class Node(object):
 
     def __repr__(self, first=True):
         return "%s(%s %s)%s" % ("(" if first else "", 
-                            self.tag, 
-                            ' '.join(kid.__repr__(False) for kid in self.kids), 
-                            ")" if first else "")
+                                self.tag, 
+                                ' '.join(kid.__repr__(False) for kid in self.kids), 
+                                ")" if first else "")
 
     def __iter__(self):
         for kid in self.kids: yield kid

@@ -10,7 +10,7 @@ def load_trees(base, sec, doc):
     return reader
     
 def check_index(kid_list, locator):
-    if (not (0 <= locator < len(kid_list))) and locator != 'e':
+    if (not (-len(kid_list) <= locator < len(kid_list))) and locator != 'e':
         raise RuntimeError, "Child index %s out of bounds. Kids are %s" % (locator, kid_list)
     
 def process(deriv, locator, instr):
@@ -52,8 +52,6 @@ def write_doc(outdir, sec, doc, trees):
     if not os.path.exists(tree_path): os.makedirs(tree_path)
 
     with file(tree_file, 'w') as f:
-        # TODO: outer parens needed because wsj derivs are quoted at the top level
-        # TODO: I should put this in the repr method of Derivation by adding a 'first' parameter
         print >>f, "\n".join("%s" % str(tree) for tree in trees)
 
 parser = OptionParser(conflict_handler='resolve')
@@ -62,6 +60,10 @@ parser.add_option('-o', '--output', help='Output directory. Only changed files w
 
 opts, remaining_args = parser.parse_args(sys.argv)
 parser.destroy()
+
+if not (opts.base and opts.out):
+    print "Give options -i (--ptb-base) and -o (--output)."
+    sys.exit(1)
 
 base = opts.base
 spec_re = re.compile(r'(\d+):(\d+)\((\d+)\)')
