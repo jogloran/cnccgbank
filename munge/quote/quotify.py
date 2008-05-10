@@ -109,7 +109,6 @@ a subsequence of the given PTB derivations.'''
                 warn("In document %s:", ccg_bundle.label())
                 warn("\tCCG tokens: %s", ' '.join(ccg_text))
                 warn("\tPTB tokens: %s", ' '.join(ptb_text))
-                pass
             else:
                 result.append( penn_trees[cur_ptb_index] )
                 ccg_tree_matched = True
@@ -251,9 +250,7 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
 
                 quote_spans = spans(ptb_tree)
                 while quote_spans:
-                    print quote_spans
                     v = quote_spans.pop(0)
-                    print v
                     span_start, span_end, quote_type = v
                     if span_start is None and span_end is None: continue
                     
