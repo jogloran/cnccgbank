@@ -40,7 +40,7 @@ def try_unary_rules(l, r, cur):
         if l.is_compound(): # Other special unary rules
             if l == SbNP:
                 if cur == NPbNP or cur == NbN:
-                   return "appositive_typechange"
+                    return "appositive_typechange"
                 if cur == SbNPbSbNP:
                     return "clause_mod_typechange"
 
@@ -70,7 +70,7 @@ def allows_composition(mode_index):
     return mode_index in (COMP, ALL)
 
 def is_composition(l, r, result, examine_modes=False):
-    return ((not examine_modes) or (allows_comp(lhs.mode) and allows_comp(rhs.mode))) and \
+    return ((not examine_modes) or (allows_composition(l.mode) and allows_composition(r.mode))) and \
             l.right == r.left and l.left == result.left and r.right == result.right
 
 def try_composition(l, r, cur, examine_modes=False):

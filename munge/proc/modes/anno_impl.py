@@ -31,6 +31,8 @@ class MakeAnnotator(Filter):
 and composition mode candidates (determined manually).'''
     
     def __init__(self, threshold, manual_fn):
+        Filter.__init__(self)
+        
         self.appl_only_filter = ApplicationModeAnnotator(threshold)
         self.null_only_filter = NullModeAnnotator(threshold)
 

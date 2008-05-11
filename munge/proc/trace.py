@@ -11,8 +11,6 @@ from munge.cats.paths import applications_per_slash
 
 from munge.util.err_utils import warn, info
 
-from exceptions import NotImplementedError
-
 from munge.proc.dynload import get_available_filters_dict, load_requested_packages, get_argcount_for_method
 
 BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno']

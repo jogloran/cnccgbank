@@ -102,8 +102,8 @@ a subsequence of the given PTB derivations.'''
         while not ccg_tree_matched:
             if cur_ptb_index >= len(penn_trees): break
         
-            ccg_text = text(ccg_bundle.derivation)
-            ptb_text = text_without_quotes_or_traces(penn_trees[cur_ptb_index].derivation)
+            ccg_text = ccg_bundle.derivation.text()
+            ptb_text = penn_trees[cur_ptb_index].derivation.text()
         
             if ptb_text != ccg_text:
                 warn("In document %s:", ccg_bundle.label())

@@ -10,6 +10,7 @@ from munge.proc.bases import AcceptRejectWithThreshold, AcceptRejectReporter
 class WriteDOT(Filter):
     "Writes each derivation to a DOT file under the given directory."
     def __init__(self, output_dir):
+        Filter.__init__(self)
         self.output_dir = output_dir
         
         try:
@@ -34,6 +35,7 @@ class WriteDOT(Filter):
 class ListCategoriesForLex(Filter):
     "Reports on all categories attested for a given lexical item."
     def __init__(self, lex):
+        Filter.__init__(self)
         self.lex = lex
         self.cats_seen = set()
         
@@ -52,6 +54,7 @@ class ListCategoriesForLex(Filter):
 class CombinatorCounter(Filter):
     "Gives the frequency with which each combinator has been used."
     def __init__(self):
+        Filter.__init__(self)
         self.counter = CountDict()
     
     def accept_leaf(self, leaf):

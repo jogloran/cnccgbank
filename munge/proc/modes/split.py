@@ -30,6 +30,9 @@ class Subst(DerivationOutput, Filter):
     '''Substitutes categories based on a map.'''
     def __init__(self, substs, output_dir):
         # substs maps from the _name_ of each old category to its replacement category _object_.
+        Filter.__init__(self)
+        DerivationOutput.__init__(self)
+        
         self.substs = substs
         self.output_dir = output_dir
         
@@ -51,6 +54,8 @@ class Subst(DerivationOutput, Filter):
 class SubstFromAnnotatorFile(Filter):
     '''Performs category substitution given an annotator file.'''
     def __init__(self, anno_filename, output_dir):
+        Filter.__init__(self)
+        
         self.anno_filename = anno_filename
         self.substs = self.process_annotator_into_substs(anno_filename)
         self.output_dir = output_dir

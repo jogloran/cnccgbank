@@ -6,6 +6,7 @@ from munge.proc.trace import Filter
 class CountRuleFrequencyBySlash(Filter):
     '''Abstract filter which counts how many times each combinator is used for each slash of each category.'''
     def __init__(self):
+        Filter.__init__(self)
         self.freqs = CountDict()
         
     def accept_comb_and_slash_index(self, leaf, comb, slash_index):
@@ -14,6 +15,7 @@ class CountRuleFrequencyBySlash(Filter):
 class CountWordFrequencyByCategory(Filter):
     '''Abstract filter which counts the number of times each lexical item occurs for each category.'''
     def __init__(self):
+        Filter.__init__(self)
         self.examples = defaultdict(CountDict)
         
     def accept_leaf(self, leaf):
@@ -78,6 +80,4 @@ class AnnotatorFormReporter(object):
         
         for (cat, slash_index, applied_frequency, total_frequency) in \
              sorted(set, key=lambda this: this[2], reverse=True):
-             
-             print " ".join(cat, slash_index)
-             
+            print " ".join(cat, slash_index)
