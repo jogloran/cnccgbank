@@ -45,9 +45,20 @@ def is_direction(char):
 def parse_feature(toks):
     return with_squares(lambda toks: toks.next(), toks)
     
-def parse_compound_body(toks):
+def parse_compound_rhs(toks):
+    '''Parses and returns the slash, mode and right hand side of a compound category.'''
+    dir = parse_direction(toks)
+    mode = None
+    if toks.peek() in ComplexCategory.mode_symbols:
+        mode = ComplexCategory.mode_symbols.find(toks.next())
+        
+    right = parse_compound(toks)
+    
+    return dir, mode, right
 
 def parse_compound(toks):
+    '''Parses a compound category.'''
+    # Left hand side is a compound category
     if toks.peek() == '(':
         toks.next()
 
@@ -59,56 +70,17 @@ def parse_compound(toks):
             left.features.append(lfeat)
 
         if is_direction(toks.peek()):
-            dir = parse_direction(toks)
-            
-            # see if a mode symbol is present
-            mode = None
-            # Derivation 5:95(15) is broken; there are two instances of malformed categories:
-            # ((S[b]\NP)/NP)/ with lexical items 'own' and 'keep'.
-            if toks.peek() in ComplexCategory.mode_symbols:
-                mode = ComplexCategory.mode_symbols.find(toks.next())
-                
-            if toks.peek() == '(':
-                toks.next()
-
-                right = parse_compound(toks)
-                shift_and_check( ')', toks )
-
-                if toks.peek() == '[':
-                    rfeat = parse_feature(toks)
-                    right.features.append(rfeat)
-
-            else:
-                right = parse_atom(toks)
-
-            return ComplexCategory(left, dir, right, DefaultMode if (mode is None) else mode) # TODO: add mode recognition here
+            dir, mode, right = parse_compound_rhs(toks)
+            return ComplexCategory(left, dir, right, DefaultMode if (mode is None) else mode)
 
         else: return left
 
-    else: # TODO: this duplicates the above exactly. write this better.
+    # Left hand side is an atomic category
+    else:
         left = parse_atom(toks)
 
         if is_direction(toks.peek()):
-            dir = parse_direction(toks)
-
-            # see if a mode symbol is present
-            mode = None
-            if toks.peek() in ComplexCategory.mode_symbols:
-                mode = ComplexCategory.mode_symbols.find(toks.next())
-
-            if toks.peek() == '(':
-                toks.next()
-
-                right = parse_compound(toks)
-                shift_and_check( ')', toks )
-
-                if toks.peek() == '[':
-                    rfeat = parse_feature(toks)
-                    right.features.append(rfeat)
-
-            else:
-                right = parse_atom(toks)
-
+            dir, mode, right = parse_compound_rhs(toks)
             return ComplexCategory(left, dir, right, DefaultMode if (mode is None) else mode)
 
         else: return left
