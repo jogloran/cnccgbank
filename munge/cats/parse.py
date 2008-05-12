@@ -44,6 +44,8 @@ def is_direction(char):
 
 def parse_feature(toks):
     return with_squares(lambda toks: toks.next(), toks)
+    
+def parse_compound_body(toks):
 
 def parse_compound(toks):
     if toks.peek() == '(':

@@ -58,6 +58,14 @@ class AtomicCategory(object):
     def label_text(self): return re.escape(self.cat)
 
     def is_compound(self): return not self.is_leaf()
+    
+    def __or__(self, right):
+        '''Constructs the complex category (self \ right).'''
+        return ComplexCategory(self, BACKWARD, right)
+        
+    def __div__(self, right):
+        '''Constructs the complex category (self / right).'''
+        return ComplexCategory(self, FORWARD, right)
 
 class ComplexCategory(object):
     '''Represents a complex category.'''
@@ -168,3 +176,11 @@ category in a pre-order traversal of the category tree.'''
     def label_text(self): return re.escape(self.slash)
 
     def is_compound(self): return not self.is_leaf()
+    
+    def __or__(self, right):
+        '''Constructs the complex category (self \ right).'''
+        return ComplexCategory(self, BACKWARD, right)
+        
+    def __div__(self, right):
+        '''Constructs the complex category (self / right).'''
+        return ComplexCategory(self, FORWARD, right)

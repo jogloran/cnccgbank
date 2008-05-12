@@ -1,13 +1,6 @@
 from munge.cats.parse import parse_category
 from munge.cats.nodes import APPLY, COMP, NULL, ALL, BACKWARD, FORWARD
-
-LeftAbsorbedPunctuationCats = ", . `` : ; LRB RRB".split()
-RightAbsorbedPunctuationCats = ", . '' : ; LRB RRB".split()
-ConjPunctuationCats = ", ; :".split()
-SbNP, SfNP, NPbNP, NbN, SbNPbSbNP, \
-SbS, SfS, SbNPfSbNP, NP = [parse_category(cat) for cat in
-                        '''S\\NP S/NP NP\\NP N\\N (S\\NP)\\(S\\NP)
-                           S\\S  S/S (S\\NP)/(S\\NP) NP'''.split()]
+from munge.cats.cat_defs import *
 
 def analyse(l, r, cur, examine_modes=False):
     return (try_unary_rules(l, r, cur) if not r else
