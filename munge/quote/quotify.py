@@ -250,8 +250,8 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
 
                 quote_spans = spans(ptb_tree)
                 while quote_spans:
-                    v = quote_spans.pop(0)
-                    span_start, span_end, quote_type = v
+                    value = quote_spans.pop(0)
+                    span_start, span_end, quote_type = value
                     if span_start is None and span_end is None: continue
                     
                     info("Reinstating quotes to %s (%s, %s)", ccg_bundle.label(), span_start, span_end)

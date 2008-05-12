@@ -4,6 +4,10 @@ from munge.cats.trace import analyse
 from munge.cats.labels import label_result
 
 def preserving_zip(*orig_seqs):
+    '''A preserving zip which does not truncate to the length of the shortest sequence like the standard zip.
+    seq1, seq2 = (1, 2), (3, 4, 5)
+    zip(seq1, seq2) => ((1, 3), (2, 4))
+    preserving_zip(seq1, seq2) => ((1, 3), (2, 4), (None, 5))'''
     seqs = map(lambda e: list(e)[::-1], orig_seqs)
     result = []
     
@@ -13,7 +17,6 @@ def preserving_zip(*orig_seqs):
         
     while any(seqs):
         result.append(map(maybe_pop, seqs))
-    print seqs
     
     return result
     
