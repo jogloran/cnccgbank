@@ -51,16 +51,16 @@ required_args = {
     "ccg_in" : "-I (--ccgbank-in)",
     "outdir" : "-o (--output)"
 }
-def check_for_required_args(opts):
-    '''Ensures that the required arguments are all present, and notifies the user as to which of them are not.'''
+def all_required_args_present(opts):
+    '''Ensures that the required arguments are all present, notifies the user as to which of them are not,
+then returns whether all required arguments were present.'''
     arg_missing = False
     for (required_arg, arg_switches) in required_args.iteritems():
         if getattr(opts, required_arg, None) is None:
             err("Argument %s is mandatory.", arg_switches)
             arg_missing = True
 
-    if arg_missing:
-        sys.exit(1)
+    return not arg_missing
             
 def fix_secdoc_string(secdoc):
     '''Given a section/document specifier of the form S:D, where S or D may be absent, returns a specifier string
@@ -270,7 +270,9 @@ def main(argv):
     register_builtin_switches(parser)                        
     opts, args = parser.parse_args(argv)
     
-    check_for_required_args(opts)
+    if not all_required_args_present(opts):
+        parser.print_help()
+        sys.exit(1)
     
     quoter_class = {
         'span': SpanQuoter,
