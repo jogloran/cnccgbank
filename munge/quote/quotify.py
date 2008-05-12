@@ -17,16 +17,13 @@ from munge.ccg.deps_io import CCGbankDepsReader
 
 from munge.trees.traverse import text, text_without_quotes_or_traces, text_without_traces
 
-DefaultLogFile = "quote_error"
-
 def register_builtin_switches(parser):
     parser.set_defaults(punct_method="shift",
                         quote_method="span",
                         quotes="both",
                         higher="left",
                         quiet=False,
-                        log=True,
-                        logfile=DefaultLogFile)
+                        log=True)
                         
     parser.add_option("-i", "--penn-in", help="Path to wsj/ directory", action="store",
                       dest="penn_in", metavar="DIR")
@@ -45,7 +42,6 @@ def register_builtin_switches(parser):
     parser.add_option("-H", "--higher", choices=('left', 'right'),
                       help="Which of the opening (left) or closing (right) quote is the higher in the resulting tree",
                       dest="higher", metavar='DIR')
-    parser.add_option("--log", help="Log derivations which cause problems to a file", dest="logfile", metavar="FILE")
     parser.add_option("-q", "--quiet", help="Produce less output", action="store_true", dest="quiet")
     
 # required_args maps the name of the 'dest' variable of each required option to a summary of its switches (this text is
