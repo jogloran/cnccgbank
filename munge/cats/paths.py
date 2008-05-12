@@ -15,17 +15,19 @@ def preserving_zip(*orig_seqs):
         if not seq: return None
         else: return seq.pop()
         
-    while any(seqs):
+    while any(seqs): # While some sequence is not empty
         result.append(map(maybe_pop, seqs))
     
     return result
     
 def simple_path_to_root(node):
+    '''Returns a list of the nodes from the given node to the root.'''
     while node:
         yield node
         node = node.parent
 
 def lca(node1, node2):
+    '''Returns the least common ancestor of two nodes in a derivation tree.'''
     if not node1: return node2
     if not node2: return node1
 
@@ -44,9 +46,9 @@ def lca(node1, node2):
 
 def path_to_root(node):
     '''Yields a sequence of triples ( (l0, r0, f0), (l1, r1, f1), ... ) representing
-    the path of a node and its sibling from the given _node_ up to the root.
-    If f0 is true, then r0 is the 'focus' of the triple. Otherwise, l0 is. The focus
-    is the node which actually lies on the sought path, the non-focus node is its sibling.'''
+the path of a node and its sibling from the given _node_ up to the root.
+If f0 is true, then r0 is the 'focus' of the triple. Otherwise, l0 is. The focus
+is the node which actually lies on the sought path, the non-focus node is its sibling.'''
     while node.parent:
         if node.parent.rch is node:
             yield node.parent.lch, node, True
@@ -60,7 +62,7 @@ def path_to_root(node):
 
 def category_path_to_root(node):
     '''Identical to path_to_root, except that the _categories_ of each node on
-    the path are returned, instead of the nodes themselves.'''
+the path are returned, instead of the nodes themselves.'''
     def extract_categories(left, right, was_flipped):
         return (left.cat, right.cat if right else None, was_flipped)
 
@@ -68,7 +70,7 @@ def category_path_to_root(node):
     
 def cloned_category_path_to_root(node):
     '''Identical to path_to_root, except that the _categories_ of each node on
-    the path are returned, instead of the nodes themselves.'''
+the path are returned, instead of the nodes themselves.'''
     def extract_categories(left, right, was_flipped):
         return (left.cat.clone(), right.cat.clone() if right else None, was_flipped)
 
@@ -85,12 +87,14 @@ def applications_with_path(path):
         
 def applications_per_slash(node, examine_modes=False):
     '''Returns a list of length _n_, the number of slashes in the category of _node_.
-    Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
+Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
     return applications_per_slash_with_path(cloned_category_path_to_root(node),
                                             node.cat.slash_count(),
                                             examine_modes)
 
 def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False):
+    '''Given a category, returns a list whose index _i_ is the rule which consumed its _i_th slash, or None
+if it was not consumed.'''
     result = []
 
     for slash in range(slash_count):
