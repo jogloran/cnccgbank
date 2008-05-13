@@ -160,6 +160,8 @@ category in a pre-order traversal of the category tree.'''
         yield self.right
         
     def slashes(self):
+        '''For each slash of this compound category, yields a tuple of the category containing that slash
+and its labelled index.'''
         yield (self, self.label)
         
         for child in (self.left, self.right):
