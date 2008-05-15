@@ -25,3 +25,6 @@ class CatTests(unittest.TestCase):
 
         self.assertEqual(repr(cat), r'(S\-NP[b])/.(S[c]/@NP)[feat]')
 
+    def tearDown(self):
+        if os.path.exists('cat.dot'):
+            os.remove('cat.dot')

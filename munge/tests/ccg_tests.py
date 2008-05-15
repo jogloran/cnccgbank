@@ -25,5 +25,9 @@ class CCGTests(unittest.TestCase):
 
         # TODO: Had problems with 01:0(1), need to investigate
 
+    def tearDown(self):
+        if os.path.exists('ccg_deriv.dot'):
+            os.remove('ccg_deriv.dot')
+
 if __name__ == '__main__':
     unittest.main()

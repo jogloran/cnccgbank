@@ -49,5 +49,10 @@ class PennTests(unittest.TestCase):
         write_graph(tree, 'penn_deriv.dot')
         self.assert_(os.path.exists('penn_deriv.dot'))
 
+    def tearDown(self):
+        if os.path.exists('penn_deriv.dot'):
+            os.remove('penn_deriv.dot')
+
+
 if __name__ == '__main__':
     unittest.main()
