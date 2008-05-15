@@ -1,0 +1,32 @@
+946,950c946,951
+< 12 	 10 	 (S[dcl]\NP)/NP 	 2 	 fancy'shvartzer is
+< 12 	 11 	 NP[nb]/N 	 1 	 fancy'shvartzer a
+< 12 	 13 	 (NP\NP)/NP 	 1 	 fancy'shvartzer with
+< 15 	 13 	 (NP\NP)/NP 	 2 	 moustache with
+< 15 	 14 	 NP[nb]/N 	 1 	 moustache a
+---
+> 13   10   (S[dcl]\NP)/NP 	2	shvartzer is
+> 13   11   NP[nb]/N 	1	shvartzer a
+> 13   12   N/N 	1	shvartzer fancy
+> 13   14   (NP\NP)/NP 	2	shvartzer with
+> 16 	 14 	 (NP\NP)/NP 	 2 	 moustache with
+> 16 	 15 	 NP[nb]/N 	 1 	 moustache a
+1297,1304c1298,1306
+< 13 	 11 	 (NP\NP)/NP 	 2 	 value between
+< 13 	 12 	 N/N 	 1 	 value the'breakup
+< 13 	 14 	 (NP\NP)/NP 	 1 	 value of
+< 16 	 14 	 (NP\NP)/NP 	 2 	 shares of
+< 16 	 15 	 NP[nb]/N 	 1 	 shares the
+< 20 	 11 	 (NP\NP)/NP 	 2 	 value between
+< 20 	 18 	 NP[nb]/N 	 1 	 value their
+< 20 	 19 	 N/N 	 1 	 value market
+---
+> 14 	 11 	 (NP\NP)/NP 	 2 	 value between
+> 14 	 13 	 N/N 	 1 	 value breakup
+> 13	 12      NP[nb]/N	1	breakup	the
+> 14 	 15 	 (NP\NP)/NP 	 1 	 value of
+> 17 	 15 	 (NP\NP)/NP 	 2 	 shares of
+> 17 	 16 	 NP[nb]/N 	 1 	 shares the
+> 21 	 11 	 (NP\NP)/NP 	 2 	 value between
+> 21 	 19 	 NP[nb]/N 	 1 	 value their
+> 21 	 20 	 N/N 	 1 	 value market
