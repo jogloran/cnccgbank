@@ -1,4 +1,4 @@
-from munge.ccg.io import CCGbankReader
+from munge.ccg.io import CCGbankReader, WritableCCGbankReader
 
 class CCGbankGuesser(object):
     @staticmethod
@@ -10,3 +10,7 @@ class CCGbankGuesser(object):
         
     @staticmethod
     def reader_class(): return CCGbankReader
+
+class WritableCCGbankGuesser(CCGbankGuesser):
+    @staticmethod
+    def reader_class(): return WritableCCGbankReader

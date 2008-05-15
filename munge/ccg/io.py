@@ -64,5 +64,23 @@ class CCGbankReader(object):
                 raise
                 
             yield Derivation.from_header_and_derivation(header, deriv_string)
-
             
+    def __str__(self):
+        raise NotImplementedError, "CCGbankReader cannot generate a string representation of its backing without consuming it."
+            
+class WritableCCGbankReader(object):
+    def __init__(self, filename):
+        self.reader = CCGbankReader(filename)
+        self.derivs = list(self.reader)
+        
+    def __getitem__(self, index):
+        return self.derivs[index-1].derivation
+        
+    def __setitem__(self, index, value):
+        self.derivs[index-1].derivation = value
+        
+    def __iter__(self):
+        for deriv in self.derivs: yield deriv
+        
+    def __str__(self):
+        return '\n'.join(str(bundle) for bundle in self.derivs)

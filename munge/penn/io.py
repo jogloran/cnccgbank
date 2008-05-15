@@ -8,11 +8,15 @@ class Derivation(object):
     '''Represents a single derivation inside a PTB document.'''
     def __init__(self, sec_no, doc_no, der_no, derivation):
         self.sec_no, self.doc_no, self.der_no = sec_no, doc_no, der_no
-        self.derivation = derivation
+        self._derivation = derivation
         
     def label(self): 
         '''Returns a label representing this derivation.'''
         return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        
+    def get_derivation(self): return self._derivation
+    def set_derivation(self, derivation): self._derivation = derivation
+    derivation = property(get_derivation, set_derivation)
         
     def __str__(self):
         return str(self.derivation)
@@ -53,3 +57,6 @@ class PTBReader(object):
         # Number derivations starting from 1, in common with CCGbank IDs
         for deriv, der_no in izip(self.derivs, count(1)):
             yield Derivation(self.sec_no, self.doc_no, der_no, deriv)
+            
+    def __str__(self):
+        return '\n'.join(str(deriv) for deriv in self.derivs)

@@ -22,3 +22,18 @@ class GuessReader(object):
         
     def __iter__(self):
         for deriv in self.reader: yield deriv
+        
+    def __getitem__(self, index):
+        '''Delegates to the guessed reader's __getitem__ method.'''
+        return self.reader.__getitem__(index)
+        
+    def __setitem__(self, index, value):
+        '''Delegates to the guessed reader's __setitem__ method.'''
+        return self.reader.__setitem__(index, value)
+
+    @property
+    def derivs(self):
+        return self.reader.derivs
+        
+    def __str__(self):
+        return self.reader.__str__()
