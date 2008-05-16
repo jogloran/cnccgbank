@@ -1,6 +1,11 @@
 import unittest
 from munge.util.iter_utils import *
 from munge.util.func_utils import *
+from munge.util.deco_utils import *
+from munge.util.err_utils import *
+from munge.util.list_utils import *
+from munge.util.parse_utils import *
+from munge.util.dict_utils import *
 
 class UtilTests(unittest.TestCase):
     def testCompose(self):
@@ -13,9 +18,9 @@ class UtilTests(unittest.TestCase):
         self.assertEquals(j(3), (3*2)+1)
 
     def testFlatten(self):
-        self.assertEquals(flatten( (1, (2, (3, (4, (5, 6))))) ), (1, 2, 3, 4, 5, 6))
-        self.assertEquals(flatten( () ), () )
-        self.assertEquals(flatten( (1, 2, 3, 4) ), (1, 2, 3, 4))
+        self.assertEquals(tuple(flatten( (1, (2, (3, (4, (5, 6))))) )), (1, 2, 3, 4, 5, 6))
+        self.assertEquals(tuple(flatten( () )), () )
+        self.assertEquals(tuple(flatten( (1, 2, 3, 4) )), (1, 2, 3, 4))
 
     def test_first_index_such_that(self):
         l = [3, 5, 7, 9, 10, 11]
@@ -32,16 +37,9 @@ class UtilTests(unittest.TestCase):
         self.assert_(m is None)
 
     def testFind(self):
-        l = [4, 6, "s", 10, 11, 12, 14]
+        l = [4, 6, 8, 10, 11, 12, 14]
         self.assertEqual(find(lambda e: e % 2 != 0, l), 11)
-        self.assert_(find(lambda e: e > 15) is None)
-        
-    def testStarmap(self):
-        def f(a, b, c):
-            return a + b + c
-
-        tuple = ( (1, 2, 3), (10, 15, 30) )
-        self.assertEquals(starmap(f, l), (6, 55))
+        self.assert_(find(lambda e: e > 15, l) is None)
 
     def testSublist(self):
         smaller = ()
@@ -71,7 +69,7 @@ class UtilTests(unittest.TestCase):
     def testReject(self):
         l = range(10)
         list = reject(l, lambda e: e % 2 == 0)
-        self.assertFalse( any(lambda e: e % 2 == 0, list) )
+        self.assertFalse( any(e % 2 == 0 for e in list) )
 
     def testCountDict(self):
         c = CountDict()
