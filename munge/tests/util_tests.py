@@ -1,7 +1,17 @@
 import unittest
-from munge.util.iter_utils import flatten
+from munge.util.iter_utils import *
+from munge.util.func_utils import *
 
 class UtilTests(unittest.TestCase):
+    def testCompose(self):
+        f = lambda x: x * 2
+        g = lambda x: x + 1
+
+        h = compose(f, g)
+        j = compose(g, f)
+        self.assertEquals(h(3), (3+1)*2)
+        self.assertEquals(j(3), (3*2)+1)
+
     def testFlatten(self):
         self.assertEquals(flatten( (1, (2, (3, (4, (5, 6))))) ), (1, 2, 3, 4, 5, 6))
         self.assertEquals(flatten( () ), () )
