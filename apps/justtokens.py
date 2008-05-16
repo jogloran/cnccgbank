@@ -20,8 +20,8 @@ class Tokens(DumpTokens, Filter):
     def __init__(self):
         DumpTokens.__init__(self, sys.stdout)
         
-    opt = "-t"
-    long_opt = "--tokens"
+    opt = "t"
+    long_opt = "tokens"
     
 class DumpAllWithQuotes(Filter):
     def __init__(self, outfile):
@@ -39,5 +39,5 @@ class DumpAllWithQuotes(Filter):
         if any(map(lambda token: token.lex in ("``", "`", "''", "'") and token.pos1 != "POS", text)):
             print >>self.f, "%s|%s" % (deriv.label(), ' '.join(deriv.derivation.text()))
             
-    opt = '-"'
-    long_opt = "--dump-quoted"
+    opt = '"'
+    long_opt = "dump-quoted"

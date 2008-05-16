@@ -3,7 +3,10 @@ from munge.io.guess_cptb import CPTBGuesser
 from munge.io.guess_ccgbank import CCGbankGuesser
 
 class GuessReader(object):
+    '''A reader which attempts to automatically guess the treebank
+type based on the first bytes of the document.'''
     def __init__(self, filename, guessers=(CCGbankGuesser, PTBGuesser, CPTBGuesser), default=CCGbankGuesser):
+        '''Initialises a GuessReader with a given set of guessers.'''
         self.guessers = list(guessers)
         self.default = default
         
@@ -15,12 +18,17 @@ class GuessReader(object):
         self.reader = self.reader_class(filename)
         
     def determine_reader(self, preview):
+        '''Applies each of the guessers to the document, returning the
+corresponding reader class if a guesser matches.'''
         for guesser in self.guessers:
             if guesser.identify(preview):
                 return guesser.reader_class()
-        return self.default
+        else:
+            warn("determine_reader: No reader could be guessed; assuming %s", guesser.reader_class())
+            return self.default
         
     def __iter__(self):
+        '''Delegates to the found reader.'''
         for deriv in self.reader: yield deriv
         
     def __getitem__(self, index):

@@ -4,8 +4,8 @@ import munge # Required to use the qualified name munge.proc.trace.Filter (just 
 from munge.util.err_utils import warn
 
 def get_available_filters_dict(loaded_modules):
-    '''Given a list of module objects, returns a dictionary mapping from filter names to valid filter objects
-    found in those modules' namespaces.'''
+    '''Given a list of module objects, returns a dictionary mapping from filter names to valid 
+filter objects found in those modules' namespaces.'''
     
     filters_found = {}
     
@@ -14,6 +14,7 @@ def get_available_filters_dict(loaded_modules):
             #if not symbol_name[0].isalpha() or symbol_name[0].islower(): continue
             obj = getattr(module, symbol_name)
             
+            # Only consider classes which are strict subclasses of Filter
             if (type(obj) is TypeType and issubclass(obj, munge.proc.trace.Filter) and
                 obj is not munge.proc.trace.Filter):
                 if symbol_name in filters_found:
@@ -24,7 +25,7 @@ def get_available_filters_dict(loaded_modules):
     return filters_found
 
 def load_requested_packages(module_names):
-    '''Tries to load each module named in _module_names_, returning an array of the loadable module objects.'''
+    '''Tries to load each module named in _module_names_, returning an array of the loadable module objects found in that module names.'''
     loaded_modules = []
     
     for module in module_names:

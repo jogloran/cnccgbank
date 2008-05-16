@@ -1,25 +1,9 @@
 from itertools import imap, starmap, tee
 from munge.util.iter_utils import each_pair
+from munge.util.list_utils import preserving_zip
 from munge.cats.trace import analyse
 from munge.cats.labels import label_result
 
-def preserving_zip(*orig_seqs):
-    '''A preserving zip which does not truncate to the length of the shortest sequence like the standard zip.
-    seq1, seq2 = (1, 2), (3, 4, 5)
-    zip(seq1, seq2) => ((1, 3), (2, 4))
-    preserving_zip(seq1, seq2) => ((1, 3), (2, 4), (None, 5))'''
-    seqs = map(lambda e: list(e)[::-1], orig_seqs)
-    result = []
-    
-    def maybe_pop(seq):
-        if not seq: return None
-        else: return seq.pop()
-        
-    while any(seqs): # While some sequence is not empty
-        result.append(map(maybe_pop, seqs))
-    
-    return result
-    
 def simple_path_to_root(node):
     '''Returns a list of the nodes from the given node to the root.'''
     while node:

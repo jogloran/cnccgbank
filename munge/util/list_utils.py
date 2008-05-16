@@ -29,3 +29,21 @@ def starmap(f, l):
     '''Given a sequence ((A1, B1, ...), (A2, B2, ...)) and a function (A, B, ...) -> C, this returns
 a sequence (C1, C2, ...).'''
     for e in l: f(*e)
+
+def preserving_zip(*orig_seqs):
+    '''A preserving zip which does not truncate to the length of the shortest sequence like the standard zip.
+    seq1, seq2 = (1, 2), (3, 4, 5)
+    zip(seq1, seq2) => ((1, 3), (2, 4))
+    preserving_zip(seq1, seq2) => ((1, 3), (2, 4), (None, 5))'''
+    seqs = map(lambda e: list(e)[::-1], orig_seqs)
+    result = []
+    
+    def maybe_pop(seq):
+        if not seq: return None
+        else: return seq.pop()
+        
+    while any(seqs): # While some sequence is not empty
+        result.append(map(maybe_pop, seqs))
+    
+    return result
+    

@@ -3,6 +3,7 @@ from munge.cats.nodes import APPLY, COMP, NULL, ALL, BACKWARD, FORWARD
 from munge.cats.cat_defs import *
 
 def analyse(l, r, cur, examine_modes=False):
+    '''Determines which parser rule was used in the production [l r -> cur].'''
     return (try_unary_rules(l, r, cur) if not r else
             try_application(l, r, cur, examine_modes) or
             try_absorption(l, r, cur) or
@@ -43,9 +44,13 @@ def try_unary_rules(l, r, cur):
     return None # no rule matched
 
 def allows_application(mode_index):
+    '''Returns whether the given mode indicated by the index allows the
+application combinatory rules.'''
     return mode_index in (APPLY, COMP, ALL)
 
 def is_application(appl, arg, result, examine_modes=False):
+    '''Returns whether [appl arg -> result] is an instance of one of the
+two application combinatory rules.'''
     return ((not examine_modes) or allows_appl(appl.mode)) and \
             appl.right == arg and appl.left == result 
 
@@ -60,9 +65,13 @@ def try_application(l, r, cur, examine_modes=False):
     return None
 
 def allows_composition(mode_index):
+    '''Returns whether the given mode indicated by the index allows the
+composition combinatory rules.'''
     return mode_index in (COMP, ALL)
 
 def is_composition(l, r, result, examine_modes=False):
+    '''Returns whether [appl arg -> result] is an instance of one of 
+the four composition combinatory rules.'''
     return ((not examine_modes) or (allows_composition(l.mode) and allows_composition(r.mode))) and \
             l.right == r.left and l.left == result.left and r.right == result.right
 
@@ -97,11 +106,15 @@ def try_composition(l, r, cur, examine_modes=False):
     return None
 
 def is_substitution(l, r, cur, examine_modes=False):
+    '''Returns whether [appl arg -> result] is an instance of one of 
+the four substitution combinatory rules.'''
     return ((not examine_modes) or (allows_comp(lhs.mode) and allows_comp(rhs.mode))) and \
             l.left.left == cur.left and l.left.right == r.left and \
             l.right == r.right and r.right == cur.right
 
 def try_substitution(l, r, cur, examine_modes=False):
+    '''Determines if [l r -> cur] matches any substitution rules. If _examine_modes_ is
+    true, then the modes of the arguments are checked to see if they permit substitution.'''
     if l.left.is_compound():
         if is_substitution(l, r, cur, examine_modes) and \
            l.left.direction == FORWARD:
@@ -128,6 +141,8 @@ def try_substitution(l, r, cur, examine_modes=False):
     return None
 
 def try_composition_or_substitution(l, r, cur, examine_modes=False):
+    '''Determines whether [l r -> cur] matches any composition or substitution rules. Both of these
+require that all of l, r, cur be compound categories.'''
     if l.is_compound() and r.is_compound() and cur.is_compound():
         return try_composition(l, r, cur, examine_modes) or \
                try_substitution(l, r, cur, examine_modes)
@@ -135,6 +150,7 @@ def try_composition_or_substitution(l, r, cur, examine_modes=False):
     return None
 
 def try_absorption(l, r, cur):
+    '''Determines whether [l r -> cur] matches any absorption rules.''' 
     if r.has_feature("conj") and l == r and l == cur:
         return "conjoin" # X X[conj] -> X
 
