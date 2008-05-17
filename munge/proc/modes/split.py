@@ -13,7 +13,6 @@ from munge.cats.paths import applications_per_slash
 from munge.util.iter_utils import reject
 from munge.cats.nodes import APPLY, COMP, NULL, ALL
 
-
 class DerivationOutput(object):
     '''Mix-in which writes each derivation to a file.'''   
     def write_derivation(self, deriv, output_dir):
@@ -150,11 +149,13 @@ class AssignModeSplit(DerivationOutput, Filter):
         self.output_dir = output_dir
         
     def modes_for_cat(self, cat):
+        '''Returns the mode vector for _cat_.'''
         if cat.is_leaf(): return []
         
         return [c.mode for (c, slash_index) in cat.slashes()]
         
     def mode_on_slash(self, cat, slash_index):
+        '''Returns the mode found on the given index of _cat_.'''
         for ((subcategory, _), cur_slash_index) in izip(cat.slashes(), count()):
             if cur_slash_index == slash_index:
                 return subcategory.mode
@@ -162,6 +163,9 @@ class AssignModeSplit(DerivationOutput, Filter):
         return None
         
     def permissiveness(self, cat, ignored_slash_index):
+        '''Returns the 'permissiveness' of the modes on category _cat_, ignoring the
+mode on the given slash index. If category A is more permissive than category B, then
+no slash in A carries a mode any more restrictive than its corresponding slash in B.'''
         result = 0
         for ((subcategory, _), cur_slash_index) in izip(cat.slashes(), count()):
             if cur_slash_index != ignored_slash_index:

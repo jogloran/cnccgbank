@@ -13,6 +13,7 @@ def mode_min(m1, m2):
     return (m1 if ModeTier[m1] <= ModeTier[m2] else m2)
     
 def zipped_each_slash(c1, c2):
+    '''Given two mode vectors, allows them to be iterated over in parallel.'''
     if not (c1.is_compound() and c2.is_compound()): return
     
     yield c1, c1.label, c2, c2.label
@@ -24,10 +25,14 @@ def zipped_each_slash(c1, c2):
         yield bits
         
 def copy_modes(src, dst):
+    '''Copies the modes on each slash of category _src_ to the corresponding slash
+in category _dst_. Assumes that the two categories have the same slash count.'''
     for src_cat, _, dst_cat, _ in zipped_each_slash(src, dst):
         dst_cat.mode = src_cat.mode
         
 def level_order_pairs(deriv):
+    '''Given a CCG derivation, this returns its nodes in level order (all nodes from
+level k+1 before all nodes from level k).'''
     queue = [ (deriv, None) ]
     result = []
     
@@ -43,6 +48,7 @@ def level_order_pairs(deriv):
     return result[::-1]
         
 def percolate(deriv):
+    '''This percolates mode changes made at the leaves up the derivation tree.'''
     for lch, rch in level_order_pairs(deriv):
         parent = lch.parent # (== rch.parent)
         

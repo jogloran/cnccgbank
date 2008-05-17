@@ -15,6 +15,9 @@ def load_trees(base, sec, doc, extension, guessers):
     return reader
     
 def check_index(kid_list, locator):
+    '''Checks that the given locator is a valid index into the child
+list. Negative indices are permitted with the same semantics as list
+indexing.'''
     if (not (-len(kid_list) <= locator < len(kid_list))) and locator != 'e':
         raise RuntimeError, "Child index %s out of bounds. Kids are %s" % (locator, kid_list)
     
@@ -82,6 +85,7 @@ identifying a node as the focus of the operation, and the instruction itself.'''
     return deriv
 
 def write_doc(outdir, extension, sec, doc, bundles):
+    '''Writes a given document back to disk.'''
     tree_path = os.path.join(outdir, "%02d" % sec)
     tree_file = os.path.join(tree_path, "wsj_%02d%02d.%s" % (sec, doc, extension))
     if not os.path.exists(tree_path): os.makedirs(tree_path)

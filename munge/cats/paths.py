@@ -53,7 +53,7 @@ the path are returned, instead of the nodes themselves.'''
     return starmap(extract_categories, path_to_root(node))
     
 def cloned_category_path_to_root(node):
-    '''Identical to path_to_root, except that the _categories_ of each node on
+    '''Identical to path_to_root, except that copies of the _categories_ of each node on
 the path are returned, instead of the nodes themselves.'''
     def extract_categories(left, right, was_flipped):
         return (left.cat.clone(), right.cat.clone() if right else None, was_flipped)
