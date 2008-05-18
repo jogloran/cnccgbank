@@ -1,3 +1,5 @@
+from functools import update_wrapper
+
 def cast_to(*types):
     '''A function decorator which takes a tuple of 1-arg constructor functions, modifying the decorated function
 to cast each of its arguments with the corresponding constructor function before it is invoked. If the number of
@@ -10,10 +12,10 @@ def g(x, y):
 g("2", "3") # => 5'''
     def f(func):
         tl = len(types)
-        def _f(*args):
+        def _f(*args, **kwargs):
             if tl != len(args): raise RuntimeError("%d args expected, %d args received" % (tl, len(args)))
-            return func(*(type(arg) for (type, arg) in zip(types, args)))
-        return _f
+            return func(*(type(arg) for (type, arg) in zip(types, args)), **kwargs)
+        return update_wrapper(_f, func)
     return f
     
 import os
@@ -32,7 +34,7 @@ def threshold(f):
     if 0.0 <= v <= 1.0:
         return v
     else:
-        raise TypeError('Threshold must be in the range [0., 1.].')
+        raise TypeError('Threshold must be in the range [0, 1].')
     
 if __name__ == '__main__':
     @cast_to(int, int)

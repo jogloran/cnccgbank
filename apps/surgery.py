@@ -52,6 +52,14 @@ identifying a node as the focus of the operation, and the instruction itself.'''
         # Sets the category of a CCGbank node.
         _, new_cat = instr.split('=')
         cur_node.kids[last_locator].cat = parse_category(new_cat)
+    elif instr.startswith("C"):
+        _, new_bits = instr.split('=')
+        cat, pos1, pos2, lex, catfix = new_bits.split(',')
+        
+        for attr in ('cat', 'pos1', 'pos2', 'lex', 'catfix'):
+            value = locals()[attr]
+            if value:
+                setattr(cur_node.kids[last_locator], attr, value)
     elif instr.startswith("i"):
         # Insert PTB leaf node.
         _, tag_and_lex = instr.split('=')
@@ -138,6 +146,7 @@ def desugar(value):
     else: return value
 
 for line in sys.stdin.readlines():
+    print line
     if line[0] == '#': continue
     matches = spec_re.match(line)
         
