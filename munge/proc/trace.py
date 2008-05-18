@@ -4,6 +4,7 @@ import sys, os, re
 from sets import Set
 
 from munge.io.guess import GuessReader
+from munge.io.multi import DirFileGuessReader
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
 from munge.util.err_utils import warn, info
@@ -148,7 +149,7 @@ Python package exposing Filter subclasses, returning a pair (list of PACKAGE nam
 def main(argv):
     parser = OptionParser(conflict_handler='resolve') # Intelligently resolve switch collisions
     parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
-    
+
     # If any library loading switches (-l) are given, collect their names and remove them from argv
     argv, user_defined_libraries = filter_library_switches(argv)
     
@@ -164,6 +165,10 @@ def main(argv):
     
     # Load built-in optparse switches
     register_builtin_switches(parser)
+
+    if len(argv) <= 1:
+        parser.print_help()
+        sys.exit(1)
     
     # Perform option parse, check for user-requested filter classes
     opts, remaining_args = parser.parse_args(argv)
@@ -195,7 +200,7 @@ def main(argv):
     
     for file in files:
         if opts.verbose: info("Processing %s...", file)
-        for derivation_bundle in GuessReader(file):
+        for derivation_bundle in DirFileGuessReader(file):
             for leaf in leaves(derivation_bundle.derivation):
                 for filter in filters:
                     filter.accept_leaf(leaf)

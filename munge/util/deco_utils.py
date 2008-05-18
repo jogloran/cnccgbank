@@ -18,13 +18,21 @@ g("2", "3") # => 5'''
     
 import os
 def filelike(f):
-    '''Constructor which returns a file instance given a filename, otherwise returning the passed object untouched.'''
-    if isinstance(f, basestring) and os.path.exists(f):
+    '''Constructor which returns a file instance given a filename. If the given argument does not correspond to a file,
+an exception is raised.'''
+    if isinstance(f, basestring) and os.path.exists(f) and os.path.isfile(f):
         return file(f, 'r+')
-    return f
+    raise IOError('Argument %s is not a file.' % f)
     
 def comma_list(f):
     return f.split(',')
+
+def threshold(f):
+    v = float(f)
+    if 0.0 <= v <= 1.0:
+        return v
+    else:
+        raise TypeError('Threshold must be in the range [0., 1.].')
     
 if __name__ == '__main__':
     @cast_to(int, int)

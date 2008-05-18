@@ -2,17 +2,19 @@ from munge.io.guess_ptb import PTBGuesser
 from munge.io.guess_cptb import CPTBGuesser
 from munge.io.guess_ccgbank import CCGbankGuesser
 
+from munge.util.err_utils import warn
+
 class GuessReader(object):
     '''A reader which attempts to automatically guess the treebank
-type based on the first bytes of the document.'''
+type based on the first bytes of the document (the context).'''
     def __init__(self, filename, guessers=(CCGbankGuesser, PTBGuesser, CPTBGuesser), default=CCGbankGuesser):
         '''Initialises a GuessReader with a given set of guessers.'''
         self.guessers = list(guessers)
         self.default = default
         
-        self.preview = open(filename, 'r'
-                ).read(max(guessers, key=lambda guesser: guesser.bytes_of_context_needed()
-                ).bytes_of_context_needed())
+        self.preview = (open(filename, 'r')
+                .read(max(guessers, key=lambda guesser: guesser.bytes_of_context_needed())
+                .bytes_of_context_needed()))
 
         self.reader_class = self.determine_reader(self.preview)
         self.reader = self.reader_class(filename)

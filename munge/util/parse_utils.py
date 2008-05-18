@@ -1,4 +1,5 @@
 from munge.util.exceptions import DocParseException
+from munge.util.iter_utils import take
 from itertools import islice
 
 # Inspired by Parsec's _parens_ parser combinator.
@@ -23,7 +24,7 @@ def with_paired_delimiters(func, toks, pair):
     return value
 
 def get_context(toks, ntokens=10):
-    return ", ".join(islice(toks, 0, ntokens))
+    return ", ".join(take(toks, ntokens))
 
 def shift_and_check(tok, toks):
     next = toks.next()
@@ -31,3 +32,7 @@ def shift_and_check(tok, toks):
         context = get_context(toks)
         raise DocParseException("Expected %s, got %s {next tokens: %s}" % (tok, next, context))
 
+DefaultContextLength = 10
+def ensure_stream_exhausted(toks, caller, context_length=DefaultContextLength):
+    if toks.peek() is not None:
+        raise DocParseException, "%s: Tokens at end of input. {next tokens: %s}" % (caller, list(take(toks, context_length)))

@@ -81,3 +81,6 @@ class UtilTests(unittest.TestCase):
         c['test'] += 1
         self.assertEquals(c['test'], 2)
 
+    def testTake(self):
+        l = xrange(int(1e9))
+        self.assertEquals(list(take(l, 10)), range(10))

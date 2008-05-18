@@ -11,7 +11,6 @@ filter objects found in those modules' namespaces.'''
     
     for module in loaded_modules:
         for symbol_name in dir(module):
-            #if not symbol_name[0].isalpha() or symbol_name[0].islower(): continue
             obj = getattr(module, symbol_name)
             
             # Only consider classes which are strict subclasses of Filter

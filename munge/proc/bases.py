@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from munge.util.dict_utils import CountDict
+from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.proc.trace import Filter
 
 class CountRuleFrequencyBySlash(Filter):
@@ -23,7 +23,7 @@ class CountWordFrequencyByCategory(Filter):
         
 class ListCounts(CountRuleFrequencyBySlash):
     def output(self):
-        for (cat, comb, slash_index), frequency in sorted(self.freqs.iteritems(), key=lambda e: e[1], reverse=True):
+        for (cat, comb, slash_index), frequency in sorted_by_value_desc(self.freqs):
             print "% 60s | %2d | %25s | %d" % (cat, slash_index, comb, frequency)
         
 class AcceptRejectWithThreshold(CountRuleFrequencyBySlash):

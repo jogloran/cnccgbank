@@ -1,12 +1,16 @@
 from munge.lex.lex import preserving_split
 from munge.cats.parse import parse_category
 from munge.util.exceptions import CCGbankParseException
-from munge.util.parse_utils import with_parens, shift_and_check
+from munge.util.parse_utils import with_parens, shift_and_check, ensure_stream_exhausted
 from nodes import Node, Leaf
 
 def parse_tree(tree_string):
     toks = preserving_split(tree_string, "()<>", suppressors='<>')
-    return read_paren(toks)
+
+    deriv = read_paren(toks)
+    ensure_stream_exhausted(toks, 'ccg.parse_tree')
+
+    return deriv
 
 def read_paren(toks, parent=None):
     shift_and_check( '(', toks )

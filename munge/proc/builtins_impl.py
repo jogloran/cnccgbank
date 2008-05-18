@@ -2,10 +2,11 @@ import os
 from munge.proc.trace import Filter  
 
 from munge.vis.dot import write_graph
-from munge.util.dict_utils import CountDict
+from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.cats.paths import applications  
 from munge.proc.bases import CountWordFrequencyByCategory
 from munge.proc.bases import AcceptRejectWithThreshold, AcceptRejectReporter
+from munge.util.deco_utils import *
 
 class WriteDOT(Filter):
     "Writes each derivation to a DOT file under the given directory."
@@ -63,7 +64,7 @@ class CombinatorCounter(Filter):
             self.counter[ appl ] += 1
         
     def output(self):
-        for comb, count in sorted(self.counter.iteritems(), cmp=lambda a, b: cmp(b[1], a[1])):
+        for comb, count in sorted_by_value_desc(self.counter):
             print "% 20s | %d" % (comb, count)
 
     opt = "m"
@@ -78,7 +79,7 @@ class CollectExamples(CountWordFrequencyByCategory):
     def output(self):
         for (cat, lex_dict) in self.examples.iteritems():
             print "Category %s:" % cat
-            for (lex, frequency) in sorted(lex_dict.iteritems(), key=lambda (k, v): v, reverse=True)[0:self.example_count]:
+            for (lex, frequency) in sorted_by_value_desc(lex_dict)[0:self.example_count]:
                 print "\t% 3d | %s" % (frequency, lex)       
             
     opt = "e"

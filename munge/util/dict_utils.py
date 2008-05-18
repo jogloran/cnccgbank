@@ -3,3 +3,6 @@ class CountDict(dict):
 
     def __missing__(self, key):
         return 0
+
+def sorted_by_value_desc(hash):
+    return sorted(hash.iteritems(), key=lambda (k, v): v, reverse=True)

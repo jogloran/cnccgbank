@@ -1,4 +1,4 @@
-from itertools import izip, islice, tee
+from itertools import izip, islice, tee, takewhile, count, imap
 from copy import copy
 
 def each_pair(seq):
@@ -22,3 +22,7 @@ predicate.'''
     orig_seq, seq = tee(orig_seq, 2)
     
     return (element for element in seq if not pred(element))
+
+def take(seq, n):
+    '''Returns the first _n_ elements from the given sequence.'''
+    return islice(seq, 0, n)

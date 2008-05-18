@@ -13,9 +13,7 @@ def parse_category(cat_string):
     toks = preserving_split(cat_string, "(\\/)[]" + ComplexCategory.mode_symbols)
 
     result = parse_compound(toks)
-    if toks.peek() is not None:
-        print list(toks)
-        raise CatParseException, "Tokens at end of input while parsing category %s." % cat_string
+    ensure_stream_exhausted(toks, 'cats.parse_category')
 
     return result
 
