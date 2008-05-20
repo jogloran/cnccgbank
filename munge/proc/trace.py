@@ -1,19 +1,3 @@
-from optparse import OptionParser, OptionGroup
-from itertools import izip, count
-import sys, os, re
-from sets import Set
-
-from munge.io.guess import GuessReader
-from munge.io.multi import DirFileGuessReader
-from munge.trees.traverse import leaves
-from munge.cats.paths import applications_per_slash
-from munge.util.err_utils import warn, info
-from munge.proc.dynload import (get_available_filters_dict, 
-                                load_requested_packages, 
-                                get_argcount_for_method)
-
-BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno']
-
 class Filter(object):
     '''Every filter extends this class, which defines `don't care' implementations of the four hook
     functions. For each Derivation object (a bundle of the derivation object itself and some metadata),
@@ -39,6 +23,15 @@ class Filter(object):
     
     # This is displayed after the long name as an intuitive name for any arguments the filter may expect.
     arg_names = ''
+    
+from optparse import OptionParser, OptionGroup
+import sys, os, re
+
+from munge.util.err_utils import warn, info
+from munge.proc.trace_core import TraceCore
+from munge.proc.dynload import get_argcount_for_method
+
+BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno']
     
 def run_builtin_filter(option, opt_string, value, parser, *args, **kwargs):
     filter_class_name = args[0]
@@ -71,19 +64,6 @@ command line.'''
         opt_dict['type'] = 'string'
     
     parser.add_option("-" + filter.opt, "--" + filter.long_opt, **opt_dict)
-    
-def list_filters(modules_loaded, filters):
-    '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
-each filter takes.'''
-    print "%d packages loaded (%s), %d filters available:" % (len(modules_loaded), 
-                                                              ", ".join(mod.__name__ for mod in modules_loaded),
-                                                              len(filters))
-    for (filter_name, filter) in sorted(filters.iteritems(), key=lambda (name, filter): name):
-        print "\t%s\n\t\t(%d args, -%s, --%s%s)" % (filter_name, 
-                                             get_argcount_for_method(filter.__init__), 
-                                             filter.opt, 
-                                             filter.long_opt,
-                                             (' '+filter.arg_names) if filter.arg_names else '')
         
 # Adapted from Python Library Reference
 def register_filter(option, opt_string, value, parser, *args, **kwargs):
@@ -147,7 +127,7 @@ Python package exposing Filter subclasses, returning a pair (list of PACKAGE nam
             new_argv.append(arg)
 
     return new_argv, library_names
-
+    
 def main(argv):
     parser = OptionParser(conflict_handler='resolve') # Intelligently resolve switch collisions
     parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
@@ -156,15 +136,12 @@ def main(argv):
     argv, user_defined_libraries = filter_library_switches(argv)
     
     # Load built-in filters (those under BuiltInPackages)
-    loaded_modules = set(load_requested_packages(BuiltInPackages))
     # Load user-requested filters (passed by -l on the command line)
-    loaded_modules.update(load_requested_packages(user_defined_libraries))
-    # Build dictionary mapping filter names to filter classes
-    available_filters_dict = get_available_filters_dict(loaded_modules)
-
-    # For each available filter, allow it to be invoked with switches on the command line
-    for filter in available_filters_dict.values(): add_filter_to_optparser(parser, filter)
+    all_libraries = BuiltInPackages + user_defined_libraries
+    tracer = TraceCore(libraries=all_libraries)
     
+    # For each available filter, allow it to be invoked with switches on the command line
+    for filter in tracer.available_filters_dict.values(): add_filter_to_optparser(parser, filter)
     # Load built-in optparse switches
     register_builtin_switches(parser)
 
@@ -177,48 +154,20 @@ def main(argv):
     # Done with parser
     parser.destroy()
     
+    # Set verbose switch if given on command line
+    tracer.verbose = opts.verbose
+    
     # Take remaining arguments as input file names
     files = remaining_args[1:] # remaining_args[0] seems to be sys.argv[0]
     
     # If switch -L was passed, dump out all available filter names and quit
     if opts.do_list_filters:
-        list_filters(loaded_modules, available_filters_dict)
+        tracer.list_filters()
         sys.exit(0)
-
-    # Run requested filters
-    filters = []
-    
-    filters_to_run = opts.filters_to_run
-    for filter_name, args in filters_to_run:
-        # For a no-args switch, optparse passes in None; we substitute an empty tuple for
-        # consistency
-        if not args: args = ()
         
-        try:
-            filter_class = available_filters_dict[filter_name]
-            filters.append(filter_class(*args))
-        except KeyError:
-            warn("No filter with name `%s' found.", filter_name)
-    
-    for file in files:
-        if opts.verbose: info("Processing %s...", file)
-        for derivation_bundle in DirFileGuessReader(file):
-            for leaf in leaves(derivation_bundle.derivation):
-                for filter in filters:
-                    filter.accept_leaf(leaf)
-
-                    try:
-                        for comb, slash_index in izip(applications_per_slash(leaf), count()):
-                            filter.accept_comb_and_slash_index(leaf, comb, slash_index)
-                    except AttributeError: # TODO: hacky and inefficient, need this to work for PTB too
-                        pass
-
-            for filter in filters:
-                filter.accept_derivation(derivation_bundle)
-    
-    for filter in filters:
-        filter.output()
-    
+    # Run requested filters
+    tracer.run(opts.filters_to_run, files)
+        
 if __name__ == '__main__':
     try:
         import psyco
