@@ -90,7 +90,9 @@ def register_filter(option, opt_string, value, parser, *args, **kwargs):
     '''The user is able to specify filters by name using the '-r' switch in this way:
     -r FilterName1 arg1 arg2 -r FilterName2 arg1
 This requires us to handle consumption of arguments because we cannot tell at the time
-we encounter the filter name how many arguments it expects.
+we encounter the filter name how many arguments it expects. This is why the dummy flag
+-0 (--end) is required after the use of -r; this tells register_filter when to stop
+reading filter arguments.
 This callback is invoked by optparse upon encountering a '-r' switch; it consumes all
 arguments until another switch is encountered, registering them as arguments to be passed
 to the filter when it is invoked.'''

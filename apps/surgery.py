@@ -9,6 +9,8 @@ from apps.proxy_io import *
 from munge.io.guess_ptb import PTBGuesser
 from munge.io.guess import GuessReader
 
+class SurgeryException(Exception): pass
+
 def load_trees(base, sec, doc, extension, guessers):
     path = os.path.join(base, "%02d" % sec, "wsj_%02d%02d.%s" % (sec, doc, extension))
     reader = GuessReader(path, guessers)
@@ -58,7 +60,7 @@ identifying a node as the focus of the operation, and the instruction itself.'''
         
         for attr in ('cat', 'pos1', 'pos2', 'lex', 'catfix'):
             value = locals()[attr]
-            if value:
+            if value: # empty value for a field means do not change the field's value
                 setattr(cur_node.kids[last_locator], attr, value)
     elif instr.startswith("i"):
         # Insert PTB leaf node.
@@ -89,8 +91,40 @@ identifying a node as the focus of the operation, and the instruction itself.'''
         # Install a new root if one was created
         if maybe_new_root:
             deriv = maybe_new_root
+            
+    elif instr.startswith('S'): # Shrink absorption
+        focus = cur_node.kids[last_locator]
+        if focus.lch.is_leaf() and focus.lch.cat == focus.cat:
+            maybe_new_root = shrink(focus, lch_is_leaf=True)
+        elif focus.rch.is_leaf() and focus.rch.cat == focus.cat:
+            maybe_new_root = shrink(focus, left_is_leaf=False)
+        else:
+            raise SurgeryException("The focused node must be an instance of absorption (X T -> T or T X -> T).")
+            
+        if maybe_new_root:
+            deriv = maybe_new_root
 
     return deriv
+    
+def shrink(focus, left_is_leaf=True):
+    if focus.parent is not None:
+        was_left_child = focus.parent.lch is focus
+        
+        if was_left_child:
+            if left_is_leaf:
+                focus.parent.lch = focus.rch
+            else:
+                focus.parent.lch = focus.lch
+        else:
+            if left_is_leaf:
+                focus.parent.rch = focus.rch
+            else:
+                focus.parent.rch = focus.lch
+                
+        return None
+                
+    else:
+        return focus.rch if left_is_leaf else focus.lch
 
 def write_doc(outdir, extension, sec, doc, bundles):
     '''Writes a given document back to disk.'''

@@ -10,7 +10,7 @@ class AnalyseCommas(Filter):
         self.envs = CountDict()
 
     def accept_leaf(self, leaf):
-        if leaf.lex == ',':
+        if leaf.cat == C(','):
             was_left_child = leaf.parent.lch is leaf
             if was_left_child:
                 environment = map(lambda e: str(e.cat), [ leaf, leaf.parent.rch, leaf.parent ])
@@ -29,6 +29,40 @@ class PrintCommaCounts(AnalyseCommas):
             print "% 10d (%s %s -> %s)" % (freq, lch, rch, parent)
 
     long_opt = "comma-counts"
+
+from munge.trees.traverse import leaves
+from munge.cats.cat_defs import C
+class LocalExamples(Filter):
+    def __init__(self, focus, sib, parent):
+        Filter.__init__(self)
+        self.focus = C(focus)
+        self.sib = C(sib)
+        self.parent = C(parent)
+        
+        self.sib_as_left = set()
+        self.sib_as_right = set()
+
+    def accept_derivation(self, bundle):
+        for leaf in leaves(bundle.derivation):
+            if leaf.cat == self.focus:
+                if leaf.parent is None:
+                    continue
+                    
+                was_left_child = leaf.parent.lch is leaf
+                if was_left_child:
+                    if leaf.parent.rch is None: continue
+
+                    if leaf.parent.rch.cat == self.sib and leaf.parent.cat == self.parent:                           
+                        self.sib_as_right.add( (bundle.sec_no, bundle.doc_no, bundle.der_no) )
+                else:
+                    if leaf.parent.lch.cat == self.sib and leaf.parent.cat == self.parent:
+                        self.sib_as_left.add( (bundle.sec_no, bundle.doc_no, bundle.der_no) )
+
+    def output(self):
+        print "(%s %s -> %s)" % (self.sib, self.focus, self.parent)
+        print ", ".join("%d:%d(%d)" % t for t in sorted(self.sib_as_left))
+        print "(%s %s -> %s)" % (self.focus, self.sib, self.parent)
+        print ", ".join("%d:%d(%d)" % t for t in sorted(self.sib_as_right))
 
 class PrintCommaCountsByBranching(AnalyseCommas):
     '''Prints comma occurrence counts by descending frequency together with the rule used.''' 
