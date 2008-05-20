@@ -94,9 +94,9 @@ identifying a node as the focus of the operation, and the instruction itself.'''
             
     elif instr.startswith('S'): # Shrink absorption
         focus = cur_node.kids[last_locator]
-        if focus.lch.is_leaf() and focus.lch.cat == focus.cat:
+        if focus.lch.is_leaf() and focus.rch.cat == focus.cat:
             maybe_new_root = shrink(focus, lch_is_leaf=True)
-        elif focus.rch.is_leaf() and focus.rch.cat == focus.cat:
+        elif focus.rch.is_leaf() and focus.lch.cat == focus.cat:
             maybe_new_root = shrink(focus, left_is_leaf=False)
         else:
             raise SurgeryException("The focused node must be an instance of absorption (X T -> T or T X -> T).")
@@ -108,8 +108,11 @@ identifying a node as the focus of the operation, and the instruction itself.'''
     
 def shrink(focus, left_is_leaf=True):
     if focus.parent is not None:
-        was_left_child = focus.parent.lch is focus
-        
+        # XXX: since nodes in this tree are CCGbankNodeProxy objects, they don't pass an identity check with the child as accessed through the parent
+        # even after making CCGbankNodeProxy.parent() return a proxy-wrapped node, it doesn't pass an identity check. We can't override the identity
+        # check so we need to do a deep comparison
+        was_left_child = focus.parent.lch == focus
+                
         if was_left_child:
             if left_is_leaf:
                 focus.parent.lch = focus.rch
