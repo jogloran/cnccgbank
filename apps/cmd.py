@@ -37,6 +37,9 @@ class Shell(DefaultShell):
         
         self.files = []
         
+        self.last_exception = None
+        self.output_file = None
+        
     def preloop(self):
         '''Executed before the command loop is entered.'''
         DefaultShell.preloop(self)
@@ -97,7 +100,7 @@ class Shell(DefaultShell):
         '''Handles the _run_ command (processes a filter).'''
         args = args.split()
         
-        if len(args) == 0: return
+        if not args: return
 
         filter_name = args.pop(0)
         if filter_name.startswith('--'): # a long option name was given
@@ -113,12 +116,47 @@ class Shell(DefaultShell):
             filter_args = None
             
         try:
+            old_stdout = sys.stdout
+            
+            if self.output_file:
+                sys.stdout = open(self.output_file, 'w')
+                
             self.tracer.run( [(filter_name, filter_args)], self.files )
+            print
         except KeyboardInterrupt:
             info("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
         except Exception, e:
             info("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
             info("\t%s (%s)", e.message, e.__class__.__name__)
+            
+            self.last_exception = sys.exc_info()
+        finally:
+            sys.stdout = old_stdout
+            
+    def do_bt(self, args):
+        self.do_backtrace(args)
+        
+    def do_backtrace(self, args):
+        if self.last_exception:
+            sys.excepthook(*self.last_exception)
+            
+    def do_into(self, args):
+        def print_output_destination():
+            if self.output_file is None:
+                print "Filter output will be sent to the console."
+            else:
+                print "Filter output will be redirected to: %s" % self.output_file
+                
+        args = args.split(' ', 1)
+        output_file = args[0]
+        
+        if output_file:
+            if output_file == 'stdout':
+                self.output_file = None
+            else:
+                self.output_file = output_file
+                
+        print_output_destination() # report on output destination in any case
 
     def default(self, args):
         self.do_run(args)
@@ -140,20 +178,25 @@ class Shell(DefaultShell):
         # Be careful with the cmd module; it seems to swallow all getattr exceptions silently (eg accessing 
         # a non-existent member of this class succeeds)
         if text.startswith('--'):
-            return filter(lambda opt: opt.startswith(text), self.get_long_forms())
+            return [opt for opt in self.get_long_forms() if opt.startswith(text)]
         elif text.startswith('-'):
-            return filter(lambda opt: opt.startswith(text), self.get_short_forms())
+            return [opt for opt in self.get_short_forms() if opt.startswith(text)]
         else: # completing a filter name or a filter argument
-            filter_names = filter(lambda name: name.startswith(text), self.tracer.available_filters_dict.keys())
+            # Case insensitive comparison here
+            filter_names = [name for name in self.tracer.available_filters_dict.keys() if name.lower().startswith(text.lower())]
             return filter_names
             
     def complete_with(self, text, line, begin_index, end_index):
         '''Returns completions for the _with_ command: paths of which the given text is a prefix.'''
-        return filter(lambda path: path.startswith(text), glob.glob(text + '*'))
+        # TODO: make optionally case-insensitive
+        return self.filename_complete(text)
         
     def complete_load(self, text, line, begin_index, end_index):
         '''Returns completions for the _load_ command: all modules available to Python.'''
-        return filter(lambda pkg: pkg.startswith(text), sys.modules)
+        return self.filename_complete(text)
+        
+    def filename_complete(self, text):
+        return [path for path in glob.glob(text + '*') if path.startswith(text)]
         
 if __name__ == '__main__':
     try:

@@ -4,7 +4,7 @@ from munge.io.guess import GuessReader
 from munge.io.multi import DirFileGuessReader
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
-from munge.proc.dynload import (get_available_filters_dict, 
+from munge.proc.dynload import (get_available_filters_dict,
                                 load_requested_packages,
                                 get_argcount_for_method)
 from munge.util.err_utils import warn, info

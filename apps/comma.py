@@ -18,6 +18,36 @@ class AnalyseCommas(Filter):
                 environment = map(lambda e: str(e.cat), [ leaf.parent.lch, leaf, leaf.parent ])
 
             self.envs[ tuple(environment) ] += 1
+            
+class AnalyseAbsorption(Filter):
+    LEFT, RIGHT = 0, 1
+    
+    def __init__(self):
+        Filter.__init__(self)
+        self.envs = CountDict()
+
+    def accept_leaf(self, leaf):
+        if leaf.cat == C(','):
+            if leaf.parent is None or leaf.parent.parent is None: return
+            
+            was_left_child = leaf.parent.lch is leaf
+            if was_left_child:
+                environment = [self.LEFT] + map(lambda e: str(e.cat), [ leaf.parent.parent.lch, leaf.parent, leaf.parent.parent ])
+            else:
+                if leaf.parent.parent.rch is None: return
+                
+                environment = [self.RIGHT] + map(lambda e: str(e.cat), [ leaf.parent, leaf.parent.parent.rch, leaf.parent.parent ])
+
+            self.envs[ tuple(environment) ] += 1
+            
+class PrintAbsorptionCounts(AnalyseAbsorption):
+    def __init__(self):
+        AnalyseAbsorption.__init__(self)
+
+    def output(self):
+        for (comma_on_left, lch, rch, parent), freq in sorted_by_value_desc(self.envs):
+            print "% 10d %s (%s %s -> %s)" % (freq, "L" if comma_on_left else "R", lch, rch, parent)
+    
 
 class PrintCommaCounts(AnalyseCommas):
     '''Prints comma occurrence counts by descending frequency.''' 
@@ -29,7 +59,30 @@ class PrintCommaCounts(AnalyseCommas):
             print "% 10d (%s %s -> %s)" % (freq, lch, rch, parent)
 
     long_opt = "comma-counts"
+    
+class PrintAbsorptionCountsByBranching(AnalyseAbsorption):
+    def __init__(self):
+        AnalyseAbsorption.__init__(self)
 
+    def output(self):
+        as_left = {}
+        as_right = {}
+        for (side, l, r, p), f in self.envs.iteritems():
+            if side == AnalyseAbsorption.LEFT:
+                as_left[ (l, r, p) ] = f
+            elif side == AnalyseAbsorption.RIGHT:
+                as_right[ (l, r, p) ] = f
+
+        print "(X ,) Y -> Z"
+        print "--------"
+        for (l, r, p), f in sorted_by_value_desc(as_left):
+            print "% 10d [%28s] (%s ,) %s -> %s" % (f, analyse(C(l), C(r), C(p)), l, r, p)
+
+        print "X (, Y) -> Z"
+        print "--------"
+        for (l, r, p), f in sorted_by_value_desc(as_right):
+            print "% 10d [%28s] %s (, %s) -> %s" % (f, analyse(C(l), C(r), C(p)), l, r, p)
+            
 from munge.trees.traverse import leaves
 from munge.cats.cat_defs import C
 class Tgrep(Filter):
