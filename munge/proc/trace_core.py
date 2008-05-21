@@ -58,6 +58,9 @@ each filter takes.'''
             except KeyError:
                 warn("No filter with name `%s' found.", filter_name)
 
+        # If all given filters were not found or had wrong argument count, do nothing
+        if not filters: return
+        
         for file in files:
             if self.verbose: info("Processing %s...", file)
             for derivation_bundle in DirFileGuessReader(file):
