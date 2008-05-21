@@ -2,6 +2,7 @@ import os
 import re
 
 from munge.penn.parse import parse_tree
+from munge.util.err_utils import warn
 from itertools import izip, count
 
 class Derivation(object):
@@ -36,7 +37,7 @@ class PTBReader(object):
         if matches and len(matches.groups()) == 2:
             return (int(i) for i in matches.groups())
         else:
-            # TODO: Should ideally be a warning condition
+            warn("Skipping malformed section/document specifier: `%s'", filename)
             return 0, 0
     
     def __getitem__(self, index):

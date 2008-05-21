@@ -31,6 +31,7 @@ from munge.util.err_utils import warn, info
 from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method
     
+BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno', 'apps.comma']
 def run_builtin_filter(option, opt_string, value, parser, *args, **kwargs):
     filter_class_name = args[0]
     
