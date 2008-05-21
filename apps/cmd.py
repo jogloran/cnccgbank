@@ -1,5 +1,8 @@
+import glob
+
 from munge.proc.trace_core import TraceCore
 from apps.util.cmd_utils import DefaultShell
+from munge.util.iter_utils import flatten
 
 BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno']
 
@@ -8,6 +11,8 @@ class Shell(DefaultShell):
         DefaultShell.__init__(self)
         self.tracer = TraceCore(libraries=BuiltInPackages)
         self.prompt = "trace> "
+        
+        self.files = []
         
     def precmd(self, line):
         cleaned_line = line.strip()
@@ -23,14 +28,35 @@ class Shell(DefaultShell):
         modules = set(self.tracer.available_filters_dict.keys())
         
         added_modules = modules.difference(old_modules)
-        print "%s modules added:" % len(added_modules)
-        for module in added_modules:
-            print "\t%s" % module
+        if added_modules:
+            print "%s modules added:" % len(added_modules)
+            for module in added_modules: 
+                print "\t%s" % module
         
     def do_list(self, args):
         self.tracer.list_filters()
         
+    def do_with(self, args):
+        args = args.split()
+        self.files = list(flatten(glob.glob(arg) for arg in args))
+        print "Using %s" % self.files
+        
     def do_run(self, args):
+        args = args.split()
+        
+        if len(args) == 0: return
+        filter_name = args.pop(0)
+        if args:
+            filter_args = args
+        else:
+            filter_args = None
+            
+        try:
+            self.tracer.run( [(filter_name, filter_args)], self.files )
+        except KeyboardInterrupt:
+            print "\nFilter run %s(%s) aborted." % (filter_name, filter_args if filter_args else '')
+        
+    def complete_run(self, text, line, begin_index, end_index):
         pass
     
 if __name__ == '__main__':

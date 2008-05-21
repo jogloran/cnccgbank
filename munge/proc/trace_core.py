@@ -7,6 +7,7 @@ from munge.cats.paths import applications_per_slash
 from munge.proc.dynload import (get_available_filters_dict, 
                                 load_requested_packages,
                                 get_argcount_for_method)
+from munge.util.err_utils import warn, info
 
 class TraceCore(object):
     def __init__(self, libraries, verbose=True):
@@ -39,7 +40,7 @@ each filter takes.'''
     def run(self, filters_to_run, files):
         '''Performs a processing run, given a list of filter names to run, and a list of file specifiers.'''
         filters = []
-        
+
         for filter_name, args in filters_to_run:
             # For a no-args switch, optparse passes in None; we substitute an empty tuple for
             # consistency
@@ -47,6 +48,12 @@ each filter takes.'''
 
             try:
                 filter_class = self.available_filters_dict[filter_name]
+                
+                actual, expected = len(args), get_argcount_for_method(filter_class.__init__)
+                if actual != expected:
+                    warn("Skipping filter %s; %d arguments given, %d expected.", filter_name, actual, expected)
+                    continue
+                    
                 filters.append(filter_class(*args))
             except KeyError:
                 warn("No filter with name `%s' found.", filter_name)
