@@ -1,4 +1,4 @@
-import glob, readline
+import glob, readline, re, sys
 
 import munge
 from munge.proc.trace_core import TraceCore
@@ -9,6 +9,25 @@ BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.
 
 def filter_run_name(filter_name, filter_args):
     return "%s(%s)" % (filter_name, ', '.join(filter_args) if filter_args else '')
+    
+def list_preview(orig_l, head_elements=7, tail_elements=1):
+    if not orig_l: return "{}"
+    
+    l = sorted(orig_l[:])
+    tail = l[-tail_elements:]
+    del l[-tail_elements:] # Ensure that no overlap between head and tail happens, by deleting tail first
+    head = l[0:head_elements]
+    
+    bits = ["{ "]
+    if head: 
+        bits += ", ".join(head)
+    if tail:
+        if head:
+            bits.append(", ..., ")
+        bits += ", ".join(tail)
+    bits.append(" }")
+    
+    return ''.join(bits)
 
 class Shell(DefaultShell):
     ARG, OPT, LONG_OPT, FILTER = xrange(4)
@@ -25,7 +44,7 @@ class Shell(DefaultShell):
     def preloop(self):
         DefaultShell.preloop(self)
         # remove '-' and '/' from the set of completer delimiters
-        readline.set_completer_delims(readline.get_completer_delims().replace('-', '').replace('/', ''))
+        readline.set_completer_delims(re.sub(r'[-/*~]', '', readline.get_completer_delims()))
         
     def precmd(self, line):
         cleaned_line = line.strip()
@@ -48,14 +67,18 @@ class Shell(DefaultShell):
             print "%s modules added:" % len(added_modules)
             for module in added_modules: 
                 print "\t%s" % module
+        else:
+            print "No modules added."
         
     def do_list(self, args):
         self.tracer.list_filters()
         
     def do_with(self, args):
         args = args.split()
-        self.files = list(flatten(glob.glob(arg) for arg in args))
-        print "Using %s" % self.files
+        if args:
+            self.files = list(flatten(glob.glob(arg) for arg in args))
+            
+        print "Working set is: " + list_preview(self.files)
         
     def do_run(self, args):
         args = args.split()
@@ -94,6 +117,9 @@ class Shell(DefaultShell):
             
     def complete_with(self, text, line, begin_index, end_index):
         return filter(lambda path: path.startswith(text), glob.glob(text + '*'))
+        
+    def complete_load(self, text, line, begin_index, end_index):
+        return filter(lambda pkg: pkg.startswith(text), sys.modules)
         
 if __name__ == '__main__':
     sh = Shell()
