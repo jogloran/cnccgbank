@@ -54,7 +54,7 @@ class Shell(DefaultShell):
         try:
             self.tracer.run( [(filter_name, filter_args)], self.files )
         except KeyboardInterrupt:
-            print "\nFilter run %s(%s) aborted." % (filter_name, filter_args if filter_args else '')
+            print "\nFilter run %s(%s) aborted." % (filter_name, ', '.join(filter_args) if filter_args else '')
         
     def complete_run(self, text, line, begin_index, end_index):
         pass
