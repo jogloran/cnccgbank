@@ -11,9 +11,12 @@ from munge.proc.dynload import (get_available_filters_dict,
 class TraceCore(object):
     def __init__(self, libraries, verbose=True):
         self.loaded_modules = set(load_requested_packages(libraries))
-        self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
+        self.update_available_filters_dict()
         
         self.verbose = verbose
+        
+    def update_available_filters_dict(self):
+        self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
         
     def list_filters(self):
         '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
@@ -31,6 +34,7 @@ each filter takes.'''
     def add_modules(self, module_names):
         '''Attempts to load new filters, as specified by a list of module names.'''
         self.loaded_modules.update(load_requested_packages(module_names))
+        self.update_available_filters_dict()
         
     def run(self, filters_to_run, files):
         '''Performs a processing run, given a list of filter names to run, and a list of file specifiers.'''
