@@ -18,7 +18,7 @@ class TraceCore(object):
     def list_filters(self):
         '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
 each filter takes.'''
-        print "%d packages loaded (%s), %d self.available_filters_dict available:" % (len(self.loaded_modules), 
+        print "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 
                                                                   ", ".join(mod.__name__ for mod in self.loaded_modules),
                                                                   len(self.available_filters_dict))
         for (filter_name, filter) in sorted(self.available_filters_dict.iteritems(), key=lambda (name, filter): name):
