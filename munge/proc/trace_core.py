@@ -5,7 +5,8 @@ from munge.io.multi import DirFileGuessReader
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
 from munge.proc.dynload import (get_available_filters_dict, 
-                                load_requested_packages)
+                                load_requested_packages,
+                                get_argcount_for_method)
 
 class TraceCore(object):
     def __init__(self, libraries, verbose=True):
