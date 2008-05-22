@@ -188,7 +188,7 @@ class Shell(DefaultShell):
             
     def complete_with(self, text, line, begin_index, end_index):
         '''Returns completions for the _with_ command: paths of which the given text is a prefix.'''
-        # TODO: make optionally case-insensitive
+        # TODO: make optionally case-insensitive. Is there a better way short of giving a glob [Ll][Ii][Kk][Ee] this?
         return self.filename_complete(text)
         
     def complete_load(self, text, line, begin_index, end_index):
