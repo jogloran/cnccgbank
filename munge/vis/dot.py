@@ -2,7 +2,7 @@ from __future__ import with_statement
 from string import Template
 from munge.util.err_utils import warn
 import re, os
-from subprocess import Popen
+from subprocess import Popen, PIPE
 
 id = 0
 def get_id():

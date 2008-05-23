@@ -47,8 +47,7 @@ class CCGbankReader(object):
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'r')
-        self.lines = imap(lambda line: line[0:-1] if line[-1] == '\n' else line,
-                          self.file.xreadlines())
+        self.lines = imap(lambda line: line.rstrip(), self.file.xreadlines())
                           
     def __getitem__(self, index):
         '''Index-based retrieval of a derivation.'''
