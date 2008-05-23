@@ -10,7 +10,7 @@ from munge.proc.dynload import (get_available_filters_dict,
 from munge.util.err_utils import warn, info
 
 class TraceCore(object):
-    '''Immplements the filter loading functionality and the document processing loop.'''
+    '''Implements filter loading functionality and the document processing loop.'''
     def __init__(self, libraries, verbose=True):
         self.loaded_modules = set(load_requested_packages(libraries))
         self.update_available_filters_dict()
@@ -24,13 +24,15 @@ class TraceCore(object):
         '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
 each filter takes.'''
         def LongTemplate(filter_name, filter):
-            return "\t%s\n\t\t(%d args, -%s, --%s%s)" % (filter_name, 
-                                                         get_argcount_for_method(filter.__init__), 
-                                                         filter.opt, 
-                                                         filter.long_opt,
-                                                         (' '+filter.arg_names) if filter.arg_names else '')
+            return ("\t%s (%s)\n\t\t(%d args, -%s, --%s%s)" % 
+                        (filter_name, filter.__module__,
+                         get_argcount_for_method(filter.__init__), 
+                         filter.opt, 
+                         filter.long_opt,
+                         (' '+filter.arg_names) if filter.arg_names else ''))
+                                                         
         def ShortTemplate(filter_name, filter):
-            return "\t%s(%s)" % (filter_name, filter.arg_names)
+            return "\t% 30s. %s(%s)" % (filter.__module__, filter_name, filter.arg_names)
 
         template_function = { True: LongTemplate, False: ShortTemplate }[long]
 
