@@ -82,3 +82,4 @@ def parse_compound(toks):
             return ComplexCategory(left, dir, right, DefaultMode if (mode is None) else mode)
 
         else: return left
+        

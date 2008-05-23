@@ -58,11 +58,11 @@ def list_preview(orig_l, head_elements=7, tail_elements=1):
 
     bits = ["{ "]
     if head: 
-        bits += ", ".join(head)
+        bits += ", ".join(str(e) for e in head)
     if tail:
         if head:
             bits.append(", ..., ")
-        bits += ", ".join(tail)
+        bits += ", ".join(str(e) for e in tail)
     bits.append(" }")
 
     return ''.join(bits)

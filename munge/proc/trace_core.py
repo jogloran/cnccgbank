@@ -21,14 +21,12 @@ class TraceCore(object):
         self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
 
     def list_filters(self, long=True, filter_sort_key=None):
-        '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
-each filter takes.'''
+        '''Prints a list of all the filters loaded, in long or short form, sorted by the given key.'''
         def LongTemplate(filter_name, filter):
             return ("\t%s (%s)\n\t\t(%d args, -%s, --%s%s)" % 
                         (filter_name, filter.__module__,
                          get_argcount_for_method(filter.__init__), 
-                         filter.opt, 
-                         filter.long_opt,
+                         filter.opt, filter.long_opt,
                          (' '+filter.arg_names) if filter.arg_names else ''))
                                                          
         def ShortTemplate(filter_name, filter):

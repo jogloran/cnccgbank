@@ -57,15 +57,12 @@ class Shell(DefaultShell):
                 info("\t%s", module)
         else:
             info("No modules added.")
-        
-    def do_list(self, args):
-        '''Lists all filters loaded.'''
-        self.tracer.list_filters()
 
     @options([ make_option('-l', '--long', action='store_true', dest='long', help='Show detailed summary', default=False),
                make_option('-s', '--sort-by', action='store', type='choice', choices=['name', 'module'], 
                            dest='sort_key', help='Display filters in a given sorted order', default='name')])
-    def do_summary(self, args, opts):
+    def do_list(self, args, opts):
+        """Lists all loaded filters."""
         self.tracer.list_filters(long=opts.long, filter_sort_key=opts.sort_key)
         
     def do_with(self, args):

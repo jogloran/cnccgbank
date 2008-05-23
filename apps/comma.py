@@ -1,8 +1,10 @@
+import sys
+
 from munge.proc.trace import Filter
 from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.cats.trace import analyse
 from munge.cats.cat_defs import C
-import sys
+from munge.util.list_utils import list_preview
 
 class AnalyseCommas(Filter):
     def __init__(self):
@@ -116,6 +118,7 @@ class PrintCommaCounts(AnalyseCommas):
 
     long_opt = "comma-counts"
     
+from collections import defaultdict
 class PrintAbsorptionCountsByBranching(AnalyseAbsorption):
     def __init__(self):
         AnalyseAbsorption.__init__(self)
@@ -123,6 +126,7 @@ class PrintAbsorptionCountsByBranching(AnalyseAbsorption):
     def output(self):
         as_left = {}
         as_right = {}
+        
         for (side, l, r, p), f in self.envs.iteritems():
             if side == AnalyseAbsorption.LEFT:
                 as_left[ (l, r, p) ] = f
