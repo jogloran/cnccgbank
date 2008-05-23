@@ -4,6 +4,7 @@ from munge.proc.trace_core import TraceCore
 from apps.util.cmd_utils import DefaultShell
 from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info
+from munge.util.list_utils import list_preview
 
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.modes.split', 'munge.proc.modes.anno', 
@@ -13,25 +14,6 @@ def filter_run_name(filter_name, filter_args):
     '''Produces a human-readable summary of a filter run: the filter name with a list of its arguments
 in parentheses separated by commas.'''
     return "%s(%s)" % (filter_name, ', '.join(filter_args) if filter_args else '')
-    
-def list_preview(orig_l, head_elements=7, tail_elements=1):
-    if not orig_l: return "{}"
-    
-    l = sorted(orig_l[:])
-    tail = l[-tail_elements:]
-    del l[-tail_elements:] # Ensure that no overlap between head and tail happens, by deleting tail first
-    head = l[0:head_elements]
-    
-    bits = ["{ "]
-    if head: 
-        bits += ", ".join(head)
-    if tail:
-        if head:
-            bits.append(", ..., ")
-        bits += ", ".join(tail)
-    bits.append(" }")
-    
-    return ''.join(bits)
 
 class Shell(DefaultShell):
     '''A shell interface to trace functionality.'''

@@ -47,3 +47,22 @@ def preserving_zip(*orig_seqs):
     
     return result
     
+def list_preview(orig_l, head_elements=7, tail_elements=1):
+    '''Makes a short preview string from a list, showing a given number of elements from its head and tail.'''
+    if not orig_l: return "{}"
+
+    l = sorted(orig_l[:])
+    tail = l[-tail_elements:]
+    del l[-tail_elements:] # Ensure that no overlap between head and tail happens, by deleting tail first
+    head = l[0:head_elements]
+
+    bits = ["{ "]
+    if head: 
+        bits += ", ".join(head)
+    if tail:
+        if head:
+            bits.append(", ..., ")
+        bits += ", ".join(tail)
+    bits.append(" }")
+
+    return ''.join(bits)

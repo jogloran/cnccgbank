@@ -2,6 +2,7 @@ from __future__ import with_statement
 from string import Template
 from munge.util.err_utils import warn
 import re, os
+from subprocess import Popen
 
 id = 0
 def get_id():
@@ -41,14 +42,22 @@ def write_graph(deriv, fn):
         f.write(make_graph(deriv))
 
 def write_png(deriv, fn):
+    cin = cout = None
     try:
         dot_path = os.popen('which dot').read().strip()
         if not dot_path:
             warn('dot not found on this system. Ensure that dot is in the PATH.')
             return
             
-        cin, cout = os.popen2('%s -Tpng -o %s 2>/dev/null' % (dot_path, fn))
+        cmd = '%s -Tpng -o %s 2>/dev/null' % (dot_path, fn)
+        pipes = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, close_fds=True)
+        
+        cin, cout = pipes.stdin, pipes.stdout
         cin.write(make_graph(deriv))
+        
+        if pipes.returncode is not None and pipes.returncode != 0:
+            raise RuntimeError('dot terminated with non-zero return code: %d' % pipes.returncode)
+
     finally:
-        cin.close()
-        cout.close()
+        if cin:  cin.close()
+        if cout: cout.close()

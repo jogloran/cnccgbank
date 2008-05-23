@@ -37,6 +37,7 @@ each filter takes.'''
         print "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 
                                                                   ", ".join(mod.__name__ for mod in self.loaded_modules),
                                                                   len(self.available_filters_dict))
+                                                                  
         for (filter_name, filter) in sorted(self.available_filters_dict.iteritems(), key=lambda (name, filter): name):
             print template_function(filter_name, filter)
 
