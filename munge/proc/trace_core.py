@@ -20,7 +20,7 @@ class TraceCore(object):
     def update_available_filters_dict(self):
         self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
 
-    def list_filters(self, long=True):
+    def list_filters(self, long=True, filter_sort_key=None):
         '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
 each filter takes.'''
         def LongTemplate(filter_name, filter):
@@ -35,12 +35,18 @@ each filter takes.'''
             return "\t% 30s. %s(%s)" % (filter.__module__, filter_name, filter.arg_names)
 
         template_function = { True: LongTemplate, False: ShortTemplate }[long]
+        
+        sort_by_name = lambda (name, filter): name
+        sort_key_function = {
+            'name': sort_by_name,
+            'module': lambda (name, filter): filter.__module__
+        }.get(filter_sort_key, sort_by_name)
 
         print "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 
                                                                   ", ".join(mod.__name__ for mod in self.loaded_modules),
                                                                   len(self.available_filters_dict))
                                                                   
-        for (filter_name, filter) in sorted(self.available_filters_dict.iteritems(), key=lambda (name, filter): name):
+        for (filter_name, filter) in sorted(self.available_filters_dict.iteritems(), key=sort_key_function):
             print template_function(filter_name, filter)
 
     def add_modules(self, module_names):

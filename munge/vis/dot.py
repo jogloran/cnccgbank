@@ -1,6 +1,6 @@
 from __future__ import with_statement
 from string import Template
-from munge.util.err_utils import warn
+from munge.util.err_utils import warn, err
 import re, os
 from subprocess import Popen, PIPE
 
@@ -46,7 +46,7 @@ def write_png(deriv, fn):
     try:
         dot_path = os.popen('which dot').read().strip()
         if not dot_path:
-            warn('dot not found on this system. Ensure that dot is in the PATH.')
+            err('dot not found on this system. Ensure that dot is in the PATH.')
             return
             
         cmd = '%s -Tpng -o %s 2>/dev/null' % (dot_path, fn)

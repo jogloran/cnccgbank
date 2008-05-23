@@ -1,4 +1,5 @@
 import glob, readline, re, sys, os
+from cmd2 import options, make_option
 
 from munge.proc.trace_core import TraceCore
 from apps.util.cmd_utils import DefaultShell
@@ -61,8 +62,11 @@ class Shell(DefaultShell):
         '''Lists all filters loaded.'''
         self.tracer.list_filters()
 
-    def do_summary(self, args):
-        self.tracer.list_filters(long=False)
+    @options([ make_option('-l', '--long', action='store_true', dest='long', help='Show detailed summary', default=False),
+               make_option('-s', '--sort-by', action='store', type='choice', choices=['name', 'module'], 
+                           dest='sort_key', help='Display filters in a given sorted order', default='name')])
+    def do_summary(self, args, opts):
+        self.tracer.list_filters(long=opts.long, filter_sort_key=opts.sort_key)
         
     def do_with(self, args):
         '''Changes or displays the working set.'''
