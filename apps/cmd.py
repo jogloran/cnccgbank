@@ -1,13 +1,17 @@
-import glob, readline, re, sys
+import glob, readline, re, sys, os
 
 from munge.proc.trace_core import TraceCore
 from apps.util.cmd_utils import DefaultShell
 from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info
 
-BuiltInPackages = ['munge.proc.builtins', 'munge.proc.modes.split', 'munge.proc.modes.anno', 'apps.comma']
+BuiltInPackages = ['munge.proc.builtins', 
+                   'munge.proc.modes.split', 'munge.proc.modes.anno', 
+                   'apps.comma', 'apps.tgrep']
 
 def filter_run_name(filter_name, filter_args):
+    '''Produces a human-readable summary of a filter run: the filter name with a list of its arguments
+in parentheses separated by commas.'''
     return "%s(%s)" % (filter_name, ', '.join(filter_args) if filter_args else '')
     
 def list_preview(orig_l, head_elements=7, tail_elements=1):
@@ -30,6 +34,7 @@ def list_preview(orig_l, head_elements=7, tail_elements=1):
     return ''.join(bits)
 
 class Shell(DefaultShell):
+    '''A shell interface to trace functionality.'''
     def __init__(self):
         DefaultShell.__init__(self)
         self.tracer = TraceCore(libraries=BuiltInPackages)
@@ -55,7 +60,7 @@ class Shell(DefaultShell):
         return cleaned_line
         
     def do_load(self, args):
-        '''Handles the _load_ command (loads a filter).'''
+        '''Loads filter modules given as package names.'''
         modules = args.split()
         
         old_modules = set(self.tracer.available_filters_dict.keys())
@@ -71,11 +76,14 @@ class Shell(DefaultShell):
             info("No modules added.")
         
     def do_list(self, args):
-        '''Handles the _list_ command (lists loaded filters).'''
+        '''Lists all filters loaded.'''
         self.tracer.list_filters()
+
+    def do_summary(self, args):
+        self.tracer.list_filters(long=False)
         
     def do_with(self, args):
-        '''Handles the _with_ command (specifies filter input).'''
+        '''Changes or displays the working set.'''
         args = args.split()
         if args:
             self.files = list(flatten(glob.glob(arg) for arg in args))
@@ -97,7 +105,7 @@ class Shell(DefaultShell):
         return None
         
     def do_run(self, args):
-        '''Handles the _run_ command (processes a filter).'''
+        '''Runs the given filter with the given arguments on the working set.'''
         args = args.split()
         
         if not args: return
@@ -133,19 +141,20 @@ class Shell(DefaultShell):
         finally:
             sys.stdout = old_stdout
             
-    def do_bt(self, args):
-        self.do_backtrace(args)
-        
     def do_backtrace(self, args):
+        '''Displays the exception backtrace for the last failed filter.'''
         if self.last_exception:
             sys.excepthook(*self.last_exception)
+    do_bt = do_backtrace
             
     def do_into(self, args):
+        '''Sets or displays the destination for filter output. The special filename 
+'stdout' will redirect filter output to the console.'''
         def print_output_destination():
             if self.output_file is None:
-                print "Filter output will be sent to the console."
+                info("Filter output will be sent to the console.")
             else:
-                print "Filter output will be redirected to: %s" % self.output_file
+                info("Filter output will be redirected to: %s", self.output_file)
                 
         args = args.split(' ', 1)
         output_file = args[0]
@@ -196,7 +205,11 @@ class Shell(DefaultShell):
         return self.filename_complete(text)
         
     def filename_complete(self, text):
-        return [path for path in glob.glob(text + '*') if path.startswith(text)]
+        '''Returns a list of files and directories whose names are prefixes of the entered
+text. Appends a directory separator to directory completions.'''
+        return [path + (os.path.sep if os.path.isdir(path) else '') 
+                for path in glob.glob(text + '*') 
+                if path.startswith(text)]
         
 if __name__ == '__main__':
     try:

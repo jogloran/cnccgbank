@@ -8,9 +8,12 @@ class Derivation(object):
     def __init__(self, sec_no, doc_no, der_no, derivation):
         self.sec_no, self.doc_no, self.der_no = sec_no, doc_no, der_no
         self.derivation = derivation
+
+    def spec_tuple(self):
+        return (self.sec_no, self.doc_no, self.der_no)
         
     def label(self):
-        return "CTB:%d%02d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        return "CTB:%d%02d(%d)" % self.spec_tuple()
     
 import sys
 from sgmllib import SGMLParser    

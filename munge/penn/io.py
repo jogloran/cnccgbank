@@ -11,9 +11,12 @@ class Derivation(object):
         self.sec_no, self.doc_no, self.der_no = sec_no, doc_no, der_no
         self._derivation = derivation
         
+    def spec_tuple(self):
+        return (self.sec_no, self.doc_no, self.der_no)
+        
     def label(self): 
         '''Returns a label representing this derivation.'''
-        return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        return "%0d:%d(%d)" % self.spec_tuple()
         
     def get_derivation(self): return self._derivation
     def set_derivation(self, derivation): self._derivation = derivation
@@ -21,7 +24,7 @@ class Derivation(object):
         
     def __str__(self):
         return str(self.derivation)
-        
+
 class PTBReader(object):
     '''An iterator over each derivation in a PTB document.'''
     def __init__(self, filename):

@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from munge.util.dict_utils import CountDict, sorted_by_value_desc
-from munge.proc.trace import Filter
+from munge.proc.filter import Filter
 
 class CountRuleFrequencyBySlash(Filter):
     '''Abstract filter which counts how many times each combinator is used for each slash of each category.'''

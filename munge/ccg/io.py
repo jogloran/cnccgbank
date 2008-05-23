@@ -12,10 +12,13 @@ class Derivation(object):
         
     def label(self): 
         '''Returns a label representing this derivation.'''
-        return "%0d:%d(%d)" % (self.sec_no, self.doc_no, self.der_no)
+        return "%0d:%d(%d)" % self.spec_tuple()
+
+    def spec_tuple(self):
+        return (self.sec_no, self.doc_no, self.der_no)
         
     def header(self):
-        return "ID=wsj_%02d%02d.%d PARSER=GOLD NUMPARSE=1" % (self.sec_no, self.doc_no, self.der_no)
+        return "ID=wsj_%02d%02d.%d PARSER=GOLD NUMPARSE=1" % self.spec_tuple()
         
     def __str__(self):
         return '\n'.join((self.header(), str(self.derivation)))

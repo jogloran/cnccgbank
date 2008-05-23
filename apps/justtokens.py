@@ -1,7 +1,7 @@
 from munge.proc.trace import Filter
 from munge.trees.traverse import leaves
 
-class DumpTokens(Filter):
+class Tokens(Filter):
     def __init__(self, outfile):
         if isinstance(outfile, basestring):
             self.outfile = outfile
@@ -16,14 +16,14 @@ class DumpTokens(Filter):
         print >>self.f, "%s|%s" % (deriv.label(), ' '.join(deriv.derivation.text()))
         
 import sys
-class Tokens(DumpTokens, Filter):
+class PrintTokens(DumpTokens, Filter):
     def __init__(self):
         DumpTokens.__init__(self, sys.stdout)
         
     opt = "t"
     long_opt = "tokens"
     
-class DumpAllWithQuotes(Filter):
+class PrintQuoted(Filter):
     def __init__(self, outfile):
         if isinstance(outfile, basestring):
             self.outfile = outfile

@@ -2,6 +2,7 @@ import readline, sys
 from cmd import Cmd
 
 class DefaultShell(Cmd):
+    '''A Cmd shell with some useful defaults (empty line does not repeat command, etc).'''
     def __init__(self):
         Cmd.__init__(self)
         self.prompt = "> "

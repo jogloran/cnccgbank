@@ -3,7 +3,7 @@ from collections import defaultdict
 from itertools import izip, count
 import re, os
 
-from munge.proc.trace import Filter
+from munge.proc.filter import Filter
 from munge.proc.modes.treeop import percolate, ModeTier
 from munge.cats.parse import parse_category
 from munge.util.err_utils import warn, debug

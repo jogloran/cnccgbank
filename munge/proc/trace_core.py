@@ -10,6 +10,7 @@ from munge.proc.dynload import (get_available_filters_dict,
 from munge.util.err_utils import warn, info
 
 class TraceCore(object):
+    '''Immplements the filter loading functionality and the document processing loop.'''
     def __init__(self, libraries, verbose=True):
         self.loaded_modules = set(load_requested_packages(libraries))
         self.update_available_filters_dict()
@@ -18,20 +19,27 @@ class TraceCore(object):
         
     def update_available_filters_dict(self):
         self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
-        
-    def list_filters(self):
+
+    def list_filters(self, long=True):
         '''Prints a list of all the filters loaded, with a summary of the number and role of the arguments
 each filter takes.'''
+        def LongTemplate(filter_name, filter):
+            return "\t%s\n\t\t(%d args, -%s, --%s%s)" % (filter_name, 
+                                                         get_argcount_for_method(filter.__init__), 
+                                                         filter.opt, 
+                                                         filter.long_opt,
+                                                         (' '+filter.arg_names) if filter.arg_names else '')
+        def ShortTemplate(filter_name, filter):
+            return "\t%s(%s)" % (filter_name, filter.arg_names)
+
+        template_function = { True: LongTemplate, False: ShortTemplate }[long]
+
         print "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 
                                                                   ", ".join(mod.__name__ for mod in self.loaded_modules),
                                                                   len(self.available_filters_dict))
         for (filter_name, filter) in sorted(self.available_filters_dict.iteritems(), key=lambda (name, filter): name):
-            print "\t%s\n\t\t(%d args, -%s, --%s%s)" % (filter_name, 
-                                                 get_argcount_for_method(filter.__init__), 
-                                                 filter.opt, 
-                                                 filter.long_opt,
-                                                 (' '+filter.arg_names) if filter.arg_names else '')
-                                                 
+            print template_function(filter_name, filter)
+
     def add_modules(self, module_names):
         '''Attempts to load new filters, as specified by a list of module names.'''
         self.loaded_modules.update(load_requested_packages(module_names))
@@ -64,6 +72,9 @@ each filter takes.'''
         for file in files:
             if self.verbose: info("Processing %s...", file)
             for derivation_bundle in DirFileGuessReader(file):
+                for filter in filters:
+                    filter.context = derivation_bundle
+
                 for leaf in leaves(derivation_bundle.derivation):
                     for filter in filters:
                         filter.accept_leaf(leaf)
@@ -76,6 +87,7 @@ each filter takes.'''
 
                 for filter in filters:
                     filter.accept_derivation(derivation_bundle)
+                    filter.context = None
 
         for filter in filters:
             filter.output()

@@ -1,6 +1,7 @@
 from __future__ import with_statement
 from string import Template
-import re
+from munge.util.err_utils import warn
+import re, os
 
 id = 0
 def get_id():
@@ -38,3 +39,16 @@ def write_graph(deriv, fn):
     '''Writes the DOT representation to a file.'''
     with open(fn, 'w') as f:
         f.write(make_graph(deriv))
+
+def write_png(deriv, fn):
+    try:
+        dot_path = os.popen('which dot').read().strip()
+        if not dot_path:
+            warn('dot not found on this system. Ensure that dot is in the PATH.')
+            return
+            
+        cin, cout = os.popen2('%s -Tpng -o %s 2>/dev/null' % (dot_path, fn))
+        cin.write(make_graph(deriv))
+    finally:
+        cin.close()
+        cout.close()

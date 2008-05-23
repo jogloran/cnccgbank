@@ -1,18 +1,18 @@
 import os
-from munge.proc.trace import Filter  
+from munge.proc.filter import Filter  
 
-from munge.vis.dot import write_graph
+from munge.vis.dot import write_graph, write_png
 from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.cats.paths import applications  
 from munge.proc.bases import CountWordFrequencyByCategory
 from munge.proc.bases import AcceptRejectWithThreshold, AcceptRejectReporter
 from munge.util.deco_utils import *
 
-class WriteDOT(Filter):
-    "Writes each derivation to a DOT file under the given directory."
-    def __init__(self, output_dir):
+class OutputDerivations(Filter):
+    def __init__(self, output_dir, extension):
         Filter.__init__(self)
         self.output_dir = output_dir
+        self.extension = extension
         
         try:
             os.mkdir(self.output_dir)
@@ -20,19 +20,39 @@ class WriteDOT(Filter):
     
     def accept_derivation(self, deriv):
         section_dir = "%02d" % deriv.sec_no
-        doc_filename = "wsj_%02d%02d.%02d.dot" % (deriv.sec_no, deriv.doc_no, deriv.der_no)
+        doc_filename = "wsj_%02d%02d.%02d.%s" % (deriv.sec_no, deriv.doc_no, deriv.der_no, self.extension)
         
         try:
             os.makedirs(os.path.join(self.output_dir, section_dir))
         except OSError: pass
         
-        write_graph(deriv.derivation, os.path.join(self.output_dir, section_dir, doc_filename))
+        self.process(deriv, os.path.join(self.output_dir, section_dir, doc_filename))
         
+class WriteDOT(OutputDerivations):
+    "Writes each derivation to a DOT file under the given directory."
+    def __init__(self, output_dir):
+        OutputDerivations.__init__(self, output_dir, 'dot')
+
+    def process(self, bundle, filename):
+        write_graph(bundle.derivation, filename)
+
     opt = "w"
     long_opt = "write-graph"
     
     arg_names = "OUTDIR"
-    
+
+class WritePNG(OutputDerivations):
+    def __init__(self, output_dir):
+        OutputDerivations.__init__(self, output_dir, 'png')
+
+    def process(self, bundle, filename):
+        write_png(bundle.derivation, filename)
+
+    opt = "-W"
+    long_opt = "write-png"
+
+    arg_names = "OUTDIR"
+
 class ListCategoriesForLex(Filter):
     "Reports on all categories attested for a given lexical item."
     def __init__(self, lex):

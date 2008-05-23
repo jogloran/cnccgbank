@@ -2,7 +2,7 @@ from __future__ import with_statement
 
 import re
 
-from munge.proc.trace import Filter
+from munge.proc.filter import Filter
 from munge.proc.bases import AnnotatorFormReporter, AcceptRejectWithThreshold
 from munge.util.err_utils import debug
 
