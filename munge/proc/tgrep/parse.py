@@ -7,14 +7,17 @@ import munge.ccg.nodes as ccg
 from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 
-tokens = ("ATOM", "OP", "REGEX", "LPAREN", "RPAREN", "SLASH")
+tokens = ("SLASH", "ATOM", "OP", "LPAREN", "RPAREN", "REGEX")
 
-t_REGEX = r'/[^/]/'
-t_ATOM = r'[^/\\][\w\d_\[\]()/\\]+[^/\\]'
+t_REGEX = r'/([^/]|\/)+/'
+# This is pretty hacky. We rely on the fact that / or \ are never valid categories
+# and neither are [/\]X or X[/\] for any X, letting us distinguish between a valid
+# category and a regex.
+t_ATOM = r'[^/][\w\d_\[\]()/\\]+[^/]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]'
 
 t_ignore = ' \t\r\v\f\n'
     
-t_OP = r'<<?'
+t_OP = r'!?((<-?\d?)|<<,?|>>\'?|\.\.?|\$\.?\.?)'
 t_LPAREN = r'\{'
 t_RPAREN = r'\}'
 
@@ -35,9 +38,9 @@ class Node(object):
     def __repr__(self):
         return "%s%s%s" % (self.anchor, ' ' if self.constraints else '', ' '.join(str(c) for c in self.constraints))
         
-    def is_satisfied_by(self, leaf):
-        if self.anchor.is_satisfied_by(leaf):
-            return all(constraint.is_satisfied_by(leaf) for constraint in self.constraints)
+    def is_satisfied_by(self, node):
+        if self.anchor.is_satisfied_by(node):
+            return all(constraint.is_satisfied_by(node) for constraint in self.constraints)
         return False
         
 class Constraint(object):
@@ -46,10 +49,10 @@ class Constraint(object):
         self.rhs = rhs
     def __repr__(self):
         return "%s %s" % (self.operator, self.rhs)
-    def is_satisfied_by(self, leaf):
+    def is_satisfied_by(self, node):
         if self.operator == '<':
-            return self.rhs.is_satisfied_by(leaf.lch) or \
-                   self.rhs.is_satisfied_by(leaf.rch)
+            return self.rhs.is_satisfied_by(node.lch) or \
+                   self.rhs.is_satisfied_by(node.rch)
         return False
         
 class Group(object):
@@ -57,16 +60,16 @@ class Group(object):
         self.node = node
     def __repr__(self):
         return "{%s}" % self.node
-    def is_satisfied_by(self, leaf):
-        return self.node.is_satisfied_by(leaf)
+    def is_satisfied_by(self, node):
+        return self.node.is_satisfied_by(node)
 
 class Atom(object):
     def __init__(self, value):
         self.value = value
     def __repr__(self):
         return self.value
-    def is_satisfied_by(self, leaf):
-        return self.value == str(leaf.cat)
+    def is_satisfied_by(self, node):
+        return self.value == str(node.cat)
         
 class RE(object):
     def __init__(self, source):
@@ -74,8 +77,8 @@ class RE(object):
         self.regex = re.compile(source)
     def __repr__(self):
         return "/%s/" % self.source
-    def is_satisfied_by(self, leaf):
-        return self.regex.match(str(leaf.cat)) is not None
+    def is_satisfied_by(self, node):
+        return self.regex.match(str(node.cat)) is not None
         
 def p_node(stk):
     '''
@@ -128,14 +131,13 @@ def p_atom(stk):
     '''
     atom : ATOM
     '''
-    print stk[0]
     stk[0] = Atom(stk[1])
 
 def p_regex(stk):
     '''
     regex : REGEX
     '''
-    stk[0] = RE(stk[2])
+    stk[0] = RE(stk[1][1:-1])
 
 if __name__ == '__main__':
     # lex.lex()
@@ -143,7 +145,7 @@ if __name__ == '__main__':
     # 
     # for tok in iter(lex.token, None):
     #     print "%s %s" % (tok.type, tok.value)
-    lex.lex()
+    lex.lex(debug=1)
     l=sys.argv[1]
     lex.input(l)
     for tok in iter(lex.token, None):
