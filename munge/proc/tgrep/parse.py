@@ -7,10 +7,10 @@ import munge.ccg.nodes as ccg
 from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 
-tokens = ("ATOM", "REGEX", "OP", "LPAREN", "RPAREN")
+tokens = ("ATOM", "OP", "REGEX", "LPAREN", "RPAREN", "SLASH")
 
-t_ATOM = r'[\w\d_\[\]()/\\]+'
-t_REGEX = r'/.+/'
+t_REGEX = r'/[^/]/'
+t_ATOM = r'[^/\\][\w\d_\[\]()/\\]+[^/\\]'
 
 t_ignore = ' \t\r\v\f\n'
     
@@ -75,7 +75,7 @@ class RE(object):
     def __repr__(self):
         return "/%s/" % self.source
     def is_satisfied_by(self, leaf):
-        return self.regex.match(str(leaf.cat))
+        return self.regex.match(str(leaf.cat)) is not None
         
 def p_node(stk):
     '''
@@ -128,13 +128,14 @@ def p_atom(stk):
     '''
     atom : ATOM
     '''
+    print stk[0]
     stk[0] = Atom(stk[1])
 
 def p_regex(stk):
     '''
     regex : REGEX
     '''
-    stk[0] = RE(stk[1])
+    stk[0] = RE(stk[2])
 
 if __name__ == '__main__':
     # lex.lex()
@@ -143,18 +144,24 @@ if __name__ == '__main__':
     # for tok in iter(lex.token, None):
     #     print "%s %s" % (tok.type, tok.value)
     lex.lex()
+    l=sys.argv[1]
+    lex.input(l)
+    for tok in iter(lex.token, None):
+        print tok.type, tok.value
     yacc.yacc()
 
     p = yacc.parse(sys.argv[1])
     print p
-    print p.is_satisfied_by(ccg.Node(
-                            C('A'), 0,0, None, 
-                            ccg.Node(
-                                C('B'), 0, 0, None,
-                                ccg.Leaf(C('C'), 'pos', 'pos', 'C', 'C'), None
-                            ),
-                            ccg.Leaf(
-                                C('C'), 'pos', 'pos', 'D', 'D'
-                            )
-                            )
-                            )
+    print type(p.anchor)
+    t = ccg.Node(
+            C('A'), 0,0, None, 
+            ccg.Node(
+                C('B'), 0, 0, None,
+                ccg.Leaf(C('C'), 'pos', 'pos', 'C', 'C'), None
+                ),
+            ccg.Leaf(
+                C('C'), 'pos', 'pos', 'D', 'D'
+                )
+            )
+    print t
+    print p.is_satisfied_by(t)
