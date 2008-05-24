@@ -1,3 +1,4 @@
+from munge.proc.tgrep.ops import *
 
 class Node(object):
     def __init__(self, anchor, constraints=None):
@@ -21,9 +22,15 @@ class Constraint(object):
     def __repr__(self):
         return "%s %s" % (self.operator, self.rhs)
     def is_satisfied_by(self, node):
-        if self.operator == '<':
-            return self.rhs.is_satisfied_by(node.lch) or \
-                   self.rhs.is_satisfied_by(node.rch)
+        try:
+            op_func = Operators[self.operator]
+            # Determine whether rhs matches the candidate node
+            return op_func.apply(self.rhs, node)
+        except KeyError:
+            warn("Invalid operator %s encountered.", self.operator)
+        # if self.operator == '<':
+        #     return self.rhs.is_satisfied_by(node.lch) or \
+        #            self.rhs.is_satisfied_by(node.rch)
         return False
         
 class Group(object):
