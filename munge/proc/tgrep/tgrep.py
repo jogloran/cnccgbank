@@ -13,6 +13,7 @@ def initialise():
     yacc.yacc(module=parse)
 
 def tgrep(deriv, expression):
+    if not expression: raise RuntimeError('No query expression given.')
     if tgrep_debug:
         lex.input(expression)
         for tok in iter(lex.token, None):
