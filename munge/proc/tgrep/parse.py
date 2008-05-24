@@ -1,6 +1,5 @@
 import ply.lex as lex
 import ply.yacc as yacc
-
 import sys, re
 
 import munge.ccg.nodes as ccg
@@ -10,15 +9,19 @@ from munge.proc.tgrep.nodes import *
 
 tokens = ("SLASH", "ATOM", "OP", "LPAREN", "RPAREN", "REGEX")
 
-t_REGEX = r'/([^/]|\/)+/'
+t_REGEX = r'/([^/\s]|\/)+/'
 # This is pretty hacky. We rely on the fact that / or \ are never valid categories
 # and neither are [/\]X or X[/\] for any X, letting us distinguish between a valid
-# category and a regex.
-t_ATOM = r'[^/][\w\d_\[\]()/\\]+[^/]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]'
+# category and a regex. Assume no whitespace is permitted within categories.
+
+# TODO: This doesn't include punctuation yet. Do a quick run over the treebank to see
+# what characters are valid in category names. Not to mention modes
+t_ATOM = r'[\w\d_\[\]()][[\w\d_\[\]()/\\.]+[\w\d_\[\]()]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]+'
 
 t_ignore = ' \t\r\v\f\n'
     
-t_OP = r'!?((<-?\d?)|<<,?|>>\'?|\.\.?|\$\.?\.?)'
+# Productions need to be sorted by descending length (maximal munch)
+t_OP = r'!?(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
 t_LPAREN = r'\{'
 t_RPAREN = r'\}'
 
@@ -86,33 +89,5 @@ def p_regex(stk):
     '''
     regex : REGEX
     '''
+    # Extract the regex between the slash delimiters
     stk[0] = RE(stk[1][1:-1])
-
-if __name__ == '__main__':
-    # lex.lex()
-    # lex.input(sys.argv[1])
-    # 
-    # for tok in iter(lex.token, None):
-    #     print "%s %s" % (tok.type, tok.value)
-    lex.lex(debug=1)
-    l=sys.argv[1]
-    lex.input(l)
-    for tok in iter(lex.token, None):
-        print tok.type, tok.value
-    yacc.yacc()
-
-    p = yacc.parse(sys.argv[1])
-    print p
-    print type(p.anchor)
-    t = ccg.Node(
-            C('A'), 0,0, None, 
-            ccg.Node(
-                C('B'), 0, 0, None,
-                ccg.Leaf(C('C'), 'pos', 'pos', 'C', 'C'), None
-                ),
-            ccg.Leaf(
-                C('C'), 'pos', 'pos', 'D', 'D'
-                )
-            )
-    print t
-    print p.is_satisfied_by(t)

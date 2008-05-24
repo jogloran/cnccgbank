@@ -2,6 +2,7 @@ import glob, readline, re, sys, os
 from cmd2 import options, make_option
 
 from munge.proc.trace_core import TraceCore
+from munge.proc.dynload import get_argcount_for_method
 from apps.util.cmd_utils import DefaultShell
 from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info
@@ -9,7 +10,7 @@ from munge.util.list_utils import list_preview
 
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.modes.split', 'munge.proc.modes.anno', 
-                   'apps.comma', 'apps.tgrep']
+                   'apps.comma', 'munge.proc.tgrep.tgrep']
 
 def filter_run_name(filter_name, filter_args):
     '''Produces a human-readable summary of a filter run: the filter name with a list of its arguments
@@ -94,14 +95,18 @@ class Shell(DefaultShell):
         if not args: return
 
         filter_name = args.pop(0)
+        if not filter_name: # no filter with the requested switch was found
+            return
         if filter_name.startswith('--'): # a long option name was given
             filter_name = self.get_filter_by_switch(filter_name)
         elif filter_name.startswith('-'): # a short option name was given
             filter_name = self.get_filter_by_switch(filter_name)
-        if not filter_name: # no filter with the requested switch was found
-            return
 
-        if args:
+        # Special case: for a one-arg filter any number of arguments are treated
+        # as a single argument.
+        if get_argcount_for_method(self.tracer[filter_name].__init__) == 1:
+            filter_args = (' '.join(args), )
+        elif args is not None:
             filter_args = args
         else:
             filter_args = None

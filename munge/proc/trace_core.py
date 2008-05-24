@@ -16,6 +16,9 @@ class TraceCore(object):
         self.update_available_filters_dict()
         
         self.verbose = verbose
+
+    def __getitem__(self, key):
+        return self.available_filters_dict.get(key, None)
         
     def update_available_filters_dict(self):
         self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
