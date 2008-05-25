@@ -54,6 +54,12 @@ class TgrepCore(Filter):
     def accept_derivation(self, derivation_bundle):
         for match_node in self.match_generator(derivation_bundle.derivation, self.expression):
             self.match_callback(match_node, derivation_bundle)
+            
+def FixedTgrep(expression):
+    class _TgrepCore(TgrepCore):
+        def __init__(self):
+            TgrepCore.__init__(expression)
+    return _TgrepCore
     
 class TgrepException(Exception): pass
 class Tgrep(TgrepCore):
