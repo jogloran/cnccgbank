@@ -34,6 +34,8 @@ class AnalyseAbsorption(Filter):
             
             was_left_child = leaf.parent.lch is leaf
             if was_left_child:
+                print self.context.label()
+                print leaf.parent
                 environment = [self.LEFT] + map(lambda e: str(e.cat), [ leaf.parent.parent.lch, leaf.parent, leaf.parent.parent ])
             else:
                 if leaf.parent.parent.rch is None: return

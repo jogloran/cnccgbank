@@ -9,10 +9,10 @@ def Dominates(candidate, node):
     return any(candidate.is_satisfied_by(internal_node) for internal_node in nodes(node))
 
 def IsChildOf(candidate, node):
-    return IsParentOf(node, candidate)
+    return candidate.is_satisfied_by(node.parent)
 
 def IsDominatedBy(candidate, node):
-    return Dominates(node, candidate)
+    pass
 
 def ImmediatelyPrecedes(candidate, node):
     pass

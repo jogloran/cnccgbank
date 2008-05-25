@@ -3,25 +3,26 @@ import ply.lex as lex
 import ply.yacc as yacc
 
 import munge.proc.tgrep.parse as parse
-from munge.trees.traverse import nodes
+from munge.trees.traverse import nodes, leaves
 from munge.util.iter_utils import take
 
 from munge.proc.filter import Filter
 
 _tgrep_debug = False
+_tgrep_initialised = False
 
 def initialise():
     lex.lex(module=parse)
     yacc.yacc(module=parse)
+    
+    _tgrep_initialised = True
 
-_tgrep_initialised = False
 def tgrep(deriv, expression):
     global _tgrep_initialised
     
     if not expression: raise RuntimeError('No query expression given.')
     if not _tgrep_initialised:
         initialise()
-        _tgrep_initialised = True
         
     if _tgrep_debug:
         lex.input(expression)
@@ -58,7 +59,7 @@ class TgrepCore(Filter):
 def FixedTgrep(expression):
     class _TgrepCore(TgrepCore):
         def __init__(self):
-            TgrepCore.__init__(expression)
+            TgrepCore.__init__(self, expression)
     return _TgrepCore
     
 class TgrepException(Exception): pass
@@ -88,7 +89,7 @@ class Tgrep(TgrepCore):
     def __init__(self, expression): #, mode=FIND_FIRST, show=SHOW_NODE):
         TgrepCore.__init__(self, expression)
         
-        mode = self.FIND_FIRST
+        mode = self.FIND_ALL
         show = self.SHOW_NODE
         
         if not Tgrep.is_valid_callback_key(mode, self.find_functions):
