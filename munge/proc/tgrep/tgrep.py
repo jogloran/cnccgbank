@@ -1,10 +1,12 @@
 import sys
 import ply.lex as lex
 import ply.yacc as yacc
-import munge.ccg.nodes as ccg
-from munge.cats.cat_defs import C
+
 import munge.proc.tgrep.parse as parse
 from munge.trees.traverse import nodes
+from munge.util.iter_utils import take
+
+from munge.proc.filter import Filter
 
 _tgrep_debug = False
 
@@ -27,18 +29,73 @@ def tgrep(deriv, expression):
             print tok.type, tok.value
 
     query = yacc.parse(expression)
-    return any(query.is_satisfied_by(node) for node in nodes(deriv))
+    for node in nodes(deriv):
+        if query.is_satisfied_by(node):
+            yield node
+    
+find_all = tgrep
+find_first = lambda deriv, expr: take(find_all(deriv, expr), 1)
 
-from munge.proc.filter import Filter
-class Tgrep(Filter):
+def matches(derivation, expression):
+    return list(find_first(derivation, expression))
+    
+class TgrepCore(Filter):
     def __init__(self, expression):
         Filter.__init__(self)
         initialise()
+        
         self.expression = expression
-
+        
+    def _not_implemented(self, *args):
+        raise NotImplementedError('TgrepCore subclasses must implement match_generator and match_callback.')
+    match_generator = _not_implemented
+    match_callback = _not_implemented
+        
     def accept_derivation(self, derivation_bundle):
-        if tgrep(derivation_bundle.derivation, self.expression):
-            print derivation_bundle.label()
+        for match_node in self.match_generator(derivation_bundle.derivation, self.expression):
+            self.match_callback(match_node, derivation_bundle)
+    
+class TgrepException(Exception): pass
+class Tgrep(TgrepCore):
+    def show_node(match_node, bundle):
+        print "%s: %s" % (bundle.label(), match_node)
+        
+    def show_tokens(match_node, bundle):
+        print "%s: %s" % (bundle.label(), match_node.text())
+        
+    def show_label(match_node, bundle):
+        print bundle.label()
+        
+    FIND_FIRST, FIND_ALL = range(2)
+    find_functions = {
+        FIND_FIRST: find_first,
+        FIND_ALL:   find_all
+    }
+
+    SHOW_NODE, SHOW_TOKENS, SHOW_LABEL = range(3)
+    match_callbacks = {
+        SHOW_NODE: show_node,
+        SHOW_TOKENS: show_tokens,
+        SHOW_LABEL: show_label
+    }
+    
+    def __init__(self, expression): #, mode=FIND_FIRST, show=SHOW_NODE):
+        TgrepCore.__init__(self, expression)
+        
+        mode = self.FIND_FIRST
+        show = self.SHOW_NODE
+        
+        if not Tgrep.is_valid_callback_key(mode, self.find_functions):
+            raise TgrepException('Invalid Tgrep find mode %d given.' % mode)
+        self.match_generator = Tgrep.find_functions[mode]
+        
+        if not Tgrep.is_valid_callback_key(show, self.match_callbacks):
+            raise TgrepException('Invalid Tgrep show mode %d given.' % mode)
+        self.match_callback = Tgrep.match_callbacks[show]
+        
+    @staticmethod
+    def is_valid_callback_key(key, callbacks):
+        return key in callbacks
 
     opt = 't'
     long_opt = 'tgrep'

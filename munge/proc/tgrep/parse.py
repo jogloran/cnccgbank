@@ -9,30 +9,39 @@ from munge.proc.tgrep.nodes import *
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED")
 
-t_REGEX = r'/([^/\s]|\/)+/'
-# This is pretty hacky. We rely on the fact that / or \ are never valid categories
-# and neither are [/\]X or X[/\] for any X, letting us distinguish between a valid
-# category and a regex. Assume no whitespace is permitted within categories.
+# Assume no whitespace is permitted.
+def t_REGEX(t):
+    r'/([^/\s]|\/)+/'
+    return t
 
-# TODO: This doesn't include punctuation yet. Do a quick run over the treebank to see
-# what characters are valid in category names. Not to mention modes
-#t_ATOM = r'[\w\d_\[\]()][[\w\d_\[\]()/\\.]+[\w\d_\[\]()]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]+'
-t_ATOM = r'[^/\\"{}][^\s]+[^/\\"{}]|[^/\\"{}]{1,2}'
-t_QUOTED = r'"[^"]+"'
+def t_LPAREN(t):
+    r'\{'
+    return t
+def t_RPAREN(t):
+    r'\}'
+    return t
 
-t_ignore = ' \t\r\v\f\n'
-    
+def t_QUOTED(t):
+    r'"[^"]+"'
+    return t
+
 # Productions need to be sorted by descending length (maximal munch)
-t_OP = r'!?(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
-t_LPAREN = r'\{'
-t_RPAREN = r'\}'
+def t_OP(t):
+    r'!?(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
+    return t
+    
+def t_ATOM(t):
+    r'''[^/\\"\s{][^\s]+[^/\\"\s}]|[^/\\\s{][^/\\\s}]|[^/\\\s{}]'''
+    return t
+    
+t_ignore = ' \t\r\v\f\n'
 
 def t_error(t):
     warn("Illegal character `%s' encountered.", t.value[0])
     t.lexer.skip(1)
     
 def p_error(stk):
-    err("Syntax error encountered.")
+    err("Syntax error encountered: %s", stk)
         
 def p_node(stk):
     '''
@@ -43,7 +52,7 @@ def p_node(stk):
     if len(stk) == 2:
         stk[0] = Node(stk[1])
     elif len(stk) == 3:
-        stk[0] = stk[1]#Node(stk[1])
+        stk[0] = stk[1]
         stk[0].constraints.extend(stk[2])
     elif len(stk) == 4:
         stk[0] = stk[1]
