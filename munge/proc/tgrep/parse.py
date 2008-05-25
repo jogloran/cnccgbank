@@ -7,7 +7,7 @@ from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 
-tokens = ("ATOM", "OP", "LPAREN", "RPAREN", "REGEX")
+tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED")
 
 t_REGEX = r'/([^/\s]|\/)+/'
 # This is pretty hacky. We rely on the fact that / or \ are never valid categories
@@ -16,7 +16,9 @@ t_REGEX = r'/([^/\s]|\/)+/'
 
 # TODO: This doesn't include punctuation yet. Do a quick run over the treebank to see
 # what characters are valid in category names. Not to mention modes
-t_ATOM = r'[\w\d_\[\]()][[\w\d_\[\]()/\\.]+[\w\d_\[\]()]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]+|"[^"]+"'
+#t_ATOM = r'[\w\d_\[\]()][[\w\d_\[\]()/\\.]+[\w\d_\[\]()]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]+'
+t_ATOM = r'[^/\\"{}][^\s]+[^/\\"{}]|[^/\\"{}]{1,2}'
+t_QUOTED = r'"[^"]+"'
 
 t_ignore = ' \t\r\v\f\n'
     
@@ -41,7 +43,7 @@ def p_node(stk):
     if len(stk) == 2:
         stk[0] = Node(stk[1])
     elif len(stk) == 3:
-        stk[0] = Node(stk[1])
+        stk[0] = stk[1]#Node(stk[1])
         stk[0].constraints.extend(stk[2])
     elif len(stk) == 4:
         stk[0] = stk[1]
@@ -76,6 +78,7 @@ def p_matcher(stk):
     '''
     matcher : atom 
             | regex
+            | quoted
     '''
     stk[0] = stk[1]
     
@@ -83,10 +86,13 @@ def p_atom(stk):
     '''
     atom : ATOM
     '''
-    value = stk[1]
-    # take literal value if ATOM is enclosed in quotes
-    if value[0] == '"' and value[-1] == '"': value = value[1:-1]
-    stk[0] = Atom(value)
+    stk[0] = Atom(stk[1])
+
+def p_quoted(stk):
+    '''
+    quoted : QUOTED
+    '''
+    stk[0] = Atom(stk[1][1:-1])
 
 def p_regex(stk):
     '''

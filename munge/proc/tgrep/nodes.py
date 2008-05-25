@@ -10,7 +10,7 @@ class Node(object):
         self.constraints = constraints
         
     def __repr__(self):
-        return "%s%s%s" % (self.anchor, ' ' if self.constraints else '', ' '.join(str(c) for c in self.constraints))
+        return "%s%s%s" % (self.anchor, ' ' if self.constraints else '', self.constraints)#' '.join(str(c) for c in self.constraints))
         
     def is_satisfied_by(self, node):
         if self.anchor.is_satisfied_by(node):
