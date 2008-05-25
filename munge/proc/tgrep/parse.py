@@ -7,7 +7,7 @@ from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 
-tokens = ("SLASH", "ATOM", "OP", "LPAREN", "RPAREN", "REGEX")
+tokens = ("ATOM", "OP", "LPAREN", "RPAREN", "REGEX")
 
 t_REGEX = r'/([^/\s]|\/)+/'
 # This is pretty hacky. We rely on the fact that / or \ are never valid categories
