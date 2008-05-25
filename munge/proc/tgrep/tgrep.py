@@ -43,24 +43,3 @@ class Tgrep(Filter):
     opt = 't'
     long_opt = 'tgrep'
     arg_names = 'EXPR'
-
-if __name__ == '__main__':
-    l=sys.argv[1]
-    lex.input(l)
-    for tok in iter(lex.token, None):
-        print tok.type, tok.value
-
-    p = yacc.parse(sys.argv[1])
-
-    t = ccg.Node(
-            C('A'), 0,0, None, 
-            ccg.Node(
-                C('B'), 0, 0, None,
-                ccg.Leaf(C('C'), 'pos', 'pos', 'C', 'C'), None
-                ),
-            ccg.Leaf(
-                C('D'), 'pos', 'pos', 'D', 'D'
-                )
-            )
-    print t
-    print any(p.is_satisfied_by(node) for node in nodes(t))
