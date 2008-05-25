@@ -16,7 +16,7 @@ t_REGEX = r'/([^/\s]|\/)+/'
 
 # TODO: This doesn't include punctuation yet. Do a quick run over the treebank to see
 # what characters are valid in category names. Not to mention modes
-t_ATOM = r'[\w\d_\[\]()][[\w\d_\[\]()/\\.]+[\w\d_\[\]()]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]+'
+t_ATOM = r'[\w\d_\[\]()][[\w\d_\[\]()/\\.]+[\w\d_\[\]()]|[\w\d_\[\]()]{2}|[\w\d_\[\]()]+|"[^"]+"'
 
 t_ignore = ' \t\r\v\f\n'
     
@@ -83,7 +83,10 @@ def p_atom(stk):
     '''
     atom : ATOM
     '''
-    stk[0] = Atom(stk[1])
+    value = stk[1]
+    # take literal value if ATOM is enclosed in quotes
+    if value[0] == '"' and value[-1] == '"': value = value[1:-1]
+    stk[0] = Atom(value)
 
 def p_regex(stk):
     '''
