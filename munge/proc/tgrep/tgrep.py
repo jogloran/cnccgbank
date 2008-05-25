@@ -6,15 +6,22 @@ from munge.cats.cat_defs import C
 import munge.proc.tgrep.parse as parse
 from munge.trees.traverse import nodes
 
-tgrep_debug = False
+_tgrep_debug = False
 
 def initialise():
     lex.lex(module=parse)
     yacc.yacc(module=parse)
 
+_tgrep_initialised = False
 def tgrep(deriv, expression):
+    global _tgrep_initialised
+    
     if not expression: raise RuntimeError('No query expression given.')
-    if tgrep_debug:
+    if not _tgrep_initialised:
+        initialise()
+        _tgrep_initialised = True
+        
+    if _tgrep_debug:
         lex.input(expression)
         for tok in iter(lex.token, None):
             print tok.type, tok.value
