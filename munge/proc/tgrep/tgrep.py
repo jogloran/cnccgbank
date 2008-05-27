@@ -12,17 +12,17 @@ _tgrep_debug = False
 _tgrep_initialised = False
 
 def initialise():
-    lex.lex(module=parse)
-    yacc.yacc(module=parse)
-    
-    _tgrep_initialised = True
-
-def tgrep(deriv, expression):
     global _tgrep_initialised
     
-    if not expression: raise RuntimeError('No query expression given.')
     if not _tgrep_initialised:
-        initialise()
+        lex.lex(module=parse)
+        yacc.yacc(module=parse)
+    
+        _tgrep_initialised = True
+
+def tgrep(deriv, expression):
+    if not expression: raise RuntimeError('No query expression given.')
+    initialise()
         
     if _tgrep_debug:
         lex.input(expression)
@@ -33,6 +33,16 @@ def tgrep(deriv, expression):
     for node in nodes(deriv):
         if query.is_satisfied_by(node):
             yield node
+            
+def multi_tgrep(deriv, query_callback_map):
+    if not query_callback_map: raise RuntimeError('No query expressions given.')
+    initialise()
+    
+    queries = [yacc.parse(expression) for expression in query_callback_map.keys()]
+    for node in nodes(deriv):
+        for query in queries:
+            if query.is_satisfied_by(node):
+                query_callback_map[query](node)
     
 find_all = tgrep
 find_first = lambda deriv, expr: take(find_all(deriv, expr), 1)
