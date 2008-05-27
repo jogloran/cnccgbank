@@ -1,5 +1,5 @@
 from munge.proc.trace import Filter
-from munge.trees.traverse import leaves
+from munge.trees.traverse import text
 
 class Tokens(Filter):
     def __init__(self, outfile):
