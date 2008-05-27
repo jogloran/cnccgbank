@@ -21,6 +21,7 @@ def initialise():
         _tgrep_initialised = True
 
 def tgrep(deriv, expression):
+    '''Performs the given tgrep query on the given tree.'''
     if not expression: raise RuntimeError('No query expression given.')
     initialise()
         

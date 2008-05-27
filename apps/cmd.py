@@ -104,7 +104,9 @@ class Shell(DefaultShell):
 
         # Special case: for a one-arg filter any number of arguments are treated
         # as a single argument.
-        if filter_name in self.tracer and get_argcount_for_method(self.tracer[filter_name].__init__) == 1:
+        if (filter_name in self.tracer and 
+            get_argcount_for_method(self.tracer[filter_name].__init__) == 1):
+
             filter_args = (' '.join(args), )
         elif args is not None:
             filter_args = args
