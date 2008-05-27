@@ -7,7 +7,15 @@ from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED")
+tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG")
+
+def t_PIPE(t):
+    r'\|'
+    return t
+    
+def t_BANG(t):
+    r'!'
+    return t
 
 # Assume no whitespace is permitted.
 def t_REGEX(t):
@@ -27,7 +35,7 @@ def t_QUOTED(t):
 
 # Productions need to be sorted by descending length (maximal munch)
 def t_OP(t):
-    r'!?(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
+    r'(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
     return t
     
 def t_ATOM(t):
@@ -70,13 +78,21 @@ def p_constraint_list(stk):
 def p_constraint(stk):
     '''
     constraint : OP matcher
+               | BANG constraint
+               | constraint PIPE constraint
                | OP LPAREN node RPAREN
     '''
     if len(stk) == 3:
-        stk[0] = Constraint(stk[1], stk[2])
+        if stk[1] == '!':
+            stk[0] = Negation(stk[2])
+        else:
+            stk[0] = Constraint(stk[1], stk[2])
+            
+    elif len(stk) == 4:
+        stk[0] = Alternation(stk[1], stk[3])
     elif len(stk) == 5:
         stk[0] = Constraint(stk[1], Group(stk[3]))
-        
+                
 def p_group(stk):
     '''
     group : LPAREN node RPAREN

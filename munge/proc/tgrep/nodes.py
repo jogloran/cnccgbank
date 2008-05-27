@@ -33,6 +33,22 @@ class Constraint(object):
 
         return False
         
+class Negation(object):
+    def __init__(self, inner):
+        self.inner = inner
+    def __repr__(self):
+        return "!%s" % self.inner
+    def is_satisfied_by(self, node):
+        return not self.inner.is_satisfied_by(node)
+        
+class Alternation(object):
+    def __init__(self, lhs, rhs):
+        self.lhs, self.rhs = lhs, rhs
+    def __repr__(self):
+        return "%s | %s" % (self.lhs, self.rhs)
+    def is_satisfied_by(self, node):
+        return self.lhs.is_satisfied_by(node) or self.rhs.is_satisfied_by(node)
+        
 class Group(object):
     def __init__(self, node):
         self.node = node

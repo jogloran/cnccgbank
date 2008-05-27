@@ -20,6 +20,9 @@ class TraceCore(object):
     def __getitem__(self, key):
         return self.available_filters_dict.get(key, None)
         
+    def __contains__(self, key):
+        return key in self.available_filters_dict
+        
     def update_available_filters_dict(self):
         self.available_filters_dict = get_available_filters_dict(self.loaded_modules)
 
