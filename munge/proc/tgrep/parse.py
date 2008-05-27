@@ -55,15 +55,12 @@ def p_node(stk):
     '''
     node : matcher
          | node constraint_list
-         | group
     '''
     if len(stk) == 2:
         stk[0] = Node(stk[1])
     elif len(stk) == 3:
         stk[0] = stk[1]
         stk[0].constraints.extend(stk[2])
-    elif len(stk) == 4:
-        stk[0] = stk[1]
             
 def p_constraint_list(stk):
     '''
@@ -80,7 +77,6 @@ def p_constraint(stk):
     constraint : OP matcher
                | BANG constraint
                | constraint PIPE constraint
-               | OP LPAREN node RPAREN
     '''
     if len(stk) == 3:
         if stk[1] == '!':
@@ -90,8 +86,6 @@ def p_constraint(stk):
             
     elif len(stk) == 4:
         stk[0] = Alternation(stk[1], stk[3])
-    elif len(stk) == 5:
-        stk[0] = Constraint(stk[1], Group(stk[3]))
                 
 def p_group(stk):
     '''
@@ -104,6 +98,7 @@ def p_matcher(stk):
     matcher : atom 
             | regex
             | quoted
+            | group
     '''
     stk[0] = stk[1]
     

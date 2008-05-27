@@ -3,6 +3,7 @@ from munge.util.err_utils import warn
 import re
 
 class Node(object):
+    '''Represents a head node matcher and its sequence of constraints.'''
     def __init__(self, anchor, constraints=None):
         self.anchor = anchor
         
@@ -10,7 +11,9 @@ class Node(object):
         self.constraints = constraints
         
     def __repr__(self):
-        return "%s%s%s" % (self.anchor, ' ' if self.constraints else '', self.constraints)#' '.join(str(c) for c in self.constraints))
+        return "%s%s%s" % (self.anchor, 
+                           ' ' if self.constraints else '', 
+                           ' '.join(str(c) for c in self.constraints))
         
     def is_satisfied_by(self, node):
         if self.anchor.is_satisfied_by(node):
@@ -18,6 +21,7 @@ class Node(object):
         return False
         
 class Constraint(object):
+    '''Represents a single constraint, characterised by an operator symbol and an argument node.'''
     def __init__(self, operator, rhs):
         self.operator = operator
         self.rhs = rhs
@@ -34,6 +38,7 @@ class Constraint(object):
         return False
         
 class Negation(object):
+    '''Represents the negation of a constraint.'''
     def __init__(self, inner):
         self.inner = inner
     def __repr__(self):
@@ -42,6 +47,7 @@ class Negation(object):
         return not self.inner.is_satisfied_by(node)
         
 class Alternation(object):
+    '''Represents a disjunction between two constraints.'''
     def __init__(self, lhs, rhs):
         self.lhs, self.rhs = lhs, rhs
     def __repr__(self):
