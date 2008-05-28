@@ -8,6 +8,10 @@ from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG", "LT", "GT")
+precedence = (
+            ('right', 'PIPE'),
+            ('right', 'BANG')
+        )
 
 def t_PIPE(t):
     r'\|'
