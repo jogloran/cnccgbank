@@ -7,7 +7,7 @@ from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG")
+tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG", "LT", "GT")
 
 def t_PIPE(t):
     r'\|'
@@ -15,6 +15,14 @@ def t_PIPE(t):
     
 def t_BANG(t):
     r'!'
+    return t
+    
+def t_LT(t):
+    r'\['
+    return t
+    
+def t_GT(t):
+    r'\]'
     return t
 
 # Assume no whitespace is permitted.
@@ -74,11 +82,14 @@ def p_constraint_list(stk):
         
 def p_constraint(stk):
     '''
-    constraint : OP matcher
+    constraint : constraint_group
+               | OP matcher
                | BANG constraint
                | constraint PIPE constraint
     '''
-    if len(stk) == 3:
+    if len(stk) == 2:
+        stk[0] = stk[1]
+    elif len(stk) == 3:
         if stk[1] == '!':
             stk[0] = Negation(stk[2])
         else:
@@ -86,6 +97,12 @@ def p_constraint(stk):
             
     elif len(stk) == 4:
         stk[0] = Alternation(stk[1], stk[3])
+        
+def p_constraint_group(stk):
+    '''
+    constraint_group : LT constraint_list GT
+    '''
+    stk[0] = ConstraintGroup(stk[2])
                 
 def p_group(stk):
     '''

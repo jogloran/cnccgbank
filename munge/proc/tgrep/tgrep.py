@@ -31,6 +31,7 @@ def tgrep(deriv, expression):
             print tok.type, tok.value
 
     query = yacc.parse(expression)
+    
     for node in nodes(deriv):
         if query.is_satisfied_by(node):
             yield node

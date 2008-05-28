@@ -62,7 +62,15 @@ class Group(object):
         return "{%s}" % self.node
     def is_satisfied_by(self, node):
         return self.node.is_satisfied_by(node)
-
+        
+class ConstraintGroup(object):
+    def __init__(self, constraints):
+        self.constraints = constraints
+    def __repr__(self):
+        return "[%s]" % ' '.join(str(c) for c in self.constraints)
+    def is_satisfied_by(self, node):
+        return all(constraint.is_satisfied_by(node) for constraint in self.constraints)
+ 
 class Atom(object):
     def __init__(self, value):
         self.value = value
