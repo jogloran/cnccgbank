@@ -19,12 +19,12 @@ in parentheses separated by commas.'''
 
 class Shell(DefaultShell):
     '''A shell interface to trace functionality.'''
-    def __init__(self):
+    def __init__(self, files=None):
         DefaultShell.__init__(self)
         self.tracer = TraceCore(libraries=BuiltInPackages)
         self.prompt = "trace> "
         
-        self.files = []
+        self.files = files or []
         
         self.last_exception = None
         self.output_file = None
@@ -200,12 +200,37 @@ text. Appends a directory separator to directory completions.'''
         return [path + (os.path.sep if os.path.isdir(path) else '') 
                 for path in glob.glob(text + '*') 
                 if path.startswith(text)]
+                
+def run_file(option, opt_string, value, parser, *args, **kwargs):
+    script_file = value
+    if not os.path.exists(script_file):
+        raise RuntimeError('Script file %s not found.' % script_file)
         
+    sh = Shell()
+    for line in open(script_file):
+        line = line.strip()
+        sh.onecmd(line)
+        
+    sys.exit()
+    
+def register_builtin_switches(parser):
+    parser.add_option('-F', '--file-script', help='Reads and invokes cmd.py commands from a file, then terminates. Ignores input files given on the command line.', 
+                      type='string', nargs=1, action='callback', callback=run_file)
+        
+from optparse import OptionParser
 if __name__ == '__main__':
     try:
         import psyco
         psyco.full()
     except ImportError: pass
+    
+    parser = OptionParser(conflict_handler='resolve')
+    register_builtin_switches(parser)
+    
+    opts, remaining_args = parser.parse_args(sys.argv)
+    argv = remaining_args[1:] # Take any remaining arguments as input files to start with
+    
+    parser.destroy()
 
-    sh = Shell()
+    sh = Shell(files=argv)
     sh.cmdloop()
