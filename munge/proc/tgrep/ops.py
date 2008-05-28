@@ -2,8 +2,7 @@ from munge.trees.traverse import nodes
 
 def IsParentOf(candidate, node):
     if node.is_leaf(): return False
-    return candidate.is_satisfied_by(node.lch) or \
-           (node.rch is not None and candidate.is_satisfied_by(node.rch))
+    return any(candidate.is_satisfied_by(child) for child in node)
 
 def Dominates(candidate, node):
     return any(candidate.is_satisfied_by(internal_node) for internal_node in nodes(node))

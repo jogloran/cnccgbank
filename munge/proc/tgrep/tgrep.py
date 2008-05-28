@@ -8,7 +8,7 @@ from munge.util.iter_utils import take
 
 from munge.proc.filter import Filter
 
-_tgrep_debug = False
+_tgrep_debug = True
 _tgrep_initialised = False
 
 def initialise():

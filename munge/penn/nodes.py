@@ -6,6 +6,10 @@ class Node(object):
     def __init__(self, tag, kids):
         self.tag = tag
         self.kids = kids
+        
+    @property
+    def cat(self):
+        return self.tag
 
     def __repr__(self, first=True):
         return "%s(%s %s)%s" % ("(" if first else "", 
@@ -30,6 +34,10 @@ class Leaf(object):
     def __init__(self, tag, lex):
         self.tag = tag
         self.lex = lex
+        
+    @property
+    def cat(self):
+        return self.tag
 
     def __repr__(self, first=True):
         return "(%s %s)" % (self.tag, self.lex)

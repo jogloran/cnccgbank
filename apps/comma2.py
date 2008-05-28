@@ -1,7 +1,9 @@
 from itertools import izip, count
+from collections import defaultdict
 
 from munge.proc.tgrep.tgrep import FixedTgrep, find_all, find_first
 from munge.util.dict_utils import CountDict, sorted_by_value_desc
+from munge.util.list_utils import FixedSizeList
 from munge.cats.trace import analyse
 from munge.cats.cat_defs import C
 
@@ -54,6 +56,11 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
         self.e2 = CountDict()
         self.e3 = CountDict()
         
+        self.e0_examples = defaultdict(FixedSizeList)
+        self.e1_examples = defaultdict(FixedSizeList)
+        self.e2_examples = defaultdict(FixedSizeList)
+        self.e3_examples = defaultdict(FixedSizeList)
+        
     def output(self):
         headings = ("(%s ,) %s -> %s",
                     "(, %s) %s -> %s",
@@ -64,8 +71,17 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
             print heading % ('X', 'Y', 'Z')
             print "-" * len(heading)
             
+            examples_hash = getattr(self, 'e%d_examples' % index)
+            
             for (l, r, p), f in sorted_by_value_desc(env_hash):
                 print ("% 10d [%28s] " + heading) % (f, analyse(C(l), C(r), C(p)), l, r, p)
+                print examples_hash[(l, r, p)]
+                if (index == 0 and (l, r, p) in self.e3 and self.e3[(l, r, p)] <= f):
+                    print ("* % 8d " + (" " * 31) + headings[3]) % (self.e3[(l, r, p)], l, r, p)
+                    print self.e3_examples[(l, r, p)]
+                elif (index == 3 and (l, r, p) in self.e0 and self.e0[(l, r, p)] <= f):
+                    print ("* % 8d " + (" " * 31) + headings[0]) % (self.e0[(l, r, p)], l, r, p)
+                    print self.e0_examples[(l, r, p)]
             
     def match_generator(self, deriv, expr):
         return find_all(deriv, expr)
@@ -78,11 +94,15 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
         if not m.lch.is_leaf():
             if m.lch.rch is not None and str(m.lch.rch.cat) == ',':
                 self.e0[ (str(m.lch.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
+                self.e0_examples[ (str(m.lch.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
             elif str(m.lch.lch.cat) == ',':
                 self.e1[ (str(m.lch.rch.cat), str(m.rch.cat), str(m.cat)) ] += 1
+                self.e1_examples[ (str(m.lch.rch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
             
         if not m.rch.is_leaf():
             if m.rch.rch is not None and str(m.rch.rch.cat) == ',':
                 self.e2[ (str(m.lch.cat), str(m.rch.lch.cat), str(m.cat)) ] += 1
+                self.e2_examples[ (str(m.lch.cat), str(m.rch.lch.cat), str(m.cat)) ].append(bundle.label())
             elif str(m.rch.lch.cat) == ',':
                 self.e3[ (str(m.lch.cat), str(m.rch.rch.cat), str(m.cat)) ] += 1
+                self.e3_examples[ (str(m.lch.cat), str(m.rch.rch.cat), str(m.cat)) ].append(bundle.label())

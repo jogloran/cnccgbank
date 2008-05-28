@@ -66,3 +66,10 @@ def list_preview(orig_l, head_elements=7, tail_elements=1):
     bits.append(" }")
 
     return ''.join(bits)
+
+class FixedSizeList(list):
+    def __init__(self, maximum_capacity=10):
+        self.maximum_capacity = maximum_capacity
+    def append(self, v):
+        if len(self) < self.maximum_capacity:
+            list.append(self, v)
