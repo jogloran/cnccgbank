@@ -74,14 +74,18 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
             examples_hash = getattr(self, 'e%d_examples' % index)
             
             for (l, r, p), f in sorted_by_value_desc(env_hash):
-                print ("% 10d [%28s] " + heading) % (f, analyse(C(l), C(r), C(p)), l, r, p)
-                print examples_hash[(l, r, p)]
+                triple = heading % (l, r, p)
+                print "% 10d [%28s] %-60s %s" % (f, analyse(C(l), C(r), C(p)), triple, ' '.join(examples_hash[(l, r, p)]))
                 if (index == 0 and (l, r, p) in self.e3 and self.e3[(l, r, p)] <= f):
-                    print ("* % 8d " + (" " * 31) + headings[3]) % (self.e3[(l, r, p)], l, r, p)
-                    print self.e3_examples[(l, r, p)]
+                    alt_triple = headings[3] % (l, r, p)
+                    alt_freq = self.e3[(l, r, p)]
+                    print "* % 8d%32s%-60s %s" % (alt_freq, " "*32, alt_triple, 
+                                                    ' '.join(self.e3_examples[(l, r, p)]))
                 elif (index == 3 and (l, r, p) in self.e0 and self.e0[(l, r, p)] <= f):
-                    print ("* % 8d " + (" " * 31) + headings[0]) % (self.e0[(l, r, p)], l, r, p)
-                    print self.e0_examples[(l, r, p)]
+                    alt_triple = headings[0] % (l, r, p)
+                    alt_freq = self.e0[(l, r, p)]
+                    print "* % 8d%32s%-60s %s" % (alt_freq, " "*32, alt_triple, 
+                                                    ' '.join(self.e0_examples[(l, r, p)]))
             
     def match_generator(self, deriv, expr):
         return find_all(deriv, expr)

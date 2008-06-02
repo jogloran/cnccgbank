@@ -99,6 +99,7 @@ class Leaf(object):
                 self.catfix == other.catfix)
                
     def is_leaf(self): return True
+    
     def label_text(self): return """%s '%s'""" % (re.escape(str(self.cat)), self.lex)
     
     def leaf_count(self): return 1

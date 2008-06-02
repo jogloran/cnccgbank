@@ -23,22 +23,22 @@ def try_unary_rules(l, r, cur):
     if l == SfNP and cur == NPbNP:
         return "lex_typechange"
 
-    if cur.is_compound():
-        if cur.right.is_compound(): # Type raising
+    if cur.is_complex():
+        if cur.right.is_complex(): # Type raising
             if cur.right.right == l:
                 if cur.direction == FORWARD and cur.right.direction == BACKWARD:
                     return "fwd_raise"
                 elif cur.direction == BACKWARD and cur.right.direction == FORWARD:
                     return "bwd_raise"
 
-        if l.is_compound(): # Other special unary rules
+        if l.is_complex(): # Other special unary rules
             if l == SbNP:
                 if cur == NPbNP or cur == NbN:
                     return "appositive_typechange"
                 if cur == SbNPbSbNP:
                     return "clause_mod_typechange"
 
-    elif not l.is_compound(): # Atomic -> atomic rules
+    elif not l.is_complex(): # Atomic -> atomic rules
         if str(l.cat) == 'N' and str(cur.cat) == 'NP': return "np_typechange"
 
     return None # no rule matched
@@ -57,9 +57,9 @@ two application combinatory rules.'''
 def try_application(l, r, cur, examine_modes=False):
     '''Determines if [l r -> cur] matches any application rules. If _examine_modes_ is
     true, then the modes of the arguments are checked to see if they permit application.'''
-    if l.is_compound() and is_application(l, r, cur, examine_modes):
+    if l.is_complex() and is_application(l, r, cur, examine_modes):
         if l.direction == FORWARD: return "fwd_appl"
-    elif r.is_compound() and is_application(r, l, cur, examine_modes):
+    elif r.is_complex() and is_application(r, l, cur, examine_modes):
         if r.direction == BACKWARD: return "bwd_appl"
 
     return None
@@ -98,7 +98,7 @@ def try_composition(l, r, cur, examine_modes=False):
     #      |   |__ | ________ | _ |____|
     #      |       |__________|   |
     #      | _____________________|
-    if l.left.is_compound() and cur.left.is_compound() and \
+    if l.left.is_complex() and cur.left.is_complex() and \
        l.left.left == r.right and l.right == cur.right and \
        r.left == cur.left.left and l.right == cur.right:
         return "bwd_r1xcomp"
@@ -115,7 +115,7 @@ the four substitution combinatory rules.'''
 def try_substitution(l, r, cur, examine_modes=False):
     '''Determines if [l r -> cur] matches any substitution rules. If _examine_modes_ is
     true, then the modes of the arguments are checked to see if they permit substitution.'''
-    if l.left.is_compound():
+    if l.left.is_complex():
         if is_substitution(l, r, cur, examine_modes) and \
            l.left.direction == FORWARD:
             if l.direction == FORWARD and \
@@ -126,7 +126,7 @@ def try_substitution(l, r, cur, examine_modes=False):
                  r.direction == BACKWARD and \
                  cur.direction == BACKWARD:
                 return "fwd_xsubst"
-    elif r.left.is_compound():
+    elif r.left.is_complex():
         if is_substitution(r, l, cur, examine_modes) and \
            r.left.direction == BACKWARD:
             if r.direction == FORWARD and \
@@ -143,7 +143,7 @@ def try_substitution(l, r, cur, examine_modes=False):
 def try_composition_or_substitution(l, r, cur, examine_modes=False):
     '''Determines whether [l r -> cur] matches any composition or substitution rules. Both of these
 require that all of l, r, cur be compound categories.'''
-    if l.is_compound() and r.is_compound() and cur.is_compound():
+    if l.is_complex() and r.is_complex() and cur.is_complex():
         return try_composition(l, r, cur, examine_modes) or \
                try_substitution(l, r, cur, examine_modes)
 
@@ -154,7 +154,7 @@ def try_absorption(l, r, cur):
     if r.has_feature("conj") and l == r and l == cur:
         return "conjoin" # X X[conj] -> X
 
-    if not l.is_compound():
+    if not l.is_complex():
         if cur.has_feature("conj"):
             if l.cat in ConjPunctuationCats: return "conj_comma_absorb"
             if l.cat == "conj": return "conj_absorb"
@@ -167,7 +167,7 @@ def try_absorption(l, r, cur):
         if l.cat in LeftAbsorbedPunctuationCats and r == cur:
             return "l_punct_absorb"
 
-    if not r.is_compound() and r.cat in RightAbsorbedPunctuationCats and l == cur:
+    if not r.is_complex() and r.cat in RightAbsorbedPunctuationCats and l == cur:
         return "r_punct_absorb"
 
     return None

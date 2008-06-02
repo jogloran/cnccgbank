@@ -8,8 +8,10 @@ LEFT, RIGHT = range(2)
 def _insert(old_subtree, new_node, new_cat=None, branching=LEFT):
     print "I am inserting under here: %s" % old_subtree
     was_root = old_subtree.parent is None
+
     old_parent = old_subtree.parent
-    
+    was_left_child = old_parent.lch == old_subtree # XXX: need to do deep equality here (see surgery.py shrink())
+        
     if new_cat is None:
         new_cat = new_node.cat.clone() # treat as absorption if new_cat is missing
                 
@@ -26,9 +28,7 @@ def _insert(old_subtree, new_node, new_cat=None, branching=LEFT):
 
     if was_root:
         return node_to_insert
-    else:
-        was_left_child = old_parent.lch is old_subtree
-        
+    else:    
         if was_left_child:
             old_parent.lch = node_to_insert
         else:
@@ -96,9 +96,24 @@ class CCGbankNodeProxy(object):
     def is_leaf(self):
         return self.node.is_leaf()
         
-    @property
-    def cat(self):
+    def get_cat(self):
         return self.node.cat
+    def set_cat(self, cat):
+        self.node.cat = cat
+    cat = property(get_cat, set_cat)
+    
+    @property
+    def pos1(self): return self.node.pos1
+    @property
+    def pos2(self): return self.node.pos2
+    @property
+    def lex(self): return self.node.lex
+    @property
+    def catfix(self): return self.node.catfix
+    @property
+    def ind1(self): return self.node.ind1
+    @property
+    def ind2(self): return self.node.ind2
                 
     @property
     def kids(self):
@@ -106,3 +121,9 @@ class CCGbankNodeProxy(object):
         
     def __eq__(self, other):
         return other == self.node
+        
+    def __iter__(self):
+        return self.node.__iter__()
+        
+    def text(self):
+        return self.node.text()

@@ -101,7 +101,9 @@ class Tgrep(TgrepCore):
     def __init__(self, expression): #, mode=FIND_FIRST, show=SHOW_NODE):
         TgrepCore.__init__(self, expression)
         
+        # mode specifies a node traversal strategy
         mode = self.FIND_ALL
+        # show specifies an output strategy
         show = self.SHOW_NODE
         
         if not Tgrep.is_valid_callback_key(mode, self.find_functions):

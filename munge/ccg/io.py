@@ -1,5 +1,5 @@
 import re
-from itertools import imap
+from itertools import imap, count, izip
 
 from munge.util.exceptions import CCGbankParseException
 from munge.ccg.parse import parse_tree
@@ -76,10 +76,13 @@ class WritableCCGbankReader(object):
         self.derivs = list(self.reader)
         
     def __getitem__(self, index):
-        return self.derivs[index-1].derivation
+        for deriv in self.derivs:
+            if deriv.der_no == index: return deriv
+        return None
         
     def __setitem__(self, index, value):
-        self.derivs[index-1].derivation = value
+        for deriv, i in izip(self.derivs, count()):
+            if deriv.der_no == index: self.derivs[i] = value
         
     def __iter__(self):
         for deriv in self.derivs: yield deriv

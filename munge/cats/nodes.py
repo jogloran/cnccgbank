@@ -57,7 +57,7 @@ class AtomicCategory(object):
     def is_leaf(self): return True
     def label_text(self): return re.escape(self.cat)
 
-    def is_compound(self): return not self.is_leaf()
+    def is_complex(self): return not self.is_leaf()
     
     def __or__(self, right):
         '''Constructs the complex category (self \ right).'''
@@ -122,7 +122,7 @@ class ComplexCategory(object):
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
 #        if self is other: return True
-        if not other.is_compound(): return False
+        if not other.is_complex(): return False
 
         return (self.direction == other.direction and 
                 self.features == other.features and
@@ -132,7 +132,7 @@ class ComplexCategory(object):
     def __eq__(self, other):
         '''Determines if this category is equal to another, without inspecting any features.'''
 #        if self is other: return True
-        if not other.is_compound(): return False
+        if not other.is_complex(): return False
 
         return (self.direction == other.direction and
                 self.left == other.left and
@@ -165,7 +165,7 @@ and its labelled index.'''
         yield (self, self.label)
         
         for child in (self.left, self.right):
-            if child.is_compound():
+            if child.is_complex():
                 for (node, slash_index) in child.slashes(): 
                     yield (node, slash_index)
                         
@@ -177,7 +177,7 @@ and its labelled index.'''
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.slash)
 
-    def is_compound(self): return not self.is_leaf()
+    def is_complex(self): return not self.is_leaf()
     
     def __or__(self, right):
         '''Constructs the complex category (self \ right).'''

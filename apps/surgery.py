@@ -8,6 +8,9 @@ from munge.util.func_utils import compose
 from apps.proxy_io import *
 from munge.io.guess_ptb import PTBGuesser
 from munge.io.guess import GuessReader
+from munge.trees.traverse import *
+
+from munge.util.iter_utils import flatten
 
 class SurgeryException(Exception): pass
 
@@ -26,10 +29,11 @@ indexing.'''
 def process(deriv, locator, instr):
     '''Processes one script instruction, given the derivation on which it is to operate, a locator string
 identifying a node as the focus of the operation, and the instruction itself.'''
-
+    locator = locator[:] # make a copy
     last_locator = locator.pop()
     
     cur_node = deriv
+
     for kid_index in locator:
         check_index(cur_node.kids, kid_index)
         cur_node = cur_node.kids[kid_index]
@@ -74,19 +78,20 @@ identifying a node as the focus of the operation, and the instruction itself.'''
             cur_node.kids.insert(last_locator, new_leaf)
     elif instr.startswith('P') or instr.startswith('A'):
         # Prepend or append CCGbank absorption leaf node. Instruction is of the form 
-        # I=leaf_cat,leaf_pos1,leaf_lex,leaf_catfix,parent_cat
+        # I=leaf_cat|leaf_pos1|leaf_lex|leaf_catfix|parent_cat
+        # If you leave out parent_cat then absorption is assumed.
         prepend = instr.startswith('P')
         
         _, commalist = instr.split('=')
-        cat, pos1, lex, catfix, parent_cat = commalist.split(',')
+        cat, pos1, lex, catfix, parent_cat = commalist.split('|')
         cat = parse_category(cat)
         
         new_leaf = ccg.Leaf(cat, pos1, pos1, lex, catfix) # No parent
         # node_prepend and append return None if no new root was installed, or the new root otherwise
         if prepend:
-            maybe_new_root = node_prepend(cur_node.kids[last_locator], new_leaf, parent_cat)
+            maybe_new_root = node_prepend(cur_node.kids[last_locator], new_leaf, parent_cat or cur_node.kids[last_locator].cat)
         else:
-            maybe_new_root = node_append(cur_node.kids[last_locator], new_leaf, parent_cat)
+            maybe_new_root = node_append(cur_node.kids[last_locator], new_leaf, parent_cat or cur_node.kids[last_locator].cat)
     
         # Install a new root if one was created
         if maybe_new_root:
@@ -95,7 +100,7 @@ identifying a node as the focus of the operation, and the instruction itself.'''
     elif instr.startswith('S'): # Shrink absorption
         focus = cur_node.kids[last_locator]
         if focus.lch.is_leaf() and focus.rch.cat == focus.cat:
-            maybe_new_root = shrink(focus, lch_is_leaf=True)
+            maybe_new_root = shrink(focus, left_is_leaf=True)
         elif focus.rch.is_leaf() and focus.lch.cat == focus.cat:
             maybe_new_root = shrink(focus, left_is_leaf=False)
         else:
@@ -174,17 +179,52 @@ changes = {}
 def maybe_int(value):
     try:
         return int(value)
-    except ValueError: return value
+    except (ValueError, TypeError): return value
     
-def desugar(value):
+def get_locator_sequence_to(leaf):
+    ret = []
+    cur = leaf
+    while cur.parent is not None:
+        ret.append(0 if cur.parent.lch == cur else 1) # see shrink for reason why deep comparison is being done
+        cur = cur.parent
+    return list(reversed(ret))
+    
+def desugar(value, last_locator_bits, deriv):
     '''Lets the user use "l" or "r" in the locator path to mean children 0 or 1 (of a CCGbank derivation).'''
     if value == 'l': return 0
     elif value == 'r': return 1
+    elif value == '_': 
+        if last_locator_bits is None:
+            raise SurgeryException('_ not bound to a value (is this the first script command?)')
+        return last_locator_bits
+    elif value == '@':
+        if last_locator_bits is None:
+            raise SurgeryException('@ depends on _, which is not yet bound to a value')
+        insert_locator = list(last_locator_bits)
+        print "last locator bits:", last_locator_bits
+        while insert_locator and insert_locator[-1] in ('l', 0):
+            del insert_locator[-1]
+         
+        insert_locator[-1] = 0
+
+        print "using insert locator", insert_locator
+        return insert_locator
+    elif value.startswith('$'): # return _parent_ of requested leaf
+        leaf_index = int(value[1:])
+        requested_leaf = get_leaf(deriv, leaf_index)
+        locator_to_requested_leaf = get_locator_sequence_to(requested_leaf)
+        print "ltl:", locator_to_requested_leaf
+        return locator_to_requested_leaf[:-1]
+        
     else: return value
+
+# cache the last locator sequence so it can be referred to quickly
+last_locator_bits = None
 
 for line in sys.stdin.readlines():
     print line
     if line[0] == '#': continue
+    
     matches = spec_re.match(line)
         
     if matches and len(matches.groups()) == 3:
@@ -192,6 +232,7 @@ for line in sys.stdin.readlines():
         
         if (sec, doc) not in changes:
             changes[ (sec, doc) ] = load_trees(base, sec, doc, extension, guessers_to_use)
+            
         cur_tree = changes[ (sec, doc) ][deriv]
         
     else:
@@ -199,9 +240,16 @@ for line in sys.stdin.readlines():
         print line
 
         locator, instr = line.split(' ', 2)
-        locator_bits = map(compose(maybe_int, desugar), locator.split(';'))
-        changes[ (sec, doc) ][deriv] = process(cur_tree, locator_bits, instr)
-
+        print "raw locator:",locator
+        locator_bits = list(flatten(map(compose(maybe_int, lambda value: desugar(value, last_locator_bits, cur_tree.derivation)), locator.split(';'))))
+        print "real locator:",locator_bits
+        last_locator_bits = locator_bits
+        print "setting llb:",locator_bits
+        
+        changes[ (sec, doc) ][deriv].derivation = process(cur_tree.derivation, locator_bits, instr)
+        print
+        print changes[ (sec, doc) ][deriv].derivation
+        
 # Write out aggregated changes
 for ((sec, doc), bundle) in changes.iteritems():
     write_doc(opts.out, extension, sec, doc, bundle)
