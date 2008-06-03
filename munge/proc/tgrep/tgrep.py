@@ -1,6 +1,9 @@
 import sys
-import ply.lex as lex
-import ply.yacc as yacc
+try:
+    import ply.lex as lex
+    import ply.yacc as yacc
+except ImportError:
+    import lex, yacc
 
 import munge.proc.tgrep.parse as parse
 from munge.trees.traverse import nodes, leaves
