@@ -60,7 +60,7 @@ identifying a node as the focus of the operation, and the instruction itself.'''
         cur_node.kids[last_locator].cat = parse_category(new_cat)
     elif instr.startswith("C"):
         _, new_bits = instr.split('=')
-        cat, pos1, pos2, lex, catfix = new_bits.split(',')
+        cat, pos1, pos2, lex, catfix = new_bits.split('|')
         
         for attr in ('cat', 'pos1', 'pos2', 'lex', 'catfix'):
             value = locals()[attr]
@@ -247,8 +247,6 @@ for line in sys.stdin.readlines():
         print "setting llb:",locator_bits
         
         changes[ (sec, doc) ][deriv].derivation = process(cur_tree.derivation, locator_bits, instr)
-        print
-        print changes[ (sec, doc) ][deriv].derivation
         
 # Write out aggregated changes
 for ((sec, doc), bundle) in changes.iteritems():
