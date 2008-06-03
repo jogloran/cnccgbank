@@ -91,6 +91,7 @@ class CombinatorCounter(Filter):
     long_opt = "count-combinators"
 
 class CollectExamples(CountWordFrequencyByCategory):
+    '''Reports on the frequency of each lexical item occurring for each category.'''
     def __init__(self, example_count):
         CountWordFrequencyByCategory.__init__(self)
         

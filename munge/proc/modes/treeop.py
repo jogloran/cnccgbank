@@ -14,7 +14,7 @@ def mode_min(m1, m2):
     
 def zipped_each_slash(c1, c2):
     '''Given two mode vectors, allows them to be iterated over in parallel.'''
-    if not (c1.is_compound() and c2.is_compound()): return
+    if not (c1.is_complex() and c2.is_complex()): return
     
     yield c1, c1.label, c2, c2.label
     

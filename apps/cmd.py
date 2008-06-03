@@ -17,7 +17,7 @@ from munge.util.list_utils import list_preview
 
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.modes.split', 'munge.proc.modes.anno', 
-                   'apps.comma', 'munge.proc.tgrep.tgrep']
+                   'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep']
 
 def filter_run_name(filter_name, filter_args):
     '''Produces a human-readable summary of a filter run: the filter name with a list of its arguments
@@ -26,9 +26,9 @@ in parentheses separated by commas.'''
 
 class Shell(DefaultShell):
     '''A shell interface to trace functionality.'''
-    def __init__(self, files=None):
+    def __init__(self, files=None, verbose=True):
         DefaultShell.__init__(self)
-        self.tracer = TraceCore(libraries=BuiltInPackages)
+        self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose)
         self.prompt = "trace> "
         
         self.files = files or []
@@ -199,7 +199,7 @@ class Shell(DefaultShell):
         
     def complete_load(self, text, line, begin_index, end_index):
         '''Returns completions for the _load_ command: all modules available to Python.'''
-        return self.filename_complete(text)
+        return [module for module in sys.modules.keys() if module.startswith(text)]
         
     def filename_complete(self, text):
         '''Returns a list of files and directories whose names are prefixes of the entered
@@ -209,6 +209,7 @@ text. Appends a directory separator to directory completions.'''
                 if path.startswith(text)]
                 
 def run_file(option, opt_string, value, parser, *args, **kwargs):
+    '''Reads and invokes commands from a file, then terminates.'''
     script_file = value
     if not os.path.exists(script_file):
         raise RuntimeError('Script file %s not found.' % script_file)
@@ -223,6 +224,10 @@ def run_file(option, opt_string, value, parser, *args, **kwargs):
 def register_builtin_switches(parser):
     parser.add_option('-F', '--file-script', help='Reads and invokes cmd.py commands from a file, then terminates. Ignores input files given on the command line.', 
                       type='string', nargs=1, action='callback', callback=run_file)
+    parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
+                      action='store_true', dest='verbose')
+    parser.add_option('-q', '--quiet', help='Make less output.',
+                      action='store_false', dest='verbose')
         
 from optparse import OptionParser
 if __name__ == '__main__':
@@ -232,6 +237,7 @@ if __name__ == '__main__':
     except ImportError: pass
     
     parser = OptionParser(conflict_handler='resolve')
+    parser.set_defaults(verbose=True)
     register_builtin_switches(parser)
     
     opts, remaining_args = parser.parse_args(sys.argv)

@@ -41,6 +41,7 @@ class DirFileGuessReader(object):
         path = self.path
 
         if not os.path.exists(path):
+            # TODO: This doesn't skip the current file (can we do that from inside the iterator?)
             warn("%s does not exist, so skipping.", path)
 
         if os.path.isdir(path):

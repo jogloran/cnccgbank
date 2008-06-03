@@ -100,7 +100,7 @@ a subsequence of the given PTB derivations.'''
         
             ccg_text = ccg_bundle.derivation.text()
             # We want to compare the CCG text against the PTB text stripped of quotes
-            ptb_text = text_without_quotes_or_traces(penn_trees[cur_ptb_index].derivation)
+            ptb_text = penn_trees[cur_ptb_index].derivation.text(with_quotes=False)
         
             if ptb_text != ccg_text:
                 warn("In document %s:", ccg_bundle.label())

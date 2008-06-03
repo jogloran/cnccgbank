@@ -19,7 +19,7 @@ def initialise():
     
     if not _tgrep_initialised:
         lex.lex(module=parse)
-        yacc.yacc(module=parse)
+        yacc.yacc(module=parse)#, method='SLR')
     
         _tgrep_initialised = True
 

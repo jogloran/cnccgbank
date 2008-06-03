@@ -208,7 +208,7 @@ no slash in A carries a mode any more restrictive than its corresponding slash i
         
     def accept_leaf(self, leaf):
         result = find(lambda (c, i): (c == leaf.cat), self.cats_to_split)
-        if not (result and leaf.cat.is_compound()): return
+        if not (result and leaf.cat.is_complex()): return
         
         cat, slash_index = result
         

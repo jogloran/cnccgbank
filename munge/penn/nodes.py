@@ -26,8 +26,8 @@ class Node(object):
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.tag)
     
-    def text(self):
-        return text_without_traces(self)
+    def text(self, with_quotes=True):
+        return (text_without_traces if with_quotes else text_without_traces_or_quotes)(self)
 
 class Leaf(object):
     '''Representation of a PTB leaf.'''
@@ -47,5 +47,5 @@ class Leaf(object):
     def is_leaf(self): return True
     def label_text(self): return "%s '%s'" % (self.tag, self.lex)
     
-    def text(self):
-        return text_without_traces(self)
+    def text(self, with_quotes=True):
+        return (text_without_traces if with_quotes else text_without_traces_or_quotes)(self)
