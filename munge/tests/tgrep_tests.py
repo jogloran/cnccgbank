@@ -79,6 +79,12 @@ class TgrepTests(unittest.TestCase):
         self.assertFalse(matches(self.tree, r'{NP $ { (S/.S)/.S[dcl] $ S[dcl]\.NP } } <2 {N <1 N/.N <2 N}'))
         
         self.assertFalse(matches(self.tree, r'A <2 B'))
+
+    def testAlternation(self):
+        self.assertTrue(matches(self.tree, r'{((S\.NP)\.(S\.NP))\.NP $ NP} > (S\.NP)\.(S\.NP) | < T'))
+        self.assertTrue(matches(self.tree, r'{((S\.NP)\.(S\.NP))\.NP $ NP} < T | > (S\.NP)\.(S\.NP)'))
+        self.assertFalse(matches(self.tree, r'{((S\.NP)\.(S\.NP))\.NP $ NP} < A | > B | $ C'))
+        self.assertTrue(matches(self.tree, r'{((S\.NP)\.(S\.NP))\.NP $ NP} < A | > (S\.NP)\.(S\.NP) | $ C'))
         
 if __name__ == '__main__':
     unittest.main()

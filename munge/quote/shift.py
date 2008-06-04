@@ -38,7 +38,7 @@ def is_leftmost_leaf_of_right_subtree(leaf):
    #	/__\
    # The punctuation transformation doesn't make sense in this case, because
    # applying the shift would yield an unchanged structure.
-   if (not leaf.parent) or leaf.parent.rch == leaf:
+   if (not leaf.parent) or leaf.parent.rch is leaf:
 	   return False
 
    cur = leaf

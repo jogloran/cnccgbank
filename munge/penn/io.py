@@ -63,5 +63,6 @@ class PTBReader(object):
             yield Derivation(self.sec_no, self.doc_no, der_no, deriv)
             
     def __str__(self):
+        '''Returns the text of an entire document.'''
         return '\n'.join(str(deriv) for deriv in self.derivs)
 

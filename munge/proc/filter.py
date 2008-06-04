@@ -4,6 +4,7 @@ class Filter(object):
     the framework calls each of the below methods.'''
 
     def __init__(self):
+        # This will be set to the bundle object this filter is operating on.
         self.context = None
     
     def accept_comb_and_slash_index(self, leaf, comb, slash_index, info=None):
