@@ -1,5 +1,6 @@
 from __future__ import with_statement
 import sys, os, re
+from itertools import groupby
 from optparse import OptionParser
 
 from munge.cats.parse import parse_category
@@ -18,6 +19,9 @@ def load_trees(base, sec, doc, extension, guessers):
     path = os.path.join(base, "%02d" % sec, "wsj_%02d%02d.%s" % (sec, doc, extension))
     reader = GuessReader(path, guessers)
     return reader
+
+def load_tree(base, sec, doc, deriv, extension, guessers):
+    return load_trees(base, sec, doc, extension, guessers)[ deriv ]
     
 def check_index(kid_list, locator):
     '''Checks that the given locator is a valid index into the child
@@ -213,38 +217,56 @@ def desugar(value, last_locator_bits, deriv):
         leaf_index = int(value[1:])
         requested_leaf = get_leaf(deriv, leaf_index)
         locator_to_requested_leaf = get_locator_sequence_to(requested_leaf)
-        print "ltl:", locator_to_requested_leaf
+        # return all but the last element, since we want the parent of requested leaf
         return locator_to_requested_leaf[:-1]
         
     else: return value
 
+def parse_instruction_lines(lines):
+    cur_spec = None
+
+    for line in lines:
+        if line[0] == '#': continue
+
+        line = line.strip()
+        matches = spec_re.match(line)
+            
+        if matches and len(matches.groups()) == 3:
+            cur_spec = map(int, matches.groups())
+            
+        else:
+            yield ( cur_spec, line )
+
+def group_by_derivation(lines):
+    def doc_comparator( ( (sec, doc, deriv), line) ): return (sec, doc)
+    def spec_comparator( ( spec, line ) ): return spec
+    return groupby(sorted(lines, key=spec_comparator), doc_comparator)
+
 # cache the last locator sequence so it can be referred to quickly
 last_locator_bits = None
 
-for line in sys.stdin.readlines():
-    print line
-    if line[0] == '#': continue
-    
-    matches = spec_re.match(line)
-        
-    if matches and len(matches.groups()) == 3:
-        sec, doc, deriv = map(int, matches.groups())
-        
-        if (sec, doc) not in changes:
-            changes[ (sec, doc) ] = load_trees(base, sec, doc, extension, guessers_to_use)
-            
-        cur_tree = changes[ (sec, doc) ][deriv]
-        
-    else:
-        line = line.rstrip()
-        print line
+for (sec, doc), commands in group_by_derivation(parse_instruction_lines(sys.stdin.readlines())):
+    cur_trees = load_trees(base, sec, doc, extension, guessers_to_use)
 
-        locator, instr = line.split(' ', 2)
-        locator_bits = list(flatten(map(compose(maybe_int, lambda value: desugar(value, last_locator_bits, cur_tree.derivation)), locator.split(';'))))
+    for ((_, _, deriv), command) in commands:
+        print command
+
+        cur_bundle = cur_trees[deriv]
+
+        locator, instr = command.split(' ', 2)
+        locator_bits = list(flatten(map(
+            compose(maybe_int, 
+                    lambda value: 
+                       desugar(value, last_locator_bits, cur_bundle.derivation)), 
+            locator.split(';'))))
+
+        cur_bundle.derivation = process(cur_bundle.derivation, locator_bits, instr)
+
         last_locator_bits = locator_bits
-        
-        changes[ (sec, doc) ][deriv].derivation = process(cur_tree.derivation, locator_bits, instr)
-        
+
+    # Write tree back here
+    write_doc(opts.out, extension, sec, doc, cur_trees)
+
 # Write out aggregated changes
-for ((sec, doc), bundle) in changes.iteritems():
-    write_doc(opts.out, extension, sec, doc, bundle)
+#for ((sec, doc), bundle) in changes.iteritems():
+#    write_doc(opts.out, extension, sec, doc, bundle)

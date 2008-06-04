@@ -42,17 +42,5 @@ for bundle in DirFileGuessReader(sys.argv[1]):
                 if leaf.parent.rch is leaf: continue
             
             print bundle.label()
-            
-            #locator = get_locator_sequence_to(leaf)
-            # shrink parent of leaf (locator[:-1])
             print "$%d S" % index#% ';'.join(str(l) for l in locator[:-1])
-            
-            # reattach comma as high as possible in the other subtree
-#            if make_all_commas == RIGHT_BRANCHING:
-                # delete 'l's from the end of the locator sequence, then replace the last 'r' with 'l'
-                # then append
-            #reattach_locator = fix_locator(locator, make_all_commas)
-                
-            #command = "A" if locator[-1] == 'l' else "P"
-            #print "%s %s=,|,|,|,|" % (';'.join(reattach_locator), command)
             print "@ A=,|,|,|,|"# % (';'.join(reattach_locator), command)
