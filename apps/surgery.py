@@ -240,11 +240,8 @@ for line in sys.stdin.readlines():
         print line
 
         locator, instr = line.split(' ', 2)
-        print "raw locator:",locator
         locator_bits = list(flatten(map(compose(maybe_int, lambda value: desugar(value, last_locator_bits, cur_tree.derivation)), locator.split(';'))))
-        print "real locator:",locator_bits
         last_locator_bits = locator_bits
-        print "setting llb:",locator_bits
         
         changes[ (sec, doc) ][deriv].derivation = process(cur_tree.derivation, locator_bits, instr)
         
