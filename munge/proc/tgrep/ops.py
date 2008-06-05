@@ -1,48 +1,48 @@
 from munge.trees.traverse import nodes
 
-def IsParentOf(candidate, node):
+def IsParentOf(candidate, node, context):
     if node.is_leaf(): return False
-    return any(candidate.is_satisfied_by(child) for child in node)
+    return any(candidate.is_satisfied_by(child, context) for child in node)
 
-def Dominates(candidate, node):
-    return any(candidate.is_satisfied_by(internal_node) for internal_node in nodes(node))
+def Dominates(candidate, node, context):
+    return any(candidate.is_satisfied_by(internal_node, context) for internal_node in nodes(node))
 
-def IsChildOf(candidate, node):
-    return candidate.is_satisfied_by(node.parent)
+def IsChildOf(candidate, node, context):
+    return candidate.is_satisfied_by(node.parent, context)
 
-def IsDominatedBy(candidate, node):
+def IsDominatedBy(candidate, node, context):
     pass
 
-def ImmediatelyPrecedes(candidate, node):
+def ImmediatelyPrecedes(candidate, node, context):
     pass
 
-def Precedes(candidate, node):
+def Precedes(candidate, node, context):
     pass
 
-def IsSiblingOf(candidate, node):
+def IsSiblingOf(candidate, node, context):
     if node.parent is None: return False
     
     was_left_child = node.parent.lch is node
     if was_left_child:
         if node.parent.rch is not None:
-            return candidate.is_satisfied_by(node.parent.rch)
+            return candidate.is_satisfied_by(node.parent.rch, context)
     else:
-        return candidate.is_satisfied_by(node.parent.lch)
+        return candidate.is_satisfied_by(node.parent.lch, context)
     return False
 
-def IsSiblingOfAndImmediatelyPrecedes(candidate, node):
+def IsSiblingOfAndImmediatelyPrecedes(candidate, node, context):
     pass
 
-def IsSiblingOfAndPrecedes(candidate, node):
+def IsSiblingOfAndPrecedes(candidate, node, context):
     pass
 
-def LeftChildOf(candidate, node):
+def LeftChildOf(candidate, node, context):
     if node.is_leaf(): return False
-    return candidate.is_satisfied_by(node.lch)
+    return candidate.is_satisfied_by(node.lch, context)
 
-def RightChildOf(candidate, node):
+def RightChildOf(candidate, node, context):
     if node.is_leaf(): return False
-    return node.rch is not None and candidate.is_satisfied_by(node.rch)
+    return node.rch is not None and candidate.is_satisfied_by(node.rch, context)
 
 Operators = {
     '<': IsParentOf,

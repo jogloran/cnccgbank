@@ -4,6 +4,8 @@ try:
     import ply.yacc as yacc
 except ImportError:
     import lex, yacc
+    
+class TgrepException(Exception): pass
 
 import munge.proc.tgrep.parse as parse
 from munge.trees.traverse import nodes, leaves
@@ -23,17 +25,27 @@ def initialise():
     
         _tgrep_initialised = True
 
+# quick and dirty memoisation. This is based on the exact string expression, so
+# semantically identical expressions with trivial differences such as whitespace
+# will not be considered identical
+expression_cache = {}
 def tgrep(deriv, expression):
     '''Performs the given tgrep query on the given tree.'''
     if not expression: raise RuntimeError('No query expression given.')
-    initialise()
-        
-    if _tgrep_debug:
-        lex.input(expression)
-        for tok in iter(lex.token, None):
-            print tok.type, tok.value
 
-    query = yacc.parse(expression)
+    if expression in expression_cache:
+        query = expression_cache[expression]
+        
+    else:
+        initialise()
+            
+        if _tgrep_debug:
+            lex.input(expression)
+            for tok in iter(lex.token, None):
+                print tok.type, tok.value
+
+        query = yacc.parse(expression)
+        expression_cache[expression] = query
     
     for node in nodes(deriv):
         if query.is_satisfied_by(node):
@@ -77,7 +89,6 @@ def FixedTgrep(expression):
             TgrepCore.__init__(self, expression)
     return _TgrepCore
     
-class TgrepException(Exception): pass
 class Tgrep(TgrepCore):
     def show_node(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node)

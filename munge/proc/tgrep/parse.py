@@ -10,8 +10,9 @@ import munge.ccg.nodes as ccg
 from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
+from munge.proc.tgrep.tgrep import TgrepException
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG", "LT", "GT")
+tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG", "LT", "GT", "VAR", "GETS", "DEREF")
 precedence = (
             ('right', 'PIPE'),
             ('right', 'BANG')
@@ -32,8 +33,16 @@ def t_LT(t):
 def t_GT(t):
     r'\]'
     return t
+    
+def t_GETS(t):
+    r'='
+    return t
 
-# Assume no whitespace is permitted.
+def t_DEREF(t):
+    r'\*'
+    return t
+
+# Assume no whitespace is permitted within a regex.
 def t_REGEX(t):
     r'/([^/\s]|\/)+/'
     return t
@@ -124,8 +133,15 @@ def p_matcher(stk):
             | regex
             | quoted
             | group
+            | DEREF ATOM
+            | matcher GETS ATOM
     '''
-    stk[0] = stk[1]
+    if len(stk) == 2:
+        stk[0] = stk[1]
+    elif len(stk) == 3:
+        stk[0] = GetAtom(stk[2])
+    elif len(stk) == 4:
+        stk[0] = StoreAtom(stk[1], stk[3])
     
 def p_atom(stk):
     '''
@@ -145,3 +161,9 @@ def p_regex(stk):
     '''
     # Extract the regex between the slash delimiters
     stk[0] = RE(stk[1][1:-1])
+
+def p_var(stk):
+    '''
+    var : VAR
+    '''
+    stk[0] = stk[1]
