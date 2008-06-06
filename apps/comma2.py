@@ -74,9 +74,6 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
             examples_hash = getattr(self, 'e%d_examples' % index)
             
             for (l, r, p), f in sorted_by_value_desc(env_hash):
-                # exclude comma type-changing rule instances
-                if is_comma_type_change(l, r, p): continue
-                
                 triple = heading % (l, r, p)
                 print "% 10d [%28s] %-60s %s" % (f, analyse(C(l), C(r), C(p)), triple, ' '.join(examples_hash[(l, r, p)]))
                 if (index == 0 and (l, r, p) in self.e3 and self.e3[(l, r, p)] <= f):
@@ -100,16 +97,16 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
         # X (, Y) -> Z 3
         if not m.lch.is_leaf():
             if m.lch.rch is not None and str(m.lch.rch.cat) == ',':
-                self.e0[ (str(m.lch.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
-                self.e0_examples[ (str(m.lch.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e0[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
+                self.e0_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
             elif str(m.lch.lch.cat) == ',':
-                self.e1[ (str(m.lch.rch.cat), str(m.rch.cat), str(m.cat)) ] += 1
-                self.e1_examples[ (str(m.lch.rch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e1[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
+                self.e1_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
             
         if not m.rch.is_leaf():
             if m.rch.rch is not None and str(m.rch.rch.cat) == ',':
-                self.e2[ (str(m.lch.cat), str(m.rch.lch.cat), str(m.cat)) ] += 1
-                self.e2_examples[ (str(m.lch.cat), str(m.rch.lch.cat), str(m.cat)) ].append(bundle.label())
+                self.e2[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
+                self.e2_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
             elif str(m.rch.lch.cat) == ',':
-                self.e3[ (str(m.lch.cat), str(m.rch.rch.cat), str(m.cat)) ] += 1
-                self.e3_examples[ (str(m.lch.cat), str(m.rch.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e3[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
+                self.e3_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
