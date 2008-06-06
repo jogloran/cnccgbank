@@ -95,18 +95,19 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
         # (, X) Y -> Z 1
         # X (Y ,) -> Z 2
         # X (, Y) -> Z 3
+        cat_triple = ( str(m.lch.cat), str(m.rch.cat), str(m.cat) )
         if not m.lch.is_leaf():
             if m.lch.rch is not None and str(m.lch.rch.cat) == ',':
-                self.e0[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
-                self.e0_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e0[ cat_triple ] += 1
+                self.e0_examples[ cat_triple ].append(bundle.label())
             elif str(m.lch.lch.cat) == ',':
-                self.e1[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
-                self.e1_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e1[ cat_triple ] += 1
+                self.e1_examples[ cat_triple ].append(bundle.label())
             
         if not m.rch.is_leaf():
             if m.rch.rch is not None and str(m.rch.rch.cat) == ',':
-                self.e2[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
-                self.e2_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e2[ cat_triple ] += 1
+                self.e2_examples[ cat_triple ].append(bundle.label())
             elif str(m.rch.lch.cat) == ',':
-                self.e3[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ] += 1
-                self.e3_examples[ (str(m.lch.cat), str(m.rch.cat), str(m.cat)) ].append(bundle.label())
+                self.e3[ cat_triple ] += 1
+                self.e3_examples[ cat_triple ].append(bundle.label())
