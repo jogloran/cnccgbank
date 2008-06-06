@@ -43,10 +43,10 @@ class PrintCommaCountsByBranching(FixedTgrep(r'{, $ /.+/} > /.+/')):
             
         
 class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
-      /.+/ [ <1 { /.+/ <1 /.+/ <2 , } <2 /.+/ ] 
-         | [ <1 { /.+/ <1 , <2 /.+/ } <2 /.+/ ] 
-         | [ <2 { /.+/ <1 /.+/ <2 , } <1 /.+/ ] 
-         | [ <2 { /.+/ <1 , <2 /.+/ } <1 /.+/ ]
+      /.+/ [ <1 { /.+/=X <1 *X <2 , } <2 /.+/ ] 
+         | [ <1 { /.+/=X <1 , <2 *X } <2 /.+/ ] 
+         | [ <2 { /.+/=X <1 *X <2 , } <1 /.+/ ] 
+         | [ <2 { /.+/=X <1 , <2 *X } <1 /.+/ ]
 '''
 )):
     def __init__(self):
@@ -74,6 +74,9 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
             examples_hash = getattr(self, 'e%d_examples' % index)
             
             for (l, r, p), f in sorted_by_value_desc(env_hash):
+                # exclude comma type-changing rule instances
+                if is_comma_type_change(l, r, p): continue
+                
                 triple = heading % (l, r, p)
                 print "% 10d [%28s] %-60s %s" % (f, analyse(C(l), C(r), C(p)), triple, ' '.join(examples_hash[(l, r, p)]))
                 if (index == 0 and (l, r, p) in self.e3 and self.e3[(l, r, p)] <= f):
