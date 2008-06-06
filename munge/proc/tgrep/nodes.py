@@ -109,6 +109,7 @@ class GetAtom(object):
         stored_node = context[self.var]
         #return atom.is_satisfied_by(node, context)
         # TODO: a node only matches against itself? or against something with the same label as itself?
+        # XXX: This defines two nodes as equal if they are the same modulo features (which is what we often want)
         return stored_node.cat == node.cat
         
 class RE(object):

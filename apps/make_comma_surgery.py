@@ -32,14 +32,21 @@ def fix_locator(locator, reattach_direction):
 
 for bundle in DirFileGuessReader(sys.argv[1]):
     for (leaf, index) in izip(leaves(bundle.derivation), count()):
-        if leaf.lex == ',' and not leaf.parent.cat.has_feature('conj'):
+        # exclude the case N (, N[conj]) -> N (we don't want to mess with the comma in this case)
+        # but do include the case N[conj] (, N[conj]) (this is just absorption, not conjunction)
+        if leaf.lex == ',':
+            comma_is_left = leaf.parent.lch is leaf
+            sibling = leaf.parent.rch if comma_is_left else leaf.parent.lch
+            
+            # Test if this is just absorption, not conjunction
+            if leaf.parent.cat.has_feature('conj') and not sibling.cat.has_feature('conj'): continue
             # Test if this is an instance of comma typechange
             if analyse(leaf.parent.lch.cat, leaf.parent.rch.cat, leaf.parent.cat) != 'l_punct_absorb': continue
             
             if make_all_commas == LEFT_BRANCHING:
-                if leaf.parent.lch is leaf: continue
+                if comma_is_left: continue
             elif make_all_commas == RIGHT_BRANCHING:
-                if leaf.parent.rch is leaf: continue
+                if not comma_is_left: continue
             
             print bundle.label()
             print "$%d S" % index#% ';'.join(str(l) for l in locator[:-1])
