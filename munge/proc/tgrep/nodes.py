@@ -109,7 +109,7 @@ class GetAtom(object):
         stored_node = context[self.var]
         #return atom.is_satisfied_by(node, context)
         # TODO: a node only matches against itself? or against something with the same label as itself?
-        return stored_node == node
+        return stored_node.cat == node.cat
         
 class RE(object):
     def __init__(self, source):
