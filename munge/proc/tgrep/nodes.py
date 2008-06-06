@@ -89,7 +89,7 @@ class StoreAtom(object):
     def __repr__(self):
         return "%s=%s" % (self.atom, self.var)
     def is_satisfied_by(self, node, context):
-        satisfied = self.atom_is_satisfied_by(node, context):
+        satisfied = self.atom_is_satisfied_by(node, context)
         if satisfied:
             context[self.var] = node
         return satisfied

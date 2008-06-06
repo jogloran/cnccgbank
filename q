@@ -1,2 +1,2 @@
 #! /bin/sh
-python -m'munge.quote.quotify' $*
+python2.5 -m'munge.quote.quotify' $*

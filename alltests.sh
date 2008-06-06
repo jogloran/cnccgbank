@@ -1,2 +1,2 @@
 #! /bin/sh
-python -m 'munge.tests.all_tests'
+python2.5 -m 'munge.tests.all_tests'

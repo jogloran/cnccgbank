@@ -1,15 +1,11 @@
 from munge.trees.traverse import *
 from munge.util.err_utils import *
 from munge.penn.io import *
+from munge.io.multi import *
 import sys
 
-for line in sys.stdin.readlines():
-    line = line.rstrip()
-    matches = re.match(r'(\d+):(\d+)\((\d+)\)', line)
-    sec, doc, deriv = map(int, matches.groups())
-
-    r = PTBReader(os.path.join('wsj', "%02d" % sec, "wsj_%02d%02d.mrg" % (sec, doc)))
-    tree = r[deriv]
+for bundle in DirFileGuessReader(sys.argv[1], verbose=False):
+    tree = bundle.derivation
     text = tree.text()
 
     if text[-1] in ('``', '`'):

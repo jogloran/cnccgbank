@@ -7,7 +7,7 @@ class MultiGuessReader(object):
     '''A read-only reader which iterates over an entire PTB-structured corpus (one whose directory
 hierarchy is corpus -> section+ -> document+). This reader allows neither index-based retrieval or
 modification of derivations, nor corpus output.'''
-    def __init__(self, topdir, reader=GuessReader):
+    def __init__(self, topdir, reader=GuessReader, verbose=True):
         self.topdir = topdir
         _, tail = os.path.split(self.topdir)
         if re.match(r'\d\d', tail):
@@ -16,11 +16,13 @@ modification of derivations, nor corpus output.'''
             self.sections = glob(os.path.join(self.topdir, '*'))
         self.reader = reader
 
+        self.verbose = verbose
+
     def __iter__(self):
         for section_path in filter(lambda dir_name: os.path.isdir(dir_name), self.sections):
             docs = glob(os.path.join(section_path, '*'))
             for doc_path in docs:
-                info("Processing %s...", doc_path)
+                if self.verbose: info("Processing %s...", doc_path)
                 reader = self.reader(doc_path)
                 for deriv_bundle in reader:
                     yield deriv_bundle
@@ -34,8 +36,9 @@ modification of derivations, nor corpus output.'''
 
 class DirFileGuessReader(object):
     '''Reader allowing the uniform treatment of directories and files.'''
-    def __init__(self, path):
+    def __init__(self, path, verbose=True):
         self.path = path
+        self.verbose = verbose
 
     def __iter__(self):
         path = self.path
@@ -45,7 +48,7 @@ class DirFileGuessReader(object):
             warn("%s does not exist, so skipping.", path)
 
         if os.path.isdir(path):
-            reader = MultiGuessReader(path)
+            reader = MultiGuessReader(path, verbose=self.verbose)
         elif os.path.isfile(path):
             reader = GuessReader(path)
         else:

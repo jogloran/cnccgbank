@@ -5,6 +5,8 @@ import re
 BACKWARD, FORWARD = range(2)
 APPLY, ALL, COMP, NULL = range(4)
 
+ShowModes = False
+
 class AtomicCategory(object):
     '''Represents an atomic category (one without a directional slash).'''
     def __init__(self, cat, features=None):
@@ -15,7 +17,7 @@ class AtomicCategory(object):
         '''Returns the concatenation of each feature in this category's feature set.'''
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def __repr__(self, first=True, show_modes=True):
+    def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category. Ignores both its arguments
         so it can be treated uniformly with ComplexCategory.'''
         return self.cat + self.feature_repr()
@@ -93,7 +95,7 @@ class ComplexCategory(object):
         '''Returns the concatenation of each feature in this category's feature set.'''
         return ''.join("[%s]" % feature for feature in self.features)
 
-    def __repr__(self, first=True, show_modes=True):
+    def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category.'''
         return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",
