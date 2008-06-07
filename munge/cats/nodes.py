@@ -5,7 +5,7 @@ import re
 BACKWARD, FORWARD = range(2)
 APPLY, ALL, COMP, NULL = range(4)
 
-ShowModes = False
+ShowModes = True
 
 class AtomicCategory(object):
     '''Represents an atomic category (one without a directional slash).'''

@@ -70,6 +70,16 @@ class Node(object):
         '''Returns a list of text tokens corresponding to the leaves under this node.'''
         return text(self)
 
+    def __getitem__(self, index):
+        if index != 0 or index != 1:
+            raise RuntimeError('Invalid index %d into Node.' % index)
+
+        return self.lch if index == 0 else self.rch
+
+    def count(self):
+        if self.rch is None: return 1
+        else: return 2
+
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
     
@@ -109,3 +119,9 @@ class Leaf(object):
     def text(self):
         '''Returns a list of text tokens corresponding to the leaves under this node.'''
         return text(self)
+
+    def __getitem__(self, index):
+        raise NotImplementedError('Leaf has no children.')
+
+    def count(self):
+        return 0

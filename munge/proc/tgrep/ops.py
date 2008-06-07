@@ -1,4 +1,5 @@
 from munge.trees.traverse import nodes
+from munge.util.deco_utils import cast_to
 
 def IsParentOf(candidate, node, context):
     if node.is_leaf(): return False
@@ -44,6 +45,15 @@ def RightChildOf(candidate, node, context):
     if node.is_leaf(): return False
     return node.rch is not None and candidate.is_satisfied_by(node.rch, context)
 
+@cast_to(int)
+def IsNthChildOf(n):
+    # TODO: Handle n out of bounds
+    def _IsNthChildOf(candidate, node, context):
+        if not 1 <= n <= node.count(): return False
+        # value is 1-indexed, while child indexing in Nodes is 0-indexed
+        return candidate.is_satisfied_by(node[n-1], context)
+    return _IsNthChildOf
+
 Operators = {
     '<': IsParentOf,
     '<<': Dominates,
@@ -58,3 +68,6 @@ Operators = {
     '$..': IsSiblingOfAndPrecedes
 }
 
+IntArgOperators = {
+    r'<(\d+)': IsNthChildOf
+}

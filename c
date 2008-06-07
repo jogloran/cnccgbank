@@ -1,2 +1,2 @@
 #! /bin/sh
-python -m'apps.cmd' $*
+python2.5 -m'apps.cmd' $*
