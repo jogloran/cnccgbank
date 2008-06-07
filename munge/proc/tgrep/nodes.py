@@ -2,6 +2,7 @@ from munge.proc.tgrep.ops import *
 from munge.util.err_utils import warn
 import re
 
+# the context simply maps identifier names to tree nodes
 Context = dict
 
 class Node(object):
@@ -28,13 +29,27 @@ class Constraint(object):
     def __init__(self, operator, rhs):
         self.operator = operator
         self.rhs = rhs
+        
+        self.op_func = self.get_op_func_for(self.operator)
+
+    def get_op_func_for(self, operator):
+        if operator in Operators:
+            return Operators[operator]
+        else:
+            for regex, op_func_maker in IntArgOperators.iteritems():
+                matches = re.search(regex, operator)
+                if matches:
+                    return op_func_maker(*matches.groups())
+                if regex.search(operator): return op_func
+            else:
+                err('Invalid operator %s encountered.', self.operator)
+        
     def __repr__(self):
         return "%s %s" % (self.operator, self.rhs)
     def is_satisfied_by(self, node, context):
         try:
-            op_func = Operators[self.operator]
             # Determine whether rhs matches the candidate node
-            return op_func(self.rhs, node, context)
+            return self.op_func(self.rhs, node, context)
         except KeyError:
             warn("Invalid operator %s encountered.", self.operator)
 
@@ -67,6 +82,7 @@ class Group(object):
         return self.node.is_satisfied_by(node, context)
         
 class ConstraintGroup(object):
+    '''Matches when all sub-constraints are matched.'''
     def __init__(self, constraints):
         self.constraints = constraints
     def __repr__(self):
@@ -75,6 +91,7 @@ class ConstraintGroup(object):
         return all(constraint.is_satisfied_by(node, context) for constraint in self.constraints)
  
 class Atom(object):
+    '''Matches only on an exact string match.'''
     def __init__(self, value):
         self.value = value
     def __repr__(self):
@@ -83,6 +100,7 @@ class Atom(object):
         return self.value == str(node.cat)
         
 class StoreAtom(object):
+    '''Matches exactly what its body matches, with the side effect of capturing the matched node to a variable.'''
     def __init__(self, atom, var):
         self.atom = atom
         self.var = var
@@ -99,6 +117,7 @@ class StoreAtom(object):
         # return self.atom.is_satisfied_by(node, context)
         
 class GetAtom(object):
+    '''Matches tree nodes which are identical to the captured tree node.'''
     def __init__(self, var):
         self.var = var
     def __repr__(self):
@@ -113,6 +132,7 @@ class GetAtom(object):
         return stored_node.cat == node.cat
         
 class RE(object):
+    '''Matches tree nodes whose category labels satisfy a regex.'''
     def __init__(self, source):
         self.source = source
         self.regex = re.compile(source)
@@ -120,3 +140,11 @@ class RE(object):
         return "/%s/" % self.source
     def is_satisfied_by(self, node, context):
         return self.regex.match(str(node.cat)) is not None
+
+class All(object):
+    '''Matches unconditionally against any tree node.'''
+    def __repr__(self):
+        return "*"
+    def is_satisfied_by(self, node, context):
+        return True
+

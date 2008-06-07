@@ -12,11 +12,12 @@ from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", "QUOTED", "PIPE", "BANG", "LT", "GT", "VAR", "GETS", "DEREF")
+tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", 
+          "QUOTED", "PIPE", "BANG", "LT", "GT", "GETS", "STAR")
 precedence = (
-            ('right', 'PIPE'),
-            ('right', 'BANG')
-        )
+    ('right', 'PIPE'),
+    ('right', 'BANG')
+)
 
 def t_PIPE(t):
     r'\|'
@@ -38,7 +39,7 @@ def t_GETS(t):
     r'='
     return t
 
-def t_DEREF(t):
+def t_STAR(t):
     r'\*'
     return t
 
@@ -62,7 +63,7 @@ def t_QUOTED(t):
 def t_OP(t):
     r'(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
     return t
-    
+
 def t_ATOM(t):
     r'''[^/\\"\s{][^\s]+[^/\\"\s}]|[^/\\\s{][^/\\\s}]|[^/\\\s{}]'''
     return t
@@ -100,7 +101,7 @@ def p_constraint_list(stk):
 def p_constraint(stk):
     '''
     constraint : constraint_group
-               | OP matcher
+               | op matcher
                | BANG constraint
                | constraint PIPE constraint
     '''
@@ -114,6 +115,12 @@ def p_constraint(stk):
             
     elif len(stk) == 4:
         stk[0] = Alternation(stk[1], stk[3])
+
+def p_op(stk):
+    '''
+    op : OP
+    '''
+    stk[0] = stk[1]
         
 def p_constraint_group(stk):
     '''
@@ -132,8 +139,9 @@ def p_matcher(stk):
     matcher : atom 
             | regex
             | quoted
+            | star
             | group
-            | DEREF ATOM
+            | GETS ATOM
             | matcher GETS ATOM
     '''
     if len(stk) == 2:
@@ -162,8 +170,8 @@ def p_regex(stk):
     # Extract the regex between the slash delimiters
     stk[0] = RE(stk[1][1:-1])
 
-def p_var(stk):
+def p_star(stk):
     '''
-    var : VAR
+    star : STAR
     '''
-    stk[0] = stk[1]
+    stk[0] = All()
