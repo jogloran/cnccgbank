@@ -17,6 +17,7 @@ _tgrep_debug = False
 _tgrep_initialised = False
 
 def initialise():
+    '''Performs lazy initialisation of the lexer and parser. Once called, further calls are no-ops.'''
     global _tgrep_initialised
     
     if not _tgrep_initialised:
@@ -92,41 +93,43 @@ def FixedTgrep(expression):
 class Tgrep(TgrepCore):
     def show_node(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node)
+
+    def show_tree(match_node, bundle):
+        print "%s: %s" % (bundle.label(), bundle.derivation)
         
     def show_tokens(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node.text())
         
     def show_label(match_node, bundle):
         print bundle.label()
-        
+
     FIND_FIRST, FIND_ALL = range(2)
     find_functions = {
         FIND_FIRST: find_first,
         FIND_ALL:   find_all
     }
 
-    SHOW_NODE, SHOW_TOKENS, SHOW_LABEL = range(3)
+    SHOW_NODE, SHOW_TOKENS, SHOW_LABEL, SHOW_TREE = range(4)
     match_callbacks = {
         SHOW_NODE: show_node,
         SHOW_TOKENS: show_tokens,
-        SHOW_LABEL: show_label
+        SHOW_LABEL: show_label,
+        SHOW_TREE: show_tree
     }
     
-    def __init__(self, expression): #, mode=FIND_FIRST, show=SHOW_NODE):
+    def get_callback_function(self, callback_key, callback_map):
+        if callback_key not in callback_map:
+            raise TgrepException('Invalid Tgrep mode %d given.' % callback_key)
+        return callback_map[callback_key]
+        
+    def __init__(self, expression, find_mode=FIND_FIRST, show_mode=SHOW_NODE):
         TgrepCore.__init__(self, expression)
         
-        # mode specifies a node traversal strategy
-        mode = self.FIND_ALL
-        # show specifies an output strategy
-        show = self.SHOW_NODE
+        self.find_mode = find_mode # node traversal strategy
+        self.show_mode = show_mode # node output strategy
         
-        if not Tgrep.is_valid_callback_key(mode, self.find_functions):
-            raise TgrepException('Invalid Tgrep find mode %d given.' % mode)
-        self.match_generator = Tgrep.find_functions[mode]
-        
-        if not Tgrep.is_valid_callback_key(show, self.match_callbacks):
-            raise TgrepException('Invalid Tgrep show mode %d given.' % mode)
-        self.match_callback = Tgrep.match_callbacks[show]
+        self.match_generator = self.get_callback_function(find_mode, self.find_functions)
+        self.match_callback  = self.get_callback_function(show_mode, self.match_callbacks)
         
     @staticmethod
     def is_valid_callback_key(key, callbacks):
@@ -135,3 +138,4 @@ class Tgrep(TgrepCore):
     opt = 't'
     long_opt = 'tgrep'
     arg_names = 'EXPR'
+

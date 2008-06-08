@@ -57,7 +57,7 @@ class TraceCore(object):
         '''Attempts to load new filters, as specified by a list of module names.'''
         self.loaded_modules.update(load_requested_packages(module_names))
         self.update_available_filters_dict()
-        
+
     def run(self, filters_to_run, files):
         '''Performs a processing run, given a list of filter names to run, and a list of file specifiers.'''
         filters = []
@@ -79,6 +79,9 @@ class TraceCore(object):
             except KeyError:
                 warn("No filter with name `%s' found.", filter_name)
 
+        self.run_filters(filters, files)
+
+    def run_filters(self, filters, files):
         # If all given filters were not found or had wrong argument count, do nothing
         if not filters: return
         

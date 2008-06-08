@@ -14,6 +14,7 @@ from apps.util.cmd_utils import DefaultShell
 from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info
 from munge.util.list_utils import list_preview
+from munge.proc.tgrep.tgrep import Tgrep
 
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.modes.split', 'munge.proc.modes.anno', 
@@ -120,23 +121,11 @@ class Shell(DefaultShell):
         else:
             filter_args = None
             
-        try:
-            old_stdout = sys.stdout
-            
-            if self.output_file:
-                sys.stdout = open(self.output_file, 'w')
-                
+        def action():
             self.tracer.run( [(filter_name, filter_args)], self.files )
             print
-        except KeyboardInterrupt:
-            info("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
-        except Exception, e:
-            info("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
-            info("\t%s (%s)", e.message, e.__class__.__name__)
-            
-            self.last_exception = sys.exc_info()
-        finally:
-            sys.stdout = old_stdout
+
+        self.redirecting_stdout(action, filter_name, filter_args)
             
     def do_backtrace(self, args):
         '''Displays the exception backtrace for the last failed filter.'''
@@ -163,6 +152,60 @@ class Shell(DefaultShell):
                 self.output_file = output_file
                 
         print_output_destination() # report on output destination in any case
+
+    def redirecting_stdout(self, action, filter_name, filter_args):
+        try:
+            old_stdout = sys.stdout
+            
+            if self.output_file:
+                sys.stdout = open(self.output_file, 'w')
+                
+            action()
+        except KeyboardInterrupt:
+            info("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
+        except Exception, e:
+            info("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
+            info("\t%s (%s)", e.message, e.__class__.__name__)
+            
+            self.last_exception = sys.exc_info()
+        finally:
+            sys.stdout = old_stdout
+
+    @options([ make_option('-s', '--subtree', help='Print each matching subtree only.',
+                           dest='show_mode', action='store_const', const='subtree', default='subtree'),
+               make_option('-w', '--whole-tree', help='Print whole tree on match (not just matching subtrees).',
+                           dest='show_mode', action='store_const', const='whole_tree'),
+               make_option('-l', '--label', help='Print labels of matching trees.',
+                           dest='show_mode', action='store_const', const='label'),
+               make_option('-t', '--tokens', help='Print tokens of matching trees.',
+                           dest='show_mode', action='store_const', const='tokens'),
+
+               make_option('-a', '--find-all', help='Find all matches (not just the first).',
+                           dest='find_mode', action='store_const', const='all', default='all'),
+               make_option('-1', '--find-first', help='Match only one node where possible.',
+                           dest='find_mode', action='store_const', const='first') ])
+    def do_tgrep(self, args, opts):
+        '''Performs a tgrep query.'''
+        if not args.strip(): return
+
+        show_mode = {
+            'subtree':    Tgrep.SHOW_NODE,
+            'whole_tree': Tgrep.SHOW_TREE,
+            'label':      Tgrep.SHOW_LABEL,
+            'tokens':     Tgrep.SHOW_TOKENS
+        }[opts.show_mode]
+        find_mode = {
+            'all':        Tgrep.FIND_ALL,
+            'first':      Tgrep.FIND_FIRST
+        }[opts.find_mode]
+
+        def action():
+            tgrep_filter = Tgrep(args, show_mode=show_mode, find_mode=find_mode)
+            self.tracer.run_filters((tgrep_filter, ), self.files)
+
+        self.redirecting_stdout(action, 'Tgrep', (args, ))
+
+    do_tg = do_tgrep
 
     def default(self, args):
         self.do_run(args)

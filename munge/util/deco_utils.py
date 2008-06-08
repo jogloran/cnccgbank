@@ -35,6 +35,11 @@ def threshold(f):
         return v
     else:
         raise TypeError('Threshold must be in the range [0, 1].')
+
+def enum(**map):
+    def _enum(f):
+        return map.get(f, None)
+    return _enum
     
 if __name__ == '__main__':
     @cast_to(int, int)
@@ -43,5 +48,12 @@ if __name__ == '__main__':
         
     g("3", "4")
     g(3.5, "4")
-    g(3,4,5)
+    #g(3,4,5)
     
+    @cast_to(enum(A=1, B=2))
+    def h(x):
+        print x
+
+    h('A')
+    h('B')
+    h('C')

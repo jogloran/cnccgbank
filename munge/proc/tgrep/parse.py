@@ -13,7 +13,8 @@ from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", 
-          "QUOTED", "PIPE", "BANG", "LT", "GT", "GETS", "STAR")
+          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR")
+
 precedence = (
     ('right', 'PIPE'),
     ('right', 'BANG')
@@ -35,7 +36,7 @@ def t_GT(t):
     r'\]'
     return t
     
-def t_GETS(t):
+def t_EQUAL(t):
     r'='
     return t
 
@@ -68,6 +69,7 @@ def t_ATOM(t):
     r'''[^/\\"\s{][^\s]+[^/\\"\s}]|[^/\\\s{][^/\\\s}]|[^/\\\s{}]'''
     return t
     
+# ignore whitespace tokens
 t_ignore = ' \t\r\v\f\n'
 
 def t_error(t):
@@ -141,8 +143,8 @@ def p_matcher(stk):
             | quoted
             | star
             | group
-            | GETS ATOM
-            | matcher GETS ATOM
+            | EQUAL ATOM
+            | matcher EQUAL ATOM
     '''
     if len(stk) == 2:
         stk[0] = stk[1]
@@ -175,3 +177,4 @@ def p_star(stk):
     star : STAR
     '''
     stk[0] = All()
+
