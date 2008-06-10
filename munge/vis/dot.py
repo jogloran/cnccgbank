@@ -34,7 +34,8 @@ def make_derivation(deriv, assigned_id=None):
 
 def make_graph(deriv):
     '''Generates the DOT representation.'''
-    return '''digraph G {\n%s}''' % make_derivation(deriv)
+    # TODO: Need to get rid of the font change at some point
+    return '''digraph G {\nnode [fontname=Hei]\n%s}''' % make_derivation(deriv)
 
 def write_graph(deriv, fn):
     '''Writes the DOT representation to a file.'''
