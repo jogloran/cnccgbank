@@ -1,4 +1,4 @@
-from munge.trees.traverse import text_without_traces
+from munge.trees.traverse import text_without_traces, text_without_quotes_or_traces
 import re
 
 class Node(object):
@@ -27,7 +27,7 @@ class Node(object):
     def label_text(self): return re.escape(self.tag)
     
     def text(self, with_quotes=True):
-        return (text_without_traces if with_quotes else text_without_traces_or_quotes)(self)
+        return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def __getitem__(self, index):
         return self.kids[index]
