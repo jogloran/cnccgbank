@@ -43,7 +43,8 @@ identifying a node as the focus of the operation, and the instruction itself.'''
         cur_node = cur_node.kids[kid_index]
     
     check_index(cur_node.kids, last_locator)
-    print "Locator names leaf %s" % cur_node.kids[last_locator]
+    if last_locator != 'e':
+        print "Locator names leaf %s" % cur_node.kids[last_locator]
     
     if instr == "d":
         # TODO: handle deleting the last kid, have to recursively delete. but PTB nodes have no parent ptr
