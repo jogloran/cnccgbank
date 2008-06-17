@@ -23,14 +23,14 @@ patch $CORPORA/ccgbank/AUTO/21/wsj_2161.auto < patches/wsj_2161.auto.patch
 
 echo "Applying tokenisation patches..."
 # Apply the tokenisation patches
-echo "\tApplying WSJ tokenisation patch..."
+echo "-Applying WSJ tokenisation patch..."
 # Apply WSJ tokenisation patch
 ./s -i $CORPORA/wsj -o $CORPORA/wsj < scripts/manual_script
 
-echo "\tApplying CCGbank tokenisation patch..."
+echo "-Applying CCGbank tokenisation patch..."
 # Apply CCGbank tokenisation patch
 ./s -i $CORPORA/ccgbank/AUTO -o $CORPORA/ccgbank/AUTO -f ccg < scripts/manual_ccg_script
-echo "\tApplying CCGbank dependency patches..."
+echo "-Applying CCGbank dependency patches..."
 # Apply CCGbank dependency patches
 patch $CORPORA/ccgbank/PARG/06/wsj_0687.parg < patches/wsj_0687.parg.patch
 patch $CORPORA/ccgbank/PARG/14/wsj_1457.parg < patches/wsj_1457.parg.patch
