@@ -1,8 +1,8 @@
 #! /bin/bash
 
-CORPORA = $1
-CCGBANK = $2
-WSJ = $3
+CORPORA=$1
+CCGBANK=$2
+WSJ=$3
 
 echo "Making corpus directories..."
 # Copy original PTB and CCGbank corpora to designated directory
