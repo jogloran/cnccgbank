@@ -87,7 +87,7 @@ class TraceCore(object):
         
         for file in files:
             if self.verbose: info("Processing %s...", file)
-            for derivation_bundle in DirFileGuessReader(file, verbose=verbose):
+            for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose):
                 for filter in filters:
                     filter.context = derivation_bundle
 
