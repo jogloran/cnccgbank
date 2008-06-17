@@ -33,7 +33,7 @@ echo "\tApplying CCGbank tokenisation patch..."
 echo "\tApplying CCGbank dependency patches..."
 # Apply CCGbank dependency patches
 patch $CORPORA/ccgbank/PARG/06/wsj_0687.parg < patches/wsj_0687.parg.patch
-patch $CORPORA/ccgbank/PARG/21/wsj_2161.parg < patches/wsj_2161.parg.patch
+patch $CORPORA/ccgbank/PARG/14/wsj_1457.parg < patches/wsj_1457.parg.patch
 
 echo "Fixing mis-quoted derivations in PTB..."
 # Fix mis-quotes in PTB
