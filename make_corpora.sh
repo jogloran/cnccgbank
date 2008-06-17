@@ -6,7 +6,7 @@ WSJ=$3
 
 echo "Making corpus directories..."
 # Copy original PTB and CCGbank corpora to designated directory
-if [ -d $CCGBANK/AUTO && -d $CCGBANK/PARG ]; then
+if [[ -d $CCGBANK/AUTO && -d $CCGBANK/PARG ]]; then
     mkdir -p $CORPORA/ccgbank
     cp -LR $CCGBANK/{AUTO,PARG} $CORPORA/ccgbank
 fi
