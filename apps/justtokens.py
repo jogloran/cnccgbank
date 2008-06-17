@@ -16,9 +16,9 @@ class Tokens(Filter):
         print >>self.f, "%s|%s" % (deriv.label(), ' '.join(deriv.derivation.text()))
         
 import sys
-class PrintTokens(DumpTokens, Filter):
+class PrintTokens(Tokens, Filter):
     def __init__(self):
-        DumpTokens.__init__(self, sys.stdout)
+        Tokens.__init__(self, sys.stdout)
         
     opt = "t"
     long_opt = "tokens"
