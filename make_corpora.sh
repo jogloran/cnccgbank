@@ -54,7 +54,7 @@ python -m'apps.make_comma_surgery' $CORPORA/ccgbank/AUTO > ccgbank_communge
 # Copy original CCGbank
 cp -r $CORPORA/ccgbank $CORPORA/ccgbank_munged
 # Overwrite in place with comma munge changes
-./s -i $CORPORA/ccgbank_munged/AUTO -o $CORPORA/ccgbank_munged/AUTO < ccgbank_communge
+./s -i $CORPORA/ccgbank_munged/AUTO -o $CORPORA/ccgbank_munged/AUTO -f ccg < ccgbank_communge
 rm ccgbank_communge
 
 echo "Generating comma munged & quoted CCGbank..."
@@ -64,7 +64,7 @@ python -m'apps.make_comma_surgery' $CORPORA/ccgbank_quoted/AUTO > ccgbank_quoted
 # Copy original CCGbank
 cp -r $CORPORA/ccgbank_quoted $CORPORA/ccgbank_quoted_munged
 # Overwrite in place with comma munge changes
-./s -i $CORPORA/ccgbank_quoted_munged/AUTO -o $CORPORA/ccgbank_quoted_munged/AUTO < ccgbank_quoted_communge
+./s -i $CORPORA/ccgbank_quoted_munged/AUTO -o $CORPORA/ccgbank_quoted_munged/AUTO -f ccg < ccgbank_quoted_communge
 rm ccgbank_quoted_communge
 
 echo "Done."
