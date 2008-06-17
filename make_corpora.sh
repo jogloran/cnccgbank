@@ -13,7 +13,7 @@ fi
 
 if [ -d $WSJ ]; then
     mkdir -p $CORPORA/wsj
-    cp -LR $WSJ $CORPORA/wsj
+    cp -LR $WSJ $CORPORA
 fi
 
 echo "Applying malformed CCGbank category patches..."
