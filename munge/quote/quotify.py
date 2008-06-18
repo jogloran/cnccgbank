@@ -135,7 +135,9 @@ from the end of the given PTB derivation span a P-quoted portion of the text.'''
         if leaf.lex in ("``", "`"):
             quote_stack.append( (leaf.lex, index) )
             
-        elif leaf.tag != "POS" and leaf.lex in ("''", "'"):
+        elif (leaf.tag not in ("POS", ":")  # The check for colon is to maintain derivation 21:61(24), which contains
+              and leaf.lex in ("''", "'")): # an erroneously tagged single close quote.
+              
             # Pop open quote and match with close quote
             if quote_stack:
                 open_quote, span_begin = quote_stack.pop()

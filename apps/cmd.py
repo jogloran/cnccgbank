@@ -37,6 +37,24 @@ class Shell(DefaultShell):
         self.last_exception = None
         self.output_file = None
         
+        self._verbose = verbose
+        
+    def get_verbose(self): return self._verbose
+    def set_verbose(self, is_verbose):
+        self._verbose = self.tracer.verbose = is_verbose
+    verbose = property(get_verbose, set_verbose)
+        
+    def do_quiet(self, args):
+        print self._verbose
+        if self._verbose: 
+            self.set_verbose(False)
+            info("Will generate less output.")
+            
+    def do_verbose(self, args):
+        if not self._verbose:
+            self.set_verbose(True)
+            info("Will generate more output.")
+        
     def preloop(self):
         '''Executed before the command loop is entered.'''
         DefaultShell.preloop(self)
