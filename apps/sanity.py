@@ -8,7 +8,7 @@ class SanityChecks(Filter):
         
     def accept_derivation(self, bundle):
         self.nderivs += 1
-        self.nwords += len(bundle.text())
+        self.nwords += len(bundle.derivation.text())
         
     def output(self):
         print "nderivs: %d, nwords: %d" % (self.nderivs, self.nwords)
