@@ -19,7 +19,8 @@ fi
 echo "Applying malformed CCGbank category patches..."
 # Apply CCGbank malformed category patches
 patch $CORPORA/ccgbank/AUTO/05/wsj_0595.auto < patches/wsj_0595.auto.patch
-patch $CORPORA/ccgbank/AUTO/21/wsj_2161.auto < patches/wsj_2161.auto.patch
+# No longer needed:
+#patch $CORPORA/ccgbank/AUTO/21/wsj_2161.auto < patches/wsj_2161.auto.patch
 
 echo "Applying tokenisation patches..."
 # Apply the tokenisation patches
