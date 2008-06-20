@@ -102,6 +102,15 @@ class Tgrep(TgrepCore):
         
     def show_label(match_node, bundle):
         print bundle.label()
+        
+    def show_rule(match_node, bundle):
+        if match_node.is_leaf():
+            print "(%s)" % match_node.cat
+        else:
+            if match_node.rch is not None:
+                print "(%s %s -> %s)" % (match_node.lch.cat, match_node.rch.cat, match_node.cat)
+            else:
+                print "(%s -> %s)" % (match_node.lch.cat, match_node.cat)
 
     FIND_FIRST, FIND_ALL = range(2)
     find_functions = {
@@ -114,7 +123,8 @@ class Tgrep(TgrepCore):
         SHOW_NODE: show_node,
         SHOW_TOKENS: show_tokens,
         SHOW_LABEL: show_label,
-        SHOW_TREE: show_tree
+        SHOW_TREE: show_tree,
+        SHOW_RULES: show_rule
     }
     
     def get_callback_function(self, callback_key, callback_map):

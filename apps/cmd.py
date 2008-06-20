@@ -197,7 +197,9 @@ class Shell(DefaultShell):
                            dest='show_mode', action='store_const', const='label'),
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
                            dest='show_mode', action='store_const', const='tokens'),
-
+               make_option('-r', '--rule', help='Shows the local category context of the match.',
+                           dest='show_mode', action='store_const', const='rule')
+                           
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
                            dest='find_mode', action='store_const', const='all', default='all'),
                make_option('-1', '--find-first', help='Match only one node where possible.',
@@ -210,7 +212,8 @@ class Shell(DefaultShell):
             'subtree':    Tgrep.SHOW_NODE,
             'whole_tree': Tgrep.SHOW_TREE,
             'label':      Tgrep.SHOW_LABEL,
-            'tokens':     Tgrep.SHOW_TOKENS
+            'tokens':     Tgrep.SHOW_TOKENS,
+            'rule':       Tgrep.SHOW_RULE
         }[opts.show_mode]
         find_mode = {
             'all':        Tgrep.FIND_ALL,
