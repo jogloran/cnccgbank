@@ -13,7 +13,7 @@ from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", 
-          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR")
+          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE")
 
 precedence = (
     ('right', 'PIPE'),
@@ -42,6 +42,10 @@ def t_EQUAL(t):
 
 def t_STAR(t):
     r'\*'
+    return t
+    
+def t_TILDE(t):
+    r'~'
     return t
 
 # Assume no whitespace is permitted within a regex.
@@ -144,12 +148,16 @@ def p_matcher(stk):
             | star
             | group
             | EQUAL ATOM
+            | TILDE ATOM
             | matcher EQUAL ATOM
     '''
     if len(stk) == 2:
         stk[0] = stk[1]
     elif len(stk) == 3:
-        stk[0] = GetAtom(stk[2])
+        if stk[1] == '=':
+            stk[0] = GetAtom(stk[2])
+        elif stk[1] == '~':
+            stk[0] = NotAtom(stk[2])
     elif len(stk) == 4:
         stk[0] = StoreAtom(stk[1], stk[3])
     

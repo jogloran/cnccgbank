@@ -116,12 +116,12 @@ class StoreAtom(object):
         # # TODO: Should we prevent the just-assigned variable from being used when evaluating this node?
         # return self.atom.is_satisfied_by(node, context)
         
-class GetAtom(object):
+class AtomValue(object):
     '''Matches tree nodes which are identical to the captured tree node.'''
-    def __init__(self, var):
+    def __init__(self, var, evaluate):
         self.var = var
-    def __repr__(self):
-        return "$%s" % (self.var)
+        self.evaluate = evaluate
+        
     def is_satisfied_by(self, node, context):
         if self.var not in context:
             raise TgrepException('No variable %s exists in the context.')
@@ -129,7 +129,20 @@ class GetAtom(object):
         #return atom.is_satisfied_by(node, context)
         # TODO: a node only matches against itself? or against something with the same label as itself?
         # XXX: This defines two nodes as equal if they are the same modulo features (which is what we often want)
-        return stored_node.cat == node.cat
+        return self.evaluate(stored_node.cat, node.cat)
+        
+class GetAtom(AtomValue):
+    '''Matches tree nodes which are identical to the captured tree node.'''
+    def __init__(self, var):
+        AtomValue.__init__(self, var, operator.eq)
+    def __repr__(self):
+        return "=%s" % self.var
+                
+class NotAtom(object):
+    def __init__(self, var):
+        AtomValue.__init__(self, var, operator.ne)
+    def __repr__(self):
+        return "~%s" % self.var
         
 class RE(object):
     '''Matches tree nodes whose category labels satisfy a regex.'''
