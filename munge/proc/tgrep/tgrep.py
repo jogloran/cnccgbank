@@ -118,13 +118,13 @@ class Tgrep(TgrepCore):
         FIND_ALL:   find_all
     }
 
-    SHOW_NODE, SHOW_TOKENS, SHOW_LABEL, SHOW_TREE = range(4)
+    SHOW_NODE, SHOW_TOKENS, SHOW_LABEL, SHOW_TREE, SHOW_RULE = range(5)
     match_callbacks = {
         SHOW_NODE: show_node,
         SHOW_TOKENS: show_tokens,
         SHOW_LABEL: show_label,
         SHOW_TREE: show_tree,
-        SHOW_RULES: show_rule
+        SHOW_RULE: show_rule
     }
     
     def get_callback_function(self, callback_key, callback_map):
