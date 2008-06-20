@@ -54,6 +54,8 @@ class Node(object):
                 self.rch == other.rch and
                 self.ind1 == other.ind1 and
                 self.ind2 == other.ind2)
+                
+    def __ne__(self, other): return not (self == other)
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(str(self.cat))
@@ -107,6 +109,8 @@ class Leaf(object):
                 self.pos2 == other.pos2 and
                 self.lex == other.lex and
                 self.catfix == other.catfix)
+                
+    def __ne__(self, other): return not (self == other)
                
     def is_leaf(self): return True
     

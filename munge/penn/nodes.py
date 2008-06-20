@@ -32,6 +32,10 @@ class Node(object):
     def __getitem__(self, index):
         return self.kids[index]
 
+    def __eq__(self, other):
+        return self.tag == other.tag and self.kids == other.kids
+    def __ne__(self, other): return not (self == other)
+    
 class Leaf(object):
     '''Representation of a PTB leaf.'''
     def __init__(self, tag, lex):
@@ -57,3 +61,7 @@ class Leaf(object):
 
     def __getitem__(self, index):
         raise NotImplementedError('Leaf has no children.')
+        
+    def __eq__(self, other):
+        return self.tag == other.tag and self.lex == other.lex
+    def __ne__(self, other): return not (self == other)

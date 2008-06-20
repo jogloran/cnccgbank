@@ -48,6 +48,8 @@ class AtomicCategory(object):
 #        if self is other: return True
         if not other.is_leaf(): return False
         return self.cat == other.cat
+        
+    def __ne__(self, other): return not (self == other)
 
     def labelled(self, index=0): return index
     def is_labelled(self): return False
@@ -139,6 +141,8 @@ class ComplexCategory(object):
         return (self.direction == other.direction and
                 self.left == other.left and
                 self.right == other.right)
+                
+    def __ne__(self, other): return not (self == other)
 
     def labelled(self, index=0):
         '''Labels this category in-place. Labelling attaches indices to each slash of this
