@@ -198,7 +198,7 @@ class Shell(DefaultShell):
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
                            dest='show_mode', action='store_const', const='tokens'),
                make_option('-r', '--rule', help='Shows the local category context of the match.',
-                           dest='show_mode', action='store_const', const='rule')
+                           dest='show_mode', action='store_const', const='rule'),
                            
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
                            dest='find_mode', action='store_const', const='all', default='all'),
