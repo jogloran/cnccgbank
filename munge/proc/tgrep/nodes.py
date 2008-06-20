@@ -139,7 +139,7 @@ class GetAtom(AtomValue):
     def __repr__(self):
         return "=%s" % self.var
                 
-class NotAtom(object):
+class NotAtom(AtomValue):
     def __init__(self, var):
         AtomValue.__init__(self, var, operator.ne)
     def __repr__(self):
