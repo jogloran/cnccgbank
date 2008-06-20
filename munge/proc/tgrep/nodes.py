@@ -1,6 +1,7 @@
 from munge.proc.tgrep.ops import *
 from munge.util.err_utils import warn
 import re
+import operator
 
 # the context simply maps identifier names to tree nodes
 Context = dict
