@@ -268,6 +268,3 @@ for (sec, doc), commands in group_by_derivation(parse_instruction_lines(sys.stdi
     # Write tree back here
     write_doc(opts.out, extension, sec, doc, cur_trees)
 
-# Write out aggregated changes
-#for ((sec, doc), bundle) in changes.iteritems():
-#    write_doc(opts.out, extension, sec, doc, bundle)
