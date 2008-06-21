@@ -104,6 +104,8 @@ class Tgrep(TgrepCore):
         print bundle.label()
         
     def show_rule(match_node, bundle):
+        print bundle.label(),
+
         if match_node.is_leaf():
             print "(%s)" % match_node.cat
         else:

@@ -13,7 +13,7 @@ from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", 
-          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE")
+          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET")
 
 precedence = (
     ('right', 'PIPE'),
@@ -62,6 +62,10 @@ def t_RPAREN(t):
 
 def t_QUOTED(t):
     r'"[^"]+"'
+    return t
+
+def t_CARET(t):
+    r'\^'
     return t
 
 # Productions need to be sorted by descending length (maximal munch)
@@ -150,6 +154,7 @@ def p_matcher(stk):
             | EQUAL ATOM
             | TILDE ATOM
             | matcher EQUAL ATOM
+            | CARET ATOM
     '''
     if len(stk) == 2:
         stk[0] = stk[1]
@@ -158,6 +163,8 @@ def p_matcher(stk):
             stk[0] = GetAtom(stk[2])
         elif stk[1] == '~':
             stk[0] = NotAtom(stk[2])
+        elif stk[1] == '^':
+            stk[0] = MatchLex(stk[2])
     elif len(stk) == 4:
         stk[0] = StoreAtom(stk[1], stk[3])
     

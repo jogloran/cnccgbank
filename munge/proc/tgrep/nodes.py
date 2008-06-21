@@ -144,6 +144,15 @@ class NotAtom(AtomValue):
         AtomValue.__init__(self, var, operator.ne)
     def __repr__(self):
         return "~%s" % self.var
+
+class MatchLex(object):
+    def __init__(self, lex_to_match):
+        self.lex_to_match = lex_to_match
+    def __repr__(self):
+        return "^%s" % self.lex_to_match
+    def is_satisfied_by(self, node, context):
+        if not node.is_leaf(): return False
+        return node.lex == self.lex_to_match
         
 class RE(object):
     '''Matches tree nodes whose category labels satisfy a regex.'''
