@@ -6,21 +6,21 @@ WSJ=$3
 
 echo "Making corpus directories..."
 # Copy original PTB and CCGbank corpora to designated directory
-if [[ -d $CCGBANK/AUTO && -d $CCGBANK/PARG ]]; then
+if [[ -d $CCGBANK/AUTO && -d $CCGBANK/PARG && ! -d $CORPORA/ccgbank ]]; then
     mkdir -p $CORPORA/ccgbank
     cp -LR $CCGBANK/{AUTO,PARG} $CORPORA/ccgbank
 fi
 
-if [ -d $WSJ ]; then
+if [[ -d $WSJ && ! -d $CORPORA/wsj ]]; then
     mkdir -p $CORPORA/wsj
     cp -LR $WSJ $CORPORA
 fi
 
 echo "Applying malformed CCGbank category patches..."
 # Apply CCGbank malformed category patches
-patch $CORPORA/ccgbank/AUTO/05/wsj_0595.auto < patches/wsj_0595.auto.patch
+patch -p0 $CORPORA/ccgbank/AUTO/05/wsj_0595.auto < patches/wsj_0595.auto.patch
 # No longer needed:
-#patch $CORPORA/ccgbank/AUTO/21/wsj_2161.auto < patches/wsj_2161.auto.patch
+#patch -p0 $CORPORA/ccgbank/AUTO/21/wsj_2161.auto < patches/wsj_2161.auto.patch
 
 echo "Applying tokenisation patches..."
 # Apply the tokenisation patches
