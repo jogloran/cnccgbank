@@ -76,7 +76,6 @@ class EagerPressplitIterator(object):
         if not self.backing: raise StopIteration
         return self.backing.pop(0)
         
-
 class PressplitIterator(object):
     '''preserving_split implementation with the token stream as a generator.'''
     def __init__(self, str, split_chars, skip_chars, suppressors):

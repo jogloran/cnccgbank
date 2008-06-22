@@ -25,10 +25,14 @@ def make_derivation(deriv, assigned_id=None):
         for child in deriv:
             child_id = get_id()
 
-            ret.append('''%s [shape="record", height=0.1,label="%s"]\n''' % (root_id, deriv.label_text()))
-            ret.append("%s:o -> %s:o\n" % (root_id, child_id)) 
-            # TODO: Work out how to add combinator annotation without making this ccg derivation-specific
-            ret.append(make_derivation(child, child_id))
+            if issubclass(deriv, (ccg.Leaf, ccg.Node)):
+                #ret.append('''%s [shape="
+                pass
+            else:
+                ret.append('''%s [shape="record", height=0.1,label="%s"]\n''' % (root_id, deriv.label_text()))
+                ret.append("%s:o -> %s:o\n" % (root_id, child_id)) 
+                # TODO: Work out how to add combinator annotation without making this ccg derivation-specific
+                ret.append(make_derivation(child, child_id))
 
         return ''.join(ret)
 

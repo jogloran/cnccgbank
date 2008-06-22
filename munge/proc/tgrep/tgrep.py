@@ -69,6 +69,7 @@ def matches(derivation, expression):
     return list(find_first(derivation, expression))
     
 class TgrepCore(Filter):
+    '''Abstract filter class for a tgrep query. Subclasses must override match_generator and match_callback.'''
     def __init__(self, expression):
         Filter.__init__(self)
         initialise()

@@ -20,8 +20,8 @@ type based on the first bytes of the document (the context).'''
         self.reader = self.reader_class(filename)
         
     def determine_reader(self, preview):
-        '''Applies each of the guessers to the document, returning the
-corresponding reader class if a guesser matches.'''
+        '''Applies each of the guessers to the document, returning the corresponding reader class 
+if a guesser matches.'''
         for guesser in self.guessers:
             if guesser.identify(preview):
                 return guesser.reader_class()
