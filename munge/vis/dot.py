@@ -3,6 +3,8 @@ from string import Template
 from munge.util.err_utils import warn, err
 import re, os
 from subprocess import Popen, PIPE
+import munge.ccg.nodes as ccg
+from munge.cats.trace import analyse
 
 id = 0
 def get_id():
@@ -12,6 +14,19 @@ def get_id():
     ret = "n%d" % id
     id += 1
     return ret
+    
+Abbreviations = {
+    "fwd_raise": ">T",
+    "bwd_raise": "<T",
+    "fwd_comp": ">B",
+    "fwd_xcomp": ">Bx",
+    "bwd_comp": "<B",
+    "bwd_xcomp": "<Bx",
+    "fwd_subst": ">S",
+    "fwd_xsubst": ">Sx",
+    "bwd_subst": "<B",
+    "bwd_xsubst": "<Bx"
+}
 
 def make_derivation(deriv, assigned_id=None):
     '''Generates the body of the DOT representation.'''
@@ -25,13 +40,23 @@ def make_derivation(deriv, assigned_id=None):
         for child in deriv:
             child_id = get_id()
 
-            if issubclass(deriv, (ccg.Leaf, ccg.Node)):
-                #ret.append('''%s [shape="
-                pass
+            if isinstance(deriv, (ccg.Leaf, ccg.Node)):
+                comb_name = re.escape(Abbreviations.get(analyse(deriv.lch.cat, deriv.rch and deriv.rch.cat, deriv.cat), ''))
+                
+                if comb_name:
+                    shape_type = "record"
+                    label_text = "<o>%s|%s" % (deriv.label_text(), comb_name)
+                else:
+                    shape_type = "box"
+                    label_text = deriv.label_text()
+                    
+                ret.append('''%s [shape="%s",height=0.1,label="%s"]\n''' % (root_id, shape_type, label_text))
+                ret.append("%s:o -> %s:o\n" % (root_id, child_id))
+                ret.append(make_derivation(child, child_id))
+                
             else:
-                ret.append('''%s [shape="record", height=0.1,label="%s"]\n''' % (root_id, deriv.label_text()))
-                ret.append("%s:o -> %s:o\n" % (root_id, child_id)) 
-                # TODO: Work out how to add combinator annotation without making this ccg derivation-specific
+                ret.append('''%s [shape="box",height=0.1,label="%s"]\n''' % (root_id, deriv.label_text()))
+                ret.append("%s -> %s\n" % (root_id, child_id)) 
                 ret.append(make_derivation(child, child_id))
 
         return ''.join(ret)
