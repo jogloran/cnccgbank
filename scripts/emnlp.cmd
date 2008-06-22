@@ -1,0 +1,14 @@
+quiet
+load apps.emnlp
+
+with corpora/ccgbank
+into ccgbank_rulecount
+runmany CountRuleOccurrencesByType DumpRules
+
+with corpora/ccgbank_munged
+into ccgbank_munged_rulecount
+runmany CountRuleOccurrencesByType DumpRules
+
+with corpora/ccgbank_quoted_munged
+into ccgbank_quoted_munged_rulecount
+runmanymany CountRuleOccurrencesByType DumpRules

@@ -1,0 +1,23 @@
+from munge.proc.filter import Filter
+from munge.proc.tgrep.tgrep import FixedTgrep, find_all, find_first
+from munge.cats.trace import analyse
+from munge.util.dict_utils import CountDict, sorted_by_value_desc
+
+class CountRuleOccurrencesByType(FixedTgrep(r'''* <1 , | <2 ,''')):
+    def __init__(self):
+        CountRuleOccurrencesByType.__bases__[0].__init__(self)
+        self.counts = CountDict()
+        
+    def match_generator(self, deriv, expr):
+        return find_all(deriv, expr)
+        
+    def match_callback(self, match_node, bundle):
+        key = analyse(match_node.lch.cat, match_node.rch.cat, match_node.cat)
+        if key is None: key = 'other_typechange'
+#            print "(%s %s -> %s) %s" % (match_node.lch.cat, match_node.rch.cat, match_node.cat, key)
+        self.counts[key] += 1
+        
+    def output(self):
+        for comb, freq in sorted_by_value_desc(self.counts):
+            print "% 10s | %d" % (comb, freq)
+            
