@@ -156,7 +156,8 @@ def try_absorption(l, r, cur):
 
     if not l.is_complex():
         if cur.has_feature("conj"):
-            if str(l.cat) in ConjPunctuationCats: return "conj_comma_absorb"
+            # , X -> X[conj] and we want to exclude , X[conj] -> X[conj]
+            if (not r.has_feature("conj")) and str(l.cat) in ConjPunctuationCats: return "conj_comma_absorb"
             if l.cat == "conj": return "conj_absorb"
 
         if cur == SbNPbSbNP and l.cat == "," and str(r) == "NP": # , NP -> (S\NP)\(S\NP)
