@@ -30,6 +30,7 @@ Abbreviations = {
 
 def make_derivation(deriv, assigned_id=None):
     '''Generates the body of the DOT representation.'''
+    
     if deriv.is_leaf():
         return '''%s [shape="none",height=0.17,label="%s"]\n''' % (assigned_id, deriv.label_text())
         

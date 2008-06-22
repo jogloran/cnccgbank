@@ -107,3 +107,4 @@ class TraceCore(object):
 
         for filter in filters:
             filter.output()
+            print "---"

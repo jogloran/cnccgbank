@@ -1,6 +1,6 @@
 import re
 import copy
-from munge.trees.traverse import text
+import munge.trees.traverse as traverse
 
 class Node(object):
     '''Representation of a CCGbank internal node.'''
@@ -70,7 +70,7 @@ class Node(object):
     
     def text(self):
         '''Returns a list of text tokens corresponding to the leaves under this node.'''
-        return text(self)
+        return traverse.text(self)
 
     def __getitem__(self, index):
         if index != 0 or index != 1:
@@ -122,7 +122,7 @@ class Leaf(object):
     
     def text(self):
         '''Returns a list of text tokens corresponding to the leaves under this node.'''
-        return text(self)
+        return traverse.text(self)
 
     def __getitem__(self, index):
         raise NotImplementedError('Leaf has no children.')

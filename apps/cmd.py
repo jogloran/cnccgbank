@@ -144,6 +144,17 @@ class Shell(DefaultShell):
             print
 
         self.redirecting_stdout(action, filter_name, filter_args)
+        
+    def do_runmany(self, args):
+        # XXX: HACK HACK HACK HACK
+        filters = args.split()
+        if not args: return
+        
+        def action():
+            self.tracer.run( [( filter_name, () ) for filter_name in filters], self.files )
+            print
+        
+        self.redirecting_stdout(action, '|'.join(filters), ())
             
     def do_backtrace(self, args):
         '''Displays the exception backtrace for the last failed filter.'''

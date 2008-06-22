@@ -156,10 +156,10 @@ def try_absorption(l, r, cur):
 
     if not l.is_complex():
         if cur.has_feature("conj"):
-            if l.cat in ConjPunctuationCats: return "conj_comma_absorb"
+            if str(l.cat) in ConjPunctuationCats: return "conj_comma_absorb"
             if l.cat == "conj": return "conj_absorb"
 
-        if cur == SbNPbSbNP and l.cat == "," and str(r) == "NP":
+        if cur == SbNPbSbNP and l.cat == "," and str(r) == "NP": # , NP -> (S\NP)\(S\NP)
             return "appositive_comma_absorb"
         if str(cur) == "N" and l.cat == "conj" and str(r) == "N":
             return "funny_conj" # conj N -> N is the funny conj rule
