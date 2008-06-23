@@ -21,3 +21,19 @@ class CountRuleOccurrencesByType(FixedTgrep(r'''* <1 , | <2 ,''')):
         for comb, freq in sorted_by_value_desc(self.counts):
             print "% 10s | %d" % (comb, freq)
             
+class CountPunctuationTokens(Filter):
+    Punctuation = (',', '.', ':', '`', '``', "'", "''", ';', '!', '?')
+    
+    def __init__(self):
+        self.counts = CountDict()
+        self.total = 0
+        
+    def accept_leaf(self, leaf):
+        if leaf.lex in self.Punctuation:
+            self.counts[leaf.lex] += 1
+        self.total += 1
+        
+    def output(self):
+        for punct, f in sorted_by_value_desc(self.counts):
+            print "%d | %s" % (f, punct)
+        
