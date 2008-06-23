@@ -36,4 +36,5 @@ class CountPunctuationTokens(Filter):
     def output(self):
         for punct, f in sorted_by_value_desc(self.counts):
             print "%d | %s" % (f, punct)
+        print "Total: %d" % self.total
         
