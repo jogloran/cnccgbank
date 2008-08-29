@@ -48,7 +48,7 @@ class WritePNG(OutputDerivations):
     def process(self, bundle, filename):
         write_png(bundle.derivation, filename)
 
-    opt = "-W"
+    opt = "W"
     long_opt = "write-png"
 
     arg_names = "OUTDIR"
