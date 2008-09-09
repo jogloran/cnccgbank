@@ -26,20 +26,22 @@ def nodes_inorder(deriv):
         for node in nodes_inorder(deriv.rch):
             yield node
 
-def leaves(deriv):
+def leaves(deriv, pred=None):
     '''Iterates from left to right over the leaves of a derivation.'''
-    if deriv.is_leaf(): yield deriv
+    if deriv.is_leaf():
+        if (not pred) or (pred and pred(deriv)): yield deriv
     else:
         for kid in deriv:
-            for kid_node in leaves(kid):
+            for kid_node in leaves(kid, pred):
                 yield kid_node
                 
-def leaves_reversed(deriv):
+def leaves_reversed(deriv, pred=None):
     '''Iterates from right to left over the leaves of a derivation.'''
-    if deriv.is_leaf(): yield deriv
+    if deriv.is_leaf():
+        if (not pred) or (pred and pred(deriv)): yield deriv
     else:
         for kid in reversed(list(deriv)):
-            for kid_node in leaves_reversed(kid):
+            for kid_node in leaves_reversed(kid, pred):
                 yield kid_node
 
 def text(deriv, pred=lambda e: True):
