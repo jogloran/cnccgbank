@@ -21,7 +21,7 @@ def read_docs(toks):
 def read_paren(toks):
     return with_parens(read_deriv, toks)
 
-def read_deriv(toks):
+def read_deriv(toks, parent=None):
     def body(toks):
         tag = toks.next()
         kids = []
@@ -33,8 +33,10 @@ def read_deriv(toks):
                 lex = toks.next()
 
         if (not kids) and lex:
-            return Leaf(tag, lex)
+            return Leaf(tag, lex, parent)
         else:
-            return Node(tag, kids)
+            ret = Node(tag, kids, parent)
+            for kid in ret: kid.parent = ret
+            return ret
 
     return with_parens(body, toks)

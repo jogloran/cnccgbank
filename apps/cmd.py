@@ -171,7 +171,6 @@ class Shell(DefaultShell):
     do_bt = do_backtrace
     
     def create_pager_pipe(self):
-        print "CREATING PIPE"
         if not self.pager_path:
             raise RuntimeException('No pager was given.')
         

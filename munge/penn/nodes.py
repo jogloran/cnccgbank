@@ -3,9 +3,11 @@ import re
 
 class Node(object):
     '''Representation of a PTB internal node.'''
-    def __init__(self, tag, kids):
+    def __init__(self, tag, kids, parent=None):
         self.tag = tag
         self.kids = kids
+        
+        self.parent = parent
         
     @property
     def cat(self):
@@ -38,9 +40,11 @@ class Node(object):
     
 class Leaf(object):
     '''Representation of a PTB leaf.'''
-    def __init__(self, tag, lex):
+    def __init__(self, tag, lex, parent):
         self.tag = tag
         self.lex = lex
+        
+        self.parent = parent
         
     @property
     def cat(self):

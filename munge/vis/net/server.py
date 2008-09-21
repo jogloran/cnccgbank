@@ -1,6 +1,7 @@
 from selector import Selector
 from munge.cptb.io import CPTBReader
 from munge.trees.traverse import leaves, is_ignored
+from munge.trees.pprint import pprint
 import os, cgi
 from itertools import count, izip
 
@@ -43,6 +44,18 @@ Template = '''<?xml version="1.0" encoding="utf-8"?>
                 
                 font-size: 18pt;
 			}
+			
+			#tree {
+			    font-family: monospace;
+			    float: left;
+			    
+			    font-size: 10pt;
+			}
+			
+			.highlighted {
+			    color: #c33;
+			    font-weight: bold;
+			}
 		</style>
 		
 		<body>
@@ -67,8 +80,21 @@ def prev_next_links(doc, doc_no, deriv_no):
     if doc[deriv_no+1]:
         ret += link_to('>', '/view/%s/%s' % (doc_no, deriv_no+1))
     return ''.join(ret)
+    
+node_index = 0
+def html_node_repr(node):
+    global node_index
+    if is_ignored(node): span_id = "trace"
+    else: 
+        span_id = "tree%d" % node_index
+        node_index += 1
+        
+    return '(<span id="%s">%s %s</span>)' % (span_id, node.tag, node.lex)
 
 def view_deriv(env, start_response):
+    global node_index
+    node_index = 0
+    
     start_response('200 OK', [('Content-type', 'text/html')])
     variables = env['selector.vars']
     
@@ -79,12 +105,18 @@ def view_deriv(env, start_response):
     if doc:
         bundle = doc[deriv_id]
     
+        body = ''
         if bundle:
-            body = '<div id="main">'
+            body += '<div id="tree">'
+            body += pprint(bundle.derivation, sep='&nbsp;', newline='<br/>', node_repr=html_node_repr)
+            body += '</div>'
+            
+            body += '<div id="main">'
             for leaf, n in izip(leaves(bundle.derivation, lambda e: not is_ignored(e)), count()):
-                body += '''<span class="word"><span id="word%(index)d" onmouseover="$('pos').show();$('pos%(index)s').show();" onmouseout="$('pos%(index)s').hide();$('pos').hide();">%(body)s</span></span>''' % {
+                body += '''<span class="word"><span id="word%(index)d" onmouseover="$('pos').show();$('pos%(index)s').show();$('tree%(index)s').addClassName('highlighted');" onmouseout="$('tree%(index)s').removeClassName('highlighted');$('pos%(index)s').hide();$('pos').hide();">%(body)s</span></span>''' % {
                     'index': n, 'body': leaf.lex
                 }
+                
             body += prev_next_links(doc, doc_id, deriv_id)
             body += '</div>'
             

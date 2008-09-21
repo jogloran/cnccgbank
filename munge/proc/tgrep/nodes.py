@@ -126,7 +126,7 @@ class AtomValue(object):
         
     def is_satisfied_by(self, node, context):
         if self.var not in context:
-            raise TgrepException('No variable %s exists in the context.')
+            raise TgrepException('No variable %s exists in the context.' % self.var)
         stored_node = context[self.var]
         #return atom.is_satisfied_by(node, context)
         # TODO: a node only matches against itself? or against something with the same label as itself?

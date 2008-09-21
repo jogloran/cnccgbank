@@ -141,7 +141,7 @@ class PrettyPrint(Filter):
         print bundle.label()
         print "-" * len(bundle.label())
         
-        print pprint(tree, sep='  ')
+        print pprint(tree, sep='   ')
         print
         
     opt = "P"
