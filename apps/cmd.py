@@ -194,7 +194,7 @@ class Shell(DefaultShell):
         output_file = args[0]
         
         if output_file:
-            if output_file in 'stdout':
+            if output_file == 'stdout':
                 self.output_file = None
             else: # we will treat the value 'pager' specially
                 self.output_file = output_file
