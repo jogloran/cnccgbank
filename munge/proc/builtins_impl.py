@@ -129,3 +129,21 @@ class ApplicationModeCandidates(AcceptRejectReporter, AcceptRejectWithThreshold)
     long_opt = "list-appl-mode-cands"
 
     arg_names = "THR"
+    
+from munge.trees.pprint import pprint
+class PrettyPrint(Filter):
+    def __init__(self):
+        Filter.__init__(self)
+        
+    def accept_derivation(self, bundle):
+        tree = bundle.derivation
+        
+        print bundle.label()
+        print "-" * len(bundle.label())
+        
+        print pprint(tree, sep='  ')
+        print
+        
+    opt = "P"
+    long_opt = "pp"
+    

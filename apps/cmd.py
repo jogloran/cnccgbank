@@ -1,4 +1,6 @@
 import glob, readline, re, sys, os
+import subprocess
+
 try:
     from cmd2 import options, make_option
 except ImportError:
@@ -27,7 +29,7 @@ in parentheses separated by commas.'''
 
 class Shell(DefaultShell):
     '''A shell interface to trace functionality.'''
-    def __init__(self, files=None, verbose=True):
+    def __init__(self, pager_path=None, files=None, verbose=True):
         DefaultShell.__init__(self)
         self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose)
         self.prompt = "trace> "
@@ -35,9 +37,14 @@ class Shell(DefaultShell):
         self.files = files or []
         
         self.last_exception = None
-        self.output_file = None
-        
+
         self._verbose = verbose
+        
+        if pager_path:
+            self.pager_path = pager_path
+            self.output_file = 'pager'
+        else:
+            self.pager_path = self.output_file = None
         
     def get_verbose(self): return self._verbose
     def set_verbose(self, is_verbose):
@@ -161,6 +168,16 @@ class Shell(DefaultShell):
         if self.last_exception:
             sys.excepthook(*self.last_exception)
     do_bt = do_backtrace
+    
+    def create_pager_pipe(self):
+        print "CREATING PIPE"
+        if not self.pager_path:
+            raise RuntimeException('No pager was given.')
+        
+        return subprocess.Popen(
+            (self.pager_path, '-'),
+            stdin=subprocess.PIPE,
+            stdout=None, stderr=None)
             
     def do_into(self, args):
         '''Sets or displays the destination for filter output. The special filename 
@@ -168,6 +185,8 @@ class Shell(DefaultShell):
         def print_output_destination():
             if self.output_file is None:
                 info("Filter output will be sent to the console.")
+            elif self.output_file == 'pager':
+                info("Filter output will be paged with %s.", self.pager_path)
             else:
                 info("Filter output will be redirected to: %s", self.output_file)
                 
@@ -175,9 +194,9 @@ class Shell(DefaultShell):
         output_file = args[0]
         
         if output_file:
-            if output_file == 'stdout':
+            if output_file in 'stdout':
                 self.output_file = None
-            else:
+            else: # we will treat the value 'pager' specially
                 self.output_file = output_file
                 
         print_output_destination() # report on output destination in any case
@@ -186,11 +205,26 @@ class Shell(DefaultShell):
         try:
             old_stdout = sys.stdout
             
-            if self.output_file:
+            pipe = None
+            
+            if self.output_file == 'pager':
+                pipe = self.create_pager_pipe()
+                sys.stdout = pipe.stdin
+            elif self.output_file:
                 sys.stdout = open(self.output_file, 'w')
                 
             action()
+            
+            if self.output_file == 'pager': 
+                if pipe:
+                    sys.stdout.close() # Signal EOF
+                    pipe.wait()
+                
         except KeyboardInterrupt:
+            if pipe:
+                pipe.stdin.close()
+                pipe.wait()
+                
             info("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
         except Exception, e:
             info("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
@@ -199,6 +233,9 @@ class Shell(DefaultShell):
             self.last_exception = sys.exc_info()
         finally:
             sys.stdout = old_stdout
+            
+            if pipe:
+                pipe.stdin.close()
 
     @options([ make_option('-s', '--subtree', help='Print each matching subtree only.',
                            dest='show_mode', action='store_const', const='subtree', default='subtree'),
@@ -299,8 +336,11 @@ def run_file(option, opt_string, value, parser, *args, **kwargs):
 def register_builtin_switches(parser):
     parser.add_option('-F', '--file-script', help='Reads and invokes cmd.py commands from a file, then terminates. Ignores input files given on the command line.', 
                       type='string', nargs=1, action='callback', callback=run_file)
+    parser.add_option('-p', '--pager', help='Feeds filter output through the specified pager (default: /usr/bin/less).',
+                      type='string', nargs=1, default='/usr/bin/less', dest='pager_path')
+    parser.add_option('--no-pager', help='Filter output is redirected to stdout and not a pager.', action='store_const', dest='pager_path', const=None)
     parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
-                      action='store_true', dest='verbose')
+                      action='store_true', dest='verbose', default=False)
     parser.add_option('-q', '--quiet', help='Make less output.',
                       action='store_false', dest='verbose')
         
@@ -320,5 +360,5 @@ if __name__ == '__main__':
     
     parser.destroy()
 
-    sh = Shell(files=argv)
+    sh = Shell(pager_path=opts.pager_path, files=argv, verbose=opts.verbose)
     sh.cmdloop()

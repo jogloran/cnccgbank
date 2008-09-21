@@ -5,4 +5,6 @@ from munge.proc.builtins_impl import (WriteDOT, WritePNG,
                                       CombinatorCounter, 
                                       CollectExamples,
                                       NullModeCandidates,
-                                      ApplicationModeCandidates)
+                                      ApplicationModeCandidates,
+                                      
+                                      PrettyPrint)

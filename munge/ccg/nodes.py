@@ -81,6 +81,10 @@ class Node(object):
     def count(self):
         if self.rch is None: return 1
         else: return 2
+        
+    @property
+    def tag(self):
+        return str(self.cat)
 
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
@@ -129,3 +133,7 @@ class Leaf(object):
 
     def count(self):
         return 0
+        
+    @property
+    def tag(self):
+        return str(self.cat)
