@@ -31,6 +31,7 @@ class Shell(DefaultShell):
     '''A shell interface to trace functionality.'''
     def __init__(self, pager_path=None, files=None, verbose=True):
         DefaultShell.__init__(self)
+        
         self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose)
         self.prompt = "trace> "
         
@@ -227,6 +228,10 @@ class Shell(DefaultShell):
                 
             info("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
         except Exception, e:
+            if pipe:
+                pipe.stdin.close()
+                pipe.wait()
+                
             info("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
             info("\t%s (%s)", e.message, e.__class__.__name__)
             

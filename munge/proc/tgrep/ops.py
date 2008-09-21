@@ -23,6 +23,8 @@ def Precedes(candidate, node, context):
     pass
 
 def IsSiblingOf(candidate, node, context):
+    if node.is_leaf(): return False
+    
     if node.parent is None: return False
     
     was_left_child = node.parent.lch is node
