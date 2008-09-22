@@ -243,8 +243,12 @@ class Shell(DefaultShell):
 
     @options([ make_option('-s', '--subtree', help='Print each matching subtree only.',
                            dest='show_mode', action='store_const', const='subtree', default='subtree'),
+               make_option('-S', '--pp-subtree', help='Pretty print each matching subtree.',
+                           dest='show_mode', action='store_const', const='pp_subtree'),
                make_option('-w', '--whole-tree', help='Print whole tree on match (not just matching subtrees).',
                            dest='show_mode', action='store_const', const='whole_tree'),
+               make_option('-W', '--pp-whole-tree', help='Pretty print whole tree on match (not just matching subtrees).',
+                           dest='show_mode', action='store_const', const='pp_whole_tree'),
                make_option('-l', '--label', help='Print labels of matching trees.',
                            dest='show_mode', action='store_const', const='label'),
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
@@ -262,7 +266,9 @@ class Shell(DefaultShell):
 
         show_mode = {
             'subtree':    Tgrep.SHOW_NODE,
+            'pp_subtree': Tgrep.SHOW_PP_NODE,
             'whole_tree': Tgrep.SHOW_TREE,
+            'pp_whole_tree': Tgrep.SHOW_PP_TREE,
             'label':      Tgrep.SHOW_LABEL,
             'tokens':     Tgrep.SHOW_TOKENS,
             'rule':       Tgrep.SHOW_RULE

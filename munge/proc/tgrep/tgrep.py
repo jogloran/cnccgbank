@@ -9,6 +9,7 @@ class TgrepException(Exception): pass
 
 import munge.proc.tgrep.parse as parse
 from munge.trees.traverse import nodes, leaves
+import munge.trees.pprint as pp
 from munge.util.iter_utils import take
 
 from munge.proc.filter import Filter
@@ -94,9 +95,17 @@ def FixedTgrep(expression):
 class Tgrep(TgrepCore):
     def show_node(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node)
+        
+    def show_pp_node(match_node, bundle):
+        print bundle.label()
+        print pp.pprint(match_node)
 
     def show_tree(match_node, bundle):
         print "%s: %s" % (bundle.label(), bundle.derivation)
+        
+    def show_pp_tree(match_node, bundle):
+        print bundle.label()
+        print pp.pprint(bundle.derivation)
         
     def show_tokens(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node.text())
@@ -121,12 +130,14 @@ class Tgrep(TgrepCore):
         FIND_ALL:   find_all
     }
 
-    SHOW_NODE, SHOW_TOKENS, SHOW_LABEL, SHOW_TREE, SHOW_RULE = range(5)
+    SHOW_NODE, SHOW_PP_NODE, SHOW_TOKENS, SHOW_LABEL, SHOW_TREE, SHOW_PP_TREE, SHOW_RULE = range(7)
     match_callbacks = {
         SHOW_NODE: show_node,
+        SHOW_PP_NODE: show_pp_node,
         SHOW_TOKENS: show_tokens,
         SHOW_LABEL: show_label,
         SHOW_TREE: show_tree,
+        SHOW_PP_TREE: show_pp_tree,
         SHOW_RULE: show_rule
     }
     

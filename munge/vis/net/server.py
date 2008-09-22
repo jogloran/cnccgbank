@@ -83,7 +83,7 @@ def prev_next_links(doc, doc_no, deriv_no):
     
 node_index = 0
 def html_node_repr(node):
-    global node_index
+    global node_index # TODO: What's the proper way to do this in Python?
     if is_ignored(node): span_id = "trace"
     else: 
         span_id = "tree%d" % node_index

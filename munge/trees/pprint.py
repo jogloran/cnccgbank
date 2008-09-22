@@ -8,7 +8,7 @@ def intersperse(l, spacer=", "):
 def default_node_repr(node):
     return "(%s %s)" % (node.tag, node.lex)
 
-def pprint(node, level=0, sep='\t', newline='\n', node_repr=default_node_repr):
+def pprint(node, level=0, sep='   ', newline='\n', node_repr=default_node_repr):
     out = []
     if level == 0: 
         out.append('(')
