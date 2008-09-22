@@ -85,6 +85,7 @@ tails = {
     '<Sx': 'bxsubst',
     '>T': 'ftype',
     '<T': 'btype',
+    'conj': 'conj',
     '': 'uline'
 }
 def get_combinator_for_arrow(arrow):
@@ -135,18 +136,8 @@ def process(lines, out=sys.stdout):
         out.write( comb_lines(to_write) )
         
 if __name__ == '__main__':
-    print r'''
-\documentclass{article}
-\usepackage{LI2}
-\begin{document}
-\deriv{9}{'''
-    process(r'''
- The        quick brown fox jumped over the lazy dog
------------ ----- ----- --- ------ ---- --- ---- ---
-     A        B      C   D   E       F   G   H    I
--------->Bx ----> --------<             ----------->
-NP\NP        N/N      NP                       NP
------------------------->Bx        ---------------->
-                NP\NP                    Q'''.split('\n'))
-    print "}"
-    print "\end{document}"
+    import sys
+    from apps.ccgdraw import process
+    inp = map(lambda e: e.rstrip(), sys.stdin.readlines())
+    print ''.join("%% %s\n" % line for line in inp)
+    process(inp)
