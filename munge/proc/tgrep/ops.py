@@ -22,18 +22,26 @@ def ImmediatelyPrecedes(candidate, node, context):
 def Precedes(candidate, node, context):
     pass
 
-def IsSiblingOf(candidate, node, context):
-    if node.is_leaf(): return False
+# def IsSiblingOf(candidate, node, context):
+#     if node.parent is None: return False
+#     
+#     was_left_child = node.parent.lch is node
+#     if was_left_child:
+#         if node.parent.rch is not None:
+#             return candidate.is_satisfied_by(node.parent.rch, context)
+#     else:
+#         return candidate.is_satisfied_by(node.parent.lch, context)
+#     return False
     
+def IsSiblingOf(candidate, node, context):
     if node.parent is None: return False
     
-    was_left_child = node.parent.lch is node
-    if was_left_child:
-        if node.parent.rch is not None:
-            return candidate.is_satisfied_by(node.parent.rch, context)
-    else:
-        return candidate.is_satisfied_by(node.parent.lch, context)
+    for kid in node.parent:
+        if kid is node: continue
+        if candidate.is_satisfied_by(kid, context): return True
+    
     return False
+    
 
 def IsSiblingOfAndImmediatelyPrecedes(candidate, node, context):
     pass

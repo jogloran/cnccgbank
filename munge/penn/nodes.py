@@ -32,6 +32,7 @@ class Node(object):
         return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def __getitem__(self, index):
+        if not (0 <= index < len(self.kids)): raise RuntimeError("Invalid index %d into Node." % index)
         return self.kids[index]
 
     def __eq__(self, other):
