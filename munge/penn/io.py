@@ -36,7 +36,7 @@ class PTBReader(object):
         
     def determine_sec_and_doc(self, filename):
         '''Determines the section and document number given a filename of the form ``wsj_SSDD.mrg".'''
-        matches = re.match(r'wsj_(\d\d)(\d\d)\.(?:.+)', os.path.basename(filename))
+        matches = re.match(r'(?:.+)_(\d\d)(\d\d)\.(?:.+)', os.path.basename(filename))
         if matches and len(matches.groups()) == 2:
             return (int(i) for i in matches.groups())
         else:
