@@ -1,31 +1,5 @@
 from itertools import izip, count
 import re, sys
-
-def invert(l):
-    h = {}
-    for (e, i) in izip(l, count()):
-        h[e] = i
-    return h
-'''
-def get_spans_of(words):
-    if not words: return []
-    
-    result = []
-    start = 0
-    skipping_whitespace = False
-    for c, i in izip(words, count()):
-        if c.isspace() and not skipping_whitespace:
-            result.append( (start, i) )
-            skipping_whitespace = True
-        elif not c.isspace() and skipping_whitespace:
-            start = i
-            skipping_whitespace = False
-            
-    if not skipping_whitespace:
-        result.append( (start, len(words)) )
-            
-    return result
-    '''
     
 span_pat = re.compile(r'\S+')
 def get_spans_of(words):
@@ -107,6 +81,7 @@ def process(lines, out=sys.stdout):
     words = lines.pop()
     spans = list(get_spans_of(words))
     
+    out.write('\\deriv{%d}{' % len(spans))
     out.write( word_lines(words.split()) )
     
     while lines:
@@ -117,7 +92,7 @@ def process(lines, out=sys.stdout):
         to_write = []
         for (cbegin, cend), category in category_spans:
             for (abegin, aend), arrow in arrow_spans:
-                if abegin <= cbegin <= cend < aend:
+                if abegin <= cbegin <= cend <= aend:
                     found = False
                     
                     for begin in xrange(len(spans)):
@@ -134,6 +109,8 @@ def process(lines, out=sys.stdout):
                                 break # We want to break out of the begin,end nested loop
         
         out.write( comb_lines(to_write) )
+        
+    out.write('}')
         
 if __name__ == '__main__':
     import sys
