@@ -30,17 +30,14 @@ class Derivation(object):
         expecting it to be of the form 
         ID=wsj_SSDD.dd PARSER=GOLD NUMPARSE=1'''
         
-        matches = re.match(r'ID=wsj_(\d\d)(\d\d).(\d+) PARSER=GOLD NUMPARSE=1', header)
-        if matches:
-            if len(matches.groups()) != 3:
-                raise CCGbankParseException, "Malformed CCGbank header: %s" % header
+        matches = re.match(r'ID=wsj_(\d\d)(\d\d).(\d+)', header)
+        if matches and len(matches.groups()) == 3:
             sec_no, doc_no, der_no = [int(i) for i in matches.groups()]
-            
             derivation = parse_tree(deriv_string)
         
             return Derivation(sec_no, doc_no, der_no, derivation)
-            
-        return None
+
+        raise CCGbankParseException, "Malformed CCGbank header: %s" % header
 
 class CCGbankReader(object):
     '''An iterator over each derivation in a CCGbank document.'''
