@@ -1,4 +1,4 @@
-from pressplit import split
+#from pressplit import split
 
 class CPressplitIterator(object):
     '''preserving_split implemented in C.'''
@@ -125,7 +125,7 @@ class PressplitIterator(object):
 
         return previous_top
 
-def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=CStackbasedPressplitIterator):
+def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=PressplitIterator):
     '''Returns an iterator yielding successive tokens from _str_ as split on three
     kinds of separators. 
       - _split_chars_ will split the string, and appear in the resulting stream.
