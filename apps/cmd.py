@@ -19,7 +19,7 @@ from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep
 
 BuiltInPackages = ['munge.proc.builtins', 
-                   'munge.proc.modes.split', 'munge.proc.modes.anno', 
+                   'munge.proc.modes.split', 'munge.proc.modes.anno', 'munge.proc.cn.count',
                    'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep']
 
 def filter_run_name(filter_name, filter_args):

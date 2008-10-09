@@ -30,6 +30,7 @@ class PTBReader(object):
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'r')
+        print filename
         self.derivs = parse_tree(self.file.read())
         
         self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
