@@ -32,8 +32,12 @@ class Node(object):
         return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def __getitem__(self, index):
-        if not (-len(self.kids) <= index < len(self.kids)): raise RuntimeError("Invalid index %d into Node." % index)
-        return self.kids[index]
+        # TODO: This is slightly broken. Since we can't define len() for nodes, we can't use negative (or omitted) slice indices properly.
+        try:
+            if not (-len(self.kids) <= index < len(self.kids)): raise RuntimeError("Invalid index %d into Node." % index)
+            return self.kids[index]
+        except TypeError:
+            return self.kids[index.start:index.stop]
 
     def __eq__(self, other):
         return self.tag == other.tag and self.kids == other.kids
