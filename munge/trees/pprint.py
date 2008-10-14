@@ -29,5 +29,9 @@ def pprint(node, level=0, sep='   ', newline='\n', node_repr=default_node_repr):
         
 if __name__ == '__main__':
     from munge.penn.parse import *
-    t=parse_tree(open('twsj').read())[0]
-    print pprint(t, sep='   ')
+    import sys
+    
+    trees = parse_tree(sys.stdin.read())
+    for tree in trees:
+        print pprint(tree, sep='  ')
+        print

@@ -92,3 +92,9 @@ def write_png(deriv, fn):
     finally:
         if cin:  cin.close()
         if cout: cout.close()
+        
+if __name__ == '__main__':
+    from munge.penn.parse import parse_tree
+    import sys
+    
+    print make_graph(parse_tree(sys.stdin.read())[0])

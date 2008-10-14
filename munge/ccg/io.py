@@ -42,8 +42,12 @@ class Derivation(object):
 class CCGbankReader(object):
     '''An iterator over each derivation in a CCGbank document.'''
     def __init__(self, filename):
-        self.filename = filename
-        self.file = open(filename, 'r')
+        if isinstance(filename, basestring):
+            self.filename = filename
+            self.file = open(filename, 'r')
+        else: # is file-like? TODO: this is really awful
+            self.filename = str(filename)
+            self.file = filename
         self.lines = imap(lambda line: line.rstrip(), self.file.xreadlines())
                           
     def __getitem__(self, index):

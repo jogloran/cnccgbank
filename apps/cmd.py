@@ -20,7 +20,7 @@ from munge.proc.tgrep.tgrep import Tgrep
 
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.modes.split', 'munge.proc.modes.anno', 'munge.proc.cn.count',
-                   'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep']
+                   'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep', 'apps.binarise']
 
 def filter_run_name(filter_name, filter_args):
     '''Produces a human-readable summary of a filter run: the filter name with a list of its arguments

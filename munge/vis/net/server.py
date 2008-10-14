@@ -4,8 +4,10 @@ from munge.trees.traverse import leaves, is_ignored
 from munge.trees.pprint import pprint
 import os, cgi
 from itertools import count, izip
+from munge.io.guess import GuessReader
 
-CORPORA_PATH = os.path.join('corpora', 'cptb', 'bracketed')
+#CORPORA_PATH = os.path.join('corpora', 'cptb', 'bracketed')
+CORPORA_PATH = 'binarised'
 cache = {}
 
 Template = '''<?xml version="1.0" encoding="utf-8"?>
@@ -101,7 +103,7 @@ def view_deriv(env, start_response):
     doc_id, deriv_id = int(variables['doc']), int(variables['deriv'])
     filename = 'chtb_%04d.fid' % doc_id
     
-    doc = CPTBReader(os.path.join(CORPORA_PATH, filename))
+    doc = GuessReader(os.path.join(CORPORA_PATH, filename))
     if doc:
         bundle = doc[deriv_id]
     
@@ -133,17 +135,12 @@ def view_deriv(env, start_response):
         
     else:
         yield error_document()
-        
-def hello(env, start_response):
-    start_response('200 OK', [('Content-type', 'text/html')])
-    return ["<b>Hello world!</b>"]
     
 def error_document():
     return 'Error'
 
 routes = Selector()
 routes.add('/view/{doc}/{deriv}', GET=view_deriv)
-routes.add('/hello', GET=hello)
 
 from wsgiref import simple_server
 srv = simple_server.WSGIServer(
