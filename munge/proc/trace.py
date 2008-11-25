@@ -76,7 +76,9 @@ def register_builtin_switches(parser):
                       action='store_true', dest='do_list_filters')
     group.add_option("-r", "--run", help="Runs a filter.", type='string', nargs=1,
                       action='callback', callback=register_filter)
-                      
+    group.add_option("-R", "--reader-class", help="Forces the use of a given Reader class.",
+                      dest='reader_class_name', metavar='CLS')
+
     group.add_option("-0", "--end", help="Dummy option to separate -r arguments from input arguments.", 
                       action='store_true')
     
@@ -130,6 +132,9 @@ def main(argv):
     
     # Set verbose switch if given on command line
     tracer.verbose = opts.verbose
+    
+    # Set override Reader if given on command line
+    tracer.reader_class_name = opts.reader_class_name
     
     # Take remaining arguments as input file names
     files = remaining_args[1:] # remaining_args[0] seems to be sys.argv[0]

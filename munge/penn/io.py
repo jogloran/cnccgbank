@@ -31,9 +31,13 @@ class PTBReader(object):
         self.filename = filename
         self.file = open(filename, 'r')
 
-        self.derivs = parse_tree(self.file.read())
+        self.derivs = self.parse_file(self.file.read())
         
         self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
+        
+    @staticmethod
+    def parse_file(text):
+        return parse_tree(text)
         
     def determine_sec_and_doc(self, filename):
         '''Determines the section and document number given a filename of the form ``wsj_SSDD.mrg".'''
@@ -67,3 +71,11 @@ class PTBReader(object):
         '''Returns the text of an entire document.'''
         return '\n'.join(str(deriv) for deriv in self.derivs)
 
+from munge.penn.parse import AugmentedPennNodeFactory
+class AugmentedPTBReader(PTBReader):
+    def __init__(self, *args):
+        PTBReader.__init__(self, *args)
+
+    @staticmethod
+    def parse_file(text):
+        return parse_tree(text, node_factory=AugmentedPennNodeFactory)

@@ -2,41 +2,56 @@
 from munge.lex.lex import preserving_split
 from munge.util.exceptions import PennParseException
 from munge.util.parse_utils import with_parens, shift_and_check, ensure_stream_exhausted
-from nodes import Node, Leaf
+import nodes as N
+import aug_nodes as A
 
-def parse_tree(tree_string):
+class PennNodeFactory(object):
+    node_class = N.Node
+    leaf_class = N.Leaf
+    
+class AugmentedPennNodeFactory(object):
+    node_class = A.Node
+    leaf_class = A.Leaf
+
+def parse_tree(tree_string, node_factory=PennNodeFactory):
+    penn_parser = PennParser(node_factory)
+    
     toks = preserving_split(tree_string, "()")
 
-    docs = read_docs(toks)
+    docs = penn_parser.read_docs(toks)
     ensure_stream_exhausted(toks, 'penn.parse_tree')
 
     return docs
+    
+class PennParser(object):
+    def __init__(self, node_factory=PennNodeFactory):
+        self.node_factory = node_factory
+        
+    def read_docs(self, toks):
+        docs = []
+        while toks.peek() == '(':
+            docs.append( self.read_paren(toks) )
+        return docs
 
-def read_docs(toks):
-    docs = []
-    while toks.peek() == '(':
-        docs.append( read_paren(toks) )
-    return docs
+    def read_paren(self, toks):
+        return with_parens(self.read_deriv, toks)
 
-def read_paren(toks):
-    return with_parens(read_deriv, toks)
+    def read_deriv(self, toks, parent=None):
+        def body(toks):
+            tag = toks.next()
+            kids = []
 
-def read_deriv(toks, parent=None):
-    def body(toks):
-        tag = toks.next()
-        kids = []
+            while toks.peek() != ')':
+                if toks.peek() == '(':
+                    kids.append( self.read_deriv(toks) )
+                else:
+                    lex = toks.next()
 
-        while toks.peek() != ')':
-            if toks.peek() == '(':
-                kids.append( read_deriv(toks) )
+            if (not kids) and lex:
+                return self.node_factory.leaf_class(tag, lex, parent)
             else:
-                lex = toks.next()
+                ret = self.node_factory.node_class(tag, kids, parent)
+                for kid in ret: kid.parent = ret
+                return ret
 
-        if (not kids) and lex:
-            return Leaf(tag, lex, parent)
-        else:
-            ret = Node(tag, kids, parent)
-            for kid in ret: kid.parent = ret
-            return ret
-
-    return with_parens(body, toks)
+        return with_parens(body, toks)

@@ -2,20 +2,23 @@ from itertools import izip, count
 
 from munge.io.guess import GuessReader
 from munge.io.multi import DirFileGuessReader
+from munge.penn.io import AugmentedPTBReader
+
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
 from munge.proc.dynload import (get_available_filters_dict,
                                 load_requested_packages,
                                 get_argcount_for_method)
-from munge.util.err_utils import warn, info
+from munge.util.err_utils import warn, info, err
 
 class TraceCore(object):
     '''Implements filter loading functionality and the document processing loop.'''
-    def __init__(self, libraries, verbose=True):
+    def __init__(self, libraries, verbose=True, reader_class_name=None):
         self.loaded_modules = set(load_requested_packages(libraries))
         self.update_available_filters_dict()
         
         self.verbose = verbose
+        self.reader_class_name = reader_class_name
 
     def __getitem__(self, key):
         return self.available_filters_dict.get(key, None)
@@ -85,9 +88,17 @@ class TraceCore(object):
         # If all given filters were not found or had wrong argument count, do nothing
         if not filters: return
         
+        reader_class = None
+        if self.reader_class_name:
+            try:
+                reader_class = globals()[self.reader_class_name]
+                info("Using reader_class %s.", self.reader_class_name)
+            except KeyError:
+                err("Reader class %s not found.", self.reader_class_name)
+        
         for file in files:
             if self.verbose: info("Processing %s...", file)
-            for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose):
+            for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose, reader_class=reader_class):
                 for filter in filters:
                     filter.context = derivation_bundle
 

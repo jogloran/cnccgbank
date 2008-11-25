@@ -36,9 +36,10 @@ modification of derivations, nor corpus output.'''
 
 class DirFileGuessReader(object):
     '''Reader allowing the uniform treatment of directories and files.'''
-    def __init__(self, path, verbose=True):
+    def __init__(self, path, verbose=True, reader_class=None):
         self.path = path
         self.verbose = verbose
+        self.reader_class = reader_class
 
     def __iter__(self):
         path = self.path
@@ -47,10 +48,18 @@ class DirFileGuessReader(object):
             # TODO: This doesn't skip the current file (can we do that from inside the iterator?)
             warn("%s does not exist, so skipping.", path)
 
+        if self.reader_class:
+            reader_arg = { 'reader': self.reader_class }
+        else:
+            reader_arg = {}
+            
         if os.path.isdir(path):
-            reader = MultiGuessReader(path, verbose=self.verbose)
+            reader = MultiGuessReader(path, verbose=self.verbose, **reader_arg)
         elif os.path.isfile(path):
-            reader = GuessReader(path)
+            if self.reader_class:
+                reader = self.reader_class(path)
+            else:
+                reader = GuessReader(path)
         else:
             warn("%s is neither a file nor a directory, so skipping.", path)
 
