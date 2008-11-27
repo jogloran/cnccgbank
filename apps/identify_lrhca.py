@@ -25,13 +25,9 @@ def is_coordination(node):
 
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and all(kid.tag == 'NN' for kid in node)
-
-FunctionTags = 'ADV TPC TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
-def is_modification(node):
-    if node.tag == node[-1].tag:
-        m = re.match(r'\w+-(\w+)', node[0].tag)
-        if m and len(m.groups()) == 1:
-            function_tag = m.group(1)
-            if function_tag in TagStructures.FunctionTags: return True
     
-    return False
+def is_apposition(node):
+    return node[0].tag.endswith(':A')
+    
+def is_modification(node):
+    return node[0].tag.endswith(':m')

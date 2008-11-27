@@ -14,11 +14,11 @@ def label_adjunction(node):
     kids = map(label_node, node.kids)
     last_kid, second_last_kid = kids.pop(), kids.pop()
 
-    cur = Node('?', [second_last_kid, last_kid])
+    cur = Node(node.tag, [second_last_kid, last_kid])
 
     while kids:
         kid = kids.pop()
-        cur = Node('?', [kid, cur])
+        cur = Node(node.tag, [kid, cur])
  
     return cur
     
@@ -35,11 +35,11 @@ def label_head_initial(node):
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = kids.pop(), kids.pop()
 
-    cur = Node('?', [first_kid, second_kid])
+    cur = Node(node.tag, [first_kid, second_kid])
 
     while kids:
         kid = kids.pop()
-        cur = Node('?', [cur, kid])
+        cur = Node(node.tag, [cur, kid])
     
     return cur
 
@@ -47,14 +47,32 @@ def label_head_final(node):
     return label_adjunction(node)
 
 def label_predication(node):
-    return Node(node.tag, map(label_node, node.kids))
-
+#    return Node(node.tag, map(label_node, node.kids))
+    return label_adjunction(node)
+    
+def label_root(node):
+    final_punctuation_stk = []
+    while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
+        final_punctuation_stk.append( node.kids.pop() )
+        
+    result = label_node(node)
+    tag = result.tag
+    
+    while final_punctuation_stk:
+        result = Node(tag, [result, final_punctuation_stk.pop()])
+        
+    return result
+    
 def label_node(node):
     if node.is_leaf(): return node
-    elif node.count() == 1: return node
+    elif node.count() == 1: 
+        node.kids[0] = label_node(node.kids[0])
+        return node
     elif is_predication(node):
         return label_predication(node)
     elif is_np_internal_structure(node):
+        return label_adjunction(node)
+    elif is_apposition(node):
         return label_adjunction(node)
     elif is_modification(node):
         return label_adjunction(node)
@@ -67,7 +85,7 @@ def label_node(node):
     elif is_coordination(node):
         return label_coordination(node)
     else:
-        return node
+        return label_adjunction(node)
         
 class Binariser(Filter):
     def __init__(self, outdir):
@@ -75,7 +93,7 @@ class Binariser(Filter):
         self.outdir = outdir
         
     def accept_derivation(self, bundle):
-        bundle.derivation = label_node(bundle.derivation)
+        bundle.derivation = label_root(bundle.derivation)
         self.write_derivation(bundle)
         
     def write_derivation(self, bundle):
@@ -95,6 +113,6 @@ if __name__ == '__main__':
         #         label_predicate(root[1])
         #     ])
         # else:
-        result = label_node(root)
+        result = label_root(root)
             
         print pprint(result)
