@@ -60,13 +60,13 @@ class Leaf(object):
             ("(" if first else '',
             self.tag, self.lex,
             ")" if first else ''))
-
+            
     def __iter__(self): raise StopIteration
 
     def count(self): return 0
 
     def is_leaf(self): return True
-    def label_text(self): return "%s '%s'" % (self.tag, self.lex)
+    def label_text(self): return "%s '%s'" % (re.escape(self.tag), self.lex)
     
     def text(self, with_quotes=True):
         return (text_without_traces if with_quotes else text_without_traces_or_quotes)(self)

@@ -1,5 +1,5 @@
 from itertools import izip, count
-from munge.penn.parse import parse_tree
+from munge.penn.parse import parse_tree, PennParser
 import os, re
 
 # Represents a derivation bundle in the Chinese Penn Treebank. This consists of a standard Penn 
@@ -56,7 +56,7 @@ class CPTBReader(object):
         self.contents = SGMLBag()
         self.contents.feed(self.file.read())
         
-        self.derivs = parse_tree('\n'.join(self.contents['s']))
+        self.derivs = parse_tree('\n'.join(self.contents['s']), PennParser)
         self.sec_no, self.doc_no = self.determine_sec_and_doc()
         
     def determine_sec_and_doc(self):

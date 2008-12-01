@@ -13,9 +13,15 @@ def last_nonpunct_kid(node):
         
     return None
 
+PredicationRegex = re.compile(r'''
+    (?:\w+)?
+    (\s+\w+\s*)* # adjuncts
+    [\w-]+-SBJ\s+ # grammatical subject
+    VP # predicate
+''', re.VERBOSE)
 def is_predication(node):
-    return node.tag.startswith('IP') and node[0].tag.endswith('-SBJ')
-    
+    kid_tags = ' '.join(kid.tag for kid in node)
+    return node.tag.startswith('IP') and PredicationRegex.match(kid_tags)
 
 def is_apposition(node):
     return node.tag.startswith('NP') and last_nonpunct_kid(node).tag.startswith('NP') and node[0].tag.endswith('-APP')
@@ -57,7 +63,13 @@ class TagStructures(Filter):
                 last_kid = last_nonpunct_kid(node)
                 
                 if is_predication(node):
-                    pass
+                    for kid in node:
+                        if kid.tag.endswith('-SBJ'):
+                            kid.tag += ':l' # TODO: is subject always left of predicate?
+                        elif kid.tag == 'VP':
+                            kid.tag += ':h'
+                        elif kid.tag != 'PU':
+                            kid.tag += ':a'
                     
                 elif is_coordination(node): # coordination
                     for kid in node:
@@ -70,13 +82,17 @@ class TagStructures(Filter):
                 elif node[0].is_leaf(): # head initial complementation
                     node[0].tag += ':h'
                     for kid in node[1:node.count()]:
-                        if not kid.tag.startswith('PU'):
+                        if kid.tag.startswith('AS'):
+                            kid.tag += ':a' # treat aspect particles as adjuncts
+                        elif not kid.tag.startswith('PU'):
                             kid.tag += ':r'
 
                 elif last_kid.is_leaf(): # head final complementation
                     last_kid.tag += ':h'
                     for kid in node[0:node.count()-1]:
-                        if not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                        if kid.tag.startswith('AS'):
+                            kid.tag += ':a' # treat aspect particles as adjuncts
+                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             kid.tag += ':l'
 
                 elif is_apposition(node):

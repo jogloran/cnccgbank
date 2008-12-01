@@ -25,6 +25,7 @@ class Derivation(object):
     def __str__(self):
         return str(self.derivation)
 
+from munge.penn.parse import PennParser
 class PTBReader(object):
     '''An iterator over each derivation in a PTB document.'''
     def __init__(self, filename):
@@ -37,7 +38,7 @@ class PTBReader(object):
         
     @staticmethod
     def parse_file(text):
-        return parse_tree(text)
+        return parse_tree(text, PennParser)
         
     def determine_sec_and_doc(self, filename):
         '''Determines the section and document number given a filename of the form ``wsj_SSDD.mrg".'''
@@ -71,11 +72,11 @@ class PTBReader(object):
         '''Returns the text of an entire document.'''
         return '\n'.join(str(deriv) for deriv in self.derivs)
 
-from munge.penn.parse import AugmentedPennNodeFactory
+from munge.penn.parse import AugmentedPennParser
 class AugmentedPTBReader(PTBReader):
     def __init__(self, *args):
         PTBReader.__init__(self, *args)
 
     @staticmethod
     def parse_file(text):
-        return parse_tree(text, node_factory=AugmentedPennNodeFactory)
+        return parse_tree(text, AugmentedPennParser)
