@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 from munge.util.exceptions import CatParseException
 import re
 
@@ -29,8 +29,15 @@ class AtomicCategory(object):
     def clone(self):
         '''Returns a copy of this category. AtomicCategory is intended to be immutable,
         so this returns the category itself.'''
+        return deepcopy(self)
+        
+    def add_feature(self, feature):
+        # TODO: switch this over to a set
+        # TODO: this makes atomiccategory mutable
+        if feature not in self.features:
+            self.features.append(feature)
         return self
-
+        
     def has_feature(self, feature):
         '''Determines whether the given feature is present in this category's feature set.'''
         return feature in self.features
@@ -96,6 +103,12 @@ class ComplexCategory(object):
     def feature_repr(self):
         '''Returns the concatenation of each feature in this category's feature set.'''
         return ''.join("[%s]" % feature for feature in self.features)
+        
+    def add_feature(self, feature):
+        # TODO: switch this over to a set
+        if feature not in self.features:
+            self.features.append(feature)
+        return self
 
     def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category.'''
