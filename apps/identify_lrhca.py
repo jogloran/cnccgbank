@@ -5,10 +5,10 @@ from munge.proc.cn.count import last_nonpunct_kid
 def base_tag(tag):
     if re.match(r'-.+-$', tag): return tag
     
-    print "base_tag: %s ->" % tag,
+    #print "base_tag: %s ->" % tag,
     tag = re.sub(r':.+$', '', tag)
     tag = re.sub(r'-.+$', '', tag)
-    print tag
+    #print tag
     return tag
 
 def is_left_absorption(node):

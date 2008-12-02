@@ -24,13 +24,13 @@ filter objects found in those modules' namespaces.'''
     return filters_found
 
 def load_requested_packages(module_names):
-    '''Tries to load each module named in _module_names_, returning an array of the loadable module objects found in that module names.'''
+    '''Tries to load each module named in _module_names_, returning an array of the loadable module objects found in that module.'''
     loaded_modules = []
     
     for module in module_names:
         try:
-            # Suppose we want to import A.B.C. When fromlist is anything but [], it returns A.B.C.
-            # Otherwise, it returns the topmost module, A.
+            # Suppose we want to import A.B.C. When fromlist is any value but [], it returns A.B.C.
+            # Otherwise, it only returns the topmost module, A.
             loaded_modules.append( __import__(module, fromlist=[module]) )
         except ImportError, e:
             warn("Couldn't import module %s (%s)", module, e)

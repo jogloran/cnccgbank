@@ -112,6 +112,9 @@ class ComplexCategory(object):
 
     def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category.'''
+        # ensure that we display (X/Y)[f] and not X/Y[f]
+        if self.features: first = True
+        
         return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",
             'lch': self.left.__repr__(False, show_modes),

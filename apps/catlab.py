@@ -10,22 +10,20 @@ from munge.cats.nodes import *
 from munge.cats.cat_defs import *
 from munge.util.err_utils import info
 
-@echo
+#@echo
 def label_predication(node):
-    if not node.category:
-        info('%s', node)
-        
+    
     node.kids[0] = label(node[0])
-    print "\t\t%s" % node.kids[0]
+#print"\t\t%s" % node.kids[0]
     node[1].category = node.category | node[0].category
-    print "\t%s <- %s" % (node[1], node[1].category)
-    print "\t%s <- %s" % (node[0], node[0].category)
+#print"\t%s <- %s" % (node[1], node[1].category)
+#print"\t%s <- %s" % (node[0], node[0].category)
     
     node.kids[1] = label(node[1])
     
     return node
     
-@echo
+#@echo
 def label_left_absorption(node):
     node[0].category = node[0].tag
     node[1].category = node.category
@@ -33,7 +31,7 @@ def label_left_absorption(node):
     
     return node
     
-@echo
+#@echo
 def label_right_absorption(node):
     node[1].category = node[1].tag
     node[0].category = node.category
@@ -41,74 +39,70 @@ def label_right_absorption(node):
     
     return node
     
-@echo
+#@echo
 def label_adjunction(node):
-    info('%s', node)
-            
+        
     node[1].category = node.category
     node[0].category = node.category / node.category
-    print "\t%s <- %s" % (node[1], node[1].category)
-    print "\t%s <- %s" % (node[0], node[0].category)
+#print"\t%s <- %s" % (node[1], node[1].category)
+#print"\t%s <- %s" % (node[0], node[0].category)
     
     node.kids[0] = label(node[0])
     node.kids[1] = label(node[1])
     
     return node
     
-@echo
+#@echo
 def label_right_adjunction(node):
-    info('%s', node)
 
     node[0].category = node.category
     node[1].category = node.category | node.category
-    print "\t%s <- %s" % (node[1], node[1].category)
-    print "\t%s <- %s" % (node[0], node[0].category)
+#print"\t%s <- %s" % (node[1], node[1].category)
+#print"\t%s <- %s" % (node[0], node[0].category)
 
     node.kids[0] = label(node[0])
     node.kids[1] = label(node[1])
 
     return node
     
-@echo
+#@echo
 def label_head_final(node):
-    info('%s', node)
     
     node.kids[0] = label(node[0])
     
     node[1].category = node.category | node[0].category
-    print "\t%s <- %s" % (node[1], node[1].category)
-    print "\t%s <- %s" % (node[0], node[0].category)
+#print"\t%s <- %s" % (node[1], node[1].category)
+#print"\t%s <- %s" % (node[0], node[0].category)
     
     node.kids[1] = label(node[1])
     
     return node
     
-@echo
+#@echo
 def label_head_initial(node):
-    info('%s', node)
     
     node.kids[1] = label(node[1])
     node[0].category = node.category / node[1].category
-    print "\t%s <- %s" % (node[1], node[1].category)
-    print "\t%s <- %s" % (node[0], node[0].category)
+#print"\t%s <- %s" % (node[1], node[1].category)
+#print"\t%s <- %s" % (node[0], node[0].category)
     
     node.kids[0] = label(node[0])
     
     return node
     
-@echo
+#@echo
 def label_coordination(node):
 #    node.category = ptb_to_cat(node.tag)
-    info('%s', node)
+#    info('%s', node)
 
     node.kids[0].category = node.category
-    print "\t%s <- %s" % (node[0], node[0].category)
+#print"\t%s <- %s" % (node[0], node[0].category)
     
     node.kids[0] = label(node[0])
 
     node.kids[1].category = node.category.clone().add_feature('conj')
     node.kids[1] = label(node[1])
-    print "\t%s <- %s" % (node[1], node[1].category)
+#print"\t%s <- %s" % (node[1], node[1].category)
     
     return node
     
@@ -133,15 +127,15 @@ Map = {
     'VP': SbNP,
     'PP-LOC': PP
 }
-@echo
+#@echo
 def ptb_to_cat(ptb_tag):
     ptb_tag = base_tag(ptb_tag)
-    print ptb_tag
+#print ptb_tag
     ptb_tag = Map.get(ptb_tag, AtomicCategory(ptb_tag))
         
     return copy(ptb_tag)
     
-@echo
+#@echo
 def label(node):
     '''
     Labels the descendants of _node_ and returns _node_.
@@ -183,7 +177,7 @@ def label(node):
 
     else:
         return label_adjunction(node)
-#    print node
+#print node
 
 def label_root(node):
     node.category = ptb_to_cat(node.tag)
