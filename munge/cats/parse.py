@@ -10,7 +10,7 @@ DefaultMode = ALL
 def parse_category(cat_string):
     # Return each mode symbol as a token too when encountered.
     # Important: avoid using mode symbols in atomic category labels.
-    toks = preserving_split(cat_string, "(\\/)[]" + ComplexCategory.mode_symbols)
+    toks = preserving_split(cat_string, "(\\/)[]")# + ComplexCategory.mode_symbols)
 
     result = parse_compound(toks)
     ensure_stream_exhausted(toks, 'cats.parse_category')

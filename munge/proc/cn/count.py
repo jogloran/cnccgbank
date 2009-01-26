@@ -24,7 +24,8 @@ def is_predication(node):
     return node.tag.startswith('IP') and PredicationRegex.match(kid_tags)
 
 def is_apposition(node):
-    return node.tag.startswith('NP') and last_nonpunct_kid(node).tag.startswith('NP') and node[0].tag.endswith('-APP')
+#    return node.tag.startswith('NP') and last_nonpunct_kid(node).tag.startswith('NP') and node[0].tag.endswith('-APP')
+    return node.tag.startswith('NP') and any(kid.tag.endswith('-APP') for kid in node)
     
 FunctionTags = 'ADV TPC TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
 
@@ -48,14 +49,21 @@ def is_coordination(node):
     kid_tags = ' '.join(kid.tag for kid in node)
     return CoordinationRegex.match(kid_tags)
     
-
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
+    
+#def is_np_
+    
+def is_vp_internal_structure(node):
+    return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
     
 class TagStructures(Filter):
     def __init__(self, outdir):
         Filter.__init__(self)
         self.outdir = outdir
+        
+    def is_postverbal_adjunct_tag(self, tag):
+        return tag.startswith('AS') or tag.startswith('DER')
         
     def accept_derivation(self, bundle):
         for node in nodes(bundle.derivation):
@@ -79,26 +87,28 @@ class TagStructures(Filter):
                 elif is_internal_structure(node):
                     pass
 
-                elif node[0].is_leaf(): # head initial complementation
+                elif node[0].is_leaf() or is_vp_internal_structure(node[0]): # head initial complementation
                     node[0].tag += ':h'
                     for kid in node[1:node.count()]:
-                        if kid.tag.startswith('AS'):
+                        if self.is_postverbal_adjunct_tag(kid.tag):
                             kid.tag += ':a' # treat aspect particles as adjuncts
                         elif not kid.tag.startswith('PU'):
                             kid.tag += ':r'
 
-                elif last_kid.is_leaf(): # head final complementation
+                elif last_kid.is_leaf() or is_vp_internal_structure(last_kid): # head final complementation
                     last_kid.tag += ':h'
                     for kid in node[0:node.count()-1]:
-                        if kid.tag.startswith('AS'):
+                        if self.is_postverbal_adjunct_tag(kid.tag):
                             kid.tag += ':a' # treat aspect particles as adjuncts
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             kid.tag += ':l'
 
                 elif is_apposition(node):
                     for kid in node:
-                        if not kid.tag.startswith('PU'):
+                        if kid.tag.endswith('-APP'): #not kid.tag.startswith('PU'):
                             kid.tag += ':A'
+                        else:
+                            kid.tag += ':a'
 
                 elif is_modification(node):
                     last_kid.tag += ':h'

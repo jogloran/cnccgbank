@@ -12,6 +12,9 @@ class AtomicCategory(object):
     def __init__(self, cat, features=None):
         self.cat = cat
         self.features = features or []
+        
+    def __hash__(self):
+        return hash(repr(self))
 
     def feature_repr(self):
         '''Returns the concatenation of each feature in this category's feature set.'''
@@ -91,6 +94,9 @@ class ComplexCategory(object):
             return ComplexCategory.mode_symbols[mode_index]
         except (IndexError, TypeError):
             raise CatParseException('Invalid mode index %s.' % mode_index)
+            
+    def __hash__(self):
+        return hash(repr(self))
 
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         self.left, self.direction, self.right = left, direction, right
@@ -113,7 +119,7 @@ class ComplexCategory(object):
     def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category.'''
         # ensure that we display (X/Y)[f] and not X/Y[f]
-        if self.features: first = True
+        if self.features: first = False
         
         return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",

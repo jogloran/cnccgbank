@@ -2,6 +2,7 @@
 from munge.lex.lex import preserving_split
 from munge.util.exceptions import PennParseException
 from munge.util.parse_utils import with_parens, shift_and_check, ensure_stream_exhausted
+from munge.cats.parse import parse_category
 import nodes as N
 import aug_nodes as A
     
@@ -18,6 +19,7 @@ class PennParser(object):
     def read_deriv(self, toks, parent=None):
         def body(toks):
             tag = toks.next()
+            lex = None
         
             kids = []
 
@@ -48,7 +50,7 @@ class AugmentedPennParser(PennParser):
             category = None
             if toks.peek() == '{':        
                 toks.next()
-                category = toks.next()
+                category = parse_category(toks.next())
                 shift_and_check( '}', toks )
         
             kids = []

@@ -2,7 +2,14 @@ from __future__ import with_statement
 
 from munge.trees.traverse import nodes
 from munge.penn.io import parse_tree
-from munge.penn.nodes import Node, Leaf
+# 
+# import munge.penn.aug_nodes as A
+# def Node(tag, kids, parent=None):
+#     return A.Node(None, tag, kids, parent)
+# def Leaf(tag, lex, parent=None):
+#     return A.Leaf(none, tag, lex, parent)
+#     
+from munge.penn.nodes import Leaf, Node
 from munge.trees.pprint import pprint
 
 from munge.proc.filter import Filter
@@ -10,18 +17,23 @@ import sys, re, os
 
 from apps.identify_lrhca import *
 
-def label_adjunction(node):
+#@echo
+def label_adjunction(node, inherit_tag=False):
+    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+
     kids = map(label_node, node.kids)
     last_kid, second_last_kid = kids.pop(), kids.pop()
 
-    cur = Node(node.tag, [second_last_kid, last_kid])
+    cur = Node(kid_tag, [second_last_kid, last_kid])
 
     while kids:
         kid = kids.pop()
-        cur = Node(node.tag, [kid, cur])
+        cur = Node(kid_tag, [kid, cur])
  
+    cur.tag = node.tag
     return cur
     
+#@echo
 def label_coordination(node):
     def label_nonconjunctions(kid):
         if kid.tag not in ('CC', 'PU'): 
@@ -31,6 +43,7 @@ def label_coordination(node):
     kids = map(label_nonconjunctions, node.kids)
     return label_adjunction(Node(node.tag, kids))
 
+#@echo
 def label_head_initial(node):
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = kids.pop(), kids.pop()
@@ -43,17 +56,50 @@ def label_head_initial(node):
     
     return cur
 
+#@echo
 def label_head_final(node):
     return label_adjunction(node)
-
-def label_predication(node):
-#    return Node(node.tag, map(label_node, node.kids))
-    return label_adjunction(node)
     
+#@echo
+def is_left_punct_absorption(l):
+    return l.is_leaf() and l.tag == 'PU'
+
+#@echo
+def label_predication(node, inherit_tag=False):
+    kids = map(label_node, node.kids)
+    last_kid, second_last_kid = kids.pop(), kids.pop()
+    
+    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+
+    # TODO: think of a better and more general way of doing this
+    if is_left_punct_absorption(second_last_kid):
+        initial_tag = 'VP'
+    else:
+        initial_tag = kid_tag
+        
+    cur = Node(initial_tag, [second_last_kid, last_kid])
+
+    while kids:
+        kid = kids.pop()
+        cur = Node(kid_tag, [kid, cur])
+ 
+    cur.tag = node.tag
+    return cur
+    
+#@echo
 def label_root(node):
     final_punctuation_stk = []
+    
+    if all(kid.tag.startswith('PU') for kid in node):
+        # Weird derivation (5:0(21)):
+        # ((FRAG (PU --) (PU --) (PU --) (PU --) (PU --) (PU -)))
+        return label_adjunction(node)
+    
     while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
         final_punctuation_stk.append( node.kids.pop() )
+        
+
+        if not node.kids: return result 
         
     result = label_node(node)
     tag = result.tag
@@ -63,6 +109,7 @@ def label_root(node):
         
     return result
     
+#@echo
 def label_node(node):
     if node.is_leaf(): return node
     elif node.count() == 1: 
