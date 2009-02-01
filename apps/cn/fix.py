@@ -17,10 +17,12 @@ class Fix(Filter, OutputDerivation):
         
     def accept_derivation(self, bundle):
         pattern = self.pattern()
-        if getattr(pattern, "__getitem__"):            
+        if isinstance(pattern, dict):
             multi_tgrep(bundle.derivation, pattern)
-        else:
+        elif isinstance(pattern, basestring):
             for match_node in tgrep(bundle.derivation, pattern):
-                self.fix(node)
-        
+                self.fix(match_node)
+        else:
+            raise TypeError('Pattern must be a { pattern: callback } dictionary or a pattern string.')
+            
         self.write_derivation(bundle)
