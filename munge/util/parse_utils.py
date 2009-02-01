@@ -18,6 +18,8 @@ def with_braces(func, toks):
     return with_paired_delimiters(func, toks, '{}')
 
 def with_paired_delimiters(func, toks, pair):
+    assert len(pair) == 2
+    
     shift_and_check( pair[0], toks )
     value = func(toks)
     shift_and_check( pair[1], toks )

@@ -13,10 +13,10 @@ class Node(object):
     def cat(self):
         return self.tag
 
-    def __repr__(self, first=True):
+    def __repr__(self, first=True, suppress_lex=False):
         return "%s(%s %s)%s" % ("(" if first else "", 
                                 self.tag, 
-                                ' '.join(kid.__repr__(False) for kid in self.kids), 
+                                ' '.join(kid.__repr__(False, suppress_lex) for kid in self.kids), 
                                 ")" if first else "")
 
     def __iter__(self):
@@ -56,10 +56,10 @@ class Leaf(object):
     def cat(self):
         return self.tag
 
-    def __repr__(self, first=True):
-        return ("%s(%s %s)%s" %
+    def __repr__(self, first=True, suppress_lex=False):
+        return ("%s(%s%s)%s" %
             ("(" if first else '',
-            self.tag, self.lex,
+            self.tag, '' if suppress_lex else (' ' + self.lex),
             ")" if first else ''))
             
     def __iter__(self): raise StopIteration

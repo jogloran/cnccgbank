@@ -59,9 +59,9 @@ def multi_tgrep(deriv, query_callback_map):
     
     queries = [yacc.parse(expression) for expression in query_callback_map.keys()]
     for node in nodes(deriv):
-        for query in queries:
-            if query.is_satisfied_by(node):
-                query_callback_map[query](node)
+        for query_expr, query_str in zip(queries, query_callback_map.keys()):
+            if query_expr.is_satisfied_by(node):
+                query_callback_map[query_str](node)
     
 find_all = tgrep
 find_first = lambda deriv, expr: take(find_all(deriv, expr), 1)
@@ -123,6 +123,10 @@ class Tgrep(TgrepCore):
                 print "(%s %s -> %s)" % (match_node.lch.cat, match_node.rch.cat, match_node.cat)
             else:
                 print "(%s -> %s)" % (match_node.lch.cat, match_node.cat)
+                
+    def show_tags(match_node, bundle):
+        print bundle.label(),
+        print match_node.__repr__(suppress_lex=True)
 
     FIND_FIRST, FIND_ALL = range(2)
     find_functions = {
@@ -130,7 +134,8 @@ class Tgrep(TgrepCore):
         FIND_ALL:   find_all
     }
 
-    SHOW_NODE, SHOW_PP_NODE, SHOW_TOKENS, SHOW_LABEL, SHOW_TREE, SHOW_PP_TREE, SHOW_RULE = range(7)
+    SHOW_NODE, SHOW_PP_NODE, SHOW_TOKENS, SHOW_LABEL, \
+    SHOW_TREE, SHOW_PP_TREE, SHOW_RULE, SHOW_TAGS = range(8)
     match_callbacks = {
         SHOW_NODE: show_node,
         SHOW_PP_NODE: show_pp_node,
@@ -138,7 +143,8 @@ class Tgrep(TgrepCore):
         SHOW_LABEL: show_label,
         SHOW_TREE: show_tree,
         SHOW_PP_TREE: show_pp_tree,
-        SHOW_RULE: show_rule
+        SHOW_RULE: show_rule,
+        SHOW_TAGS: show_tags
     }
     
     def get_callback_function(self, callback_key, callback_map):

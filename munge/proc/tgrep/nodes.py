@@ -156,7 +156,7 @@ class MatchLex(object):
         return node.lex == self.lex_to_match
         
 class RE(object):
-    '''Matches tree nodes whose category labels satisfy a regex.'''
+    '''Matches tree nodes whose category labels satisfy a regex anchored at the start of the label.'''
     def __init__(self, source):
         self.source = source
         self.regex = re.compile(source)
