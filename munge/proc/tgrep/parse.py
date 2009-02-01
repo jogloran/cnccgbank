@@ -155,6 +155,7 @@ def p_matcher(stk):
             | TILDE ATOM
             | matcher EQUAL ATOM
             | CARET ATOM
+            | CARET QUOTED
     '''
     if len(stk) == 2:
         stk[0] = stk[1]
@@ -164,7 +165,10 @@ def p_matcher(stk):
         elif stk[1] == '~':
             stk[0] = NotAtom(stk[2])
         elif stk[1] == '^':
-            stk[0] = MatchLex(stk[2])
+            if stk[2].startswith('"'):
+                stk[0] = MatchLex(stk[2][1:-1], quoted=True)
+            else:
+                stk[0] = MatchLex(stk[2])
     elif len(stk) == 4:
         stk[0] = StoreAtom(stk[1], stk[3])
     
