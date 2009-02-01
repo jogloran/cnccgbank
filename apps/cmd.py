@@ -21,6 +21,7 @@ from munge.proc.tgrep.tgrep import Tgrep
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.modes.split', 'munge.proc.modes.anno', 'munge.proc.cn.count',
                    'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep', 'apps.binarise']
+DefaultPager = '/usr/bin/less' # pager to use if $PAGER not set
 
 def filter_run_name(filter_name, filter_args):
     '''Produces a human-readable summary of a filter run: the filter name with a list of its arguments
@@ -109,6 +110,7 @@ class Shell(DefaultShell):
         info("Working set is: " + list_preview(self.files))
 
     def get_filter_by_switch(self, switch_name):
+        '''Retrieves the filter object based on its short or long form switch name.'''
         is_option_long_name = switch_name.startswith('--')
 
         for filter in self.tracer.available_filters_dict.values():
@@ -202,6 +204,9 @@ class Shell(DefaultShell):
         print_output_destination() # report on output destination in any case
 
     def redirecting_stdout(self, action, filter_name, filter_args):
+        '''Calls the given _action_ with stdout temporarily redirected to _self.output_file_ or
+a pager program.'''
+        
         try:
             old_stdout = sys.stdout
             
@@ -247,8 +252,12 @@ class Shell(DefaultShell):
                            dest='show_mode', action='store_const', const='pp_subtree'),
                make_option('-w', '--whole-tree', help='Print whole tree on match (not just matching subtrees).',
                            dest='show_mode', action='store_const', const='whole_tree'),
-               make_option('-W', '--pp-whole-tree', help='Pretty print whole tree on match (not just matching subtrees).',
+               make_option('-W', '--pp-whole-tree', help='Pretty print whole tree on match (not just matching subtrees).',                         
                            dest='show_mode', action='store_const', const='pp_whole_tree'),
+                           
+               make_option('-T', '--tags', help='Print tree tags.',
+                           dest='show_mode', action='store_const', const='tags'),
+                           
                make_option('-l', '--label', help='Print labels of matching trees.',
                            dest='show_mode', action='store_const', const='label'),
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
@@ -271,7 +280,8 @@ class Shell(DefaultShell):
             'pp_whole_tree': Tgrep.SHOW_PP_TREE,
             'label':      Tgrep.SHOW_LABEL,
             'tokens':     Tgrep.SHOW_TOKENS,
-            'rule':       Tgrep.SHOW_RULE
+            'rule':       Tgrep.SHOW_RULE,
+            'tags':       Tgrep.SHOW_TAGS
         }[opts.show_mode]
         find_mode = {
             'all':        Tgrep.FIND_ALL,
@@ -346,8 +356,8 @@ def run_file(option, opt_string, value, parser, *args, **kwargs):
 def register_builtin_switches(parser):
     parser.add_option('-F', '--file-script', help='Reads and invokes cmd.py commands from a file, then terminates. Ignores input files given on the command line.', 
                       type='string', nargs=1, action='callback', callback=run_file)
-    parser.add_option('-p', '--pager', help='Feeds filter output through the specified pager (default: /usr/bin/less).',
-                      type='string', nargs=1, default='/usr/bin/less', dest='pager_path')
+    parser.add_option('-p', '--pager', help='Feeds filter output through the specified pager (default: $PAGER or %s).'% DefaultPager,
+                      type='string', nargs=1, default=(os.getenv('PAGER') or DefaultPager), dest='pager_path')
     parser.add_option('--no-pager', help='Filter output is redirected to stdout and not a pager.', action='store_const', dest='pager_path', const=None)
     parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
                       action='store_true', dest='verbose', default=False)
