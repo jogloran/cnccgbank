@@ -46,7 +46,9 @@ def label_coordination(node):
     return label_adjunction(Node(node.tag, kids))
 
 #@echo
-def label_head_initial(node):
+def label_head_initial(node):#, inherit_tag=False):
+#    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+    
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = kids.pop(), kids.pop()
 
@@ -100,7 +102,6 @@ def label_root(node):
     while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
         final_punctuation_stk.append( node.kids.pop() )
         
-
         if not node.kids: return result 
         
     result = label_node(node)

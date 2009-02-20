@@ -1,27 +1,61 @@
 from munge.trees.traverse import nodes
 from munge.util.deco_utils import cast_to
+from munge.trees.traverse import get_index_of_leaf, get_leaf, leaves
+from itertools import islice
 
 def IsParentOf(candidate, node, context):
     if node.is_leaf(): return False
     return any(candidate.is_satisfied_by(child, context) for child in node)
 
+# A << B => B is a node under A
+# node <- A
+# ask: out of all nodes under A, does 'candidate' match any of them?
 def Dominates(candidate, node, context):
+    if node.is_leaf(): return False
     return any(candidate.is_satisfied_by(internal_node, context) for internal_node in nodes(node))
 
 def IsChildOf(candidate, node, context):
     if node.parent is None: return False
-
     return candidate.is_satisfied_by(node.parent, context)
 
 def IsDominatedBy(candidate, node, context):
-    pass
+    if node.parent is None: return False
+#    return any(internal_node.is_satisfied_by(candidate, context) for internal_node in nodes(node))
+    
+def get_root(node):
+    while node.parent: node = node.parent
+    return node
 
 def ImmediatelyPrecedes(candidate, node, context):
-    pass
+    if not node.is_leaf(): return False
+    
+    # does a node which matches 'candidate' occur immediately before _node_?
+    root = get_root(node)
+    
+    node_index = get_index_of_leaf(root, node)
+    
+    successor = get_leaf(root, node_index+1)
+    if not successor: return False
+    if candidate.is_satisfied_by(successor, context): return True
+    
+    return False
 
+# A . B => B comes after A
+# node <- A
+# out of all nodes after A, is B one of them?
 def Precedes(candidate, node, context):
-    pass
-
+    if not node.is_leaf(): return False
+    
+    root = get_root(node)
+    
+    node_index = get_index_of_leaf(root, node)
+    
+    for successor in islice(leaves(root), node_index+1):
+        if candidate.is_satisfied_by(successor, context): 
+            return True
+            
+    return False
+    
 def IsSiblingOf(candidate, node, context):
     if node.parent is None: return False
     

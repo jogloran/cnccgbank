@@ -5,4 +5,9 @@ class PennParseException(DocParseException): pass
 class CCGbankParseException(DocParseException): pass
 class CatParseException(DocParseException): pass
 
-class FilterException(Exception): pass
+class FilterException(Exception):
+    def __init__(self, inner, context, msg=''):
+        Exception.__init__(self)
+        self.inner = inner
+        self.context = context
+        self.msg = msg

@@ -6,17 +6,26 @@ from munge.util.dict_utils import sorted_by_value_desc
 import os, re
 
 def last_nonpunct_kid(node):
-    if node.is_leaf(): return None
+    kid, index = get_nonpunct_kid(node)
+    return kid
     
-    for kid in node.kids[::-1]:
-        if not kid.tag.startswith('PU'): return kid
+def get_nonpunct_kid(node, get_last=True):
+    if node.is_leaf(): return None, None
+    
+    if get_last:
+        for i, kid in enumerate(node.kids[::-1]):
+            if not kid.tag.startswith('PU'): return kid, node.count() - i - 1
+    else:
+        for i, kid in enumerate(node.kids):
+            if not kid.tag.startswith('PU'): return kid, i
         
-    return None
+    return None, None
 
 PredicationRegex = re.compile(r'''
     (?:\w+)?
     (\s+\w+\s*)* # adjuncts
     [\w-]+-SBJ\s+ # grammatical subject
+    (?:PU\s+)?
     VP # predicate
 ''', re.VERBOSE)
 def is_predication(node):
@@ -42,20 +51,29 @@ def has_modification_tag(node):
         if function_tag in FunctionTags: return True
     return False
     
-CoordinationRegex = re.compile(r'(?:(?:PU|CC)?\s*)+([\w:]+)(?: (?:(?:PU|CC)?\s*)+\1)+')
+# coordination is
+# (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
+CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*([\w:]+)(?: (?:(?:PU|CC) )+\1)+')
 
 def is_coordination(node):
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
     kid_tags = ' '.join(kid.tag for kid in node)
-    return CoordinationRegex.match(kid_tags)
+#    return CoordinationRegex.match(kid_tags)
+    return CoordinationRegex.search(kid_tags)
     
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
     
-#def is_np_
+def is_np_internal_structure(node):
+    return node.tag.startswith('NP') and node.count() > 1 and (
+        all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in node))
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
+    
+def is_lcp_internal_structure(node):
+    if not node.count() == 2: return False
+    return node[0].tag == 'NP' and node[1].tag == 'LC'
     
 class TagStructures(Filter):
     def __init__(self, outdir):
@@ -68,7 +86,8 @@ class TagStructures(Filter):
     def accept_derivation(self, bundle):
         for node in nodes(bundle.derivation):
             if not node.is_leaf():
-                last_kid = last_nonpunct_kid(node)
+                first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
+                last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
                 
                 if is_predication(node):
                     for kid in node:
@@ -84,24 +103,54 @@ class TagStructures(Filter):
                         if kid.tag not in ('CC', 'PU'):
                             kid.tag += ':c'
 
+                elif is_np_internal_structure(node):
+                    first = True
+                    for kid in reversed(node.kids):
+                        if kid.tag not in ('CC', 'PU'):
+                            if first:
+                                kid.tag += ':N'
+                                first = False
+                            else:
+                                kid.tag += ':n'
+                                
+#                    for kid in node[0:node.count()-1]:
+#                        if kid.tag not in ('CC', 'PU'):
+#                            kid.tag += ':n'
+#                    node[node.count()-1].tag += ':N'
+
                 elif is_internal_structure(node):
                     pass
 
-                elif node[0].is_leaf() or is_vp_internal_structure(node[0]): # head initial complementation
-                    node[0].tag += ':h'
+                elif first_kid.is_leaf() or is_vp_internal_structure(first_kid): # head initial complementation
+                    first_kid.tag += ':h'
                     for kid in node[1:node.count()]:
                         if self.is_postverbal_adjunct_tag(kid.tag):
                             kid.tag += ':a' # treat aspect particles as adjuncts
-                        elif not kid.tag.startswith('PU'):
+                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             kid.tag += ':r'
 
-                elif last_kid.is_leaf() or is_vp_internal_structure(last_kid): # head final complementation
+                # head final complementation
+                elif (last_kid.is_leaf() or 
+                      is_vp_internal_structure(last_kid) or
+                      # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
+                      # this should be treated as head-final complementation, not adjunction.
+                      is_lcp_internal_structure(last_kid)):
                     last_kid.tag += ':h'
-                    for kid in node[0:node.count()-1]:
-                        if self.is_postverbal_adjunct_tag(kid.tag):
-                            kid.tag += ':a' # treat aspect particles as adjuncts
-                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                            kid.tag += ':l'
+                    
+                    # cf 2:23(7), a number of derivations have (CP (WHNP-1 CP DEC)) instead of
+                    # the expected (CP (WHNP-1) (CP DEC))
+                    # This lets us treat what would otherwise be considered head-final as an
+                    # adjunction
+                    if last_kid.tag.startswith('DEC'):
+                        for kid in node[0:node.count()-1]:
+                            if kid.tag.startswith('WHNP'): kid.tag += ':a'
+                            else: kid.tag += ':l'
+                    else:
+                        for kid in node[0:node.count()-1]:
+                            if self.is_postverbal_adjunct_tag(kid.tag):
+                                kid.tag += ':a' # treat aspect particles as adjuncts
+                            elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                                kid.tag += ':l'
 
                 elif is_apposition(node):
                     for kid in node:
@@ -122,6 +171,7 @@ class TagStructures(Filter):
 
                 else: # adjunction
                     last_kid.tag += ':h'
+
                     for kid in node[0:node.count()-1]:
                         if not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             kid.tag += ':a'

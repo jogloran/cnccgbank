@@ -6,11 +6,11 @@ class Node(N.Node):
         N.Node.__init__(self, tag, kids, parent)
         self.category = category
         
-    def __repr__(self, first=True):
+    def __repr__(self, first=True, suppress_lex=False):
         return "%s(%s {%s} %s)%s" % ("(" if first else "",                      
                                 self.tag,
                                 self.category, 
-                                ' '.join(kid.__repr__(False) for kid in self.kids), 
+                                ' '.join(kid.__repr__(False, suppress_lex) for kid in self.kids), 
                                 ")" if first else "")
                                 
     def label_text(self):
@@ -21,10 +21,10 @@ class Leaf(N.Leaf):
         N.Leaf.__init__(self, tag, lex, parent)
         self.category = category
         
-    def __repr__(self, first=True):
+    def __repr__(self, first=True, suppress_lex=False):
         return ("%s(%s {%s} %s)%s" %
             ("(" if first else '',
-            self.tag, self.category, self.lex,
+            self.tag, self.category, '' if suppress_lex else self.lex,
             ")" if first else ''))
             
     def label_text(self):

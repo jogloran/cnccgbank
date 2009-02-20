@@ -3,7 +3,7 @@ from munge.proc.tgrep.tgrep import tgrep, find_first
 from munge.penn.aug_nodes import Node
 from apps.cn.output import OutputDerivation
 from apps.cn.fix import Fix
-from munge.trees.pprint import pprint
+from munge.trees.pprint import pprint, aug_node_repr
 from munge.util.tgrep_utils import get_first
 from munge.cats.cat_defs import *
 
@@ -31,6 +31,7 @@ class FixExtraction(Fix):
         node[0] = typeraised_node
         
     def fcomp_children(self, node):
+        print pprint(node, node_repr=aug_node_repr)
         print node[0].category, ",", node[1].category
         return node[0].category.left / node[1].category.right
         
@@ -39,10 +40,11 @@ class FixExtraction(Fix):
             node.category = node[1].category
             node = node.parent
             
-        # node == until
+        # node == until or node is root
         node.category = self.fcomp_children(node)
             
     def fix_subject_extraction(self, node):
+        print "Fixing subject extraction: %s" % node
         self.remove_null_element(node)
         
         # Find and remove the trace
@@ -52,6 +54,7 @@ class FixExtraction(Fix):
         self.relabel_relativiser(node)
         
     def fix_object_extraction(self, node):
+        print "Fixing object extraction: %s" % node
         self.remove_null_element(node)
         
         # Find and remove the trace

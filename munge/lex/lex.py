@@ -1,4 +1,4 @@
-#from pressplit import split
+from pressplit import split
 
 class CPressplitIterator(object):
     '''preserving_split implemented in C.'''

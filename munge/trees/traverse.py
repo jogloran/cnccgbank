@@ -73,6 +73,12 @@ def text_in_span(deriv, begin, end):
             yield leaf.lex
         elif cur_index >= end:
             return
+            
+# Assumes that the second argument is a leaf.
+def get_index_of_leaf(deriv, leaf):
+    for candidate_leaf, cur_index in izip(leaves(deriv), count()):
+        if leaf is candidate_leaf: return cur_index
+    return None
 
 def get_leaf(derivation, token_index, direction="forwards"):
     '''Retrieves the nth leaf under this node, either counting from the leftmost or rightmost

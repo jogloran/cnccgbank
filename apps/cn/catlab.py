@@ -2,6 +2,7 @@ from __future__ import with_statement
 from copy import copy
 from munge.proc.filter import Filter
 from apps.cn.output import OutputDerivation
+from munge.util.err_utils import warn
 import os
 
 #from echo import *
@@ -82,9 +83,8 @@ def label_coordination(node):
     node.kids[0] = label(node[0])
 
     node[1].category = node.category
-    node.kids[1] = label(node[1])
-    
-#    node[1].category = node.category.clone().add_feature('conj')
+    node.kids[1] = label(node[1])    
+    node[1].category = node.category.clone().add_feature('conj')
 
     return node
     
@@ -93,7 +93,7 @@ def label_partial_coordination(node):
     node[0].category = ptb_to_cat(node[0].tag)
     node.kids[0] = label(node[0])
 
-#    node[1].category = node.category.clone().add_feature('conj')    
+#    node[1].category = node.category.clone().add_feature('conj')
     node[1].category = node.category
     node.kids[1] = label(node[1])
     
@@ -131,6 +131,25 @@ def ptb_to_cat(ptb_tag):
         
     return copy(ptb_tag)
     
+def label_verb_compound(node):
+    node[0].category = 'conj' if node[0].tag == 'CC' else node.category
+    node[1].category = 'conj' if node[1].tag == 'CC' else node.category
+    
+    if node[0].tag == 'CC':
+        node[0].category = 'CC'
+        node[1].category = node.category
+    elif node[1].tag == 'CC':
+        node[1].category = 'CC'
+        node[0].category = node.category
+    else:
+        node[0].category = node.category
+        node[1].category = node.category | node.category
+    
+    node.kids[0] = label(node[0])
+    node.kids[1] = label(node[1])
+    
+    return node
+    
 #@echo
 def label(node):
     '''
@@ -149,7 +168,21 @@ def label(node):
             node.category = ptb_to_cat(node.tag)
         return node
         
-    elif is_np_internal_structure(node) or is_apposition(node): 
+    elif is_np_internal_structure(node):
+        if not node.category:
+            node.category = ptb_to_cat(node.tag)
+            
+        for kid in node:
+            if kid.tag.endswith(':N'):
+                kid.category = NP
+            elif kid.tag.endswith(':n'):
+                kid.category = C('NP/NP')
+            else:
+                kid.category = ptb_to_cat(kid.tag)
+            
+        return node
+    
+    elif is_apposition(node):
         if not node.category:
             node.category = ptb_to_cat(node.tag)
 
@@ -165,6 +198,10 @@ def label(node):
         node.kids[0] = label(node[0])
         return node
         
+    elif is_verb_compound(node):
+        node.category = node.parent.category # VP < VRD, ...
+        return label_verb_compound(node)
+        
     elif is_left_absorption(node):
         return label_left_absorption(node)
     elif is_right_absorption(node):
@@ -176,18 +213,20 @@ def label(node):
         return label_right_adjunction(node)
     elif is_partial_coordination(node):
         return label_partial_coordination(node)
-    elif is_coordination(node):
-        return label_coordination(node)
+
     elif is_adjunction(node):
         return label_adjunction(node)
-        
                 
     elif is_head_final(node):
         return label_head_final(node)
     elif is_head_initial(node):
         return label_head_initial(node)
+        
+    elif is_coordination(node):
+        return label_coordination(node)    
 
     else:
+        warn("Node did not match any known patterns -- assuming adjunction: %s", node.__repr__(suppress_lex=True))
         return label_adjunction(node)
 
 def label_root(node):

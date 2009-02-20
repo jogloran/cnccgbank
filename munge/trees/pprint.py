@@ -6,9 +6,19 @@ def intersperse(l, spacer=", "):
     return l
     
 def default_node_repr(node):
-    return "(%s %s)" % (node.tag, node.lex)
+    if node.is_leaf():
+        return "%s %s" % (node.tag, node.lex)
+    else:
+        return "%s" % node.tag
+    
+def aug_node_repr(node):
+    if node.is_leaf():
+        return "%s {%s} %s" % (node.tag, node.category, node.lex)
+    else:
+        return "%s {%s}" % (node.tag, node.category)
 
-def pprint(node, level=0, sep='   ', newline='\n', node_repr=default_node_repr):
+LeafCompressThreshold = 3
+def pprint(node, level=0, sep='   ', newline='\n', node_repr=default_node_repr, reduced_leaves=False):
     out = []
     if level == 0: 
         out.append('(')
@@ -16,11 +26,20 @@ def pprint(node, level=0, sep='   ', newline='\n', node_repr=default_node_repr):
         out.append( sep * level )
     
     if node.is_leaf():
-        out.append(node_repr(node))
+        if reduced_leaves:
+            out.append(node_repr(node))
+        else:
+            out.append("(%s)" % node_repr(node))
     else:
-        out.append( "(%s%s" % (node.tag, newline) )
-        out += intersperse([pprint(child, level+1, sep, newline, node_repr) for child in node], newline)
-        out.append( ")" )
+        # special case for nodes with all-leaf children
+        if node.count() <= LeafCompressThreshold and all(kid.is_leaf() for kid in node):
+            out.append( "(%s %s)" % 
+                (node_repr(node), 
+                ' '.join([pprint(child, 0, sep, '', node_repr, reduced_leaves=True) for child in node])) )
+        else:
+            out.append( "(%s%s" % (node_repr(node), newline) )
+            out += intersperse([pprint(child, level+1, sep, newline, node_repr) for child in node], newline)
+            out.append( ")" )
 
     if level == 0: 
         out.append(')')

@@ -1,3 +1,5 @@
+import sys
+
 from itertools import izip, count
 
 from munge.io.guess import GuessReader
@@ -9,7 +11,8 @@ from munge.cats.paths import applications_per_slash
 from munge.proc.dynload import (get_available_filters_dict,
                                 load_requested_packages,
                                 get_argcount_for_method)
-from munge.util.err_utils import warn, info, err
+from munge.util.err_utils import warn, info, err, muzzle
+from munge.util.exceptions import FilterException
 
 class TraceCore(object):
     '''Implements filter loading functionality and the document processing loop.'''
@@ -17,8 +20,16 @@ class TraceCore(object):
         self.loaded_modules = set(load_requested_packages(libraries))
         self.update_available_filters_dict()
         
-        self.verbose = verbose
+        self.set_verbose(verbose)
         self.reader_class_name = reader_class_name
+        
+        self.last_exception = None
+        
+    def get_verbose(self): return self._verbose
+    def set_verbose(self, v):
+        self._verbose = v
+        muzzle(quiet=not self._verbose)
+    verbose = property(get_verbose, set_verbose)
 
     def __getitem__(self, key):
         return self.available_filters_dict.get(key, None)
@@ -97,24 +108,35 @@ class TraceCore(object):
                 err("Reader class %s not found.", self.reader_class_name)
         
         for file in files:
-            if self.verbose: info("Processing %s...", file)
-            for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose, reader_class=reader_class):
-                for filter in filters:
-                    filter.context = derivation_bundle
+            try:
+                if self.verbose: info("Processing %s...", file)
+                for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose, reader_class=reader_class):
+                    try:
+                        for filter in filters:
+                            filter.context = derivation_bundle
 
-                for leaf in leaves(derivation_bundle.derivation):
-                    for filter in filters:
-                        filter.accept_leaf(leaf)
+                        for leaf in leaves(derivation_bundle.derivation):
+                            for filter in filters:
+                                filter.accept_leaf(leaf)
 
-                        try:
-                            for comb, slash_index in izip(applications_per_slash(leaf), count()):
-                                filter.accept_comb_and_slash_index(leaf, comb, slash_index)
-                        except AttributeError: # TODO: hacky and inefficient, need this to work for PTB too
-                            pass
+                                try:
+                                    for comb, slash_index in izip(applications_per_slash(leaf), count()):
+                                        filter.accept_comb_and_slash_index(leaf, comb, slash_index)
+                                except AttributeError: # TODO: hacky and inefficient, need this to work for PTB too
+                                    pass
 
-                for filter in filters:
-                    filter.accept_derivation(derivation_bundle)
-                    filter.context = None
+                        for filter in filters:
+                            filter.accept_derivation(derivation_bundle)
+                            filter.context = None
+                            
+                    except Exception, e:
+                        self.last_exception = sys.exc_info()
+                        raise FilterException(e, derivation_bundle)
+                        
+            except FilterException, e:
+                err("Processing failed on derivation %s of file %s:", e.context.label(), file)
+                if self.last_exception:
+                    sys.excepthook(*self.last_exception)
 
         for filter in filters:
             filter.output()

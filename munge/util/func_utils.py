@@ -10,3 +10,5 @@ def compose(*fs):
     while fs:
         result = compose2(fs.pop(), result)
     return result
+
+noop_function = lambda *args, **kwargs: None

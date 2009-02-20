@@ -7,12 +7,23 @@ from munge.trees.traverse import leaves
 def base_tag(tag):
     if re.match(r'-.+-$', tag): return tag
     
-    #print "base_tag: %s ->" % tag,
     tag = re.sub(r':.+$', '', tag)
     tag = re.sub(r'-.+$', '', tag)
     
-    #print tag
     return tag
+    
+VerbalCategories = ('VV', 'VA', 'VC', 'VE')
+    
+def is_verb_compound(node):
+    return all((has_verbal_tag(kid) or kid.tag == 'CC') for kid in leaves(node))
+    
+def has_verbal_tag(node):
+    return any(node.tag.startswith(cand) for cand in VerbalCategories)
+    
+NominalCategories = ('NN', 'NR', 'NT')
+
+def has_noun_tag(node):
+    return any(node.tag.startswith(cand) for cand in NominalCategories)
 
 def is_left_absorption(node):
     return node[0].is_leaf() and node[0].tag == 'PU' and base_tag(node[1].tag) == base_tag(node.tag)
@@ -21,8 +32,11 @@ def is_right_absorption(node):
     # TODO: refactor into one method
     return node[1].is_leaf() and node[1].tag == 'PU' and (
         base_tag(node[0].tag) == base_tag(node.tag) or
-        # HACK: special case, it seems VV PU -> VP is attested (31:42(2))
-        node[0].tag.startswith('VV') and node.tag.startswith('VP'))
+        # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
+        #       and VC PU -> VP (3:23(4)).
+        # it seems we get NN PU -> NP as well (10:2(17))
+        (has_verbal_tag(node[0]) and node.tag.startswith('VP')) or
+        (has_noun_tag(node[0]) and node.tag.startswith('NP')) )
 
 def is_np_sbj(node):
     return re.match(r'NP(-\w+)*-SBJ', node.tag) is not None
@@ -41,10 +55,10 @@ def is_predication(node):
 
 def is_head_final(node):
     lnpk = last_nonpunct_kid(node)
-    return lnpk.tag.endswith(':h') if lnpk else False
+    return (lnpk.tag.endswith(':h') or node[0].tag.endswith(':l')) if lnpk else False
 
 def is_head_initial(node):
-    return node[0].tag.endswith(':h')
+    return node[0].tag.endswith(':h') or node[1].tag.endswith(':r')
 
 def is_adjunction(node):
     return node[0].tag.endswith(':a')
@@ -54,15 +68,18 @@ def is_right_adjunction(node):
         
 # conj NP -> NP[conj]
 def is_partial_coordination(node):
-    return node[0].is_leaf() and node[0].tag.startswith('CC') and node[1].tag.endswith(':c')
+    return node[0].is_leaf() and (node[0].tag.startswith('CC') or node[0].tag == 'PU') and node[1].tag.endswith(':c')
 
 def is_coordination(node):
     return node[0].tag.endswith(':c') or node[1].tag.endswith(':c')
     
+# def is_np_internal_structure(node):
+#     return node.tag.startswith('NP') and node.count() > 1 and (
+#         all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in leaves(node)) or 
+#         all(kid.tag.startswith('NP') for kid in node))
+
 def is_np_internal_structure(node):
-    return node.tag.startswith('NP') and node.count() > 1 and (
-        all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in leaves(node)) or 
-        all(kid.tag.startswith('NP') for kid in node))
+    return node.tag.startswith('NP') and all(kid.tag.endswith(':n') or kid.tag.endswith(':N') or kid.tag in ('PU', 'CC') for kid in node)
     
 def is_apposition(node):
     return node[0].tag.endswith(':A')

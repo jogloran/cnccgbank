@@ -22,6 +22,14 @@ class Fix(Filter, OutputDerivation):
         elif isinstance(pattern, basestring):
             for match_node in tgrep(bundle.derivation, pattern):
                 self.fix(match_node)
+        elif isinstance(pattern, function):
+            try:
+                iterator = iter(pattern(bundle.derivation))
+                for match_node in iterator:
+                    self.fix(match_node)
+            except TypeError:
+                raise TypeError('Functions passed as patterns must return an iterable.')
+            
         else:
             raise TypeError('Pattern must be a { pattern: callback } dictionary or a pattern string.')
             
