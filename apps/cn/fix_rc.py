@@ -36,6 +36,9 @@ class FixExtraction(Fix):
         return node[0].category.left / node[1].category.right
         
     def fix_categories_starting_from(self, node, until):
+        node.category = self.fcomp_children(node)
+        node = node.parent
+        
         while (node is not until) and node.parent:
             node.category = node[1].category
             node = node.parent
