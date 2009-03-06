@@ -8,6 +8,7 @@ except ImportError:
 class TgrepException(Exception): pass
 
 import munge.proc.tgrep.parse as parse
+from munge.proc.tgrep.nodes import Context
 from munge.trees.traverse import nodes, leaves
 import munge.trees.pprint as pp
 from munge.util.iter_utils import take
@@ -31,7 +32,7 @@ def initialise():
 # semantically identical expressions with trivial differences such as whitespace
 # will not be considered identical
 expression_cache = {}
-def tgrep(deriv, expression):
+def tgrep(deriv, expression, with_context=False):
     '''Performs the given tgrep query on the given tree.'''
     if not expression: raise RuntimeError('No query expression given.')
 
@@ -50,8 +51,11 @@ def tgrep(deriv, expression):
         expression_cache[expression] = query
     
     for node in nodes(deriv):
-        if query.is_satisfied_by(node):
-            yield node
+        context = Context()
+        if query.is_satisfied_by(node, context):
+            if with_context:
+                yield node, context
+            else: yield node
             
 def multi_tgrep(deriv, query_callback_map):
     if not query_callback_map: raise RuntimeError('No query expressions given.')
@@ -64,7 +68,7 @@ def multi_tgrep(deriv, query_callback_map):
                 query_callback_map[query_str](node)
     
 find_all = tgrep
-find_first = lambda deriv, expr: take(find_all(deriv, expr), 1)
+find_first = lambda *args, **kwargs: take(find_all(*args, **kwargs), 1)
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
@@ -141,6 +145,7 @@ class Tgrep(TgrepCore):
         SHOW_PP_NODE: show_pp_node,
         SHOW_TOKENS: show_tokens,
         SHOW_LABEL: show_label,
+        
         SHOW_TREE: show_tree,
         SHOW_PP_TREE: show_pp_tree,
         SHOW_RULE: show_rule,

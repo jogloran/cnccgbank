@@ -109,8 +109,8 @@ class TraceCore(object):
         
         for file in files:
             try:
-                if self.verbose: info("Processing %s...", file)
                 for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose, reader_class=reader_class):
+                    if self.verbose: info("Processing %s...", derivation_bundle.label())
                     try:
                         for filter in filters:
                             filter.context = derivation_bundle
