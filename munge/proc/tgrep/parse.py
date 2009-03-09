@@ -12,7 +12,7 @@ from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "OP", "REGEX", 
+tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "OP",
           "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET")
 
 precedence = (

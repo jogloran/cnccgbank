@@ -20,8 +20,11 @@ class Fix(Filter, OutputDerivation):
         if isinstance(pattern, dict):
             multi_tgrep(bundle.derivation, pattern)
         elif isinstance(pattern, basestring):
-            for match_node in tgrep(bundle.derivation, pattern):
-                self.fix(match_node)
+            for match_node, context in tgrep(bundle.derivation, pattern, context):
+                if context: # only supply a context if the expression binds variables
+                    self.fix(match_node, context)
+                else:
+                    self.fix(match_node)
         elif isinstance(pattern, function):
             try:
                 iterator = iter(pattern(bundle.derivation))

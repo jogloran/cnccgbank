@@ -14,7 +14,9 @@ class FixExtraction(Fix):
     def pattern(self): 
         return {
             r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-SBJ/ < "-NONE-"}}}}': self.fix_subject_extraction,
-            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-OBJ/ < "-NONE-"}}}}': self.fix_object_extraction
+            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-OBJ/ < "-NONE-"}}}}': self.fix_object_extraction,
+            r'* < { /IP/=P < {/NP-TPC-\d/=T $ /IP/=S }}': self.fix_topicalisation_with_gap,
+            r'* < { /IP/=P < {/NP-TPC:.+/=T $ /IP/=S }}': self.fix_topicalisation_without_gap
         }
     
     def __init__(self, outdir):
@@ -22,6 +24,7 @@ class FixExtraction(Fix):
         
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
+        # XXX: check that we're removing the right nodes
         node[0] = node[0][1]
         
     def relabel_relativiser(self, node):
@@ -69,11 +72,18 @@ class FixExtraction(Fix):
         return r.left / l.right
             
     def fix_categories_starting_from(self, node, until):
+        print "fix from %s" % node
         while node is not until:
             l, r, p = node.parent[0], node.parent[1], node.parent
+            print "np0:%s\nnp1:%s\nn:%s"% (node.parent[0], node.parent[1], node.parent)
+            
             L, R, P = (n.category for n in (l, r, p))
+            print "L:%s\nR:%s\nP:%s"% (L, R, P)
 
-            if analyse(L, R, P) is None:
+            applied_rule = analyse(L, R, P)
+            print "[ %s'%s' %s'%s' -> %s'%s' ] %s" % (L, ''.join(l.text()), R, ''.join(r.text()), P, ''.join(p.text()), applied_rule)
+
+            if applied_rule is None:
                 print "invalid rule %s %s -> %s" % (L, R, P)
                 if L.is_leaf():
                     if L == R.left.right:
@@ -106,6 +116,11 @@ class FixExtraction(Fix):
                     if new_parent_category:
                         print "new parent category: %s" % new_parent_category
                         p.category = new_parent_category
+                        
+            elif (applied_rule == 'bwd_appl' and # implies R is complex
+                  R.left == R.right):
+                print "generalised New category: %s" % (L|L)
+                r.category = L|L                  
             
             node = node.parent
             
@@ -134,14 +149,39 @@ class FixExtraction(Fix):
         
         top, pp, p, t, s = (context[n] for n in "TOP PP P T S".split())
         
-        p.kids.remove(t)
-        self.replace_kid(pp, p, s)
-            
+        self.fix_object_gap(pp, p, t, s)
+        
         self.fix_categories_starting_from(s, until=top)
         
         print "relabel_rel(%s)" % node
         print ''.join(node.text())
         self.relabel_relativiser(node)
+        
+    @staticmethod
+    def fix_object_gap(pp, p, t, s):
+        p.kids.remove(t)
+        FixExtraction.replace_kid(pp, p, s)        
+        
+    def fix_topicalisation_with_gap(self, node, context):
+        print "Fixing topicalisation with gap: %s" % node
+        p, s, t = (context[n] for n in "P S T".split())
+        
+        # create topicalised category
+        self.replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
+        
+        _, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < "-NONE-" $ *=S } } }', with_context=True)
+        print ctx
+        self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
+        
+        self.fix_categories_starting_from(ctx['S'], until=ctx['TOP'])
+        
+    def fix_topicalisation_without_gap(self, node, context):
+        print "HEY!!"
+        print node
+        
+        p, s, t = (context[n] for n in "P S T".split())
+        
+        self.replace_kid(p, t, Node(S/S, t.tag, [t]))
             
     @staticmethod
     def replace_kid(node, old, new):

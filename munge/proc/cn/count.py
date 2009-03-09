@@ -36,7 +36,7 @@ def is_apposition(node):
 #    return node.tag.startswith('NP') and last_nonpunct_kid(node).tag.startswith('NP') and node[0].tag.endswith('-APP')
     return node.tag.startswith('NP') and any(kid.tag.endswith('-APP') for kid in node)
     
-FunctionTags = 'ADV TPC TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
+FunctionTags = 'ADV TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
 
 def is_modification(node):
     if node.tag == last_nonpunct_kid(node).tag:
@@ -112,11 +112,6 @@ class TagStructures(Filter):
                                 first = False
                             else:
                                 kid.tag += ':n'
-                                
-#                    for kid in node[0:node.count()-1]:
-#                        if kid.tag not in ('CC', 'PU'):
-#                            kid.tag += ':n'
-#                    node[node.count()-1].tag += ':N'
 
                 elif is_internal_structure(node):
                     pass
@@ -128,6 +123,16 @@ class TagStructures(Filter):
                             kid.tag += ':a' # treat aspect particles as adjuncts
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             kid.tag += ':r'
+                            
+                # topicalisation WITH gap (NP-TPC-i)
+                elif first_kid.tag.startswith('NP-TPC-'):
+                    first_kid.tag += ':t'
+                    # really, we might want to tag the 'rest of phrase' as if the topicalised constituent
+                    # weren't there
+                    
+                # topicalisation WITHOUT gap (NP-TPC)
+                elif first_kid.tag.startswith('NP-TPC'):
+                    first_kid.tag += ':T'
 
                 # head final complementation
                 elif (last_kid.is_leaf() or 
@@ -160,6 +165,7 @@ class TagStructures(Filter):
                             kid.tag += ':a'
 
                 elif is_modification(node):
+                    print "IS MODIFICATION: %s" % node
                     last_kid.tag += ':h'
                     
                     for kid in node[0:node.count()-1]:
@@ -168,12 +174,34 @@ class TagStructures(Filter):
                                 kid.tag += ':m'
                             elif not kid.tag.startswith('PU'):
                                 kid.tag += ':a'
+                                
+                            # XXX: this code is duplicated from above
+                            # topicalisation WITH gap (NP-TPC-i)
+                            elif kid.tag.startswith('NP-TPC-'):
+                                kid.tag += ':t'
+
+                            # topicalisation WITHOUT gap (NP-TPC)
+                            elif kid.tag.startswith('NP-TPC'):
+                                kid.tag += ':T'
 
                 else: # adjunction
                     last_kid.tag += ':h'
 
                     for kid in node[0:node.count()-1]:
-                        if not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+#                        print kid.tag
+#                        print kid.tag.startswith('NP-TPC')
+
+                            
+                        # XXX: this code is duplicated from above
+                        # topicalisation WITH gap (NP-TPC-i)
+                        if kid.tag.startswith('NP-TPC-'):
+                            kid.tag += ':t'
+
+                        # topicalisation WITHOUT gap (NP-TPC)
+                        elif kid.tag.startswith('NP-TPC'):
+                            kid.tag += ':T'
+                            
+                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             kid.tag += ':a'
 
         self.write_derivation(bundle)

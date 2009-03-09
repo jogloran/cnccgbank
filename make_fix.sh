@@ -10,6 +10,6 @@ function do_fix {
 }
 
 paths=$@
-do_fix rc FixExtraction $paths 2> rc_errors
+do_fix rc FixExtraction $paths #2> rc_errors
 #do_fix prodrop FixProDrop fixed_rc/*
 #do_fix adverbs FixAdverbs fixed_prodrop/*

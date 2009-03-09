@@ -86,3 +86,9 @@ def is_apposition(node):
     
 def is_modification(node):
     return node[0].tag.endswith(':m')
+
+def is_topicalisation(node):
+    return node[0].tag.endswith(':t')
+    
+def is_topicalisation_without_gap(node):
+    return node[0].tag.endswith(':T')

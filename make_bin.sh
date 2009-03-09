@@ -2,15 +2,26 @@
 
 if [[ $1 == "all" ]]; then
     SECTION=""
-else
+    TARGET="*"
+elif [[ $1 =~ ^[0-9]{2}$ ]]; then
     SECTION=${1:-00}
+    TARGET="chtb_${SECTION}*"
+elif [ -f $1 ]; then
+    echo $1
+    echo basename $1
+    TARGET=`basename $1`
+else
+    echo Invalid argument.
+    exit 1
 fi
 
+echo "$TARGET"
+
 # Tag derivations
-rm -rf ./tagged/chtb_${SECTION}*; ./t -q -lmunge.proc.cn.count -r TagStructures tagged -0 corpora/cptb/bracketed/chtb_${SECTION}*
-./t -q -w tagged_dots tagged/chtb_${SECTION}*
+ rm -rf ./tagged/"$TARGET";  ./t -q -lmunge.proc.cn.count -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET"
+ ./t -q -w tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
-rm -rf ./binarised/chtb_${SECTION}*; ./t -q -lapps.cn.binarise -r Binariser binarised -0 tagged/chtb_${SECTION}*
+ rm -rf ./binarised/"$TARGET";  ./t -q -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET"
 # Make graphs
-./t -q -w binarised_dots binarised/chtb_${SECTION}*
+ ./t -q -w binarised_dots binarised/"$TARGET"

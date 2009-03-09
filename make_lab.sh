@@ -2,12 +2,20 @@
 
 if [[ $1 == "all" ]]; then
     SECTION=""
-else
+    TARGET="*"
+elif [[ $1 =~ ^[0-9]{2}$ ]]; then
     SECTION=${1:-00}
+    TARGET="chtb_${SECTION}*"
+elif [ -f $1 ]; then
+    TARGET=`basename $1`
+else
+    echo Invalid argument.
+    exit 1
 fi
 
-./make_bin.sh $SECTION
 
-rm -rf ./labelled/chtb_${SECTION}*; ./t -q -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/chtb_${SECTION}*
+./make_bin.sh $1
 
-./t -q -w labelled_dots -R AugmentedPTBReader labelled/chtb_${SECTION}*
+rm -rf ./labelled/"$TARGET"; ./t -q -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET"
+
+./t -q -w labelled_dots -R AugmentedPTBReader labelled/"$TARGET"

@@ -61,11 +61,22 @@ def multi_tgrep(deriv, query_callback_map):
     if not query_callback_map: raise RuntimeError('No query expressions given.')
     initialise()
     
+    if _tgrep_debug:
+        for expression in query_callback_map.keys():
+            print "Lexing %s" % expression
+            lex.input(expression)
+            for tok in iter(lex.token, None):
+                print tok.type, tok.value
+    
     queries = [yacc.parse(expression) for expression in query_callback_map.keys()]
     for node in nodes(deriv):
         for query_expr, query_str in zip(queries, query_callback_map.keys()):
-            if query_expr.is_satisfied_by(node):
-                query_callback_map[query_str](node)
+            context = Context()
+            if query_expr.is_satisfied_by(node, context):
+                if context:
+                    query_callback_map[query_str](node, context)
+                else:
+                    query_callback_map[query_str](node)
     
 find_all = tgrep
 find_first = lambda *args, **kwargs: take(find_all(*args, **kwargs), 1)

@@ -105,6 +105,7 @@ Map = {
     'NP-PN-SBJ': NP,
     'NP-PRD': NP,
     'NP-EXT': NP,
+    'NP-TPC': NP,
     'NP': NP,
     'IP-HLN': S,
     'IP': S,
@@ -124,6 +125,7 @@ Map = {
 }
 #@echo
 def ptb_to_cat(ptb_tag):
+    if ptb_tag.startswith('NP-TPC-'): print "HEY"
     ptb_tag = base_tag(ptb_tag)
     ptb_tag = Map.get(ptb_tag, AtomicCategory(ptb_tag))
     
@@ -181,6 +183,13 @@ def label(node):
                 kid.category = ptb_to_cat(kid.tag)
             
         return node
+        
+    elif is_topicalisation(node) or is_topicalisation_without_gap(node):
+        node.kids[0] = label(node[0])
+        if node.count() > 1:
+            node.kids[1] = label(node[1])
+            
+        return node
     
     elif is_apposition(node):
         if not node.category:
@@ -199,7 +208,8 @@ def label(node):
         return node
         
     elif is_verb_compound(node):
-        node.category = node.parent.category # VP < VRD, ...
+        if not node.category:
+            node.category = node.parent.category # VP < VRD, ...
         return label_verb_compound(node)
         
     elif is_left_absorption(node):
