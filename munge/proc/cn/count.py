@@ -165,7 +165,6 @@ class TagStructures(Filter):
                             kid.tag += ':a'
 
                 elif is_modification(node):
-                    print "IS MODIFICATION: %s" % node
                     last_kid.tag += ':h'
                     
                     for kid in node[0:node.count()-1]:

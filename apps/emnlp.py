@@ -30,7 +30,7 @@ class CountPunctuationTokens(Filter):
         
     def accept_leaf(self, leaf):
         if leaf.lex in self.Punctuation:
-            if leaf.lex == "'" and leaf.pos == 'POS': continue
+            if leaf.lex == "'" and leaf.pos == 'POS': return
             
             self.counts[leaf.lex] += 1
         self.total += 1
