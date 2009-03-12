@@ -2,7 +2,7 @@ from __future__ import with_statement
 from copy import copy
 from munge.proc.filter import Filter
 from apps.cn.output import OutputDerivation
-from munge.util.err_utils import warn
+from munge.util.err_utils import warn, info
 import os
 
 #from echo import *
@@ -10,7 +10,7 @@ from munge.trees.pprint import *
 from apps.identify_lrhca import *
 from munge.cats.nodes import *
 from munge.cats.cat_defs import *
-from munge.util.err_utils import info
+import munge.penn.aug_nodes as A
 
 #@echo
 def label_predication(node):
@@ -199,6 +199,16 @@ def label(node):
         if node.count() > 1:
             node.kids[1] = label(node[1])
         
+        return node
+        
+    elif is_modification(node):
+        if not node.category:
+            node.category = ptb_to_cat(node.tag)
+            
+        node.kids[0] = label(node[0])
+        if node.count() > 1:
+            node.kids[1] = label(node[1])
+            
         return node
         
     elif node.count() == 1: 

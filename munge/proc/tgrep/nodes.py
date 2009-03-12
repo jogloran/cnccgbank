@@ -157,15 +157,29 @@ class MatchLex(object):
         if not node.is_leaf(): return False
         return node.lex == self.lex_to_match
         
-class RE(object):
-    '''Matches tree nodes whose category labels satisfy a regex anchored at the start of the label.'''
-    def __init__(self, source):
+class REValue(object):
+    def __init__(self, source, anchor_at_start=True):
         self.source = source
         self.regex = re.compile(source)
+        self.match_method = self.regex.match if anchor_at_start else self.regex.search
+        
+class RELex(REValue):
+    def __init__(self, source, anchor_at_start=True):
+        REValue.__init__(self, source, anchor_at_start)
+    def __repr__(self):
+        return "^/%s/" % self.source
+    def is_satisfied_by(self, node, context):
+        if not node.is_leaf(): return False
+        return self.match_method(node.lex) is not None
+        
+class RE(REValue):
+    '''Matches tree nodes whose category labels satisfy a regex anchored at the start of the label.'''
+    def __init__(self, source, anchor_at_start=True):
+        REValue.__init__(self, source, anchor_at_start)
     def __repr__(self):
         return "/%s/" % self.source
     def is_satisfied_by(self, node, context):
-        return self.regex.match(str(node.cat)) is not None
+        return self.match_method(str(node.cat)) is not None
 
 class All(object):
     '''Matches unconditionally against any tree node.'''

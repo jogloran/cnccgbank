@@ -73,11 +73,11 @@ IsSiblingOfAndPrecedes = not_implemented
 
 def LeftChildOf(candidate, node, context):
     if node.is_leaf(): return False
-    return candidate.is_satisfied_by(node.lch, context)
+    return candidate.is_satisfied_by(node[0], context)
 
 def RightChildOf(candidate, node, context):
     if node.is_leaf(): return False
-    return node.rch is not None and candidate.is_satisfied_by(node.rch, context)
+    return node.count() > 1 and candidate.is_satisfied_by(node[1], context)
 
 @cast_to(int)
 def IsNthChildOf(n):

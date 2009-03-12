@@ -1,3 +1,5 @@
+import re, copy
+
 from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, find_first
 from munge.penn.aug_nodes import Node
@@ -13,10 +15,12 @@ from munge.cats.nodes import FORWARD, BACKWARD
 class FixExtraction(Fix):
     def pattern(self): 
         return {
-            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-SBJ/ < "-NONE-"}}}}': self.fix_subject_extraction,
-            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-OBJ/ < "-NONE-"}}}}': self.fix_object_extraction,
-            r'* < { /IP/=P < {/NP-TPC-\d/=T $ /IP/=S }}': self.fix_topicalisation_with_gap,
-            r'* < { /IP/=P < {/NP-TPC:.+/=T $ /IP/=S }}': self.fix_topicalisation_without_gap
+            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}': self.fix_subject_extraction,
+            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}': self.fix_object_extraction,
+            r'/IP/=P < {/NP-TPC-\d/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
+            r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
+            r'* < { * < ^"*pro*" }': self.fix_prodrop,
+            r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification
         }
     
     def __init__(self, outdir):
@@ -129,8 +133,12 @@ class FixExtraction(Fix):
         self.remove_null_element(node)
         
         # Find and remove the trace
-        for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < "-NONE-" } }'):
+        for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
+            print ">>>"
+            print trace_NP_parent
             trace_NP_parent[0] = trace_NP_parent[0][1]
+            print "after"
+            print trace_NP_parent
         
         # trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-SBJ/=T < "-NONE-" $ *=S } } }', with_context=True)
         # 
@@ -145,7 +153,7 @@ class FixExtraction(Fix):
         print "Fixing object extraction: %s" % node
         self.remove_null_element(node)
         
-        trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < "-NONE-" $ *=S } } }', with_context=True)
+        trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         
         top, pp, p, t, s = (context[n] for n in "TOP PP P T S".split())
         
@@ -169,7 +177,7 @@ class FixExtraction(Fix):
         # create topicalised category
         self.replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
         
-        _, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < "-NONE-" $ *=S } } }', with_context=True)
+        _, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         print ctx
         self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
         
@@ -188,3 +196,35 @@ class FixExtraction(Fix):
         # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
         # otherwise parent pointers won't get updated 
         node[node.kids.index(old)] = new
+        
+    def fix_prodrop(self, node):
+        node.kids.pop(0)
+        
+        # this step happens after fix_rc, and object extraction with subject pro-drop can
+        # lead to a pro-dropped node like:
+        #     S/(S\NP)
+        #        |
+        #       NP
+        #        |
+        #   -NONE- '*pro*'
+        # In this case, we want to remove the whole structure
+        if not node.kids:
+            node = node.parent
+            node.kids.pop(0)
+            
+    @staticmethod
+    def strip_tag(tag):
+        return re.sub(r':.+$', '', tag)
+            
+    def fix_modification(self, node, context):
+        p, s, t = (context[n] for n in "P S T".split())
+        S, P = s.category, p.category
+
+        # If you don't strip the tag :m from the newly created child (new_kid),
+        # the fix_modification pattern will match infinitely when tgrep visits new_kid
+        new_kid = copy.copy(t)
+        new_kid.tag = self.strip_tag(new_kid.tag)
+        
+        self.replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
+        
+        print p

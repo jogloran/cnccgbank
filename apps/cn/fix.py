@@ -25,7 +25,7 @@ class Fix(Filter, OutputDerivation):
                     self.fix(match_node, context)
                 else:
                     self.fix(match_node)
-        elif isinstance(pattern, function):
+        elif callable(pattern):
             try:
                 iterator = iter(pattern(bundle.derivation))
                 for match_node in iterator:

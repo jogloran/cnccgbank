@@ -12,7 +12,7 @@ from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "OP",
+tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "REGEX_SPEC", "OP",
           "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET")
 
 precedence = (
@@ -51,6 +51,10 @@ def t_TILDE(t):
 # Assume no whitespace is permitted within a regex.
 def t_REGEX(t):
     r'/([^/\s]|\/)+/'
+    return t
+    
+def t_REGEX_SPEC(t):
+    r'[a]'
     return t
 
 def t_LPAREN(t):
@@ -156,6 +160,7 @@ def p_matcher(stk):
             | matcher EQUAL ATOM
             | CARET ATOM
             | CARET QUOTED
+            | CARET full_regex
     '''
     if len(stk) == 2:
         stk[0] = stk[1]
@@ -165,7 +170,10 @@ def p_matcher(stk):
         elif stk[1] == '~':
             stk[0] = NotAtom(stk[2])
         elif stk[1] == '^':
-            if stk[2].startswith('"'):
+            if isinstance(stk[2], tuple):
+                stk[0] = RELex(*stk[2])
+                
+            elif stk[2].startswith('"'):
                 stk[0] = MatchLex(stk[2][1:-1], quoted=True)
             else:
                 stk[0] = MatchLex(stk[2])
@@ -183,13 +191,27 @@ def p_quoted(stk):
     quoted : QUOTED
     '''
     stk[0] = Atom(stk[1][1:-1])
-
+    
 def p_regex(stk):
     '''
-    regex : REGEX
+    regex : full_regex
+    '''
+    stk[0] = RE(*stk[1])
+    
+def p_full_regex(stk):
+    '''
+    full_regex : REGEX
+               | REGEX REGEX_SPEC
     '''
     # Extract the regex between the slash delimiters
-    stk[0] = RE(stk[1][1:-1])
+    if len(stk) == 2:
+        stk[0] = (stk[1][1:-1], True) # anchor_at_start = True
+    elif len(stk) == 3:
+        spec = stk[2]
+        if spec == 'a':
+            stk[0] = (stk[1][1:-1], False) # anchor_at_start = False
+        else:
+            err('Invalid regex specifier %s.', spec)
 
 def p_star(stk):
     '''

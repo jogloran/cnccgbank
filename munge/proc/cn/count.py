@@ -83,56 +83,67 @@ class TagStructures(Filter):
     def is_postverbal_adjunct_tag(self, tag):
         return tag.startswith('AS') or tag.startswith('DER')
         
+    @staticmethod
+    def tag(kid, tag):
+        # make sure kid is not already tagged
+        if len(kid.tag) >= 2 and kid.tag[-2] == ':': return
+        
+        kid.tag += (':' + tag)
+        
     def accept_derivation(self, bundle):
         for node in nodes(bundle.derivation):
             if not node.is_leaf():
                 first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
                 last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
                 
+                for kid in node:
+                    if has_modification_tag(kid):
+                        self.tag(kid, 'm')
+                
                 if is_predication(node):
                     for kid in node:
                         if kid.tag.endswith('-SBJ'):
-                            kid.tag += ':l' # TODO: is subject always left of predicate?
+                            self.tag(kid, 'l') # TODO: is subject always left of predicate?
                         elif kid.tag == 'VP':
-                            kid.tag += ':h'
+                            self.tag(kid, 'h')
                         elif kid.tag != 'PU':
-                            kid.tag += ':a'
+                            self.tag(kid, 'a')
                     
                 elif is_coordination(node): # coordination
                     for kid in node:
                         if kid.tag not in ('CC', 'PU'):
-                            kid.tag += ':c'
+                            self.tag(kid, 'c')
 
                 elif is_np_internal_structure(node):
                     first = True
                     for kid in reversed(node.kids):
                         if kid.tag not in ('CC', 'PU'):
                             if first:
-                                kid.tag += ':N'
+                                self.tag(kid, 'N')
                                 first = False
                             else:
-                                kid.tag += ':n'
+                                self.tag(kid, 'n')
 
                 elif is_internal_structure(node):
                     pass
 
                 elif first_kid.is_leaf() or is_vp_internal_structure(first_kid): # head initial complementation
-                    first_kid.tag += ':h'
+                    self.tag(first_kid, 'h')
                     for kid in node[1:node.count()]:
                         if self.is_postverbal_adjunct_tag(kid.tag):
-                            kid.tag += ':a' # treat aspect particles as adjuncts
+                            self.tag(kid, 'a') # treat aspect particles as adjuncts
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                            kid.tag += ':r'
+                            self.tag(kid, 'r')
                             
                 # topicalisation WITH gap (NP-TPC-i)
                 elif first_kid.tag.startswith('NP-TPC-'):
-                    first_kid.tag += ':t'
+                    self.tag(first_kid, 't')
                     # really, we might want to tag the 'rest of phrase' as if the topicalised constituent
                     # weren't there
                     
                 # topicalisation WITHOUT gap (NP-TPC)
                 elif first_kid.tag.startswith('NP-TPC'):
-                    first_kid.tag += ':T'
+                    self.tag(first_kid, 'T')
 
                 # head final complementation
                 elif (last_kid.is_leaf() or 
@@ -140,7 +151,7 @@ class TagStructures(Filter):
                       # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
                       # this should be treated as head-final complementation, not adjunction.
                       is_lcp_internal_structure(last_kid)):
-                    last_kid.tag += ':h'
+                    self.tag(last_kid, 'h')
                     
                     # cf 2:23(7), a number of derivations have (CP (WHNP-1 CP DEC)) instead of
                     # the expected (CP (WHNP-1) (CP DEC))
@@ -148,43 +159,43 @@ class TagStructures(Filter):
                     # adjunction
                     if last_kid.tag.startswith('DEC'):
                         for kid in node[0:node.count()-1]:
-                            if kid.tag.startswith('WHNP'): kid.tag += ':a'
-                            else: kid.tag += ':l'
+                            if kid.tag.startswith('WHNP'): self.tag(kid, 'a')
+                            else: self.tag(kid, 'l')
                     else:
                         for kid in node[0:node.count()-1]:
                             if self.is_postverbal_adjunct_tag(kid.tag):
-                                kid.tag += ':a' # treat aspect particles as adjuncts
+                                self.tag(kid, 'a') # treat aspect particles as adjuncts
                             elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                                kid.tag += ':l'
+                                self.tag(kid, 'l')
 
                 elif is_apposition(node):
                     for kid in node:
                         if kid.tag.endswith('-APP'): #not kid.tag.startswith('PU'):
-                            kid.tag += ':A'
+                            self.tag(kid, 'A')
                         else:
-                            kid.tag += ':a'
+                            self.tag(kid, 'a')
 
                 elif is_modification(node):
-                    last_kid.tag += ':h'
+                    self.tag(last_kid, 'h')
                     
                     for kid in node[0:node.count()-1]:
                         if not kid.tag.endswith(':h'):
                             if has_modification_tag(kid):
-                                kid.tag += ':m'
+                                self.tag(kid, 'm')
                             elif not kid.tag.startswith('PU'):
-                                kid.tag += ':a'
+                                self.tag(kid, 'a')
                                 
                             # XXX: this code is duplicated from above
                             # topicalisation WITH gap (NP-TPC-i)
                             elif kid.tag.startswith('NP-TPC-'):
-                                kid.tag += ':t'
+                                self.tag(kid, 't')
 
                             # topicalisation WITHOUT gap (NP-TPC)
                             elif kid.tag.startswith('NP-TPC'):
-                                kid.tag += ':T'
+                                self.tag(kid, 'T')
 
                 else: # adjunction
-                    last_kid.tag += ':h'
+                    self.tag(last_kid, 'h')
 
                     for kid in node[0:node.count()-1]:
 #                        print kid.tag
@@ -194,14 +205,14 @@ class TagStructures(Filter):
                         # XXX: this code is duplicated from above
                         # topicalisation WITH gap (NP-TPC-i)
                         if kid.tag.startswith('NP-TPC-'):
-                            kid.tag += ':t'
+                            self.tag(kid, 't')
 
                         # topicalisation WITHOUT gap (NP-TPC)
                         elif kid.tag.startswith('NP-TPC'):
-                            kid.tag += ':T'
+                            self.tag(kid, 'T')
                             
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                            kid.tag += ':a'
+                            self.tag(kid, 'a')
 
         self.write_derivation(bundle)
 
