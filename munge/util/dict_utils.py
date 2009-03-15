@@ -6,3 +6,6 @@ class CountDict(dict):
 
 def sorted_by_value_desc(hash):
     return sorted(hash.iteritems(), key=lambda (k, v): v, reverse=True)
+
+def smash_key_case(d):
+    return dict( (k.lower(), v) for (k, v) in d.iteritems() )

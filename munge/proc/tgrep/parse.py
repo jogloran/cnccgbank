@@ -199,6 +199,8 @@ def p_regex(stk):
     stk[0] = RE(*stk[1])
     
 def p_full_regex(stk):
+    # unlike the other productions, this returns a tuple of arguments to be splatted and
+    # passed to a regex-taking node type (RE or REValue)
     '''
     full_regex : REGEX
                | REGEX REGEX_SPEC

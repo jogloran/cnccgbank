@@ -100,7 +100,7 @@ class FixExtraction(Fix):
                             print "new parent category: %s" % new_parent_category
                             p.category = new_parent_category
                         
-                    print "New category: %s" % new_category
+                        print "New category: %s" % new_category
                     
                 elif R.is_leaf():
                     if R == L.left.right:
@@ -113,7 +113,7 @@ class FixExtraction(Fix):
                             print "new parent category: %s" % new_parent_category
                             p.category = new_parent_category
                         
-                    print "New category: %s" % new_category
+                        print "New category: %s" % new_category
                     
                 else:
                     new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R)
@@ -149,7 +149,7 @@ class FixExtraction(Fix):
         
         self.relabel_relativiser(node)
         
-    def fix_object_extraction(self, node):
+    def fix_object_extraction(self, node, **vars):
         print "Fixing object extraction: %s" % node
         self.remove_null_element(node)
         
@@ -170,10 +170,9 @@ class FixExtraction(Fix):
         p.kids.remove(t)
         FixExtraction.replace_kid(pp, p, s)        
         
-    def fix_topicalisation_with_gap(self, node, context):
+    def fix_topicalisation_with_gap(self, node, p, s, t):
         print "Fixing topicalisation with gap: %s" % node
-        p, s, t = (context[n] for n in "P S T".split())
-        
+
         # create topicalised category
         self.replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
         
@@ -183,11 +182,9 @@ class FixExtraction(Fix):
         
         self.fix_categories_starting_from(ctx['S'], until=ctx['TOP'])
         
-    def fix_topicalisation_without_gap(self, node, context):
+    def fix_topicalisation_without_gap(self, node, p, s, t):
         print "HEY!!"
         print node
-        
-        p, s, t = (context[n] for n in "P S T".split())
         
         self.replace_kid(p, t, Node(S/S, t.tag, [t]))
             
@@ -216,8 +213,7 @@ class FixExtraction(Fix):
     def strip_tag(tag):
         return re.sub(r':.+$', '', tag)
             
-    def fix_modification(self, node, context):
-        p, s, t = (context[n] for n in "P S T".split())
+    def fix_modification(self, node, p, s, t):
         S, P = s.category, p.category
 
         # If you don't strip the tag :m from the newly created child (new_kid),

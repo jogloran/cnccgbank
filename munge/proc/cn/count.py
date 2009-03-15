@@ -1,6 +1,6 @@
 from __future__ import with_statement
 from munge.proc.filter import Filter
-from munge.trees.traverse import nodes
+from munge.trees.traverse import nodes, leaves
 from collections import defaultdict
 from munge.util.dict_utils import sorted_by_value_desc
 import os, re
@@ -66,7 +66,7 @@ def is_internal_structure(node):
     
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
-        all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in node))
+        all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in leaves(node)))
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
@@ -116,7 +116,7 @@ class TagStructures(Filter):
 
                 elif is_np_internal_structure(node):
                     first = True
-                    for kid in reversed(node.kids):
+                    for kid in reversed(list(leaves(node.kids))):
                         if kid.tag not in ('CC', 'PU'):
                             if first:
                                 self.tag(kid, 'N')

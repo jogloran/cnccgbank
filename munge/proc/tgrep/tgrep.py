@@ -12,6 +12,7 @@ from munge.proc.tgrep.nodes import Context
 from munge.trees.traverse import nodes, leaves
 import munge.trees.pprint as pp
 from munge.util.iter_utils import take
+from munge.util.dict_utils import smash_key_case
 
 from munge.proc.filter import Filter
 
@@ -74,7 +75,7 @@ def multi_tgrep(deriv, query_callback_map):
             context = Context()
             if query_expr.is_satisfied_by(node, context):
                 if context:
-                    query_callback_map[query_str](node, context)
+                    query_callback_map[query_str](node, **smash_key_case(context))
                 else:
                     query_callback_map[query_str](node)
     
