@@ -3,8 +3,11 @@ import re, copy
 from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, find_first
 from munge.penn.aug_nodes import Node
+
 from apps.cn.output import OutputDerivation
 from apps.cn.fix import Fix
+from apps.cn.fix_utils import *
+
 from munge.trees.pprint import pprint, aug_node_repr
 from munge.util.tgrep_utils import get_first
 from munge.cats.cat_defs import *
@@ -119,12 +122,7 @@ class FixExtraction(Fix):
                     new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R)
                     if new_parent_category:
                         print "new parent category: %s" % new_parent_category
-                        p.category = new_parent_category
-                        
-            elif (applied_rule == 'bwd_appl' and # implies R is complex
-                  R.left == R.right):
-                print "generalised New category: %s" % (L|L)
-                r.category = L|L                  
+                        p.category = new_parent_category                  
             
             node = node.parent
             
@@ -145,7 +143,7 @@ class FixExtraction(Fix):
         # top, p, t, s = (context[n] for n in "TOP P T S".split())
         # 
         # p.kids.remove(t)
-        # self.replace_kid(top, p, s)
+        # replace_kid(top, p, s)
         
         self.relabel_relativiser(node)
         
@@ -168,13 +166,13 @@ class FixExtraction(Fix):
     @staticmethod
     def fix_object_gap(pp, p, t, s):
         p.kids.remove(t)
-        FixExtraction.replace_kid(pp, p, s)        
+        replace_kid(pp, p, s)        
         
     def fix_topicalisation_with_gap(self, node, p, s, t):
         print "Fixing topicalisation with gap: %s" % node
 
         # create topicalised category
-        self.replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
+        replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
         
         _, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         print ctx
@@ -186,13 +184,7 @@ class FixExtraction(Fix):
         print "HEY!!"
         print node
         
-        self.replace_kid(p, t, Node(S/S, t.tag, [t]))
-            
-    @staticmethod
-    def replace_kid(node, old, new):
-        # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
-        # otherwise parent pointers won't get updated 
-        node[node.kids.index(old)] = new
+        replace_kid(p, t, Node(S/S, t.tag, [t]))
         
     def fix_prodrop(self, node):
         node.kids.pop(0)
@@ -221,6 +213,6 @@ class FixExtraction(Fix):
         new_kid = copy.copy(t)
         new_kid.tag = self.strip_tag(new_kid.tag)
         
-        self.replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
+        replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
         
         print p

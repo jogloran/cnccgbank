@@ -6,11 +6,12 @@ if [[ $1 == "all" ]]; then
 elif [[ $1 =~ ^[0-9]{2}$ ]]; then
     SECTION=${1:-00}
     TARGET="chtb_${SECTION}*"
-elif [ -f $1 ]; then
-    TARGET=`basename $1`
+#elif [ -f $1 ]; then
 else
-    echo Invalid argument.
-    exit 1
+    TARGET=`basename $1`
+#else
+#    echo Invalid argument.
+#    exit 1
 fi
 
 

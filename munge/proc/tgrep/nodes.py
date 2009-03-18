@@ -157,6 +157,16 @@ class MatchLex(object):
         if not node.is_leaf(): return False
         return node.lex == self.lex_to_match
         
+class MatchCat(object):
+    def __init__(self, cat_to_match, quoted=False):
+        self.cat_to_match = cat_to_match
+        self.quoted = quoted
+    def __repr__(self):
+        cat = "\"%s\"" % self.cat_to_match if self.quoted else self.cat_to_match
+        return "@%s" % cat
+    def is_satisfied_by(self, node, context):
+        return str(node.category) == self.cat_to_match        
+        
 class REValue(object):
     def __init__(self, source, anchor_at_start=True):
         self.source = source
@@ -171,6 +181,14 @@ class RELex(REValue):
     def is_satisfied_by(self, node, context):
         if not node.is_leaf(): return False
         return self.match_method(node.lex) is not None
+        
+class RECat(REValue):
+    def __init__(self, source, anchor_at_start=True):
+        REValue.__init__(self, source, anchor_at_start)
+    def __repr__(self):
+        return "@/%s/" % self.source
+    def is_satisfied_by(self, node, context):
+        return self.match_method(str(node.category)) is not None
         
 class RE(REValue):
     '''Matches tree nodes whose category labels satisfy a regex anchored at the start of the label.'''

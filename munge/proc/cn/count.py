@@ -66,7 +66,7 @@ def is_internal_structure(node):
     
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
-        all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in leaves(node)))
+        all(kid.tag in ('NN', 'NR', 'NT', 'PU', 'CC') for kid in node))
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
@@ -99,6 +99,14 @@ class TagStructures(Filter):
                 for kid in node:
                     if has_modification_tag(kid):
                         self.tag(kid, 'm')
+                        
+                    # topicalisation WITH gap (NP-TPC-i)
+                    elif kid.tag.startswith('NP-TPC-'):
+                        self.tag(kid, 't')
+
+                    # topicalisation WITHOUT gap (NP-TPC)
+                    elif kid.tag.startswith('NP-TPC'):
+                        self.tag(kid, 'T')
                 
                 if is_predication(node):
                     for kid in node:
@@ -108,21 +116,21 @@ class TagStructures(Filter):
                             self.tag(kid, 'h')
                         elif kid.tag != 'PU':
                             self.tag(kid, 'a')
-                    
-                elif is_coordination(node): # coordination
-                    for kid in node:
-                        if kid.tag not in ('CC', 'PU'):
-                            self.tag(kid, 'c')
-
+                                    
                 elif is_np_internal_structure(node):
                     first = True
-                    for kid in reversed(list(leaves(node.kids))):
+                    for kid in reversed(list(leaves(node))):
                         if kid.tag not in ('CC', 'PU'):
                             if first:
                                 self.tag(kid, 'N')
                                 first = False
                             else:
                                 self.tag(kid, 'n')
+                    
+                elif is_coordination(node): # coordination
+                    for kid in node:
+                        if kid.tag not in ('CC', 'PU'):
+                            self.tag(kid, 'c')
 
                 elif is_internal_structure(node):
                     pass
@@ -169,6 +177,8 @@ class TagStructures(Filter):
                                 self.tag(kid, 'l')
 
                 elif is_apposition(node):
+                    self.tag(last_kid, 'r') # HACK: assume apposition is right-headed
+                    
                     for kid in node:
                         if kid.tag.endswith('-APP'): #not kid.tag.startswith('PU'):
                             self.tag(kid, 'A')

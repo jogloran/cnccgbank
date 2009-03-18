@@ -1,6 +1,7 @@
 from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, multi_tgrep
 from apps.cn.output import OutputDerivation
+from munge.util.dict_utils import smash_key_case
 
 class Fix(Filter, OutputDerivation):
     def __init__(self, outdir):
@@ -20,9 +21,9 @@ class Fix(Filter, OutputDerivation):
         if isinstance(pattern, dict):
             multi_tgrep(bundle.derivation, pattern)
         elif isinstance(pattern, basestring):
-            for match_node, context in tgrep(bundle.derivation, pattern, context):
+            for match_node, context in tgrep(bundle.derivation, pattern, with_context=True):
                 if context: # only supply a context if the expression binds variables
-                    self.fix(match_node, context)
+                    self.fix(match_node, **smash_key_case(context))
                 else:
                     self.fix(match_node)
         elif callable(pattern):

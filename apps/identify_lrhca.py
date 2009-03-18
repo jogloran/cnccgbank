@@ -38,8 +38,7 @@ def is_right_absorption(node):
         (has_verbal_tag(node[0]) and node.tag.startswith('VP')) or
         (has_noun_tag(node[0]) and node.tag.startswith('NP')))
 
-def is_np_sbj(node):
-#    return re.match(r'NP(-\w+)*-SBJ', node.tag) is not None
+def is_xp_sbj(node):
     return re.search(r'-SBJ', node.tag) is not None
 
 def is_vp(node):
@@ -51,7 +50,7 @@ def is_predication(node):
 #            is_np_sbj(node[0]) and 
 #            is_vp(node[1]))
     return (node.tag.startswith('IP') and
-        any(is_np_sbj(kid) for kid in node) and
+        any(is_xp_sbj(kid) for kid in node) and
         any(is_vp(kid) for kid in node))
 
 def is_head_final(node):
@@ -73,14 +72,12 @@ def is_partial_coordination(node):
 
 def is_coordination(node):
     return node[0].tag.endswith(':c') or node[1].tag.endswith(':c')
-    
-# def is_np_internal_structure(node):
-#     return node.tag.startswith('NP') and node.count() > 1 and (
-#         all(kid.tag in ('NN', 'NR', 'NT', 'PU') for kid in leaves(node)) or 
-#         all(kid.tag.startswith('NP') for kid in node))
 
 def is_np_internal_structure(node):
-    return node.tag.startswith('NP') and all(kid.tag.endswith(':n') or kid.tag.endswith(':N') or kid.tag in ('PU', 'CC') for kid in node)
+    return node.tag.startswith('NP') and all(kid.tag.endswith(':n') or kid.tag.endswith(':N') or kid.tag in ('PU', 'CC', 'JJ') for kid in leaves(node))
+    
+def is_np_structure(node):
+    return node.tag.startswith('NP') and all(kid.tag.startswith('ADJP') or kid.tag.startswith('NP') for kid in node)
     
 def is_apposition(node):
     return node[0].tag.endswith(':A')

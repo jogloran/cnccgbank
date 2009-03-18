@@ -12,6 +12,18 @@ from munge.cats.nodes import *
 from munge.cats.cat_defs import *
 import munge.penn.aug_nodes as A
 
+def rename_category_while_labelling_with(label_function, node, substitute, when=None):
+    if when and (not when(node.category)): return label_function(node)
+    
+    old_category = node.category
+    node.category = substitute
+    
+    ret = label_function(node)
+    
+    node.category = old_category
+    
+    return ret
+    
 #@echo
 def label_predication(node):
     node.kids[0] = label(node[0])
@@ -47,6 +59,15 @@ def label_adjunction(node):
     node[0].category = node.category / node.category
     node.kids[0] = label(node[0])
     
+    return node
+    
+def label_np_structure(node):
+    node[0].category = node.category / node.category
+    node.kids[0] = label(node[0])
+    if node.count() > 1:
+        node[1].category = node.category
+        node.kids[1] = label(node[1])
+        
     return node
     
 #@echo
@@ -100,23 +121,29 @@ def label_partial_coordination(node):
     return node
     
 Map = {
-    'NP-SBJ': NP,
-    'NP-OBJ': NP,
-    'NP-PN-SBJ': NP,
-    'NP-PRD': NP,
-    'NP-EXT': NP,
-    'NP-TPC': NP,
-    'NP': NP,
+    # 'NP-SBJ': NP,
+    # 'NP-OBJ': NP,
+    # 'NP-PN-SBJ': NP,
+    # 'NP-PRD': NP,
+    # 'NP-EXT': NP,
+    # 'NP-TPC': NP,
+     'NP': NP,
+#    'NP': N,
+    
+    'NN': N,
+    'NR': N,
+    'NT': N,
+    
     'IP-HLN': S,
     'IP': S,
     'IP-SBJ': S,
     'IP-OBJ': S,
 #    'QP': C('NP/NP'),
 #    'QP-OBJ': C('NP/NP'),
-    'ADJP': C('NP/NP'),
+    'ADJP': C('N/N'),
     'QP': AtomicCategory('QP'),
     'CP': C('NP/NP'),
-    'DP': C('NP/NP'),
+    'DP': C('N/N'),
     'LCP': AtomicCategory('LCP'),
     'LCP-OBJ': AtomicCategory('LCP'),
     'ADVP': SbNPfSbNP,
@@ -125,7 +152,6 @@ Map = {
 }
 #@echo
 def ptb_to_cat(ptb_tag):
-    if ptb_tag.startswith('NP-TPC-'): print "HEY"
     ptb_tag = base_tag(ptb_tag)
     ptb_tag = Map.get(ptb_tag, AtomicCategory(ptb_tag))
     
@@ -170,20 +196,6 @@ def label(node):
             node.category = ptb_to_cat(node.tag)
         return node
         
-    elif is_np_internal_structure(node):
-        if not node.category:
-            node.category = ptb_to_cat(node.tag)
-            
-        for kid in node:
-            if kid.tag.endswith(':N'):
-                kid.category = NP
-            elif kid.tag.endswith(':n'):
-                kid.category = C('NP/NP')
-            else:
-                kid.category = ptb_to_cat(kid.tag)
-            
-        return node
-        
     elif is_topicalisation(node) or is_topicalisation_without_gap(node):
         node.kids[0] = label(node[0])
         if node.count() > 1:
@@ -205,9 +217,11 @@ def label(node):
         if not node.category:
             node.category = ptb_to_cat(node.tag)
             
+#        node[0].category = node.category / node.category
         node.kids[0] = label(node[0])
-        if node.count() > 1:
-            node.kids[1] = label(node[1])
+
+#        node[1].category = node.category
+        node.kids[1] = label(node[1])
             
         return node
         
@@ -231,9 +245,63 @@ def label(node):
         return label_predication(node)
     elif is_right_adjunction(node): # (:h :a), for aspect particles
         return label_right_adjunction(node)
+        
     elif is_partial_coordination(node):
+        if is_np_structure(node):
+            return rename_category_while_labelling_with(label_partial_coordination, node, N, when=lambda category: category == NP)
         return label_partial_coordination(node)
+    elif is_coordination(node):
+        if is_np_structure(node):
+            return rename_category_while_labelling_with(label_coordination, node, N, when=lambda category: category == NP)
+        return label_coordination(node)
+        
+    elif is_np_structure(node):
+        print "is_np_structure"
+        print node
 
+#        node.category = N
+        # ret = label_np_structure(node)
+        # ret.category = N
+        # 
+        # return ret
+        return rename_category_while_labelling_with(label_np_structure, node, N, when=lambda category: category == NP)
+#        return label_np_structure(node)
+        
+    elif is_np_internal_structure(node):
+        print "is_np_internal_structure"
+        print node
+#        if not node.category:
+#            node.category = ptb_to_cat(node.tag)
+#        node.category = NP
+
+        if node.category == NP:
+            P = N
+        else:
+            P = node.category
+            
+        for kid in node:
+            if kid.tag.endswith(':N'):
+                kid.category = P
+            elif kid.tag.endswith(':n'):
+                kid.category = P/P
+            elif kid.tag == 'CC':
+                kid.category = C('conj')
+            elif kid.tag.startswith('NP'):
+                kid.category = P
+            else:
+                kid.category = ptb_to_cat(kid.tag)
+                
+        if node.count() == 1:
+            node.category = node[0].category
+                
+        node.kids[0] = label(node[0])
+        if node.count() > 1:
+            node.kids[1] = label(node[1])
+            
+        return node
+
+
+        
     elif is_adjunction(node):
         return label_adjunction(node)
                 
@@ -241,9 +309,7 @@ def label(node):
         return label_head_final(node)
     elif is_head_initial(node):
         return label_head_initial(node)
-        
-    elif is_coordination(node):
-        return label_coordination(node)    
+   
 
     else:
         warn("Node did not match any known patterns -- assuming adjunction: %s", node.__repr__(suppress_lex=True))
