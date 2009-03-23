@@ -24,7 +24,7 @@ class FixExtraction(Fix):
             r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
             r'* < { * < ^"*pro*" }': self.fix_prodrop,
             r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification,
-            r'*=PP <1 *=V <2 { *=P <1 { /NP/=T < ^"*PRO*" } <2 *=S }': self.fix_control_gap
+#            r'*=PP <1 *=V <2 { *=P <1 { /NP/=T < ^"*PRO*" } <2 *=S }': self.fix_control_gap
         }
     
     def __init__(self, outdir):
