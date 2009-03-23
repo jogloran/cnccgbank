@@ -38,7 +38,7 @@ class PTBReader(object):
         
     @staticmethod
     def parse_file(text):
-        return parse_tree(text, AugmentedPennParser)
+        return parse_tree(text, PennParser)
         
     def determine_sec_and_doc(self, filename):
         '''Determines the section and document number given a filename of the form ``wsj_SSDD.mrg".'''
