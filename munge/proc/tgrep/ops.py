@@ -81,7 +81,6 @@ def RightChildOf(candidate, node, context):
 
 @cast_to(int)
 def IsNthChildOf(n):
-    # TODO: Handle n out of bounds
     def _IsNthChildOf(candidate, node, context):
         if not 1 <= n <= node.count(): return False
         # value is 1-indexed, while child indexing in Nodes is 0-indexed

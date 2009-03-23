@@ -23,7 +23,8 @@ class FixExtraction(Fix):
             r'/IP/=P < {/NP-TPC-\d/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
             r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
             r'* < { * < ^"*pro*" }': self.fix_prodrop,
-            r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification
+            r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification,
+            r'*=PP <1 *=V <2 { *=P <1 { /NP/=T < ^"*PRO*" } <2 *=S }': self.fix_control_gap
         }
     
     def __init__(self, outdir):
@@ -33,6 +34,9 @@ class FixExtraction(Fix):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
         # XXX: check that we're removing the right nodes
         node[0] = node[0][1]
+        
+    def remove_PRO_gap(self, node):
+        node[1] = node[1][1]
         
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
@@ -132,18 +136,7 @@ class FixExtraction(Fix):
         
         # Find and remove the trace
         for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
-            print ">>>"
-            print trace_NP_parent
             trace_NP_parent[0] = trace_NP_parent[0][1]
-            print "after"
-            print trace_NP_parent
-        
-        # trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-SBJ/=T < "-NONE-" $ *=S } } }', with_context=True)
-        # 
-        # top, p, t, s = (context[n] for n in "TOP P T S".split())
-        # 
-        # p.kids.remove(t)
-        # replace_kid(top, p, s)
         
         self.relabel_relativiser(node)
         
@@ -174,16 +167,12 @@ class FixExtraction(Fix):
         # create topicalised category
         replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
         
-        _, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
-        print ctx
+        top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
         
-        self.fix_categories_starting_from(ctx['S'], until=ctx['TOP'])
+        self.fix_categories_starting_from(ctx['S'], until=top)
         
     def fix_topicalisation_without_gap(self, node, p, s, t):
-        print "HEY!!"
-        print node
-        
         replace_kid(p, t, Node(S/S, t.tag, [t]))
         
     def fix_prodrop(self, node):
@@ -215,4 +204,18 @@ class FixExtraction(Fix):
         
         replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
         
-        print p
+    def fix_control_gap(self, node, v, pp, p, t, s):
+        self.remove_PRO_gap(pp)
+        
+        PP, S = pp.category, s.category
+        
+        new_s_category = s.category.clone()
+        new_s_category.left.add_feature('b')
+        
+        v.category = PP/new_s_category
+        
+            
+        # print "fix_control_gap"
+        # print ctx
+        
+        
