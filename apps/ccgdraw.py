@@ -15,7 +15,8 @@ def transpose(xs):
     
 def sanitise_category(cat):
     return re.sub(r'\\', r'\\bs ', cat)
-        
+    
+ESCAPED_NEWLINE = '\\\\\n'
 def comb_lines(lines):
     ret = []
     
@@ -40,8 +41,8 @@ def comb_lines(lines):
 
         cur_column = end
         
-    arrow_line.append('\\\\\n')
-    cat_line.append('\\\\\n')
+    arrow_line.append(ESCAPED_NEWLINE)
+    cat_line.append(ESCAPED_NEWLINE)
      
     return ''.join(''.join(line) for line in (arrow_line, cat_line))
     
