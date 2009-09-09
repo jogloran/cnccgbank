@@ -12,10 +12,16 @@ import copy
 
 class FixNP(Fix):
     def pattern(self):
-        return r'{ @"NP"=P <1 @"N/N"=L <2 @"N"=R } > *=PP'
+        return [
+            (r'{ @"NP"=P <1 @/\/N$/a=L <2 @"NP"=R } > *=PP', self.fix1),
+            (r'{ @"NP"=P <1 @"N/N"=L <2 @"N"=R } > *=PP', self.fix),
+        ]
     
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
+        
+    def fix1(self, node, pp, p, l, r):
+        r.category = N
         
     def fix(self, node, pp, p, l, r):
         new_N = copy.copy(p)

@@ -14,7 +14,7 @@ from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method
 from apps.util.cmd_utils import DefaultShell
 from munge.util.iter_utils import flatten
-from munge.util.err_utils import warn, info
+from munge.util.err_utils import warn, info, msg
 from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep
 
@@ -57,12 +57,12 @@ class Shell(DefaultShell):
         print self._verbose
         if self._verbose: 
             self.set_verbose(False)
-            info("Will generate less output.")
+            msg("Will generate less output.")
             
     def do_verbose(self, args):
         if not self._verbose:
             self.set_verbose(True)
-            info("Will generate more output.")
+            msg("Will generate more output.")
         
     def preloop(self):
         '''Executed before the command loop is entered.'''
@@ -88,11 +88,11 @@ class Shell(DefaultShell):
         
         added_modules = modules.difference(old_modules)
         if added_modules:
-            info("%s modules added:", len(added_modules))
+            msg("%s modules added:", len(added_modules))
             for module in added_modules: 
-                info("\t%s", module)
+                msg("\t%s", module)
         else:
-            info("No modules added.")
+            msg("No modules added.")
 
     @options([ make_option('-l', '--long', action='store_true', dest='long', help='Show detailed summary', default=False),
                make_option('-s', '--sort-by', action='store', type='choice', choices=['name', 'module'], 
@@ -107,7 +107,7 @@ class Shell(DefaultShell):
         if args:
             self.files = list(flatten(glob.glob(arg) for arg in args))
             
-        info("Working set is: " + list_preview(self.files))
+        msg("Working set is: " + list_preview(self.files))
 
     def get_filter_by_switch(self, switch_name):
         '''Retrieves the filter object based on its short or long form switch name.'''
@@ -186,11 +186,11 @@ class Shell(DefaultShell):
 'stdout' will redirect filter output to the console.'''
         def print_output_destination():
             if self.output_file is None:
-                info("Filter output will be sent to the console.")
+                msg("Filter output will be sent to the console.")
             elif self.output_file == 'pager':
-                info("Filter output will be paged with %s.", self.pager_path)
+                msg("Filter output will be paged with %s.", self.pager_path)
             else:
-                info("Filter output will be redirected to: %s", self.output_file)
+                msg("Filter output will be redirected to: %s", self.output_file)
                 
         args = args.split(' ', 1)
         output_file = args[0]
@@ -230,14 +230,14 @@ a pager program.'''
                 pipe.stdin.close()
                 pipe.wait()
                 
-            info("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
+            msg("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
         except Exception, e:
             if pipe:
                 pipe.stdin.close()
                 pipe.wait()
                 
-            info("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
-            info("\t%s (%s)", e.message, e.__class__.__name__)
+            msg("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
+            msg("\t%s (%s)", e.message, e.__class__.__name__)
             
             self.last_exception = sys.exc_info()
         finally:

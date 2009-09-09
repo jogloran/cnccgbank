@@ -20,10 +20,14 @@ import sys, re, os
 from apps.identify_lrhca import *
 
 #@echo
-def label_adjunction(node, inherit_tag=False):
+def label_adjunction(node, inherit_tag=False, without_labelling=False):
     kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
 
-    kids = map(label_node, node.kids)
+    if not without_labelling:
+        kids = map(label_node, node.kids)
+    else:
+        kids = node.kids
+        
     last_kid, second_last_kid = kids.pop(), kids.pop()
 
     cur = Node(kid_tag, [second_last_kid, last_kid])
@@ -36,6 +40,22 @@ def label_adjunction(node, inherit_tag=False):
     return cur
     
 #@echo
+def label_np_internal_structure(node, inherit_tag=False):
+    if (node.kids[-1].tag.endswith(':&') 
+        # prevent movement when we have an NP with only two children NN ETC
+        and node.count() > 2):
+        
+        etc = node.kids.pop()
+        kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+        
+        old_tag = node.tag
+        node.tag = kid_tag
+        
+        return Node(old_tag, [ label_np_internal_structure(node), etc ])
+    else:
+        return label_adjunction(node)
+    
+#@echo
 def label_coordination(node):
     def label_nonconjunctions(kid):
         if kid.tag not in ('CC', 'PU'): 
@@ -43,21 +63,22 @@ def label_coordination(node):
         else: return kid
     
     kids = map(label_nonconjunctions, node.kids)
-    return label_adjunction(Node(node.tag, kids))
+    return label_adjunction(Node(node.tag, kids), without_labelling=True)
 
 #@echo
-def label_head_initial(node):#, inherit_tag=False):
-#    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+def label_head_initial(node, inherit_tag=False):
+    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
     
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = kids.pop(), kids.pop()
 
-    cur = Node(node.tag, [first_kid, second_kid])
+    cur = Node(kid_tag, [first_kid, second_kid])
 
     while kids:
         kid = kids.pop()
         cur = Node(node.tag, [cur, kid])
     
+    cur.tag = node.tag
     return cur
 
 #@echo
@@ -80,14 +101,15 @@ def label_predication(node, inherit_tag=False):
         initial_tag = 'VP'
     else:
         initial_tag = kid_tag
-        
+
     cur = Node(initial_tag, [second_last_kid, last_kid])
 
     while kids:
         kid = kids.pop()
         cur = Node(kid_tag, [kid, cur])
- 
-    cur.tag = node.tag
+
+    cur.tag = node.tag # restore the full tag at the topmost level
+    
     return cur
     
 #@echo
@@ -121,7 +143,7 @@ def label_node(node):
     elif is_predication(node):
         return label_predication(node)
     elif is_np_internal_structure(node):
-        return label_adjunction(node)
+        return label_np_internal_structure(node)
     elif is_apposition(node):
         return label_adjunction(node)
     elif is_modification(node):

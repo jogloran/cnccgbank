@@ -74,7 +74,11 @@ def is_coordination(node):
     return node[0].tag.endswith(':c') or node[1].tag.endswith(':c')
 
 def is_np_internal_structure(node):
-    return node.tag.startswith('NP') and all(kid.tag.endswith(':n') or kid.tag.endswith(':N') or kid.tag in ('PU', 'CC', 'JJ') for kid in leaves(node))
+    return (node.tag.startswith('NP') and 
+            all(kid.tag.endswith(':n') 
+             or kid.tag.endswith(':N') 
+             or kid.tag in ('PU', 'CC', 'JJ') 
+             or kid.tag.endswith(':&') for kid in leaves(node)))
     
 def is_np_structure(node):
     return node.tag.startswith('NP') and all(kid.tag.startswith('ADJP') or kid.tag.startswith('NP') for kid in node)
@@ -90,3 +94,6 @@ def is_topicalisation(node):
     
 def is_topicalisation_without_gap(node):
     return node[0].tag.endswith(':T')
+    
+def is_etc(node):
+    return node[1].tag.endswith(':&')

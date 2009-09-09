@@ -124,7 +124,7 @@ class Tgrep(TgrepCore):
         print pp.pprint(bundle.derivation)
         
     def show_tokens(match_node, bundle):
-        print "%s: %s" % (bundle.label(), match_node.text())
+        print "%s: %s" % (bundle.label(), ''.join(match_node.text()))
         
     def show_label(match_node, bundle):
         print bundle.label()

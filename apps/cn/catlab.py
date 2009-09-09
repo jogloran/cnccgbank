@@ -56,7 +56,12 @@ def label_adjunction(node):
     node[1].category = node.category
     node.kids[1] = label(node[1])    
 
-    node[0].category = node.category / node.category
+    # if the modifier category (lhs) has a special functor (like NP/N), use that
+    cat = np_modifier_tag_to_cat(node[0].tag)
+    if cat: 
+        node[0].category = cat
+    else:
+        node[0].category = node.category / node.category
     node.kids[0] = label(node[0])
     
     return node
@@ -121,43 +126,48 @@ def label_partial_coordination(node):
     return node
     
 Map = {
-    # 'NP-SBJ': NP,
-    # 'NP-OBJ': NP,
-    # 'NP-PN-SBJ': NP,
-    # 'NP-PRD': NP,
-    # 'NP-EXT': NP,
-    # 'NP-TPC': NP,
-     'NP': NP,
-#    'NP': N,
+    'NP': NP,
     
     'NN': N,
     'NR': N,
     'NT': N,
     
-    'IP-HLN': S,
     'IP': S,
-    'IP-SBJ': S,
-    'IP-OBJ': S,
-#    'QP': C('NP/NP'),
-#    'QP-OBJ': C('NP/NP'),
-    'ADJP': C('N/N'),
-    'QP': AtomicCategory('QP'),
-    'CP': C('NP/NP'),
-    'DP': C('N/N'),
-    'LCP': AtomicCategory('LCP'),
-    'LCP-OBJ': AtomicCategory('LCP'),
+
     'ADVP': SbNPfSbNP,
     'VP': SbNP,
-    'PP-LOC': PP
+    
+    'CP': C('NP/NP'),
 }
 #@echo
-def ptb_to_cat(ptb_tag):
-    ptb_tag = base_tag(ptb_tag)
-    ptb_tag = Map.get(ptb_tag, AtomicCategory(ptb_tag))
+def ptb_to_cat(ptb_tag, return_none_when_unmatched=False):
+    old_tag=ptb_tag
     
-#    print ">>> RETURNING tag %s" % ptb_tag
+    ptb_tag = base_tag(ptb_tag)
+    ptb_tag = Map.get(ptb_tag, None if return_none_when_unmatched else AtomicCategory(ptb_tag))
+    
+    print ">>> RETURNING tag %s for %s" % (ptb_tag, old_tag)
         
     return copy(ptb_tag)
+    
+NPModifierMap = {
+#    'QP': C('NP/NP'),
+#    'QP-OBJ': C('NP/NP'),
+
+    # 'ADJP': C('N/N'),
+    # 'CP': C('N/N'),
+    # 'QP': C('NP/N'),
+    # 'DP': C('NP/N'),
+    
+    'ADJP': C('NP/NP'),
+    'CP': C('NP/NP'),
+    'QP': C('NP/NP'),
+    'DP': C('NP/NP'),
+#    'ADVP': C('NP/NP')
+}    
+def np_modifier_tag_to_cat(ptb_tag):
+    ptb_tag = base_tag(ptb_tag)
+    return copy(NPModifierMap.get(ptb_tag, None))
     
 def label_verb_compound(node):
     node[0].category = 'conj' if node[0].tag == 'CC' else node.category
@@ -186,10 +196,10 @@ def label(node):
     #print "<><><> %s" % node.category
     #print "<><><> %s" % type(node.category)
     #print "<><><> %s" % (node.category is None)
-    if (node.category is None):# and base_tag(node.tag) in Map:
-        #print ">>> ASSIGNING CATEGORY"
+    if node.category is None:# and base_tag(node.tag) in Map:
+        print ">>> ASSIGNING CATEGORY"
         node.category = ptb_to_cat(node.tag)
-        #print ">>> category is None, assigning", node.category
+        print ">>> category is None, assigning", node.category
         
     if node.is_leaf():
         if not node.category:
@@ -202,7 +212,7 @@ def label(node):
             node.kids[1] = label(node[1])
             
         return node
-    
+        
     elif is_apposition(node):
         if not node.category:
             node.category = ptb_to_cat(node.tag)
@@ -230,6 +240,9 @@ def label(node):
             node.category = ptb_to_cat(node.tag)
         node.kids[0] = label(node[0])
         return node
+        
+    elif is_etc(node):
+        return label_head_final(node)
         
     elif is_verb_compound(node):
         if not node.category:
@@ -289,7 +302,7 @@ def label(node):
             elif kid.tag.startswith('NP'):
                 kid.category = P
             else:
-                kid.category = ptb_to_cat(kid.tag)
+                kid.category = np_modifier_tag_to_cat(kid.tag)
                 
         if node.count() == 1:
             node.category = node[0].category
@@ -300,8 +313,6 @@ def label(node):
             
         return node
 
-
-        
     elif is_adjunction(node):
         return label_adjunction(node)
                 

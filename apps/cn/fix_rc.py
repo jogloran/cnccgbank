@@ -213,9 +213,3 @@ class FixExtraction(Fix):
         new_s_category.left.add_feature('b')
         
         v.category = PP/new_s_category
-        
-            
-        # print "fix_control_gap"
-        # print ctx
-        
-        

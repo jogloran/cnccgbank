@@ -23,6 +23,9 @@ def info(msg, *fmts):
     global muzzled
     if not muzzled:
         stream_report(sys.stderr, "info", msg, *fmts)
+        
+def msg(msg, *fmts):
+    stream_report(sys.stderr, "msg", msg, *fmts)
     
 def debug(msg, *fmts):
     stream_report(sys.stderr, time.asctime(), msg, *fmts)

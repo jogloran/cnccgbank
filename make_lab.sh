@@ -17,6 +17,6 @@ fi
 
 ./make_bin.sh $1
 
-rm -rf ./labelled/"$TARGET"; ./t -q -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET"
+rm -rf ./labelled/"$TARGET"; ./t -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET"
 
-./t -q -w labelled_dots -R AugmentedPTBReader labelled/"$TARGET"
+./t -w labelled_dots -R AugmentedPTBReader labelled/"$TARGET"
