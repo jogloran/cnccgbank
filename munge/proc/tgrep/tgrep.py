@@ -16,7 +16,7 @@ from munge.util.dict_utils import smash_key_case
 
 from munge.proc.filter import Filter
 
-_tgrep_debug = True
+_tgrep_debug = False
 _tgrep_initialised = False
 
 def initialise():
