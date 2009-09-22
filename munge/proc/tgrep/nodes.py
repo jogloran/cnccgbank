@@ -39,7 +39,7 @@ class Constraint(object):
             return Operators[operator]
         else:
             for regex, op_func_maker in IntArgOperators.iteritems():
-                matches = re.search(regex, operator)
+                matches = re.match(regex, operator)
                 
                 if matches:
                     return op_func_maker(*matches.groups())

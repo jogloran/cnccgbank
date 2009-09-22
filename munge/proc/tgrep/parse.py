@@ -78,11 +78,11 @@ def t_AT(t):
 
 # Productions need to be sorted by descending length (maximal munch)
 def t_OP(t):
-    r'(<<,?|>>\'?|(<-?\d?)|>|\.\.?|\$\.?\.?)'
+    r'(<<,?|>>\'?|(<-?\d*)|>|\.\.?|\$\.?\.?)'
     return t
     
 def t_UNARY_OP(t):
-    r'(<\#\d+)'
+    r'(\#<\d+)'
     return t
 
 def t_ATOM(t):

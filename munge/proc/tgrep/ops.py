@@ -109,5 +109,5 @@ Operators = {
 
 IntArgOperators = {
     r'<(\d+)': IsNthChildOf,
-    r'<\#(\d+)': ChildCount
+    r'\#<(\d+)': ChildCount
 }
