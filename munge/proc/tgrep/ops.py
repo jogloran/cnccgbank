@@ -86,6 +86,12 @@ def IsNthChildOf(n):
         # value is 1-indexed, while child indexing in Nodes is 0-indexed
         return candidate.is_satisfied_by(node[n-1], context)
     return _IsNthChildOf
+    
+@cast_to(int)
+def ChildCount(n):
+    def _ChildCount(candidate, node, context):
+        return node.count() == n
+    return _ChildCount
 
 Operators = {
     '<': IsParentOf,
@@ -102,5 +108,6 @@ Operators = {
 }
 
 IntArgOperators = {
-    r'<(\d+)': IsNthChildOf
+    r'<(\d+)': IsNthChildOf,
+    r'<\#(\d+)': ChildCount
 }

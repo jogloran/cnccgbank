@@ -143,6 +143,9 @@ class Tgrep(TgrepCore):
     def show_tags(match_node, bundle):
         print bundle.label(),
         print match_node.__repr__(suppress_lex=True)
+        
+    def show_matched_tag_only(match_node, bundle):
+        print match_node.tag
 
     FIND_FIRST, FIND_ALL = range(2)
     find_functions = {
@@ -151,7 +154,7 @@ class Tgrep(TgrepCore):
     }
 
     SHOW_NODE, SHOW_PP_NODE, SHOW_TOKENS, SHOW_LABEL, \
-    SHOW_TREE, SHOW_PP_TREE, SHOW_RULE, SHOW_TAGS = range(8)
+    SHOW_TREE, SHOW_PP_TREE, SHOW_RULE, SHOW_TAGS, SHOW_MATCHED_TAG_ONLY = range(9)
     match_callbacks = {
         SHOW_NODE: show_node,
         SHOW_PP_NODE: show_pp_node,
@@ -161,7 +164,9 @@ class Tgrep(TgrepCore):
         SHOW_TREE: show_tree,
         SHOW_PP_TREE: show_pp_tree,
         SHOW_RULE: show_rule,
-        SHOW_TAGS: show_tags
+        SHOW_TAGS: show_tags,
+        
+        SHOW_MATCHED_TAG_ONLY: show_matched_tag_only,
     }
     
     def get_callback_function(self, callback_key, callback_map):

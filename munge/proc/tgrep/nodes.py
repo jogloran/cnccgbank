@@ -28,7 +28,7 @@ class Node(object):
         
 class Constraint(object):
     '''Represents a single constraint, characterised by an operator symbol and an argument node.'''
-    def __init__(self, operator, rhs):
+    def __init__(self, operator, rhs=None):
         self.operator = operator
         self.rhs = rhs
         
@@ -40,9 +40,9 @@ class Constraint(object):
         else:
             for regex, op_func_maker in IntArgOperators.iteritems():
                 matches = re.search(regex, operator)
+                
                 if matches:
                     return op_func_maker(*matches.groups())
-                if regex.search(operator): return op_func
             else:
                 err('Invalid operator %s encountered.', self.operator)
         
