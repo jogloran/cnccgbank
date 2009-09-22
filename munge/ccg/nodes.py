@@ -73,8 +73,8 @@ class Node(object):
         return traverse.text(self)
 
     def __getitem__(self, index):
-        if index != 0 or index != 1:
-            raise RuntimeError('Invalid index %d into Node.' % index)
+        if index != 0 and index != 1:
+            raise RuntimeError('Invalid index %d into Node %s.' % (index, self))
 
         return self.lch if index == 0 else self.rch
 
