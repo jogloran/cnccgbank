@@ -1,8 +1,9 @@
 import re
-from echo import echo
+#from echo import echo
 
 from munge.proc.cn.count import last_nonpunct_kid
 from munge.trees.traverse import leaves
+from apps.identify_pos import *
 
 def base_tag(tag):
     if re.match(r'-.+-$', tag): return tag
@@ -11,19 +12,6 @@ def base_tag(tag):
     tag = re.sub(r'-.+$', '', tag)
     
     return tag
-    
-VerbalCategories = ('VV', 'VA', 'VC', 'VE')
-    
-def is_verb_compound(node):
-    return all((has_verbal_tag(kid) or kid.tag == 'CC') for kid in leaves(node))
-    
-def has_verbal_tag(node):
-    return any(node.tag.startswith(cand) for cand in VerbalCategories)
-    
-NominalCategories = ('NN', 'NR', 'NT')
-
-def has_noun_tag(node):
-    return any(node.tag.startswith(cand) for cand in NominalCategories)
 
 def is_left_absorption(node):
     return node[0].is_leaf() and node[0].tag == 'PU' and base_tag(node[1].tag) == base_tag(node.tag)
@@ -77,11 +65,16 @@ def is_np_internal_structure(node):
     return (node.tag.startswith('NP') and 
             all(kid.tag.endswith(':n') 
              or kid.tag.endswith(':N') 
-             or kid.tag in ('PU', 'CC', 'JJ') 
+             or kid.tag in NominalCategories
+             or kid.tag in ('PU', 'CC', 'JJ')
              or kid.tag.endswith(':&') for kid in leaves(node)))
     
 def is_np_structure(node):
-    return node.tag.startswith('NP') and all(kid.tag.startswith('ADJP') or kid.tag.startswith('NP') for kid in node)
+    return node.tag.startswith('NP') and all(
+        (any(kid.tag.startswith(cat) for cat in NominalCategories)) or 
+        kid.tag.startswith('ADJP') or 
+        kid.tag.startswith('JJ') or 
+        kid.tag.startswith('NP') for kid in node)
     
 def is_apposition(node):
     return node[0].tag.endswith(':A')

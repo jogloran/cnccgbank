@@ -3,6 +3,9 @@ from __future__ import with_statement
 from munge.trees.traverse import nodes
 from munge.penn.io import parse_tree
 from apps.cn.output import OutputDerivation
+from apps.cn.fix_utils import *
+
+from echo import *
 
 # 
 # import munge.penn.aug_nodes as A
@@ -20,11 +23,11 @@ import sys, re, os
 from apps.identify_lrhca import *
 
 #@echo
-def label_adjunction(node, inherit_tag=False, without_labelling=False):
+def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False):
     kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
 
     if not without_labelling:
-        kids = map(label_node, node.kids)
+        kids = map(lambda node: label_node(node, inside_np_internal_structure=inside_np_internal_structure), node.kids)
     else:
         kids = node.kids
         
@@ -53,7 +56,7 @@ def label_np_internal_structure(node, inherit_tag=False):
         
         return Node(old_tag, [ label_np_internal_structure(node), etc ])
     else:
-        return label_adjunction(node)
+        return label_adjunction(node, inside_np_internal_structure=True)
     
 #@echo
 def label_coordination(node):
@@ -97,6 +100,7 @@ def label_predication(node, inherit_tag=False):
     kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
 
     # TODO: think of a better and more general way of doing this
+    # this is to stop what happens in 2:4(2) with PU. what is actually happening?
     if is_left_punct_absorption(second_last_kid):
         initial_tag = 'VP'
     else:
@@ -134,21 +138,37 @@ def label_root(node):
         
     return result
     
+def inherit_tag(node, other):
+    if node.tag.find(":") == -1 and other.tag.find(":") != -1:
+        node.tag += other.tag[other.tag.find(":"):]
+    
 #@echo
-def label_node(node):
+def label_node(node, inside_np_internal_structure=False):
     if node.is_leaf(): return node
-    elif node.count() == 1: 
-        node.kids[0] = label_node(node.kids[0])
-        return node
+    elif node.count() == 1:
+        if ((inside_np_internal_structure and node.tag.startswith("NP") and 
+                (has_noun_tag(node.kids[0]) or node.kids[0].tag == "PN")) or
+            (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
+            (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
+            (node.tag.startswith("ADVP") and node.kids[0].tag.startswith("AD")) or
+            (node.tag.startswith("CLP") and node.kids[0].tag==("M")) or
+            (node.tag.startswith("QP") and node.kids[0].tag in ("OD","CD"))):
+            replacement = node.kids[0]
+            inherit_tag(replacement, node)
+            replace_kid(node.parent, node, node.kids[0])
+            return label_node(replacement)
+        else:
+            node.kids[0] = label_node(node.kids[0])
+            return node
     elif is_predication(node):
         return label_predication(node)
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)
-    elif is_apposition(node):
-        return label_adjunction(node)
-    elif is_modification(node):
-        return label_adjunction(node)
-    elif is_adjunction(node):
+    elif (is_apposition(node)
+       or is_modification(node)
+       or is_adjunction(node)
+       # TODO: what to do about VC?
+       or is_verb_compound(node)):
         return label_adjunction(node)
     elif is_head_final(node):
         return label_head_final(node)
@@ -162,6 +182,7 @@ def label_node(node):
 class Binariser(Filter, OutputDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
+        OutputDerivation.__init__(self)
         self.outdir = outdir
         
     def accept_derivation(self, bundle):

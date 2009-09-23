@@ -4,7 +4,7 @@ from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, find_first
 from munge.penn.aug_nodes import Node
 
-from apps.cn.output import OutputDerivation
+from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 

@@ -57,11 +57,10 @@ def label_adjunction(node):
     node.kids[1] = label(node[1])    
 
     # if the modifier category (lhs) has a special functor (like NP/N), use that
-    cat = np_modifier_tag_to_cat(node[0].tag)
-    if cat: 
-        node[0].category = cat
-    else:
-        node[0].category = node.category / node.category
+    node[0].category = (
+            np_modifier_tag_to_cat(node[0].tag) or 
+            (node.category / node.category))
+            
     node.kids[0] = label(node[0])
     
     return node
@@ -127,6 +126,7 @@ def label_partial_coordination(node):
     
 Map = {
     'NP': NP,
+    'PN': NP,
     
     'NN': N,
     'NR': N,
@@ -135,7 +135,9 @@ Map = {
     'IP': S,
 
     'ADVP': SbNPfSbNP,
+    
     'VP': SbNP,
+    'VA': SbNP,
     
     'CP': C('NP/NP'),
 }
@@ -146,7 +148,7 @@ def ptb_to_cat(ptb_tag, return_none_when_unmatched=False):
     ptb_tag = base_tag(ptb_tag)
     ptb_tag = Map.get(ptb_tag, None if return_none_when_unmatched else AtomicCategory(ptb_tag))
     
-    print ">>> RETURNING tag %s for %s" % (ptb_tag, old_tag)
+#    print ">>> RETURNING tag %s for %s" % (ptb_tag, old_tag)
         
     return copy(ptb_tag)
     
@@ -159,10 +161,10 @@ NPModifierMap = {
     # 'QP': C('NP/N'),
     # 'DP': C('NP/N'),
     
-    'ADJP': C('NP/NP'),
+    # 'ADJP': C('NP/NP'),
     'CP': C('NP/NP'),
-    'QP': C('NP/NP'),
-    'DP': C('NP/NP'),
+    # 'QP': C('NP/NP'),
+    # 'DP': C('NP/NP'),
 #    'ADVP': C('NP/NP')
 }    
 def np_modifier_tag_to_cat(ptb_tag):
@@ -197,48 +199,23 @@ def label(node):
     #print "<><><> %s" % type(node.category)
     #print "<><><> %s" % (node.category is None)
     if node.category is None:# and base_tag(node.tag) in Map:
-        print ">>> ASSIGNING CATEGORY"
         node.category = ptb_to_cat(node.tag)
-        print ">>> category is None, assigning", node.category
         
     if node.is_leaf():
         if not node.category:
             node.category = ptb_to_cat(node.tag)
         return node
         
-    elif is_topicalisation(node) or is_topicalisation_without_gap(node):
+    elif (node.count() == 1
+       or is_topicalisation(node) 
+       or is_topicalisation_without_gap(node)
+       or is_apposition(node)
+       or is_modification(node)):
+       
         node.kids[0] = label(node[0])
         if node.count() > 1:
             node.kids[1] = label(node[1])
             
-        return node
-        
-    elif is_apposition(node):
-        if not node.category:
-            node.category = ptb_to_cat(node.tag)
-
-        node.kids[0] = label(node[0])
-        if node.count() > 1:
-            node.kids[1] = label(node[1])
-        
-        return node
-        
-    elif is_modification(node):
-        if not node.category:
-            node.category = ptb_to_cat(node.tag)
-            
-#        node[0].category = node.category / node.category
-        node.kids[0] = label(node[0])
-
-#        node[1].category = node.category
-        node.kids[1] = label(node[1])
-            
-        return node
-        
-    elif node.count() == 1: 
-        if not node.category:
-            node.category = ptb_to_cat(node.tag)
-        node.kids[0] = label(node[0])
         return node
         
     elif is_etc(node):
@@ -261,32 +238,26 @@ def label(node):
         
     elif is_partial_coordination(node):
         if is_np_structure(node):
-            return rename_category_while_labelling_with(label_partial_coordination, node, N, when=lambda category: category == NP)
+            return rename_category_while_labelling_with(
+                label_partial_coordination, 
+                node, N, 
+                when=lambda category: category == NP)
         return label_partial_coordination(node)
     elif is_coordination(node):
         if is_np_structure(node):
-            return rename_category_while_labelling_with(label_coordination, node, N, when=lambda category: category == NP)
+            return rename_category_while_labelling_with(
+                label_coordination, 
+                node, N, 
+                when=lambda category: category == NP)
         return label_coordination(node)
         
     elif is_np_structure(node):
-        print "is_np_structure"
-        print node
-
-#        node.category = N
-        # ret = label_np_structure(node)
-        # ret.category = N
-        # 
-        # return ret
-        return rename_category_while_labelling_with(label_np_structure, node, N, when=lambda category: category == NP)
-#        return label_np_structure(node)
+        return rename_category_while_labelling_with(
+            label_np_structure, 
+            node, N, 
+            when=lambda category: category == NP)
         
     elif is_np_internal_structure(node):
-        print "is_np_internal_structure"
-        print node
-#        if not node.category:
-#            node.category = ptb_to_cat(node.tag)
-#        node.category = NP
-
         if node.category == NP:
             P = N
         else:
@@ -321,9 +292,9 @@ def label(node):
     elif is_head_initial(node):
         return label_head_initial(node)
    
-
     else:
-        warn("Node did not match any known patterns -- assuming adjunction: %s", node.__repr__(suppress_lex=True))
+        warn("Node did not match any known patterns -- assuming adjunction: %s",
+            node.__repr__(suppress_lex=True))
         return label_adjunction(node)
 
 def label_root(node):
@@ -334,6 +305,8 @@ def label_root(node):
 class LabelNodes(Filter, OutputDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
+        OutputDerivation.__init__(self)
+        
         self.outdir = outdir
         
     def accept_derivation(self, bundle):

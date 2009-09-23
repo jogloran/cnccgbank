@@ -1,5 +1,6 @@
 from copy import copy, deepcopy
 from munge.util.exceptions import CatParseException
+
 import re
 
 BACKWARD, FORWARD = range(2)
@@ -72,6 +73,9 @@ class AtomicCategory(object):
     def label_text(self): return re.escape(self.cat)
 
     def is_complex(self): return not self.is_leaf()
+    
+    def __iter__(self):
+        yield self
     
     def __or__(self, right):
         '''Constructs the complex category (self \ right).'''

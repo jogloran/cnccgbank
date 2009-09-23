@@ -17,10 +17,10 @@ fi
 echo "$TARGET"
 
 # Tag derivations
- rm -rf ./tagged/"$TARGET";  ./t -q -lmunge.proc.cn.count -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET"
- ./t -q -w tagged_dots tagged/"$TARGET"
+rm -rf ./tagged/"$TARGET";  ./t -q -lmunge.proc.cn.count -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET"
+./t -q -w tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
- rm -rf ./binarised/"$TARGET";  ./t -q -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET"
+rm -rf ./binarised/"$TARGET";  ./t -q -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET"
 # Make graphs
- ./t -q -w binarised_dots binarised/"$TARGET"
+./t -q -w binarised_dots binarised/"$TARGET"

@@ -3,6 +3,8 @@ from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
 from collections import defaultdict
 from munge.util.dict_utils import sorted_by_value_desc
+from apps.identify_pos import is_verb_compound
+
 import os, re
 
 def last_nonpunct_kid(node):
@@ -66,7 +68,7 @@ def is_internal_structure(node):
     
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
-        all(kid.tag in ('NN', 'NR', 'NT', 'PU', 'CC', 'ETC') for kid in node))
+        all(kid.tag in ('NN', 'NR', 'NT', 'PU', 'CC', 'ETC') for kid in leaves(node)))
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
@@ -132,14 +134,14 @@ class TagStructures(Filter):
                             # if tag is CC or PU, we want the previous
                             # tag to be N, not n
                             first = True
-                    
+             
+                elif is_internal_structure(node) or is_verb_compound(node):
+                    pass
+                           
                 elif is_coordination(node): # coordination
                     for kid in node:
                         if kid.tag not in ('CC', 'PU'):
                             self.tag(kid, 'c')
-
-                elif is_internal_structure(node):
-                    pass
 
                 elif first_kid.is_leaf() or is_vp_internal_structure(first_kid): # head initial complementation
                     self.tag(first_kid, 'h')

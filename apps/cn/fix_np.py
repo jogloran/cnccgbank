@@ -22,7 +22,7 @@ class FixNP(Fix):
         
     def fix1(self, node, pp, p, l, r):
         r.category = N
-        
+
     def fix(self, node, pp, p, l, r):
         new_N = copy.copy(p)
         new_N.category = N

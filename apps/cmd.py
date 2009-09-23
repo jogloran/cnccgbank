@@ -255,6 +255,9 @@ a pager program.'''
                make_option('-W', '--pp-whole-tree', help='Pretty print whole tree on match (not just matching subtrees).',                         
                            dest='show_mode', action='store_const', const='pp_whole_tree'),
                            
+               make_option('-m', '--matched-tag-only', help='Print matched tag only.',
+                           dest='show_mode', action='store_const', const='matched_tag'),
+                           
                make_option('-T', '--tags', help='Print tree tags.',
                            dest='show_mode', action='store_const', const='tags'),
                            
@@ -281,7 +284,8 @@ a pager program.'''
             'label':      Tgrep.SHOW_LABEL,
             'tokens':     Tgrep.SHOW_TOKENS,
             'rule':       Tgrep.SHOW_RULE,
-            'tags':       Tgrep.SHOW_TAGS
+            'tags':       Tgrep.SHOW_TAGS,
+            'matched_tag':Tgrep.SHOW_MATCHED_TAG_ONLY,
         }[opts.show_mode]
         find_mode = {
             'all':        Tgrep.FIND_ALL,
