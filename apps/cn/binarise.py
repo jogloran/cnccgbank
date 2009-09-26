@@ -139,6 +139,7 @@ def label_root(node):
     return result
     
 def inherit_tag(node, other):
+    '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
     if node.tag.find(":") == -1 and other.tag.find(":") != -1:
         node.tag += other.tag[other.tag.find(":"):]
     
@@ -150,7 +151,7 @@ def label_node(node, inside_np_internal_structure=False):
                 (has_noun_tag(node.kids[0]) or node.kids[0].tag == "PN")) or
             (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
             (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
-            (node.tag.startswith("ADVP") and node.kids[0].tag.startswith("AD")) or
+            (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS")) or
             (node.tag.startswith("CLP") and node.kids[0].tag==("M")) or
             (node.tag.startswith("QP") and node.kids[0].tag in ("OD","CD"))):
             replacement = node.kids[0]

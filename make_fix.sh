@@ -29,5 +29,5 @@ function do_fix {
 
 paths=labelled/"$TARGET"
 do_fix rc FixExtraction $paths #2> rc_errors
-do_fix adverbs FixAdverbs fixed_rc/*
-do_fix np FixNP fixed_adverbs/*
+do_fix adverbs FixAdverbs fixed_rc/"$TARGET"
+do_fix np FixNP fixed_adverbs/"$TARGET"

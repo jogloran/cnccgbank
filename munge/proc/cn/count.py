@@ -36,13 +36,17 @@ def is_predication(node):
 
 def is_apposition(node):
 #    return node.tag.startswith('NP') and last_nonpunct_kid(node).tag.startswith('NP') and node[0].tag.endswith('-APP')
-    return node.tag.startswith('NP') and any(kid.tag.endswith('-APP') for kid in node)
+    return (node.tag.startswith('NP') and 
+        # exclude CP-APP? it's not really apposition, rather adjunction
+        any(kid.tag != "CP-APP" and kid.tag.endswith('-APP') for kid in node))
     
 FunctionTags = 'ADV TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
 
 def is_modification(node):
     if node.tag == last_nonpunct_kid(node).tag:
-        return has_modification_tag(node[0])
+        return (has_modification_tag(node[0]) and 
+        # This exception treats CP-m not as modification but as adjunction
+                not node[0].tag.startswith('CP'))
     
     return False
     

@@ -23,7 +23,10 @@ class FixExtraction(Fix):
             r'/IP/=P < {/NP-TPC-\d/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
             r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
             r'* < { * < ^"*pro*" }': self.fix_prodrop,
+            # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) and what
+            # is expected (eg S/S)
             r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification,
+
 #            r'*=PP <1 *=V <2 { *=P <1 { /NP/=T < ^"*PRO*" } <2 *=S }': self.fix_control_gap
         }
     

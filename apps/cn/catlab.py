@@ -5,7 +5,7 @@ from apps.cn.output import OutputDerivation
 from munge.util.err_utils import warn, info
 import os
 
-#from echo import *
+from echo import *
 from munge.trees.pprint import *
 from apps.identify_lrhca import *
 from munge.cats.nodes import *
@@ -53,13 +53,13 @@ def label_right_absorption(node):
     
 #@echo
 def label_adjunction(node):
-    node[1].category = node.category
+    node[1].category = ptb_to_cat(node[1].tag, return_none_when_unmatched=True) or node.category
     node.kids[1] = label(node[1])    
 
     # if the modifier category (lhs) has a special functor (like NP/N), use that
     node[0].category = (
             np_modifier_tag_to_cat(node[0].tag) or 
-            (node.category / node.category))
+            (node.category / node[1].category))
             
     node.kids[0] = label(node[0])
     
@@ -139,7 +139,9 @@ Map = {
     'VP': SbNP,
     'VA': SbNP,
     
-    'CP': C('NP/NP'),
+    'CC': C('conj')
+    
+    #'CP': C('NP/NP'),
 }
 #@echo
 def ptb_to_cat(ptb_tag, return_none_when_unmatched=False):
@@ -171,6 +173,7 @@ def np_modifier_tag_to_cat(ptb_tag):
     ptb_tag = base_tag(ptb_tag)
     return copy(NPModifierMap.get(ptb_tag, None))
     
+#@echo
 def label_verb_compound(node):
     node[0].category = 'conj' if node[0].tag == 'CC' else node.category
     node[1].category = 'conj' if node[1].tag == 'CC' else node.category
@@ -190,6 +193,11 @@ def label_verb_compound(node):
     
     return node
     
+def is_cp_to_np_nominalisation(node):
+    return (node.count() == 1 and
+            node.tag.startswith('NP') and
+            node[0].tag.startswith('CP'))
+    
 #@echo
 def label(node):
     '''
@@ -206,6 +214,13 @@ def label(node):
             node.category = ptb_to_cat(node.tag)
         return node
         
+    elif is_cp_to_np_nominalisation(node):
+        print "is_cp_to_np_nominalisation(%s)" % node
+        node[0].category = C('NP/NP')
+        node.kids[0] = label(node[0])
+        
+        return node
+        
     elif (node.count() == 1
        or is_topicalisation(node) 
        or is_topicalisation_without_gap(node)
@@ -217,6 +232,14 @@ def label(node):
             node.kids[1] = label(node[1])
             
         return node
+        
+    # elif is_modification(node):
+    #     node.kids[1] = label(node[1])
+    #     
+    #     node[0].category = node.category / node.category
+    #     node.kids[0] = label(node[0])
+    #     
+    #     return node
         
     elif is_etc(node):
         return label_head_final(node)
