@@ -138,6 +138,7 @@ Map = {
     
     'VP': SbNP,
     'VA': SbNP,
+    'VV': SbNP,
     
     'CC': C('conj')
     

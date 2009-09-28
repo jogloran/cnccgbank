@@ -50,8 +50,9 @@ def is_modification(node):
     
     return False
     
+ModificationRegex = re.compile(r'\w+-(\w+)')
 def has_modification_tag(node):
-    m = re.match(r'\w+-(\w+)', node.tag)
+    m = ModificationRegex.match(node.tag)
     if m and len(m.groups()) == 1:
         function_tag = m.group(1)
         if function_tag in FunctionTags: return True
