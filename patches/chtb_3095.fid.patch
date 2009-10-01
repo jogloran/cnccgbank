@@ -1,0 +1,18 @@
+--- corpora/cptb/bracketed/chtb_3095.fid	2008-10-09 21:39:59.000000000 +1100
++++ corpora/cptb/bracketed/chtb_3095.fid.orig	2008-10-09 21:39:44.000000000 +1100
+@@ -87,13 +87,13 @@
+ 						  (CLP (M 段)))
+ 					      (NP (NN 时间))))))))))
+       (PU 。))) 
+-( (IP (NP-TPC (CP (WHNP-4 (-NONE- *OP*))
++( (IP (NP-TPC (CP ((WHNP-4 (-NONE- *OP*))
+                   CP (IP (NP-SBJ (NN 地方)
+ 				  (NN 当局))
+ 			  (VP (ADVP (AD 正在))
+ 			      (VP (VV 组织)
+                                   (NP-OBJ (-NONE- *T*-4)))))
+-		      (DEC 的))
++		      (DEC 的)))
+ 	      (ADJP (JJ 紧急))
+ 	      (NP (NN 求援)))
+       (PU ，)
