@@ -18,16 +18,15 @@ from munge.cats.nodes import FORWARD, BACKWARD
 class FixExtraction(Fix):
     def pattern(self): 
         return {
-            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}': self.fix_subject_extraction,
-            r'* < { /CP/ < {/WHNP-\d/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}': self.fix_object_extraction,
-            r'/IP/=P < {/NP-TPC-\d/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
+            r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}': self.fix_subject_extraction,
+            r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}': self.fix_object_extraction,
+            r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
             r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
+            # Removes the prodrop trace *pro*
             r'* < { * < ^"*pro*" }': self.fix_prodrop,
-            # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) and what
-            # is expected (eg S/S)
+            # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
+            # and what is expected (eg S/S)
             r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification,
-
-#            r'*=PP <1 *=V <2 { *=P <1 { /NP/=T < ^"*PRO*" } <2 *=S }': self.fix_control_gap
         }
     
     def __init__(self, outdir):
@@ -207,12 +206,3 @@ class FixExtraction(Fix):
         
         replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
         
-    def fix_control_gap(self, node, v, pp, p, t, s):
-        self.remove_PRO_gap(pp)
-        
-        PP, S = pp.category, s.category
-        
-        new_s_category = s.category.clone()
-        new_s_category.left.add_feature('b')
-        
-        v.category = PP/new_s_category

@@ -20,6 +20,7 @@ class Fix(Filter, OutputDerivation):
     def do_tgrep_with_callback(root, pattern, callback):
         for match_node, context in tgrep(root, pattern, with_context=True):
             if context: # only supply a context if the expression binds variables
+                # smash the case, variables in tgrep expressions are case insensitive
                 callback(match_node, **smash_key_case(context))
             else:
                 callback(match_node)
