@@ -58,7 +58,7 @@ def label_np_internal_structure(node, inherit_tag=False):
     else:
         return label_adjunction(node, inside_np_internal_structure=True)
     
-@echo
+#@echo
 def label_coordination(node, inside_np_internal_structure=False):
     def label_nonconjunctions(kid):
         if kid.tag not in ('CC', 'PU'): 
