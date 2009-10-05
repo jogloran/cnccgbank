@@ -20,6 +20,9 @@ class FixExtraction(Fix):
         return {
             r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}': self.fix_subject_extraction,
             r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}': self.fix_object_extraction,
+            
+            r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-TPC/ < ^/\*T\*/}}}}': self.fix_nongap_extraction,
+            
             r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
             r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
             # Removes the prodrop trace *pro*
@@ -138,6 +141,16 @@ class FixExtraction(Fix):
         
         # Find and remove the trace
         for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
+            trace_NP_parent[0] = trace_NP_parent[0][1]
+        
+        self.relabel_relativiser(node)
+        
+    def fix_nongap_extraction(self, node):
+        print "Fixing nongap extraction: %s" % node
+        self.remove_null_element(node)
+        
+        # Find and remove the trace
+        for trace_NP_parent in find_all(node, r'* < { * < { /NP-TPC/ < ^/\*T\*/ } }'):
             trace_NP_parent[0] = trace_NP_parent[0][1]
         
         self.relabel_relativiser(node)

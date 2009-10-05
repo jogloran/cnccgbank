@@ -45,6 +45,8 @@ class Leaf(N.Leaf):
         colon_index = tag.find(':')
         if colon_index != -1:
             return tag[:colon_index]
+        else:
+            return tag
         
     def ccgbank_repr(self):
         return "(<L %(cat)s %(tag)s %(tag)s %(lex)s %(cat)s>)" % {

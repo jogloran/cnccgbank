@@ -2,7 +2,10 @@ from __future__ import with_statement
 from copy import copy
 from munge.proc.filter import Filter
 from apps.cn.output import OutputDerivation
+
+from apps.cn.fix_utils import shrink_left
 from munge.util.err_utils import warn, info
+
 import os
 
 from echo import *
@@ -11,6 +14,8 @@ from apps.identify_lrhca import *
 from munge.cats.nodes import *
 from munge.cats.cat_defs import *
 import munge.penn.aug_nodes as A
+
+from apps.cn.fix_utils import *
 
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
     if when and (not when(node.category)): return label_function(node)
@@ -54,11 +59,11 @@ def label_right_absorption(node):
 #@echo
 def label_adjunction(node):
     node[1].category = ptb_to_cat(node[1].tag, return_none_when_unmatched=True) or node.category
-    node.kids[1] = label(node[1])    
+    node.kids[1] = label(node[1])
 
     # if the modifier category (lhs) has a special functor (like NP/N), use that
     node[0].category = (
-            np_modifier_tag_to_cat(node[0].tag) or 
+#            np_modifier_tag_to_cat(node[0].tag) or 
             (node.category / node[1].category))
             
     node.kids[0] = label(node[0])
@@ -103,9 +108,9 @@ def label_head_initial(node):
     return node
     
 #@echo
-def label_coordination(node):
+def label_coordination(node, inside_np=False):
     node[0].category = node.category
-    node.kids[0] = label(node[0])
+    node.kids[0] = label(node[0], inside_np)
 
     node[1].category = node.category
     node.kids[1] = label(node[1])    
@@ -114,16 +119,18 @@ def label_coordination(node):
     return node
     
 #@echo
-def label_partial_coordination(node):
+def label_partial_coordination(node, inside_np=False):
     node[0].category = ptb_to_cat(node[0].tag)
-    node.kids[0] = label(node[0])
+    node.kids[0] = label(node[0], inside_np)
 
 #    node[1].category = node.category.clone().add_feature('conj')
     node[1].category = node.category
-    node.kids[1] = label(node[1])
+    node.kids[1] = label(node[1], inside_np)
     
     return node
     
+# If no process successfully assigns a category, these are used to map PTB tags to
+# a 'last-ditch' category.
 Map = {
     'NP': NP,
     'PN': NP,
@@ -151,8 +158,6 @@ def ptb_to_cat(ptb_tag, return_none_when_unmatched=False):
     ptb_tag = base_tag(ptb_tag)
     ptb_tag = Map.get(ptb_tag, None if return_none_when_unmatched else AtomicCategory(ptb_tag))
     
-#    print ">>> RETURNING tag %s for %s" % (ptb_tag, old_tag)
-        
     return copy(ptb_tag)
     
 NPModifierMap = {
@@ -198,9 +203,15 @@ def is_cp_to_np_nominalisation(node):
     return (node.count() == 1 and
             node.tag.startswith('NP') and
             node[0].tag.startswith('CP'))
+            
+def is_PRO_trace(node):
+    base = node.count() >= 2 and node[0].count() == 1 
+    ret = base and node[0][0].tag == "-NONE-" and node[0][0].lex == "*PRO*"
+    if base and node[0][0].tag == "-NONE-": print node
+    return ret
     
 #@echo
-def label(node):
+def label(node, inside_np=False):
     '''
     Labels the descendants of _node_ and returns _node_.
     '''
@@ -209,6 +220,13 @@ def label(node):
     #print "<><><> %s" % (node.category is None)
     if node.category is None:# and base_tag(node.tag) in Map:
         node.category = ptb_to_cat(node.tag)
+        
+        # if this matches the IP root with a *PRO* trace under it, then
+        # we shouldn't map IP -> S, but rather IP -> S\NP
+        if has_noun_tag(node):
+            node.category = N
+        else:
+            node.category = ptb_to_cat(node.tag)
         
     if node.is_leaf():
         if not node.category:
@@ -254,6 +272,12 @@ def label(node):
         return label_left_absorption(node)
     elif is_right_absorption(node):
         return label_right_absorption(node)
+        
+    # must be above predication
+    elif is_PRO_trace(node):
+        new_node = shrink_left(node, node.parent)
+        ret = label(new_node)
+        return ret
 
     elif is_predication(node):
         return label_predication(node)
@@ -261,18 +285,18 @@ def label(node):
         return label_right_adjunction(node)
         
     elif is_partial_coordination(node):
-        if is_np_structure(node):
-            return rename_category_while_labelling_with(
-                label_partial_coordination, 
-                node, N, 
-                when=lambda category: category == NP)
+        # if is_np_structure(node):
+        #     return rename_category_while_labelling_with(
+        #         label_partial_coordination, 
+        #         node, N, 
+        #         when=lambda category: category == NP)
         return label_partial_coordination(node)
     elif is_coordination(node):
-        if is_np_structure(node):
-            return rename_category_while_labelling_with(
-                label_coordination, 
-                node, N, 
-                when=lambda category: category == NP)
+        # if is_np_structure(node):
+        #     return rename_category_while_labelling_with(
+        #         label_coordination, 
+        #         node, N, 
+        #         when=lambda category: category == NP)
         return label_coordination(node)
         
     elif is_np_structure(node):

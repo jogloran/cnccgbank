@@ -58,15 +58,15 @@ def label_np_internal_structure(node, inherit_tag=False):
     else:
         return label_adjunction(node, inside_np_internal_structure=True)
     
-#@echo
-def label_coordination(node):
+@echo
+def label_coordination(node, inside_np_internal_structure=False):
     def label_nonconjunctions(kid):
         if kid.tag not in ('CC', 'PU'): 
-            return label_node(kid)
+            return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
         else: return kid
     
     kids = map(label_nonconjunctions, node.kids)
-    return label_adjunction(Node(node.tag, kids), without_labelling=True)
+    return label_adjunction(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
 
 #@echo
 def label_head_initial(node, inherit_tag=False):
@@ -147,22 +147,33 @@ def inherit_tag(node, other):
 def label_node(node, inside_np_internal_structure=False):
     if node.is_leaf(): return node
     elif node.count() == 1:
-        if ((inside_np_internal_structure and node.tag.startswith("NP") and 
-                (has_noun_tag(node.kids[0]) or node.kids[0].tag == "PN")) or
+        if ((inside_np_internal_structure and node.tag.startswith("NP") and has_noun_tag(node.kids[0])) or
             (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
             (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
             (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS")) or
             (node.tag.startswith("CLP") and node.kids[0].tag==("M")) or
-            (node.tag.startswith("QP") and node.kids[0].tag in ("OD","CD"))):
+            (node.tag.startswith("QP") and node.kids[0].tag in ("OD","CD")) or
+            (node.tag.startswith("DP") and node.kids[0].tag==("DT"))):
             replacement = node.kids[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node.kids[0])
             return label_node(replacement)
+            
+        elif node.tag.startswith('NP') and node.kids[0].tag == "PN":
+            replacement = node.kids[0]
+            inherit_tag(replacement, node)
+            replace_kid(node.parent, node, node.kids[0])
+            replacement.tag = node.tag
+            
+            return label_node(replacement)
+            
         else:
             node.kids[0] = label_node(node.kids[0])
             return node
     elif is_predication(node):
         return label_predication(node)
+    elif is_np_structure(node):
+        return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)
     elif (is_apposition(node)
@@ -176,7 +187,7 @@ def label_node(node, inside_np_internal_structure=False):
     elif is_head_initial(node):
         return label_head_initial(node)
     elif is_coordination(node):
-        return label_coordination(node)
+        return label_coordination(node, inside_np_internal_structure=inside_np_internal_structure)
     else:
         return label_adjunction(node)
         

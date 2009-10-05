@@ -2,7 +2,7 @@ from munge.proc.filter import Filter
 from munge.cats.trace import analyse
 from munge.trees.traverse import nodes
 
-class DerivDocSecCount(Filter):
+class DerivCount(Filter):
     def __init__(self):
         Filter.__init__(self)
         self.nderivs = 0

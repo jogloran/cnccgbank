@@ -43,15 +43,18 @@ def is_apposition(node):
 FunctionTags = 'ADV TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
 
 def is_modification(node):
-    if node.tag == last_nonpunct_kid(node).tag:
-        return (has_modification_tag(node[0]) and 
-        # This exception treats CP-m not as modification but as adjunction
-                not node[0].tag.startswith('CP'))
+    lnpk = last_nonpunct_kid(node)
+    if not lnpk: return False
+    
+    if node.tag == lnpk.tag:
+        return has_modification_tag(node[0])
     
     return False
     
 ModificationRegex = re.compile(r'\w+-(\w+)')
 def has_modification_tag(node):
+    if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
+    
     m = ModificationRegex.match(node.tag)
     if m and len(m.groups()) == 1:
         function_tag = m.group(1)
