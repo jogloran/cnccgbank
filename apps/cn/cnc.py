@@ -14,8 +14,7 @@ class PipeFormat(Filter, OutputDerivation):
         self.write_derivation(bundle)
         
     def transformer(self, bundle):
-        return (" ".join(self.format(leaf))
-                for leaf in leaves(bundle.derivation))
+        return " ".join(self.format(leaf) for leaf in leaves(bundle.derivation))
     
     @staticmethod
     def make_format_string_from(format):
