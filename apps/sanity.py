@@ -13,3 +13,15 @@ class SanityChecks(Filter):
     def output(self):
         print "nderivs: %d, nwords: %d" % (self.nderivs, self.nwords)
         
+class PUTokens(Filter):
+    def __init__(self):
+        Filter.__init__(self)
+        
+        self.puncts = set()
+        
+    def accept_leaf(self, leaf):
+        if leaf.tag == "PU": self.puncts.add(leaf.lex)
+        
+    def output(self):
+        for punct in sorted(self.puncts):
+            print punct

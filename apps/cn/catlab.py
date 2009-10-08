@@ -1,3 +1,4 @@
+# coding=utf-8
 from __future__ import with_statement
 from copy import copy
 from munge.proc.filter import Filter
@@ -40,7 +41,7 @@ def label_predication(node):
     
 #@echo
 def label_left_absorption(node):
-    node[0].category = node[0].tag
+    node[0].category = ptb_to_cat(node[0])
     
     node[1].category = node.category
     node.kids[1] = label(node[1])
@@ -49,7 +50,7 @@ def label_left_absorption(node):
     
 #@echo
 def label_right_absorption(node):
-    node[1].category = node[1].tag
+    node[1].category = ptb_to_cat(node[1])
     
     node[0].category = node.category
     node.kids[0] = label(node[0])
@@ -58,7 +59,7 @@ def label_right_absorption(node):
     
 #@echo
 def label_adjunction(node):
-    node[1].category = ptb_to_cat(node[1].tag, return_none_when_unmatched=True) or node.category
+    node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True) or node.category
     node.kids[1] = label(node[1])
 
     # if the modifier category (lhs) has a special functor (like NP/N), use that
@@ -120,7 +121,7 @@ def label_coordination(node, inside_np=False):
     
 #@echo
 def label_partial_coordination(node, inside_np=False):
-    node[0].category = ptb_to_cat(node[0].tag)
+    node[0].category = ptb_to_cat(node[0])
     node.kids[0] = label(node[0], inside_np)
 
 #    node[1].category = node.category.clone().add_feature('conj')
@@ -151,9 +152,42 @@ Map = {
     
     #'CP': C('NP/NP'),
 }
+
+PunctuationMap = {
+    '.': '.', # Roman period
+    '。': '.', # Chinese period
+    
+    '、': 'LCM', # Enumeration comma (顿号) for separating list items
+    '，': ',', # Clausal comma (逗号)
+    ',': ',', # Roman comma
+    
+    '？': '?', # Chinese question mark
+    '?': '?',
+    
+    '！': '!', # Chinese exclamation mark
+    '!': '!',
+    
+    '：': ':', # Chinese colon
+    ':': ':',
+    
+    '；': ';', # Chinese semicolon
+    ';': ':',
+    
+    '（': 'LPA', # Chinese opening paren
+    '(': 'LPA',
+    
+    '）': 'RPA', # Chinese closing paren
+    ')': 'RPA',
+}
 #@echo
-def ptb_to_cat(ptb_tag, return_none_when_unmatched=False):
-    old_tag=ptb_tag
+def ptb_to_cat(node, return_none_when_unmatched=False):
+    if node.tag == 'PU' and node.lex in PunctuationMap:
+        print 'here'
+        return AtomicCategory(PunctuationMap[node.lex])
+        
+    ptb_tag = node.tag
+    
+    old_tag = ptb_tag
     
     ptb_tag = base_tag(ptb_tag)
     ptb_tag = Map.get(ptb_tag, None if return_none_when_unmatched else AtomicCategory(ptb_tag))
@@ -219,18 +253,18 @@ def label(node, inside_np=False):
     #print "<><><> %s" % type(node.category)
     #print "<><><> %s" % (node.category is None)
     if node.category is None:# and base_tag(node.tag) in Map:
-        node.category = ptb_to_cat(node.tag)
+        node.category = ptb_to_cat(node)
         
         # if this matches the IP root with a *PRO* trace under it, then
         # we shouldn't map IP -> S, but rather IP -> S\NP
         if has_noun_tag(node):
             node.category = N
         else:
-            node.category = ptb_to_cat(node.tag)
+            node.category = ptb_to_cat(node)
         
     if node.is_leaf():
         if not node.category:
-            node.category = ptb_to_cat(node.tag)
+            node.category = ptb_to_cat(node)
         return node
         
     elif is_cp_to_np_nominalisation(node):
@@ -346,7 +380,7 @@ def label(node, inside_np=False):
         return label_adjunction(node)
 
 def label_root(node):
-    node.category = ptb_to_cat(node.tag)
+    node.category = ptb_to_cat(node)
     node = label(node)
     return node
 

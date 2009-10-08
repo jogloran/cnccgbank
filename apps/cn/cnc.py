@@ -19,9 +19,9 @@ class PipeFormat(Filter, OutputDerivation):
     @staticmethod
     def make_format_string_from(format):
         substitutions = {
-            "%f": "%(lex)s",
-            "%i": "%(pos)s",
-            "%c": "%(cat)s"
+            "%w": "%(lex)s",
+            "%p": "%(pos)s",
+            "%s": "%(cat)s"
         }
         for src, dst in substitutions.iteritems():
             format = re.sub(src, dst, format)
