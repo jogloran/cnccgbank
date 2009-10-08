@@ -147,6 +147,7 @@ def inherit_tag(node, other):
 def label_node(node, inside_np_internal_structure=False):
     if node.is_leaf(): return node
     elif node.count() == 1:
+        # shrinkage rules
         if ((inside_np_internal_structure and node.tag.startswith("NP") and has_noun_tag(node.kids[0])) or
             (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
             (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or

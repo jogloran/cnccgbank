@@ -148,7 +148,7 @@ Map = {
     'VA': SbNP,
     'VV': SbNP,
     
-    'CC': C('conj')
+    'CC': conj
     
     #'CP': C('NP/NP'),
 }
@@ -182,14 +182,9 @@ PunctuationMap = {
 #@echo
 def ptb_to_cat(node, return_none_when_unmatched=False):
     if node.tag == 'PU' and node.lex in PunctuationMap:
-        print 'here'
         return AtomicCategory(PunctuationMap[node.lex])
         
-    ptb_tag = node.tag
-    
-    old_tag = ptb_tag
-    
-    ptb_tag = base_tag(ptb_tag)
+    ptb_tag = base_tag(node.tag)
     ptb_tag = Map.get(ptb_tag, None if return_none_when_unmatched else AtomicCategory(ptb_tag))
     
     return copy(ptb_tag)
@@ -215,18 +210,18 @@ def np_modifier_tag_to_cat(ptb_tag):
     
 #@echo
 def label_verb_compound(node):
-    node[0].category = 'conj' if node[0].tag == 'CC' else node.category
-    node[1].category = 'conj' if node[1].tag == 'CC' else node.category
+    node[0].category = conj if node[0].tag == 'CC' else node.category
+    node[1].category = conj if node[1].tag == 'CC' else node.category
     
     if node[0].tag == 'CC':
-        node[0].category = 'CC'
+        node[0].category = conj
         node[1].category = node.category
     elif node[1].tag == 'CC':
-        node[1].category = 'CC'
+        node[1].category = conj
         node[0].category = node.category
     else:
         node[0].category = node.category
-        node[1].category = node.category | node.category
+        node[1].category = node.category | node.category # TODO:
     
     node.kids[0] = label(node[0])
     node.kids[1] = label(node[1])
@@ -239,20 +234,16 @@ def is_cp_to_np_nominalisation(node):
             node[0].tag.startswith('CP'))
             
 def is_PRO_trace(node):
-    base = node.count() >= 2 and node[0].count() == 1 
-    ret = base and node[0][0].tag == "-NONE-" and node[0][0].lex == "*PRO*"
-    if base and node[0][0].tag == "-NONE-": print node
-    return ret
+    return (node.count() >= 2 and node[0].count() == 1
+            and node[0][0].tag == "-NONE-" 
+            and node[0][0].lex == "*PRO*")
     
 #@echo
 def label(node, inside_np=False):
     '''
     Labels the descendants of _node_ and returns _node_.
     '''
-    #print "<><><> %s" % node.category
-    #print "<><><> %s" % type(node.category)
-    #print "<><><> %s" % (node.category is None)
-    if node.category is None:# and base_tag(node.tag) in Map:
+    if node.category is None:
         node.category = ptb_to_cat(node)
         
         # if this matches the IP root with a *PRO* trace under it, then
@@ -267,6 +258,7 @@ def label(node, inside_np=False):
             node.category = ptb_to_cat(node)
         return node
         
+    # NP/NP (CP) -> NP
     elif is_cp_to_np_nominalisation(node):
         print "is_cp_to_np_nominalisation(%s)" % node
         node[0].category = C('NP/NP')
@@ -285,14 +277,6 @@ def label(node, inside_np=False):
             node.kids[1] = label(node[1])
             
         return node
-        
-    # elif is_modification(node):
-    #     node.kids[1] = label(node[1])
-    #     
-    #     node[0].category = node.category / node.category
-    #     node.kids[0] = label(node[0])
-    #     
-    #     return node
         
     elif is_etc(node):
         return label_head_final(node)
@@ -319,18 +303,8 @@ def label(node, inside_np=False):
         return label_right_adjunction(node)
         
     elif is_partial_coordination(node):
-        # if is_np_structure(node):
-        #     return rename_category_while_labelling_with(
-        #         label_partial_coordination, 
-        #         node, N, 
-        #         when=lambda category: category == NP)
         return label_partial_coordination(node)
     elif is_coordination(node):
-        # if is_np_structure(node):
-        #     return rename_category_while_labelling_with(
-        #         label_coordination, 
-        #         node, N, 
-        #         when=lambda category: category == NP)
         return label_coordination(node)
         
     elif is_np_structure(node):
@@ -351,7 +325,7 @@ def label(node, inside_np=False):
             elif kid.tag.endswith(':n'):
                 kid.category = P/P
             elif kid.tag == 'CC':
-                kid.category = C('conj')
+                kid.category = conj
             elif kid.tag.startswith('NP'):
                 kid.category = P
             else:

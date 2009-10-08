@@ -17,7 +17,7 @@ fi
 echo "$TARGET"
 
 # Tag derivations
-rm -rf ./tagged/"$TARGET";  ./t -q -lmunge.proc.cn.count -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET"
+rm -rf ./tagged/"$TARGET";  ./t -q -lapps.cn.tag -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET"
 ./t -q -w tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
