@@ -17,7 +17,7 @@ def aug_node_repr(node):
     else:
         return "%s {%s}" % (node.tag, node.category)
 
-LeafCompressThreshold = 3
+LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
 def pprint(node, level=0, sep='   ', newline='\n', node_repr=default_node_repr, reduced_leaves=False):
     out = []
     if level == 0: 

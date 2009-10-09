@@ -5,7 +5,12 @@ from munge.proc.cn.count import last_nonpunct_kid
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
 
+# 
 def base_tag(tag):
+    '''
+    Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
+    unmodified.
+    '''
     if re.match(r'-.+-$', tag): return tag
     
     tag = re.sub(r':.+$', '', tag)
@@ -32,11 +37,8 @@ def is_xp_sbj(node):
 def is_vp(node):
     return node.tag.startswith('VP')
 
-# TODO: this definition is too restrictive
+# TODO: this definition is too restrictive: Chinese allows non VP predicates
 def is_predication(node):
-#    return (node.tag.startswith('IP') and 
-#            is_np_sbj(node[0]) and 
-#            is_vp(node[1]))
     return (node.tag.startswith('IP') and
         any(is_xp_sbj(kid) for kid in node) and
         any(is_vp(kid) or has_verbal_tag(kid) for kid in node))
@@ -68,10 +70,10 @@ def is_np_internal_structure(node):
              or kid.tag in NominalCategories
              or kid.tag in ('PU', 'CC')
              or kid.tag.startswith('JJ')
-            # or kid.tag.startswith('DEG')
              or kid.tag.endswith(':&') for kid in leaves(node)))
     
 def is_np_structure(node):
+    # These tags are attested NP modifiers
     return node.tag.startswith('NP') and all(
         (any(kid.tag.startswith(cat) for cat in NominalCategories)) or 
         kid.tag.startswith('ADJP') or 
