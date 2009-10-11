@@ -1,17 +1,13 @@
 #! /bin/bash
 
-if [[ $1 == "all" ]]; then
+if [[ $1 == "all" || $1 == "*" ]]; then
     SECTION=""
     TARGET="*"
 elif [[ $1 =~ ^[0-9]{2}$ ]]; then
     SECTION=${1:-00}
     TARGET="chtb_${SECTION}*"
-#elif [ -f $1 ]; then
 else
     TARGET=`basename $1`
-#else
-#    echo Invalid argument.
-#    exit 1
 fi
 
 function do_fix {
@@ -21,10 +17,11 @@ function do_fix {
 
     echo "Applying fix $filter_name..."
 
-    rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader $paths
+    echo rm -rf ./fixed_${fix_suffix}
+    echo ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader $paths
     #rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 $paths
     echo "Making DOTs for $filter_name..."
-    ./t -q -w fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
+    echo ./t -q -w fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
 }
 
 paths=labelled/"$TARGET"
