@@ -15,13 +15,15 @@ function do_fix {
     filter_name=$1; shift
     paths=$@
 
-    echo "Applying fix $filter_name..."
 
-    echo rm -rf ./fixed_${fix_suffix}
-    echo ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader $paths
-    #rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 $paths
+    echo "Applying fix $filter_name..."
+    echo to "$paths"
+
+    rm -rf ./fixed_${fix_suffix}
+    ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader "$paths"
+    #rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 "$paths"
     echo "Making DOTs for $filter_name..."
-    echo ./t -q -w fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
+    ./t -q -w fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
 }
 
 paths=labelled/"$TARGET"

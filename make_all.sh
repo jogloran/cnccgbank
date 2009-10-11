@@ -11,8 +11,8 @@ else
 fi
 
 echo Started at: `date`
-echo ./make_lab.sh "$TARGET" \
+./make_lab.sh "$TARGET" \
 && ./make_fix.sh "$TARGET" \
-&& ./make_ccgbank.sh fixed_np/"$TARGET" 
-#&& ./t -w final_dots final/"$TARGET" 
+&& ./make_ccgbank.sh fixed_np/"$TARGET"  \
+&& ./t -w final_dots final/"$TARGET" 
 echo Finished at: `date`

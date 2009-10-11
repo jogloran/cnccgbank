@@ -207,6 +207,7 @@ class FixExtraction(Fix):
         return re.sub(r':.+$', '', tag)
             
     def fix_modification(self, node, p, s, t):
+        print "Fixing modification: %s" % node
         S, P = s.category, p.category
 
         # If you don't strip the tag :m from the newly created child (new_kid),
@@ -214,5 +215,6 @@ class FixExtraction(Fix):
         new_kid = copy.copy(t)
         new_kid.tag = self.strip_tag(new_kid.tag)
         
+        print "Creating category %s" % (P/S)
         replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
         
