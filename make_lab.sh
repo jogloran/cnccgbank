@@ -17,6 +17,8 @@ fi
 
 ./make_bin.sh $1
 
+echo Doing category labelling.
 rm -rf ./labelled/"$TARGET"; ./t -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET"
 
+echo Making DOTs.
 ./t -w labelled_dots -R AugmentedPTBReader labelled/"$TARGET"
