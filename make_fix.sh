@@ -20,13 +20,12 @@ function do_fix {
     echo to "$paths"
 
     rm -rf ./fixed_${fix_suffix}
-    ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader "$paths"
+    ./t -q -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader "$paths"
     #rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 "$paths"
     echo "Making DOTs for $filter_name..."
     ./t -q -w fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
 }
 
-paths=labelled/"$TARGET"
-do_fix rc FixExtraction $paths 2> rc_errors
+do_fix rc FixExtraction labelled/"$TARGET" 2> rc_errors
 do_fix adverbs FixAdverbs fixed_rc/"$TARGET"
 do_fix np FixNP fixed_adverbs/"$TARGET"
