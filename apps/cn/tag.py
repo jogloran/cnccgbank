@@ -148,7 +148,9 @@ class TagStructures(Filter):
                            
                 elif is_coordination(node): # coordination
                     for kid in node:
-                        if kid.tag not in ('CC', 'PU'):
+                        # TODO: putting ADVP in here stops misanalysis of 1:4(11), but what if we actually
+                        # want coordination of adverbs?
+                        if kid.tag not in ('CC', 'PU', 'ADVP'):
                             self.tag(kid, 'c')
 
                 elif first_kid.is_leaf() or is_vp_internal_structure(first_kid): # head initial complementation
@@ -184,7 +186,7 @@ class TagStructures(Filter):
                     if last_kid.tag.startswith('DEC'):
                         for kid in node[0:node.count()-1]:
                             if kid.tag.startswith('WHNP'): self.tag(kid, 'a')
-                            else: self.tag(kid, 'l')
+                            elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')): self.tag(kid, 'l')
                     else:
                         for kid in node[0:node.count()-1]:
                             if self.is_postverbal_adjunct_tag(kid.tag):

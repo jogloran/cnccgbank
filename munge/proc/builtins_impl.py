@@ -1,7 +1,7 @@
 import os
 from munge.proc.filter import Filter  
 
-from munge.vis.dot import write_graph, write_png
+from munge.vis.dot import write_graph, write_png, write_pdf
 from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.cats.paths import applications  
 from munge.proc.bases import CountWordFrequencyByCategory
@@ -50,6 +50,18 @@ class WritePNG(OutputDerivations):
 
     opt = "W"
     long_opt = "write-png"
+
+    arg_names = "OUTDIR"
+    
+class WritePDF(OutputDerivations):
+    def __init__(self, output_dir):
+        OutputDerivations.__init__(self, output_dir, 'pdf')
+
+    def process(self, bundle, filename):
+        write_pdf(bundle.derivation, filename)
+
+    opt = "D"
+    long_opt = "write-pdf"
 
     arg_names = "OUTDIR"
 

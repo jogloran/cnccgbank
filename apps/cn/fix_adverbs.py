@@ -2,7 +2,7 @@ from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep
 from apps.cn.output import OutputDerivation
 from apps.cn.fix import Fix
-from munge.cats.cat_defs import SbNPbSbNP
+from munge.cats.cat_defs import SbNPbSbNP, featureless
 from munge.trees.traverse import leaves
 
 class FixAdverbs(Fix):
@@ -32,7 +32,7 @@ class FixAdverbs(Fix):
     @staticmethod
     def fix_category(node):
         print "FIX: %s" % node
-        A = node.parent[0].category.left
+        A = featureless(node.parent[0].category.left)
         node.category = A|A
         
     def fix(self, node):

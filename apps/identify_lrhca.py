@@ -29,7 +29,9 @@ def is_right_absorption(node):
         #       and VC PU -> VP (3:23(4)).
         # it seems we get NN PU -> NP as well (10:2(17))
         (has_verbal_tag(node[0]) and node.tag.startswith('VP')) or
-        (has_noun_tag(node[0]) and node.tag.startswith('NP')))
+        (has_noun_tag(node[0]) and node.tag.startswith('NP')) or
+        # PU IP DEC PU -> CP (1:85(9))
+        (node[0].tag.startswith("DEC") and node.tag.startswith('CP')))
 
 def is_xp_sbj(node):
     return re.search(r'-SBJ', node.tag) is not None

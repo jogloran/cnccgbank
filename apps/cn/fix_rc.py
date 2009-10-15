@@ -8,6 +8,7 @@ from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 
+from munge.util.err_utils import warn
 from munge.trees.pprint import pprint, aug_node_repr
 from munge.util.tgrep_utils import get_first
 from munge.cats.cat_defs import *
@@ -49,11 +50,14 @@ class FixExtraction(Fix):
         # we want the closest DEC, so we can't use the DFS implicit in tgrep
         # relativiser, context = get_first(node, r'/DEC/ $ *=S', with_context=True)
         # s = context['S']
-        
         relativiser, s = node[0][1], node[0][0]
-        
-        relativiser.category.right = s.category
-        print "New rel category: %s" % relativiser.category
+        print "<><> %s" % relativiser
+        if not relativiser.tag.startswith('DEC'):
+            warn("Didn't get relativiser in expected position, got %s" % relativiser)
+            return
+        else:
+            relativiser.category.right = s.category
+            print "New rel category: %s" % relativiser.category
         
     def typeraise(self, node):
         if not node: return
@@ -164,8 +168,6 @@ class FixExtraction(Fix):
         
         self.fix_categories_starting_from(s, until=top)
         
-        print "relabel_rel(%s)" % node
-        print ''.join(node.text())
         self.relabel_relativiser(node)
         
     @staticmethod
@@ -215,6 +217,7 @@ class FixExtraction(Fix):
         new_kid = copy.copy(t)
         new_kid.tag = self.strip_tag(new_kid.tag)
         
-        print "Creating category %s" % (P/S)
-        replace_kid(p, t, Node(P/S, t.tag, [new_kid]))
+        new_category = featureless(P) / featureless(S)
+        print "Creating category %s" % new_category
+        replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
         

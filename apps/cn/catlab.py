@@ -7,9 +7,9 @@ from apps.cn.output import OutputDerivation
 from apps.cn.fix_utils import shrink_left
 from munge.util.err_utils import warn, info
 
-import os
+import sys, os
 
-from echo import *
+import apps.util.echo as E
 from munge.trees.pprint import *
 from apps.identify_lrhca import *
 from munge.cats.nodes import *
@@ -17,6 +17,22 @@ from munge.cats.cat_defs import *
 import munge.penn.aug_nodes as A
 
 from apps.cn.fix_utils import *
+
+def tag_and_lex(node):
+    return node.tag + "/" + node.lex
+    
+def tag_and_text_under(node):
+    return "%s/(%s)" % (node.tag, ' '.join(node.text()))
+    
+def print_lrp(node):
+    if isinstance(node, A.Node):
+        return "%s (%s)" % (node.tag, " ".join(tag_and_text_under(x) for x in node))
+    elif isinstance(node, A.Leaf):
+        return "%s" % tag_and_lex(node)
+    else:
+        return repr(node)
+def echo(fn, write=sys.stdout.write):
+    return E.echo(fn, print_lrp, write)
 
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
     if when and (not when(node.category)): return label_function(node)
@@ -65,7 +81,7 @@ def label_adjunction(node):
     # if the modifier category (lhs) has a special functor (like NP/N), use that
     node[0].category = (
 #            np_modifier_tag_to_cat(node[0].tag) or 
-            (node.category / node[1].category))
+            (featureless(node.category) / featureless(node[1].category)))
             
     node.kids[0] = label(node[0])
     
@@ -80,12 +96,14 @@ def label_np_structure(node):
         
     return node
     
-#@echo
+@echo
 def label_right_adjunction(node):
     node[0].category = node.category
     node.kids[0] = label(node[0])
     
-    node[1].category = node.category | node.category
+    no_features = featureless(node.category)
+    node[1].category = no_features | no_features
+    print "node[1] got %s" % node[1].category
     node.kids[1] = label(node[1])
 
     return node
@@ -140,13 +158,14 @@ Map = {
     'NR': N,
     'NT': N,
     
-    'IP': S,
+    'IP': Sdcl,
+    'CP-Q': Sq,
 
     'ADVP': SbNPfSbNP,
     
-    'VP': SbNP,
-    'VA': SbNP,
-    'VV': SbNP,
+    'VP': SdclbNP,
+    'VA': SdclbNP,
+    'VV': SdclbNP,
     
     'CC': conj
     
@@ -179,15 +198,17 @@ PunctuationMap = {
     '）': 'RPA', # Chinese closing paren
     ')': 'RPA',
 }
-#@echo
+##@echo
 def ptb_to_cat(node, return_none_when_unmatched=False):
     if node.tag == 'PU' and node.lex in PunctuationMap:
         return AtomicCategory(PunctuationMap[node.lex])
         
-    ptb_tag = base_tag(node.tag)
-    ptb_tag = Map.get(ptb_tag, None if return_none_when_unmatched else AtomicCategory(ptb_tag))
+    original_tag = node.tag
+    stemmed_tag = base_tag(node.tag)
     
-    return copy(ptb_tag)
+    ret = Map.get(original_tag, None)
+    return copy(Map.get(original_tag, None)
+             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag )))
     
 NPModifierMap = {
 #    'QP': C('NP/NP'),

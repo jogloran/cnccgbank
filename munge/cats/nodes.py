@@ -67,7 +67,7 @@ class AtomicCategory(object):
 
     def slash_count(self): return 0
     
-    def nested_compound_categories(self): return []
+    def nested_compound_categories(self): yield self
 
     def is_leaf(self): return True
     def label_text(self): return re.escape(self.cat)
@@ -202,9 +202,9 @@ and its labelled index.'''
                     yield (node, slash_index)
                         
     def nested_compound_categories(self):
-        return ([self] + 
-                 self.left.nested_compound_categories() + 
-                 self.right.nested_compound_categories())    
+        yield self
+        for cat in self.left.nested_compound_categories(): yield cat
+        for cat in self.right.nested_compound_categories(): yield cat
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.slash)

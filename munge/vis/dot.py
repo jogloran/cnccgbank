@@ -73,6 +73,12 @@ def write_graph(deriv, fn):
         f.write(make_graph(deriv))
 
 def write_png(deriv, fn):
+    return write_dot_format(deriv, fn, "png")
+
+def write_pdf(deriv, fn):
+    return write_dot_format(deriv, fn, "pdf")
+
+def write_dot_format(deriv, fn, format):
     cin = cout = None
     try:
         dot_path = os.popen('which dot').read().strip()
@@ -80,12 +86,13 @@ def write_png(deriv, fn):
             err('dot not found on this system. Ensure that dot is in the PATH.')
             return
             
-        cmd = '%s -Tpng -o %s 2>/dev/null' % (dot_path, fn)
+        cmd = '%s -T%s -o %s 2>/dev/null' % (dot_path, format, fn)
         pipes = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, close_fds=True)
         
         cin, cout = pipes.stdin, pipes.stdout
-        cin.write(make_graph(deriv))
+        cin.write(make_graph(deriv)); cin.close()
         
+        pipes.wait()
         if pipes.returncode is not None and pipes.returncode != 0:
             raise RuntimeError('dot terminated with non-zero return code: %d' % pipes.returncode)
 

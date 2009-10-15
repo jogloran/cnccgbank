@@ -16,11 +16,11 @@ echo "make_bin operating on $TARGET"
 echo Tagging derivations.
 rm -rf ./tagged/"$TARGET";
 ./t -q -lapps.cn.tag -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET"
-./t -q -w tagged_dots tagged/"$TARGET"
+./t -q -D tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
 echo Binarising derivations.
 rm -rf ./binarised/"$TARGET";
 ./t -q -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET"
 # Make graphs
-./t -q -w binarised_dots binarised/"$TARGET"
+./t -q -D binarised_dots binarised/"$TARGET"
