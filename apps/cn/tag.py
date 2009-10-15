@@ -156,7 +156,7 @@ class TagStructures(Filter):
                 elif first_kid.is_leaf() or is_vp_internal_structure(first_kid): # head initial complementation
                     self.tag(first_kid, 'h')
                     for kid in node[1:node.count()]:
-                        if self.is_postverbal_adjunct_tag(kid.tag):
+                        if self.is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                             self.tag(kid, 'a') # treat aspect particles as adjuncts
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             self.tag(kid, 'r')

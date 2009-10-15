@@ -19,12 +19,15 @@ def base_tag(tag):
     return tag
 
 def is_left_absorption(node):
-    return node[0].is_leaf() and node[0].tag == 'PU' and base_tag(node[1].tag) == base_tag(node.tag)
+    return node[0].is_leaf() and node[0].tag == 'PU' and (
+        (base_tag(node[1].tag) == base_tag(node.tag)) or
+        (has_verbal_tag(node[1]) and node.tag.startswith('VP')) or
+        (has_noun_tag(node[1]) and node.tag.startswith('NP')))
     
 def is_right_absorption(node):
     # TODO: refactor into one method
     return node[1].is_leaf() and node[1].tag == 'PU' and (
-        base_tag(node[0].tag) == base_tag(node.tag) or
+        (base_tag(node[0].tag) == base_tag(node.tag)) or
         # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
         #       and VC PU -> VP (3:23(4)).
         # it seems we get NN PU -> NP as well (10:2(17))

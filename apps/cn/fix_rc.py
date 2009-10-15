@@ -51,7 +51,6 @@ class FixExtraction(Fix):
         # relativiser, context = get_first(node, r'/DEC/ $ *=S', with_context=True)
         # s = context['S']
         relativiser, s = node[0][1], node[0][0]
-        print "<><> %s" % relativiser
         if not relativiser.tag.startswith('DEC'):
             warn("Didn't get relativiser in expected position, got %s" % relativiser)
             return
