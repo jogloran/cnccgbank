@@ -10,8 +10,6 @@ else
     TARGET=`basename $1`
 fi
 
-echo "make_bin operating on $TARGET"
-
 # Tag derivations
 echo Tagging derivations.
 rm -rf ./tagged/"$TARGET";
