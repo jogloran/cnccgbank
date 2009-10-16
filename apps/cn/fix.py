@@ -11,6 +11,13 @@ class Fix(Filter, OutputDerivation):
         self.outdir = outdir
         
     def pattern(self):
+        '''
+        Defines how to dispatch to fix functions. Accepts:
+        - an (unordered) hash, mapping tgrep expressions to fix functions
+        - an (ordered) list of 2-tuples <expr, fix>
+        - a string tgrep expression, all matches of which will be passed to 'fix'
+        - an iterable, each element of which will be passed to 'fix'
+        '''
         raise NotImplementedError('You must subclass FixExtraction to specify a pattern.')
         
     def fix(self, node):

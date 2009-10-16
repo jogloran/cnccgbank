@@ -54,7 +54,6 @@ class Shell(DefaultShell):
     verbose = property(get_verbose, set_verbose)
         
     def do_quiet(self, args):
-        print self._verbose
         if self._verbose: 
             self.set_verbose(False)
             msg("Will generate less output.")

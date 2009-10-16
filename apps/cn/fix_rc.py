@@ -26,6 +26,7 @@ class FixExtraction(Fix):
             
             r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
             r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
+            
             # Removes the prodrop trace *pro*
             r'* < { * < ^"*pro*" }': self.fix_prodrop,
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
@@ -140,6 +141,7 @@ class FixExtraction(Fix):
         self.remove_null_element(node)
         
         # Find and remove the trace
+        # we use find_all to find all traces in the case of coordination
         for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
             trace_NP_parent[0] = trace_NP_parent[0][1]
         
