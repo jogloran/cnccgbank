@@ -15,6 +15,7 @@ from munge.cats.cat_defs import *
 from munge.proc.tgrep.tgrep import find_all
 from munge.cats.trace import analyse
 from munge.cats.nodes import FORWARD, BACKWARD
+from munge.trees.traverse import lrp_repr
 
 class FixExtraction(Fix):
     def pattern(self): 
@@ -59,12 +60,6 @@ class FixExtraction(Fix):
             relativiser.category.right = s.category
             print "New rel category: %s" % relativiser.category
         
-    def typeraise(self, node):
-        if not node: return
-        
-        typeraised_node = Node(S/(S|NP), node.tag, [ node[0] ], node)
-        node[0] = typeraised_node
-        
     def fcomp_children(self, node):
         print pprint(node, node_repr=aug_node_repr)
         print node[0].category, ",", node[1].category
@@ -87,15 +82,25 @@ class FixExtraction(Fix):
             l.direction != FORWARD or l.direction == r.direction): return None
             
         return r.left / l.right
+        
+    FORWARD, BACKWARD = 1, 2
+    @classmethod
+    def typeraise(C, x, t, dir):
+        T, X = featureless(t), featureless(x)
+        
+        if dir == C.FORWARD:
+            return T/(T|X)
+        else:
+            return T|(T/X)
             
     def fix_categories_starting_from(self, node, until):
-        print "fix from %s" % node
+        print "fix from %s to %s" % (node, until)
         while node is not until:
             l, r, p = node.parent[0], node.parent[1], node.parent
-            print "np0:%s\nnp1:%s\nn:%s"% (node.parent[0], node.parent[1], node.parent)
+            print "np0:%s np1:%s n:%s"% (node.parent[0], node.parent[1], node.parent)
             
             L, R, P = (n.category for n in (l, r, p))
-            print "L:%s\nR:%s\nP:%s"% (L, R, P)
+            print "L:%s R:%s P:%s"% (L, R, P)
 
             applied_rule = analyse(L, R, P)
             print "[ %s'%s' %s'%s' -> %s'%s' ] %s" % (L, ''.join(l.text()), R, ''.join(r.text()), P, ''.join(p.text()), applied_rule)
@@ -105,7 +110,7 @@ class FixExtraction(Fix):
                 if L.is_leaf():
                     if L == R.left.right:
                         T = R.left.left
-                        new_category = T/(T|L)
+                        new_category = self.typeraise(L, T, self.FORWARD)#T/(T|L)
                         node.parent[0] = Node(new_category, node.tag, [l])
 
                         new_parent_category = self.fcomp(new_category, R)
@@ -118,7 +123,7 @@ class FixExtraction(Fix):
                 elif R.is_leaf():
                     if R == L.left.right:
                         T = L.left.left
-                        new_category = T|(T/R)
+                        new_category = self.typeraise(R, T, self.BACKWARD)#T|(T/R)
                         node.parent[1] = Node(new_category, node.tag, [r])
                         
                         new_parent_category = self.bxcomp(L, new_category)
@@ -137,7 +142,7 @@ class FixExtraction(Fix):
             node = node.parent
             
     def fix_subject_extraction(self, node):
-        print "Fixing subject extraction: %s" % node
+        print "Fixing subject extraction: %s" % lrp_repr(node)
         self.remove_null_element(node)
         
         # Find and remove the trace
@@ -148,7 +153,7 @@ class FixExtraction(Fix):
         self.relabel_relativiser(node)
         
     def fix_nongap_extraction(self, node):
-        print "Fixing nongap extraction: %s" % node
+        print "Fixing nongap extraction: %s" % lrp_repr(node)
         self.remove_null_element(node)
         
         # Find and remove the trace
@@ -158,7 +163,7 @@ class FixExtraction(Fix):
         self.relabel_relativiser(node)
         
     def fix_object_extraction(self, node, **vars):
-        print "Fixing object extraction: %s" % node
+        print "Fixing object extraction: %s" % lrp_repr(node)
         self.remove_null_element(node)
         
         trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
@@ -177,7 +182,7 @@ class FixExtraction(Fix):
         replace_kid(pp, p, s)        
         
     def fix_topicalisation_with_gap(self, node, p, s, t):
-        print "Fixing topicalisation with gap: %s" % node
+        print "Fixing topicalisation with gap: %s" % lrp_repr(node)
 
         # create topicalised category
         replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
@@ -210,7 +215,7 @@ class FixExtraction(Fix):
         return re.sub(r':.+$', '', tag)
             
     def fix_modification(self, node, p, s, t):
-        print "Fixing modification: %s" % node
+        print "Fixing modification: %s" % lrp_repr(node)
         S, P = s.category, p.category
 
         # If you don't strip the tag :m from the newly created child (new_kid),

@@ -257,6 +257,9 @@ a pager program.'''
                make_option('-m', '--matched-tag-only', help='Print matched tag only.',
                            dest='show_mode', action='store_const', const='matched_tag'),
                            
+               make_option('-b', '--tags-and-text', help='Print tree tags and text under.',
+                           dest='show_mode', action='store_const', const='tags_and_text'),
+                           
                make_option('-T', '--tags', help='Print tree tags.',
                            dest='show_mode', action='store_const', const='tags'),
                            
@@ -284,6 +287,7 @@ a pager program.'''
             'tokens':     Tgrep.SHOW_TOKENS,
             'rule':       Tgrep.SHOW_RULE,
             'tags':       Tgrep.SHOW_TAGS,
+            'tags_and_text':Tgrep.SHOW_TAGS_AND_TEXT,
             'matched_tag':Tgrep.SHOW_MATCHED_TAG_ONLY,
         }[opts.show_mode]
         find_mode = {

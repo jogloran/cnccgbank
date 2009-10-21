@@ -14,25 +14,12 @@ from munge.trees.pprint import *
 from apps.identify_lrhca import *
 from munge.cats.nodes import *
 from munge.cats.cat_defs import *
-import munge.penn.aug_nodes as A
 
 from apps.cn.fix_utils import *
-
-def tag_and_lex(node):
-    return node.tag + "/" + node.lex
-    
-def tag_and_text_under(node):
-    return "%s/(%s)" % (node.tag, ' '.join(node.text()))
-    
-def print_lrp(node):
-    if isinstance(node, A.Node):
-        return "%s (%s)" % (node.tag, " ".join(tag_and_text_under(x) for x in node))
-    elif isinstance(node, A.Leaf):
-        return "%s" % tag_and_lex(node)
-    else:
-        return repr(node)
+from munge.trees.traverse import lrp_repr
+        
 def echo(fn, write=sys.stdout.write):
-    return E.echo(fn, print_lrp, write)
+    return E.echo(fn, lrp_repr, write)
 
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
     if when and (not when(node.category)): return label_function(node)
@@ -103,7 +90,6 @@ def label_right_adjunction(node):
     
     no_features = featureless(node.category)
     node[1].category = no_features | no_features
-    print "node[1] got %s" % node[1].category
     node.kids[1] = label(node[1])
 
     return node
@@ -158,6 +144,7 @@ Map = {
     'NR': N,
     'NT': N,
     
+    'FRAG': Sfrg,
     'IP': Sdcl,
     'CP-Q': Sq,
 
@@ -167,7 +154,9 @@ Map = {
     'VA': SdclbNP,
     'VV': SdclbNP,
     
-    'CC': conj
+    'CC': conj,
+    
+    'CD': Nnum
     
     #'CP': C('NP/NP'),
 }

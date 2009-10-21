@@ -9,7 +9,7 @@ class TgrepException(Exception): pass
 
 import munge.proc.tgrep.parse as parse
 from munge.proc.tgrep.nodes import Context
-from munge.trees.traverse import nodes, leaves
+from munge.trees.traverse import nodes, leaves, tag_and_lex, tag_and_text_under
 import munge.trees.pprint as pp
 from munge.util.iter_utils import take
 from munge.util.dict_utils import smash_key_case
@@ -146,6 +146,23 @@ class Tgrep(TgrepCore):
         
     def show_matched_tag_only(match_node, bundle):
         print match_node.tag
+        
+    def show_tags_and_text(node, bundle):
+        def node_print(node):
+            if node.is_leaf():
+                return tag_and_lex(node)
+            else:
+                return "%s (%s)" % (node.tag, " ".join(tag_and_text_under(x) for x in node))
+                
+        print bundle.label() + ":",
+        
+        if node.is_leaf():
+            print tag_and_lex(node)
+        else:
+            if node.rch:
+                print "%s %s -> %s" % tuple(map(node_print, (node.lch, node.rch, node)))
+            else:
+                print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
 
     FIND_FIRST, FIND_ALL = range(2)
     find_functions = {
@@ -154,7 +171,7 @@ class Tgrep(TgrepCore):
     }
 
     SHOW_NODE, SHOW_PP_NODE, SHOW_TOKENS, SHOW_LABEL, \
-    SHOW_TREE, SHOW_PP_TREE, SHOW_RULE, SHOW_TAGS, SHOW_MATCHED_TAG_ONLY = range(9)
+    SHOW_TREE, SHOW_PP_TREE, SHOW_RULE, SHOW_TAGS, SHOW_TAGS_AND_TEXT, SHOW_MATCHED_TAG_ONLY = range(10)
     match_callbacks = {
         SHOW_NODE: show_node,
         SHOW_PP_NODE: show_pp_node,
@@ -165,6 +182,7 @@ class Tgrep(TgrepCore):
         SHOW_PP_TREE: show_pp_tree,
         SHOW_RULE: show_rule,
         SHOW_TAGS: show_tags,
+        SHOW_TAGS_AND_TEXT: show_tags_and_text,
         
         SHOW_MATCHED_TAG_ONLY: show_matched_tag_only,
     }

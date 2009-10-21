@@ -3,8 +3,8 @@ from munge.lex.lex import preserving_split
 from munge.util.exceptions import PennParseException
 from munge.util.parse_utils import with_parens, shift_and_check, ensure_stream_exhausted
 from munge.cats.parse import parse_category
-import nodes as N
-import aug_nodes as A
+import munge.penn.nodes as N
+import munge.penn.aug_nodes as A
     
 class PennParser(object):
     def read_docs(self, toks):

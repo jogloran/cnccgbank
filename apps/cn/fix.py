@@ -56,8 +56,8 @@ class Fix(Filter, OutputDerivation):
                 iterator = iter(pattern(bundle.derivation))
                 for match_node in iterator:
                     self.fix(match_node)
-            except TypeError:
-                raise TypeError('Functions passed as patterns must return an iterable.')
+            except TypeError, e:
+                raise TypeError('Functions passed as patterns must return an iterable: ' + str(e))
             
         else:
             raise TypeError('Pattern must be a { pattern: callback } dictionary or a pattern string.')

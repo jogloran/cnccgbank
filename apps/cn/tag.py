@@ -26,7 +26,7 @@ def get_nonpunct_kid(node, get_last=True):
 PredicationRegex = re.compile(r'''
     (?:\w+)?
     (\s+\w+\s*)* # adjuncts
-    [\w-]+-SBJ\s+ # grammatical subject
+    [\w-]+-(?:PN|SBJ)\s+ # grammatical subject. IP < NP-PN VP occurs in 0:40(5)
     (?:PU\s+)?
     VP # predicate
 ''', re.VERBOSE)
@@ -120,7 +120,8 @@ class TagStructures(Filter):
                 
                 if is_predication(node):
                     for kid in node:
-                        if kid.tag.endswith('-SBJ'):
+                        # TODO: we can get IP < NP-PN VP (0:40(5)). is this correct?
+                        if kid.tag.endswith('-SBJ') or kid.tag.endswith('-PN'):
                             self.tag(kid, 'l') # TODO: is subject always left of predicate?
                         elif kid.tag == 'VP':
                             self.tag(kid, 'h')

@@ -74,6 +74,21 @@ def text_in_span(deriv, begin, end):
         elif cur_index >= end:
             return
             
+def tag_and_lex(node):
+    return "|".join((node.tag, node.lex))
+
+def tag_and_text_under(node):
+    return "%s|(%s)" % (node.tag, ' '.join(node.text()))
+    
+def lrp_repr(node):
+    try:
+        if node.is_leaf():
+            return tag_and_lex(node)
+        else:
+            return "%s (%s)" % (node.tag, " ".join(tag_and_text_under(x) for x in node))
+    except AttributeError:
+        return repr(node)
+    
 # Assumes that the second argument is a leaf.
 def get_index_of_leaf(deriv, leaf):
     for candidate_leaf, cur_index in izip(leaves(deriv), count()):
