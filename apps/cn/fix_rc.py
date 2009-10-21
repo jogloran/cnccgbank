@@ -8,7 +8,7 @@ from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 
-from munge.util.err_utils import warn
+from munge.util.err_utils import warn, debug
 from munge.trees.pprint import pprint, aug_node_repr
 from munge.util.tgrep_utils import get_first
 from munge.cats.cat_defs import *
@@ -54,15 +54,13 @@ class FixExtraction(Fix):
         # s = context['S']
         relativiser, s = node[0][1], node[0][0]
         if not relativiser.tag.startswith('DEC'):
-            warn("Didn't get relativiser in expected position, got %s" % relativiser)
+            warn("Didn't get relativiser in expected position, got %s", relativiser)
             return
         else:
             relativiser.category.right = s.category
-            print "New rel category: %s" % relativiser.category
+            debug("New rel category: %s", relativiser.category)
         
     def fcomp_children(self, node):
-        print pprint(node, node_repr=aug_node_repr)
-        print node[0].category, ",", node[1].category
         if not (node[0].category.is_complex() and node[1].category.is_complex()): return node.category
         
         return node[0].category.left / node[1].category.right
@@ -94,19 +92,17 @@ class FixExtraction(Fix):
             return T|(T/X)
             
     def fix_categories_starting_from(self, node, until):
-        print "fix from %s to %s" % (node, until)
+        debug("fix from %s to %s", node, until)
         while node is not until:
-            l, r, p = node.parent[0], node.parent[1], node.parent
-            print "np0:%s np1:%s n:%s"% (node.parent[0], node.parent[1], node.parent)
-            
+            l, r, p = node.parent[0], node.parent[1], node.parent        
             L, R, P = (n.category for n in (l, r, p))
-            print "L:%s R:%s P:%s"% (L, R, P)
+            debug("L: %s R: %s P: %s", L, R, P)
 
             applied_rule = analyse(L, R, P)
-            print "[ %s'%s' %s'%s' -> %s'%s' ] %s" % (L, ''.join(l.text()), R, ''.join(r.text()), P, ''.join(p.text()), applied_rule)
+            debug("[ %s'%s' %s'%s' -> %s'%s' ] %s", (L, ''.join(l.text()), R, ''.join(r.text()), P, ''.join(p.text()), applied_rule))
 
             if applied_rule is None:
-                print "invalid rule %s %s -> %s" % (L, R, P)
+                debug("invalid rule %s %s -> %s", L, R, P)
                 if L.is_leaf():
                     if L == R.left.right:
                         T = R.left.left
@@ -115,10 +111,10 @@ class FixExtraction(Fix):
 
                         new_parent_category = self.fcomp(new_category, R)
                         if new_parent_category: 
-                            print "new parent category: %s" % new_parent_category
+                            debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
                         
-                        print "New category: %s" % new_category
+                        debug("New category: %s", new_category)
                     
                 elif R.is_leaf():
                     if R == L.left.right:
@@ -128,21 +124,21 @@ class FixExtraction(Fix):
                         
                         new_parent_category = self.bxcomp(L, new_category)
                         if new_parent_category: 
-                            print "new parent category: %s" % new_parent_category
+                            debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
                         
-                        print "New category: %s" % new_category
+                        debug("New category: %s", new_category)
                     
                 else:
                     new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R)
                     if new_parent_category:
-                        print "new parent category: %s" % new_parent_category
+                        debug("new parent category: %s", new_parent_category)
                         p.category = new_parent_category                  
             
             node = node.parent
             
     def fix_subject_extraction(self, node):
-        print "Fixing subject extraction: %s" % lrp_repr(node)
+        debug("Fixing subject extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
         # Find and remove the trace
@@ -153,7 +149,7 @@ class FixExtraction(Fix):
         self.relabel_relativiser(node)
         
     def fix_nongap_extraction(self, node):
-        print "Fixing nongap extraction: %s" % lrp_repr(node)
+        debug("Fixing nongap extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
         # Find and remove the trace
@@ -163,7 +159,7 @@ class FixExtraction(Fix):
         self.relabel_relativiser(node)
         
     def fix_object_extraction(self, node, **vars):
-        print "Fixing object extraction: %s" % lrp_repr(node)
+        debug("Fixing object extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
         trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
@@ -182,7 +178,7 @@ class FixExtraction(Fix):
         replace_kid(pp, p, s)        
         
     def fix_topicalisation_with_gap(self, node, p, s, t):
-        print "Fixing topicalisation with gap: %s" % lrp_repr(node)
+        debug("Fixing topicalisation with gap: %s", lrp_repr(node))
 
         # create topicalised category
         replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
@@ -193,6 +189,7 @@ class FixExtraction(Fix):
         self.fix_categories_starting_from(ctx['S'], until=top)
         
     def fix_topicalisation_without_gap(self, node, p, s, t):
+        debug("Fixing topicalisation without gap: %s", lrp_repr(node))
         replace_kid(p, t, Node(S/S, t.tag, [t]))
         
     def fix_prodrop(self, node):
@@ -215,7 +212,7 @@ class FixExtraction(Fix):
         return re.sub(r':.+$', '', tag)
             
     def fix_modification(self, node, p, s, t):
-        print "Fixing modification: %s" % lrp_repr(node)
+        debug("Fixing modification: %s", lrp_repr(node))
         S, P = s.category, p.category
 
         # If you don't strip the tag :m from the newly created child (new_kid),
@@ -224,6 +221,6 @@ class FixExtraction(Fix):
         new_kid.tag = self.strip_tag(new_kid.tag)
         
         new_category = featureless(P) / featureless(S)
-        print "Creating category %s" % new_category
+        debug("Creating category %s", new_category)
         replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
         

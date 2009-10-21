@@ -5,6 +5,7 @@ from apps.cn.fix import Fix
 from munge.cats.cat_defs import SbNPbSbNP, featureless
 from munge.trees.traverse import leaves
 from munge.cats.nodes import FORWARD, BACKWARD
+from munge.util.err_utils import debug
 
 class FixAdverbs(Fix):
     def pattern(self):
@@ -63,18 +64,10 @@ class FixAdverbs(Fix):
                 
                 if C.is_bxcomp2_candidate(L, R, P):
                     node.category = bxcomp2(L, R, P)
-                    print "Generalised %s to %s" % (R, node.category)
+                    debug("Generalised %s to %s", R, node.category)
                 elif C.is_bxcomp_candidate(L, R, P):
                     node.category = bxcomp(L, R, P)
-                    print "Generalised %s to %s" % (R, node.category)
-        
-    @staticmethod
-    def fix_category(node):
-        print "FIX: %s" % node
-        A = featureless(node.parent[0].category.left)
-        node.category = A|A
+                    debug("Generalised %s to %s", R, node.category)
         
     def fix(self, node):
         self.do_fix(node)
-        # if self.is_candidate(node):
-        #     self.fix_category(node)

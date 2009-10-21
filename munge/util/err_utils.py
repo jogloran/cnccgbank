@@ -28,5 +28,7 @@ def msg(msg, *fmts):
     stream_report(sys.stderr, "msg", msg, *fmts)
     
 def debug(msg, *fmts):
-    stream_report(sys.stderr, time.asctime(), msg, *fmts)
+    try:    caller_name = sys._getframe(1).f_code.co_name
+    except: caller_name = "?"
     
+    stream_report(sys.stderr, "[" + caller_name + "]", msg, *fmts)
