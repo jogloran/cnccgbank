@@ -140,6 +140,8 @@ Map = {
     'NP': NP,
     'PN': NP,
     
+    'DT': NP,
+    
     'NN': N,
     'NR': N,
     'NT': N,

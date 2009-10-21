@@ -27,8 +27,6 @@ class FixAdverbs(Fix):
                     L.direction == FORWARD and
                     R.direction == BACKWARD and
                     P.direction == FORWARD)
-            print val
-            return val
         except AttributeError:
             return False
     
@@ -43,7 +41,7 @@ class FixAdverbs(Fix):
                     L.left.direction == FORWARD and
                     R.direction == BACKWARD and
                     P.direction == FORWARD)
-        except Exception:
+        except AttributeError:
             return False
     
     @classmethod
@@ -62,11 +60,7 @@ class FixAdverbs(Fix):
             if (C.is_modifier_category(R) and
                 L.is_complex() and
                 r is node):
-                # if L == R.left:
-                #     if L.left.left.is_complex() and L.
-                #         node.category = bxcomp2(node)
-                #     else:
-                #         node.category = bxcomp(node)
+                
                 if C.is_bxcomp2_candidate(L, R, P):
                     node.category = bxcomp2(L, R, P)
                     print "Generalised %s to %s" % (R, node.category)

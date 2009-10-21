@@ -5,7 +5,7 @@ from munge.penn.io import parse_tree
 from apps.cn.output import OutputDerivation
 from apps.cn.fix_utils import *
 
-from echo import *
+from apps.util.echo import *
 
 # 
 # import munge.penn.aug_nodes as A

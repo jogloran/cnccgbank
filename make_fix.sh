@@ -23,7 +23,7 @@ function do_fix {
     ./t -q -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader "$paths"
     #rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 "$paths"
     echo "Making DOTs for $filter_name..."
-    ./t -q -D fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
+    #./t -q -D fixed_${fix_suffix}_dots -R AugmentedPTBReader fixed_${fix_suffix}/*
 }
 
 do_fix rc FixExtraction labelled/"$TARGET" #2> rc_errors

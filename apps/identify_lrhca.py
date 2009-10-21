@@ -1,7 +1,7 @@
 import re
 #from echo import echo
 
-from munge.proc.cn.count import last_nonpunct_kid
+from apps.cn.tag import last_nonpunct_kid
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
 
