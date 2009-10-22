@@ -85,6 +85,30 @@ find_first = lambda *args, **kwargs: take(find_all(*args, **kwargs), 1)
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
     
+class TgrepCount(Filter):
+    def __init__(self, expression):
+        Filter.__init__(self)
+        initialise()
+        
+        self.expression = expression
+        self.count = 0
+        self.total = 0
+        
+    def accept_derivation(self, bundle):
+        if list(find_first(bundle.derivation, self.expression)): self.count += 1
+        self.total += 1
+        
+    def output(self):
+        if self.total > 0:
+            print "%s matched %d/%d=(%0.2f%%)" % (
+                self.expression, self.count, 
+                self.total, self.count / float(self.total) * 100.0)
+                
+    opt = 'T'
+    long_opt = 'tgrep-count'
+    
+    arg_names = 'EXPR'
+    
 class TgrepCore(Filter):
     '''Abstract filter class for a tgrep query. Subclasses must override match_generator and match_callback.'''
     def __init__(self, expression):
