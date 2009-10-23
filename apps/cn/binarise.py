@@ -147,20 +147,22 @@ def inherit_tag(node, other):
 def label_node(node, inside_np_internal_structure=False):
     if node.is_leaf(): return node
     elif node.count() == 1:
-        # shrinkage rules
+        # shrinkage rules (NP < NN shrinks to NN)
         if ((inside_np_internal_structure and node.tag.startswith("NP") and has_noun_tag(node.kids[0])) or
             (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
             (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
             (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS")) or
-            (node.tag.startswith("CLP") and node.kids[0].tag==("M")) or
-            (node.tag.startswith("QP") and node.kids[0].tag in ("OD","CD")) or
-            (node.tag.startswith("DP") and node.kids[0].tag==("DT"))):
+            (node.tag.startswith("CLP") and node.kids[0].tag == "M") or            
+            (node.tag.startswith("DP") and node.kids[0].tag == "DT") or
+            (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ')):
             replacement = node.kids[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node.kids[0])
             return label_node(replacement)
             
-        elif node.tag.startswith('NP') and node.kids[0].tag == "PN":
+        # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
+        elif ((node.tag.startswith('NP') and node.kids[0].tag == "PN") or
+              (node.tag.startswith("QP") and node.kids[0].tag in ("OD", "CD"))):
             replacement = node.kids[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node.kids[0])
@@ -168,9 +170,11 @@ def label_node(node, inside_np_internal_structure=False):
             
             return label_node(replacement)
             
+        # one child nodes
         else:
             node.kids[0] = label_node(node.kids[0])
             return node
+            
     elif is_predication(node):
         return label_predication(node)
     elif is_np_structure(node):

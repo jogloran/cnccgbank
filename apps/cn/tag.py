@@ -40,7 +40,7 @@ def is_apposition(node):
         # exclude CP-APP? it's not really apposition, rather adjunction
         any(kid.tag != "CP-APP" and kid.tag.endswith('-APP') for kid in node))
     
-FunctionTags = 'ADV TMP LOC DIR BNF CND DIR IJ LGS MNR PRP'.split()
+FunctionTags = 'ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split()
 
 def is_modification(node):
     lnpk = last_nonpunct_kid(node)

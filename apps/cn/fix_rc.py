@@ -99,7 +99,11 @@ class FixExtraction(Fix):
             debug("L: %s R: %s P: %s", L, R, P)
 
             applied_rule = analyse(L, R, P)
-            debug("[ %s'%s' %s'%s' -> %s'%s' ] %s", (L, ''.join(l.text()), R, ''.join(r.text()), P, ''.join(p.text()), applied_rule))
+            debug("[ %s'%s' %s'%s' -> %s'%s' ] %s", 
+                L, ''.join(l.text()), 
+                R, ''.join(r.text()), 
+                P, ''.join(p.text()), 
+                applied_rule)
 
             if applied_rule is None:
                 debug("invalid rule %s %s -> %s", L, R, P)
