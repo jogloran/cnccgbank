@@ -92,6 +92,9 @@ def ChildCount(n):
     def _ChildCount(candidate, node, context):
         return node.count() == n
     return _ChildCount
+    
+def And(candidate, node, context):
+    return candidate.is_satisfied_by(node, context)
 
 Operators = {
     '<': IsParentOf,
@@ -104,7 +107,8 @@ Operators = {
     '..': Precedes,
     '$': IsSiblingOf,
     '$.': IsSiblingOfAndImmediatelyPrecedes,
-    '$..': IsSiblingOfAndPrecedes
+    '$..': IsSiblingOfAndPrecedes,
+    '&': And,
 }
 
 IntArgOperators = {

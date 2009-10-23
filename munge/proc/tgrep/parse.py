@@ -78,7 +78,7 @@ def t_AT(t):
 
 # Productions need to be sorted by descending length (maximal munch)
 def t_OP(t):
-    r'(<<,?|>>\'?|(<-?\d*)|>|\.\.?|\$\.?\.?)'
+    r'(<<,?|>>\'?|(<-?\d*)|>|\.\.?|\$\.?\.?|&)'
     return t
     
 def t_UNARY_OP(t):
@@ -87,6 +87,10 @@ def t_UNARY_OP(t):
 
 def t_ATOM(t):
     r'''[^/\\"\s{][^\s]+[^/\\"\s}]|[^/\\\s{][^/\\\s}]|[^/\\\s{}]'''
+    return t
+
+def t_AMP(t):
+    r'''&'''
     return t
     
 # ignore whitespace tokens

@@ -31,3 +31,17 @@ class DefaultShell(Cmd):
         Cmd.postloop(self)
         
     def emptyline(self): pass
+
+import os, atexit
+class HistorySavingDefaultShell(DefaultShell):
+    DefaultHistoryLocation = os.path.join(os.environ['HOME'], '.munge_history')
+        
+    def __init__(self, history_file=DefaultHistoryLocation):
+        DefaultShell.__init__(self)
+
+        try:
+            readline.read_history_file(history_file)
+        except IOError: pass
+        
+        atexit.register(readline.write_history_file, history_file)
+        

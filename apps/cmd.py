@@ -12,15 +12,15 @@ except ImportError:
 
 from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method
-from apps.util.cmd_utils import DefaultShell
+from apps.util.cmd_utils import DefaultShell, HistorySavingDefaultShell
 from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info, msg
 from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep
 
 BuiltInPackages = ['munge.proc.builtins', 
-                   'munge.proc.modes.split', 'munge.proc.modes.anno', 'munge.proc.cn.count',
-                   'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep', 'apps.binarise']
+                   'munge.proc.modes.split', 'munge.proc.modes.anno', 'apps.cn.tag',
+                   'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep', 'apps.cn.binarise']
 DefaultPager = '/usr/bin/less' # pager to use if $PAGER not set
 
 def filter_run_name(filter_name, filter_args):
@@ -28,10 +28,10 @@ def filter_run_name(filter_name, filter_args):
 in parentheses separated by commas.'''
     return "%s(%s)" % (filter_name, ', '.join(filter_args) if filter_args else '')
 
-class Shell(DefaultShell):
+class Shell(HistorySavingDefaultShell):
     '''A shell interface to trace functionality.'''
     def __init__(self, pager_path=None, files=None, verbose=True):
-        DefaultShell.__init__(self)
+        HistorySavingDefaultShell.__init__(self)
         
         self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose)
         self.prompt = "trace> "
