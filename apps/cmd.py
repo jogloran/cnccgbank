@@ -277,7 +277,6 @@ a pager program.'''
         '''Performs a tgrep query.'''
         if not args.strip(): return
 
-        print opts
         show_mode = {
             'subtree':    'node',
             'pp_subtree': 'pp_node',

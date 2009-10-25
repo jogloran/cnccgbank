@@ -183,7 +183,9 @@ def label(root):
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')): tag(kid, 'l')
                 else:
                     for kid in node[0:node.count()-1]:
-                        if is_postverbal_adjunct_tag(kid.tag):
+                        if (is_postverbal_adjunct_tag(kid.tag) or
+                            # exception added to account for direct modification of V{V,A} with ADVP (0:47(9))
+                            kid.tag.startswith('ADVP')):
                             tag(kid, 'a') # treat aspect particles as adjuncts
                         elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                             tag(kid, 'l')

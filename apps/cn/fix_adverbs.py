@@ -1,6 +1,6 @@
 from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep
-from munge.cats.cat_defs import SbNPbSbNP, featureless
+from munge.cats.cat_defs import S, SbNPbSbNP, featureless
 from munge.trees.traverse import leaves
 from munge.cats.nodes import FORWARD, BACKWARD
 from munge.util.err_utils import debug
@@ -23,6 +23,10 @@ class FixAdverbs(Fix):
     def is_bxcomp_candidate(L, R, P):
         # Y/Z X\Y -> X/Z
         try:
+            # Only generalise result categories rooted in S.
+            # Otherwise, we get spurious generalisations such as N/N (N/N)\(N/N) (1:8(4))
+            if L.left.left != S: return False
+            
             return (R.left.left == L.left and # Y unifies
                     P.right == L.right and # Z unifies
                     P.left == R.left.left and # X unifies
@@ -36,6 +40,9 @@ class FixAdverbs(Fix):
     def is_bxcomp2_candidate(L, R, P):
         # (Y/Z)/W X\Y -> (X/Z)/W
         try:
+            # Only generalise result categories rooted in S
+            if L.left.left.left != S: return False
+            
             return (R.left.left.left == L.left.left and # Y unifies
                     P.right == L.right and # W unifies
                     R.left.left.left == P.left.left and # X unifies

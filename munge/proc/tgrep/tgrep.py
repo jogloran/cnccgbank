@@ -136,26 +136,33 @@ def FixedTgrep(expression):
     return _TgrepCore
     
 class Tgrep(TgrepCore):
+    @staticmethod
     def show_node(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node)
         
+    @staticmethod
     def show_pp_node(match_node, bundle):
         print bundle.label()
         print pp.pprint(match_node)
 
+    @staticmethod
     def show_tree(match_node, bundle):
         print "%s: %s" % (bundle.label(), bundle.derivation)
         
+    @staticmethod
     def show_pp_tree(match_node, bundle):
         print bundle.label()
         print pp.pprint(bundle.derivation)
         
+    @staticmethod
     def show_tokens(match_node, bundle):
         print "%s: %s" % (bundle.label(), ''.join(match_node.text()))
         
+    @staticmethod
     def show_label(match_node, bundle):
         print bundle.label()
         
+    @staticmethod
     def show_rule(match_node, bundle):
         print bundle.label(),
 
@@ -167,13 +174,16 @@ class Tgrep(TgrepCore):
             else:
                 print "(%s -> %s)" % (match_node.lch.cat, match_node.cat)
                 
+    @staticmethod
     def show_tags(match_node, bundle):
         print bundle.label(),
         print match_node.__repr__(suppress_lex=True)
         
+    @staticmethod
     def show_matched_tag_only(match_node, bundle):
         print match_node.tag
         
+    @staticmethod
     def show_tags_and_text(node, bundle):
         def node_print(node):
             if node.is_leaf():

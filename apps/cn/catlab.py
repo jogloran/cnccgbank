@@ -78,7 +78,7 @@ def label_np_structure(node):
     
     return node
 
-@echo
+#@echo
 def label_right_adjunction(node):
     node[0].category = node.category
     node.kids[0] = label(node[0])
@@ -156,7 +156,9 @@ Map = {
     
     'CC': conj,
     
-    'CD': Nnum
+    'CD': Nnum,
+    
+    'ADJP': NfN,
     
     #'CP': C('NP/NP'),
 }
