@@ -50,14 +50,18 @@ class TraceCore(object):
                          (' '+filter.arg_names) if filter.arg_names else ''))
                                                          
         def ShortTemplate(filter_name, filter):
-            return "\t% 30s. %s(%s)" % (filter.__module__, filter_name, filter.arg_names)
+            return "\t% 30s. %s(%s) {%s, %s}" % \
+                (filter.__module__, filter_name, filter.arg_names,
+                 filter.opt, filter.long_opt)
 
         template_function = { True: LongTemplate, False: ShortTemplate }[long]
         
         sort_by_name = lambda (name, filter): name
         sort_key_function = {
             'name': sort_by_name,
-            'module': lambda (name, filter): filter.__module__
+            'module': lambda (name, filter): filter.__module__,
+            'opt': lambda (name, filter): filter.opt,
+            'long-opt': lambda (name, filter): filter.long_opt
         }.get(filter_sort_key, sort_by_name)
 
         print "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 

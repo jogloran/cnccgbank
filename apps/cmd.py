@@ -17,10 +17,9 @@ from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info, msg
 from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep
+import munge.proc.trace as T
 
-BuiltInPackages = ['munge.proc.builtins', 
-                   'munge.proc.modes.split', 'munge.proc.modes.anno', 'apps.cn.tag',
-                   'apps.comma', 'apps.comma2', 'munge.proc.tgrep.tgrep', 'apps.cn.binarise']
+BuiltInPackages = T.BuiltInPackages
 DefaultPager = '/usr/bin/less' # pager to use if $PAGER not set
 
 def filter_run_name(filter_name, filter_args):
@@ -94,7 +93,7 @@ class Shell(HistorySavingDefaultShell):
             msg("No modules added.")
 
     @options([ make_option('-l', '--long', action='store_true', dest='long', help='Show detailed summary', default=False),
-               make_option('-s', '--sort-by', action='store', type='choice', choices=['name', 'module'], 
+               make_option('-s', '--sort-by', action='store', type='choice', choices=['name', 'module', 'opt', 'long-opt'], 
                            dest='sort_key', help='Display filters in a given sorted order', default='name')])
     def do_list(self, args, opts):
         """Lists all loaded filters."""
@@ -278,17 +277,18 @@ a pager program.'''
         '''Performs a tgrep query.'''
         if not args.strip(): return
 
+        print opts
         show_mode = {
-            'subtree':    Tgrep.SHOW_NODE,
-            'pp_subtree': Tgrep.SHOW_PP_NODE,
-            'whole_tree': Tgrep.SHOW_TREE,
-            'pp_whole_tree': Tgrep.SHOW_PP_TREE,
-            'label':      Tgrep.SHOW_LABEL,
-            'tokens':     Tgrep.SHOW_TOKENS,
-            'rule':       Tgrep.SHOW_RULE,
-            'tags':       Tgrep.SHOW_TAGS,
-            'tags_and_text':Tgrep.SHOW_TAGS_AND_TEXT,
-            'matched_tag':Tgrep.SHOW_MATCHED_TAG_ONLY,
+            'subtree':    'node',
+            'pp_subtree': 'pp_node',
+            'whole_tree': 'tree',
+            'pp_whole_tree': 'pp_tree',
+            'label':      'label',
+            'tokens':     'tokens',
+            'rule':       'rule',
+            'tags':       'tags',
+            'tags_and_text':'tags_and_text',
+            'matched_tag':'matched_tag_only',
         }[opts.show_mode]
         find_mode = {
             'all':        Tgrep.FIND_ALL,

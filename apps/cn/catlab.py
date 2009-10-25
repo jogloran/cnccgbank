@@ -66,9 +66,7 @@ def label_adjunction(node):
     node.kids[1] = label(node[1])
 
     # if the modifier category (lhs) has a special functor (like NP/N), use that
-    node[0].category = (
-#            np_modifier_tag_to_cat(node[0].tag) or 
-            (featureless(node.category) / featureless(node[1].category)))
+    node[0].category = featureless(node.category) / featureless(node[1].category)
             
     node.kids[0] = label(node[0])
     
@@ -383,3 +381,8 @@ class LabelNodes(Filter, OutputDerivation):
         bundle.derivation = label_root(bundle.derivation)
         
         self.write_derivation(bundle)
+        
+    opt = '3'
+    long_opt = 'label'
+    
+    arg_names = 'OUTDIR'

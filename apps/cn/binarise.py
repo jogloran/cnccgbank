@@ -205,17 +205,9 @@ class Binariser(Filter, OutputDerivation):
     def accept_derivation(self, bundle):
         bundle.derivation = label_root(bundle.derivation)
         self.write_derivation(bundle)
+        
+    opt = '2'
+    long_opt = 'binarise'
     
-if __name__ == '__main__':
-    docs = parse_tree(sys.stdin.read())
-
-    for root in docs:
-        # if is_predication(root):
-        #     result = Node(root.tag, [
-        #         label_subject(root[0]),
-        #         label_predicate(root[1])
-        #     ])
-        # else:
-        result = label_root(root)
-            
-        print pprint(result)
+    arg_names = 'OUTDIR'
+    

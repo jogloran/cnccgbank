@@ -10,7 +10,7 @@ else
     TARGET=`basename $1`
 fi
 
-./make_bin.sh "$TARGET"
+./make_bin.sh "$TARGET" && \
 
 echo Doing category labelling.
 rm -rf ./labelled/"$TARGET";

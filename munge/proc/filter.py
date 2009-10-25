@@ -27,3 +27,7 @@ class Filter(object):
     
     # This is displayed after the long name as an intuitive name for any arguments the filter may expect.
     arg_names = ''
+    
+    @staticmethod
+    def is_abstract(): return False
+    

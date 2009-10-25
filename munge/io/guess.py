@@ -26,8 +26,10 @@ if a guesser matches.'''
             if guesser.identify(preview):
                 return guesser.reader_class()
         else:
-            warn("determine_reader: No reader could be guessed; assuming %s", guesser.reader_class())
-            return self.default
+            warn("determine_reader: No reader could be guessed given context ``%s''; assuming %s",
+                preview,
+                guesser.reader_class())
+            return self.default.reader_class()
         
     def __iter__(self):
         '''Delegates to the found reader.'''

@@ -1,6 +1,6 @@
 from types import TypeType
 
-import munge # Required to use the qualified name munge.proc.trace.Filter (just 'Filter' doesn't work)
+import munge.proc.filter # Required to use the qualified name munge.proc.trace.Filter (just 'Filter' doesn't work)
 from munge.util.err_utils import warn
 
 def get_available_filters_dict(loaded_modules):
@@ -14,8 +14,10 @@ filter objects found in those modules' namespaces.'''
             obj = getattr(module, symbol_name)
             
             # Only consider classes which are strict subclasses of Filter
-            if (type(obj) is TypeType and issubclass(obj, munge.proc.trace.Filter) and
-                obj is not munge.proc.trace.Filter):
+            if (type(obj) is TypeType and 
+                issubclass(obj, munge.proc.filter.Filter) and
+                not obj.is_abstract() and
+                obj is not munge.proc.filter.Filter):
                 if symbol_name in filters_found:
                     warn("An already loaded filter with the name %s has been overwritten by a filter with the same name.", symbol_name)
                     
