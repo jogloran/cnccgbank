@@ -21,6 +21,8 @@ def get_nonpunct_kid(node, get_last=True):
     else:
         for i, kid in enumerate(node.kids):
             if not kid.tag.startswith('PU'): return kid, i
+            
+    return None, None
 
 PredicationRegex = re.compile(r'''
     (?:\w+)?
