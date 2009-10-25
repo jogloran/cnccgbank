@@ -1,21 +1,21 @@
 import re, copy
 
 from munge.proc.filter import Filter
-from munge.proc.tgrep.tgrep import tgrep, find_first
+from munge.proc.tgrep.tgrep import tgrep, find_first, find_all
 from munge.penn.aug_nodes import Node
+
+from munge.trees.pprint import pprint, aug_node_repr
+from munge.util.tgrep_utils import get_first
+from munge.cats.cat_defs import *
+from munge.cats.trace import analyse
+from munge.cats.nodes import FORWARD, BACKWARD
+from munge.trees.traverse import lrp_repr
+
+from munge.util.err_utils import warn, debug
 
 from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
-
-from munge.util.err_utils import warn, debug
-from munge.trees.pprint import pprint, aug_node_repr
-from munge.util.tgrep_utils import get_first
-from munge.cats.cat_defs import *
-from munge.proc.tgrep.tgrep import find_all
-from munge.cats.trace import analyse
-from munge.cats.nodes import FORWARD, BACKWARD
-from munge.trees.traverse import lrp_repr
 
 class FixExtraction(Fix):
     def pattern(self): 

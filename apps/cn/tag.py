@@ -1,12 +1,12 @@
 from __future__ import with_statement
+import os, re
+
 from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
-from collections import defaultdict
 from munge.util.dict_utils import sorted_by_value_desc
+
 from apps.identify_pos import is_verb_compound
 from apps.cn.output import OutputDerivation
-
-import os, re
 
 def last_nonpunct_kid(node):
     kid, index = get_nonpunct_kid(node)
@@ -16,17 +16,16 @@ def get_nonpunct_kid(node, get_last=True):
     if node.is_leaf(): return None, None
     
     if get_last:
-        for i, kid in enumerate(node.kids[::-1]):
+        for i, kid in enumerate(reversed(node.kids)):
             if not kid.tag.startswith('PU'): return kid, node.count() - i - 1
     else:
         for i, kid in enumerate(node.kids):
             if not kid.tag.startswith('PU'): return kid, i
-        
-    return None, None
 
 PredicationRegex = re.compile(r'''
     (?:\w+)?
     (\s+\w+\s*)* # adjuncts
+    # allow dashes in the subject tag -- sometimes there are indices in the tag (NP-1)
     [\w-]+-(?:PN|SBJ)\s+ # grammatical subject. IP < NP-PN VP occurs in 0:40(5)
     (?:PU\s+)?
     VP # predicate
@@ -36,12 +35,12 @@ def is_predication(node):
     return node.tag.startswith('IP') and PredicationRegex.match(kid_tags)
 
 def is_apposition(node):
-#    return node.tag.startswith('NP') and last_nonpunct_kid(node).tag.startswith('NP') and node[0].tag.endswith('-APP')
     return (node.tag.startswith('NP') and 
         # exclude CP-APP? it's not really apposition, rather adjunction
         any(kid.tag != "CP-APP" and kid.tag.endswith('-APP') for kid in node))
-    
-FunctionTags = 'ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split()
+
+# We exclude -IJ, so we can get analyses of INTJ nodes
+FunctionTags = set('ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split())
 
 def is_modification(node):
     lnpk = last_nonpunct_kid(node)
@@ -56,11 +55,8 @@ ModificationRegex = re.compile(r'\w+-(\w+)')
 def has_modification_tag(node):
     if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
     
-    m = ModificationRegex.match(node.tag)
-    if m and len(m.groups()) == 1:
-        function_tag = m.group(1)
-        if function_tag in FunctionTags: return True
-    return False
+    last_dash_index = node.tag.rfind('-')
+    return last_dash_index != -1 and node.tag[last_dash_index+1:] in FunctionTags
     
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
@@ -233,8 +229,7 @@ def label(root):
                         tag(kid, 'T')
 
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                        tag(kid, 'a')
-                        
+                        tag(kid, 'a')                        
     return root
     
 class TagStructures(Filter, OutputDerivation):

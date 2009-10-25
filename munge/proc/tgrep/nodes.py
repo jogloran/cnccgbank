@@ -93,7 +93,7 @@ class ConstraintGroup(object):
         return all(constraint.is_satisfied_by(node, context) for constraint in self.constraints)
  
 class Atom(object):
-    '''Matches only on an exact string match.'''
+    '''Matches only on an exact string match of the node's _cat_.'''
     def __init__(self, value):
         self.value = value
     def __repr__(self):

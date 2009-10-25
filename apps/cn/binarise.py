@@ -1,26 +1,16 @@
 from __future__ import with_statement
+import sys, re, os
 
 from munge.trees.traverse import nodes
 from munge.penn.io import parse_tree
-from apps.cn.output import OutputDerivation
-from apps.cn.fix_utils import *
-
-from apps.util.echo import *
-
-# 
-# import munge.penn.aug_nodes as A
-# def Node(tag, kids, parent=None):
-#     return A.Node(None, tag, kids, parent)
-# def Leaf(tag, lex, parent=None):
-#     return A.Leaf(none, tag, lex, parent)
-#     
 from munge.penn.nodes import Leaf, Node
 from munge.trees.pprint import pprint
-
 from munge.proc.filter import Filter
-import sys, re, os
 
 from apps.identify_lrhca import *
+from apps.cn.output import OutputDerivation
+from apps.cn.fix_utils import *
+from apps.util.echo import *
 
 #@echo
 def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False):

@@ -3,7 +3,8 @@ from munge.cats.trace import analyse
 from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.trees.traverse import nodes
 from munge.util.err_utils import *
-from munge.cats.trace import analyse
+
+from collections import defaultdict
 
 class CountRules(Filter):
     def __init__(self):

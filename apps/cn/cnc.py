@@ -3,6 +3,7 @@ from apps.cn.output import *
 from munge.trees.traverse import leaves
 
 class PipeFormat(Filter, OutputDerivation):
+    '''Generates the "piped" output format used by C&C.'''
     def __init__(self, outdir, format):
         Filter.__init__(self)
         OutputDerivation.__init__(self, transformer=self.transformer)

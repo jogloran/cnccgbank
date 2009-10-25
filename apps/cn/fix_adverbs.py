@@ -1,11 +1,12 @@
 from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep
-from apps.cn.output import OutputDerivation
-from apps.cn.fix import Fix
 from munge.cats.cat_defs import SbNPbSbNP, featureless
 from munge.trees.traverse import leaves
 from munge.cats.nodes import FORWARD, BACKWARD
 from munge.util.err_utils import debug
+
+from apps.cn.output import OutputDerivation
+from apps.cn.fix import Fix
 
 class FixAdverbs(Fix):
     def pattern(self):
