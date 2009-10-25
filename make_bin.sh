@@ -19,6 +19,6 @@ rm -rf ./tagged/"$TARGET"
 # Binarise derivations
 echo Binarising derivations.
 rm -rf ./binarised/"$TARGET"
-./t  -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET"
+./t -q -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET"
 # Make graphs
 #./t -q -D binarised_dots binarised/"$TARGET"
