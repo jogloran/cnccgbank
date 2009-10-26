@@ -19,7 +19,7 @@ function do_fix {
     echo "Applying fix $filter_name..."
     echo to "$paths"
 
-    rm -rf ./fixed_${fix_suffix}/${target}
+    rm -rf ./fixed_${fix_suffix}/${TARGET}
     ./t -q -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 -R AugmentedPTBReader "$paths"
     #rm -rf ./fixed_${fix_suffix}; ./t -lapps.cn.fix_${fix_suffix} -r $filter_name fixed_${fix_suffix} -0 "$paths"
     echo "Making DOTs for $filter_name..."

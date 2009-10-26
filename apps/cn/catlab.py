@@ -157,6 +157,8 @@ Map = {
     'CC': conj,
     
     'CD': Nnum,
+    # to account for noise in 25:43(4)
+    'OD': NfN, 
     
     'ADJP': NfN,
     'JJ': NfN,

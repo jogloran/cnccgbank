@@ -142,8 +142,9 @@ def label_node(node, inside_np_internal_structure=False):
             (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
             (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
             (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS")) or
-            (node.tag.startswith("CLP") and node.kids[0].tag == "M") or            
-            (node.tag.startswith("DP") and node.kids[0].tag == "DT") or
+            (node.tag.startswith("CLP") and node.kids[0].tag == "M") or    
+            # DT < OD found in 6:25(11)
+            (node.tag.startswith("DP") and node.kids[0].tag in ("DT", "OD")) or
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
             (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
             (node.tag.startswith('FLR'))):
