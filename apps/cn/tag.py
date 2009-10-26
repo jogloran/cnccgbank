@@ -195,7 +195,8 @@ def label(root):
 
                 for kid in node:
                     if not kid.tag.startswith('PU'):
-                        if kid.tag.endswith('-APP'): #not kid.tag.startswith('PU'):
+                        # exclude CP-APP (see is_apposition() above)
+                        if kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
                             tag(kid, 'A')
                         else:
                             tag(kid, 'a')

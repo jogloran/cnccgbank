@@ -11,10 +11,16 @@ def base_tag(tag):
     Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
     unmodified.
     '''
-    if re.match(r'-.+-$', tag): return tag
+    # -NONE-
+    if len(tag) >= 3 and (tag[0] == tag[-1] == "-"): return tag
+
+    # Remove our tags
+    colon_index = tag.find(":")
+    if colon_index != -1: tag = tag[:colon_index]
     
-    tag = re.sub(r':.+$', '', tag)
-    tag = re.sub(r'-.+$', '', tag)
+    # Remove CPTB tags
+    dash_index = tag.find("-")
+    if dash_index != -1: tag = tag[:dash_index]
     
     return tag
 
