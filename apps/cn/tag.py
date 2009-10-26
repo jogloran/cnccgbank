@@ -75,7 +75,7 @@ def is_internal_structure(node):
     
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
-        all(kid.tag in ('NN', 'NR', 'NT', 'PU', 'CC', 'ETC') for kid in leaves(node)))
+        all(kid.tag in ('NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC') for kid in leaves(node)))
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)

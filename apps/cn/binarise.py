@@ -155,6 +155,7 @@ def label_node(node, inside_np_internal_structure=False):
             
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
         elif ((node.tag.startswith('NP') and node.kids[0].tag == "PN") or
+              (node.tag.startswith("LCP") and node.kids[0].tag == "LC") or
               (node.tag.startswith("QP") and node.kids[0].tag in ("OD", "CD"))):
             replacement = node.kids[0]
             inherit_tag(replacement, node)
