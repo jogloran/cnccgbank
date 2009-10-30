@@ -149,6 +149,7 @@ def label_node(node, inside_np_internal_structure=False):
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
             (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
             (node.tag.startswith('FLR'))):
+            
             replacement = node.kids[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node.kids[0])

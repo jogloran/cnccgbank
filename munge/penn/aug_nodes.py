@@ -17,7 +17,7 @@ class Node(N.Node):
         return re.escape(repr(self.category))
         
     def ccgbank_repr(self):
-        bits = ["(<T %s _ %d>" % (self.category, len(self.kids))]
+        bits = ["(<T %s 0 %d>" % (self.category, len(self.kids))]
         
         for kid in self.kids:
             bits.append(kid.ccgbank_repr())
