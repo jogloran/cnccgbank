@@ -22,7 +22,9 @@ class FixExtraction(Fix):
         return list((
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
             # and what is expected (eg S/S)
+            # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
+            
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
@@ -82,6 +84,7 @@ class FixExtraction(Fix):
         
     @staticmethod
     def bxcomp(l, r):
+        # Y/Z X\Y -> X/Z
         if (l.is_leaf() or r.is_leaf() or
             l.left != r.right or
             l.direction != FORWARD or l.direction == r.direction): return None

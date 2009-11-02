@@ -139,7 +139,7 @@ def label_node(node, inside_np_internal_structure=False):
     elif node.count() == 1:
         # shrinkage rules (NP < NN shrinks to NN)
         if ((inside_np_internal_structure and node.tag.startswith("NP") and has_noun_tag(node.kids[0])) or
-            (node.tag.startswith("VP") and has_verbal_tag(node.kids[0])) or
+            (node.tag.startswith("VP") and (has_verbal_tag(node.kids[0]) or node.kids[0].tag.startswith("VRD"))) or
             (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
             (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS")) or
             (node.tag.startswith("CLP") and node.kids[0].tag == "M") or  
