@@ -19,21 +19,18 @@ from apps.cn.fix_utils import *
 
 class FixExtraction(Fix):
     def pattern(self): 
-        return {
-            r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}': self.fix_subject_extraction,
-            r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}': self.fix_object_extraction,
-            
-            r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-TPC/ < ^/\*T\*/}}}}': self.fix_nongap_extraction,
-            
-            r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }': self.fix_topicalisation_with_gap,
-            r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }': self.fix_topicalisation_without_gap,
-            
-            # Removes the prodrop trace *pro*
-            r'* < { * < ^"*pro*" }': self.fix_prodrop,
+        return list((
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
             # and what is expected (eg S/S)
-            r'*=P <1 {/:m$/a=T $ *=S}': self.fix_modification,
-        }
+            (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            (r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
+            (r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
+            # Removes the prodrop trace *pro*
+            (r'* < { * < ^"*pro*" }', self.fix_prodrop),
+        ))
     
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
@@ -71,7 +68,17 @@ class FixExtraction(Fix):
             l.right != r.left or 
             l.direction != FORWARD or l.direction != r.direction): return None
             
-        return l.left / r.right
+        result = (l.left / r.right).clone()
+        # Fake unification onto result category
+        # 1. get inner-most result category from R
+        # 2. give its features to L's result category
+        # 3. ???
+        # 4. Profit!!!
+        cur = r
+        while cur.is_complex(): cur = cur.left
+        result.left.features = copy.copy(cur.features)
+        
+        return result
         
     @staticmethod
     def bxcomp(l, r):

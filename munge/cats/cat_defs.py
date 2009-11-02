@@ -19,6 +19,7 @@ SbS, SfS, SbNPfSbNP, conj = [parse_category(cat) for cat in
                         '''S\\NP S/NP NP\\NP N\\N N/N (S\\NP)\\(S\\NP)
                            S\\S  S/S (S\\NP)/(S\\NP) conj'''.split()]
 Sq, Sdcl = parse_category('S[q]'), parse_category('S[dcl]')
+SadjbNP = parse_category(r'S[adj]\NP')
 SdclbNP, Sfrg = parse_category(r'S[dcl]\NP'), parse_category(r'S[frg]')
 Nnum = parse_category(r'N[num]')
 # Defines a short name for converting a category string to a category representation.         
