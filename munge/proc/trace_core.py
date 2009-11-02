@@ -23,7 +23,7 @@ class TraceCore(object):
         self.set_verbose(verbose)
         self.reader_class_name = reader_class_name
         
-        self.last_exception = None
+        self.last_exceptions = []
         
     def get_verbose(self): return self._verbose
     def set_verbose(self, v):
@@ -113,6 +113,8 @@ class TraceCore(object):
         
         for file in files:
             try:
+                self.last_exceptions = []
+                
                 for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose, reader_class=reader_class):
                     if self.verbose: info("Processing %s...", derivation_bundle.label())
                     try:
@@ -134,13 +136,15 @@ class TraceCore(object):
                             filter.context = None
                             
                     except Exception, e:
-                        self.last_exception = sys.exc_info()
-                        raise FilterException(e, derivation_bundle)
+                        self.last_exceptions.append( (derivation_bundle, sys.exc_info()) )
+                else:
+                    if self.last_exceptions:
+                        raise FilterException(e, None)
                         
             except FilterException, e:
-                err("Processing failed on derivation %s of file %s:", e.context.label(), file)
-                if self.last_exception:
-                    sys.excepthook(*self.last_exception)
+                for bundle, exception in self.last_exceptions:
+                    err("Processing failed on derivation %s of file %s:", bundle.label(), file)
+                    sys.excepthook(*exception)
 
         for filter in filters:
             filter.output()
