@@ -32,10 +32,9 @@ class TraceCore(object):
         muzzle(quiet=not self._verbose)
     verbose = property(get_verbose, set_verbose)
     
-    @property
-    def break_on_exception(self): return self._break_on_exception
-    @break_on_exception.setter
-    def break_on_exception(self, v): self._break_on_exception = v
+    def get_break_on_exception(self): return self._break_on_exception
+    def set_break_on_exception(self, v): self._break_on_exception = v
+    break_on_exception = property(get_break_on_exception, set_break_on_exception)
 
     def __getitem__(self, key):
         return self.available_filters_dict.get(key, None)
