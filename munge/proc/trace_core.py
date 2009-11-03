@@ -16,7 +16,7 @@ from munge.util.exceptions import FilterException
 
 class TraceCore(object):
     '''Implements filter loading functionality and the document processing loop.'''
-    def __init__(self, libraries, verbose=True, reader_class_name=None):
+    def __init__(self, libraries, verbose=True, break_on_exception=False, reader_class_name=None):
         self.loaded_modules = set(load_requested_packages(libraries))
         self.update_available_filters_dict()
         
@@ -24,7 +24,7 @@ class TraceCore(object):
         self.reader_class_name = reader_class_name
         
         self.last_exceptions = []
-        self._break_on_exception = True
+        self.set_break_on_exception(break_on_exception)
         
     def get_verbose(self): return self._verbose
     def set_verbose(self, v):

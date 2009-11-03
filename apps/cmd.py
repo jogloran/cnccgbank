@@ -367,6 +367,8 @@ def register_builtin_switches(parser):
     parser.add_option('--no-pager', help='Filter output is redirected to stdout and not a pager.', action='store_const', dest='pager_path', const=None)
     parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
                       action='store_true', dest='verbose', default=False)
+    parser.add_option("-b", "--break-on-error", help="Ignore the rest of the document if an error is encountered.",
+                    action='store_true', dest='break_on_exception', default=False)
     parser.add_option('-q', '--quiet', help='Make less output.',
                       action='store_false', dest='verbose')
         

@@ -89,8 +89,14 @@ def register_builtin_switches(parser):
                       action='store_false', dest='verbose')
     group.add_option("-v", "--verbose", help="Print diagnostic messages.", 
                       action='store_true', dest='verbose')
+                      
+    errors_group = OptionGroup(parser, title='Error handling')
+                      
+    errors_group.add_option("-b", "--break-on-error", help="Ignore the rest of the document if an error is encountered.",
+                      action='store_true', dest='break_on_exception', default=False)
 
     parser.add_option_group(group)
+    parser.add_option_group(errors_group)
 
 def filter_library_switches(argv):
     '''This strips argv of all command-line switches of the form -lPACKAGE where PACKAGE is a 
@@ -135,6 +141,7 @@ def main(argv):
     
     # Set verbose switch if given on command line
     tracer.verbose = opts.verbose
+    tracer.break_on_exception = opts.break_on_exception
     
     # Set override Reader if given on command line
     tracer.reader_class_name = opts.reader_class_name
