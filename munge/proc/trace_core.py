@@ -24,12 +24,18 @@ class TraceCore(object):
         self.reader_class_name = reader_class_name
         
         self.last_exceptions = []
+        self._break_on_exception = True
         
     def get_verbose(self): return self._verbose
     def set_verbose(self, v):
         self._verbose = v
         muzzle(quiet=not self._verbose)
     verbose = property(get_verbose, set_verbose)
+    
+    @property
+    def break_on_exception(self): return self._break_on_exception
+    @break_on_exception.setter
+    def break_on_exception(self, v): self._break_on_exception = v
 
     def __getitem__(self, key):
         return self.available_filters_dict.get(key, None)
@@ -137,6 +143,8 @@ class TraceCore(object):
                             
                     except Exception, e:
                         self.last_exceptions.append( (derivation_bundle, sys.exc_info()) )
+                        if self._break_on_exception:
+                            raise FilterException(e, None)
                 else:
                     if self.last_exceptions:
                         raise FilterException(e, None)

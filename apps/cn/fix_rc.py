@@ -25,9 +25,13 @@ class FixExtraction(Fix):
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
             
-            (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
-            (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
-            (r'* < { /CP/ < {/WHNP-\d+/ $ {/CP/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
+            # IP for the null relativiser construction.
+            # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            
             (r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
             (r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
             # Removes the prodrop trace *pro*
@@ -54,10 +58,12 @@ class FixExtraction(Fix):
         relativiser, s = node[0][1], node[0][0]
         if not relativiser.tag.startswith('DEC'):
             warn("Didn't get relativiser in expected position, got %s", relativiser)
-            return
+            return False
         else:
             relativiser.category.right = s.category
             debug("New rel category: %s", relativiser.category)
+            
+            return True
         
     def fcomp_children(self, node):
         if not (node[0].category.is_complex() and node[1].category.is_complex()): return node.category
@@ -78,7 +84,10 @@ class FixExtraction(Fix):
         # 4. Profit!!!
         cur = r
         while cur.is_complex(): cur = cur.left
-        result.left.features = copy.copy(cur.features)
+        
+        res = result
+        while res.is_complex(): res = res.left
+        res.features = copy.copy(cur.features)
         
         return result
         
@@ -160,7 +169,12 @@ class FixExtraction(Fix):
         for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
             trace_NP_parent[0] = trace_NP_parent[0][1]
         
-        self.relabel_relativiser(node)
+        if not self.relabel_relativiser(node):
+            # TOP is the shrunk VP
+            top, context = get_first(node, r'/VP/=TOP $ *=SS', with_context=True)
+            ss = context["SS"]
+            
+            replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
         
     def fix_nongap_extraction(self, node):
         debug("Fixing nongap extraction: %s", lrp_repr(node))
@@ -170,21 +184,28 @@ class FixExtraction(Fix):
         for trace_NP_parent in find_all(node, r'* < { * < { /NP-TPC/ < ^/\*T\*/ } }'):
             trace_NP_parent[0] = trace_NP_parent[0][1]
         
-        self.relabel_relativiser(node)
+        if not self.relabel_relativiser(node):
+            top, context = get_first(node, r'/IP/=TOP $ *=SS', with_context=True)
+            ss = context["SS"]
+            
+            replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
         
     def fix_object_extraction(self, node, **vars):
         debug("Fixing object extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
-        trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
+        trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
         
-        top, pp, p, t, s = (context[n] for n in "TOP PP P T S".split())
+        top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
         
         self.fix_object_gap(pp, p, t, s)
         
         self.fix_categories_starting_from(s, until=top)
         
-        self.relabel_relativiser(node)
+        # If we couldn't find the DEC node, this is the null relativiser case
+        if not self.relabel_relativiser(node):
+            # TOP is the S node
+            replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
         
     @staticmethod
     def fix_object_gap(pp, p, t, s):
