@@ -8,6 +8,8 @@ from munge.util.dict_utils import sorted_by_value_desc
 from apps.identify_pos import is_verb_compound
 from apps.cn.output import OutputDerivation
 
+from apps.util.config import config
+
 def last_nonpunct_kid(node):
     kid, index = get_nonpunct_kid(node)
     return kid
@@ -55,6 +57,8 @@ def is_modification(node):
     
 ModificationRegex = re.compile(r'\w+-(\w+)')
 def has_modification_tag(node):
+    if not config.modification_unary_rules: return False
+    
     if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
     
     last_dash_index = node.tag.rfind('-')
