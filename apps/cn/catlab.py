@@ -277,7 +277,7 @@ def label(node, inside_np=False):
     
     # NP/NP (CP) -> NP
     elif is_cp_to_np_nominalisation(node):
-        node[0].category = C('NP/NP')
+        node[0].category = NPfNP
         node.kids[0] = label(node[0])
         
         return node

@@ -17,6 +17,8 @@ from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 
+from apps.identify_lrhca import base_tag
+
 class FixExtraction(Fix):
     def pattern(self): 
         return list((
@@ -31,6 +33,8 @@ class FixExtraction(Fix):
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            
+            (r'* < { /-APP/a=A $ /N[NRT]/=S }', self.fix_ip_app),
             
             (r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
             (r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
@@ -189,6 +193,12 @@ class FixExtraction(Fix):
             ss = context["SS"]
             
             replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+            
+    def fix_ip_app(self, p, a, s):
+        debug("Fixing IP-APP NX: %s", lrp_repr(p))
+        new_kid = copy.copy(a)
+        new_kid.tag = base_tag(new_kid.tag) # relabel to stop infinite matching
+        replace_kid(p, a, Node(s.category/s.category, "NN", [new_kid]))
         
     def fix_object_extraction(self, node, **vars):
         debug("Fixing object extraction: %s", lrp_repr(node))

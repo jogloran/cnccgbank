@@ -32,6 +32,8 @@ def is_left_absorption(node):
     
 def is_right_absorption(node):
     # TODO: refactor into one method
+    # are these special cases? or are they just a consequence of binarisation?
+    # if you have IP < NP , VP you will get IP < , VP after binarisation
     return node[1].is_leaf() and node[1].tag == 'PU' and (
         (base_tag(node[0].tag) == base_tag(node.tag)) or
         # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
