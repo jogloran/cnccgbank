@@ -34,7 +34,8 @@ class FixExtraction(Fix):
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
             
-            (r'* < { /-APP/a=A $ /N[NRT]/=S }', self.fix_ip_app),
+            # 
+            (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
             
             (r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
             (r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
