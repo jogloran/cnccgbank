@@ -157,6 +157,8 @@ def label_node(node, inside_np_internal_structure=False):
             (node.tag.startswith("QP") and node.kids[0].tag.startswith("QP")) or
             # see head-initial case in tag.py (hack for unary PP < P)
             (node.tag.startswith('PP') and node.kids[0].tag == "P") or
+            # see bad tagging (WHNP CP DEC) in tag.py head-final case
+            (node.tag.startswith('CP') and node.kids[0].tag.startswith('IP')) or
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
             (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
             (node.tag.startswith('FLR')) or (node.tag.startswith('FW'))):

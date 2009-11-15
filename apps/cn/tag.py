@@ -181,8 +181,8 @@ def label(root):
                   is_lcp_internal_structure(last_kid)):
                 tag(last_kid, 'h')
 
-                # cf 2:23(7), a number of derivations have (CP (WHNP-1 CP DEC)) instead of
-                # the expected (CP (WHNP-1) (CP DEC))
+                # cf 2:23(7),1:9(28), a number of derivations have (CP(WHNP-1 CP(IP) DEC) XP) instead of
+                # the expected (CP (WHNP-1) CP(IP DEC) XP)
                 # This lets us treat what would otherwise be considered head-final as an
                 # adjunction
                 if last_kid.tag.startswith('DEC'):
