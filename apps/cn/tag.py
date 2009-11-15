@@ -66,13 +66,16 @@ def has_modification_tag(node):
     
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
-CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*([\w:]+)(?: (?:(?:PU|CC) )+\1)+')
+# \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
+CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+')
 
 def is_coordination(node):
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
     kid_tags = ' '.join(kid.tag for kid in node)
 #    return CoordinationRegex.match(kid_tags)
-    return CoordinationRegex.search(kid_tags)
+    matches = CoordinationRegex.search(kid_tags)
+    if matches and len(matches.groups()) > 1:
+        matches.
     
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
@@ -151,7 +154,11 @@ def label(root):
                     if kid.tag not in ('CC', 'PU', 'ADVP'):
                         tag(kid, 'c')
 
-            elif first_kid.is_leaf() or is_vp_internal_structure(first_kid): # head initial complementation
+            elif (first_kid.is_leaf() 
+               or is_vp_internal_structure(first_kid) # head initial complementation
+               # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
+               # (because of PP IP configuration) in 10:76(4)
+               or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P"):
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
                     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
@@ -184,7 +191,7 @@ def label(root):
                 if last_kid.tag.startswith('DEC'):
                     for kid in node[0:node.count()-1]:
                         if kid.tag.startswith('WHNP'): tag(kid, 'a')
-                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h') or 
+                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h') or
                             kid.tag.startswith('ADVP')): # ADVP as sibling of IP in 11:39(63)
                             tag(kid, 'l')
                 else:

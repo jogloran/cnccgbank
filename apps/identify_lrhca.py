@@ -41,6 +41,8 @@ def is_right_absorption(node):
         # it seems we get NN PU -> NP as well (10:2(17))
         (has_verbal_tag(node[0]) and node.tag.startswith('VP')) or
         (has_noun_tag(node[0]) and node.tag.startswith('NP')) or
+        # 8:38(22)
+        (node[0].tag == 'P' and node.tag.startswith('PP')) or
         # LC PU -> LCP (6:47(5))
         (node[0].tag.startswith('LC') and node.tag.startswith('LCP')) or
         # PU IP DEC PU -> CP (1:85(9))
