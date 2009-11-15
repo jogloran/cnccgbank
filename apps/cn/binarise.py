@@ -138,17 +138,26 @@ def label_node(node, inside_np_internal_structure=False):
     if node.is_leaf(): return node
     elif node.count() == 1:
         # shrinkage rules (NP < NN shrinks to NN)
-        if ((inside_np_internal_structure and node.tag.startswith("NP") and has_noun_tag(node.kids[0])) or
-            (node.tag.startswith("VP") and (has_verbal_tag(node.kids[0]) or node.kids[0].tag.startswith("VRD"))) or
-            (node.tag.startswith("ADJP") and node.kids[0].tag.startswith("JJ")) or
+        if ((inside_np_internal_structure and node.tag.startswith("NP") and 
+                has_noun_tag(node.kids[0])
+                or node.kids[0].tag == "AD") or
+            (node.tag.startswith("VP") and 
+                (has_verbal_tag(node.kids[0]) 
+                 or node.kids[0].tag.startswith("VRD")
+                 or node.kids[0].tag.startswith("AD"))) or
+            (node.tag.startswith("ADJP") and 
+                (node.kids[0].tag.startswith("JJ") 
+                 or node.kids[0].tag.startswith("AD"))) or
             (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS")) or
             (node.tag.startswith("CLP") and node.kids[0].tag == "M") or  
             (node.tag.startswith("LCP") and node.kids[0].tag == "LC") or  
             # DT < OD found in 6:25(11)
             (node.tag.startswith("DP") and node.kids[0].tag in ("DT", "OD")) or
+            # QP < AD in 24:68(8)
+            (node.tag.startswith("QP") and node.kids[0].tag.startswith("QP")) or
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
             (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
-            (node.tag.startswith('FLR'))):
+            (node.tag.startswith('FLR')) or (node.tag.startswith('FW'))):
             
             replacement = node.kids[0]
             inherit_tag(replacement, node)

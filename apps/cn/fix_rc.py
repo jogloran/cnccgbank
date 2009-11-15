@@ -37,6 +37,9 @@ class FixExtraction(Fix):
             # 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
             
+            # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
+         #   (r'', self.fix_long_bei_gap),
+            
             (r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
             (r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
             # Removes the prodrop trace *pro*

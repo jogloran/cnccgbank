@@ -184,7 +184,9 @@ def label(root):
                 if last_kid.tag.startswith('DEC'):
                     for kid in node[0:node.count()-1]:
                         if kid.tag.startswith('WHNP'): tag(kid, 'a')
-                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')): tag(kid, 'l')
+                        elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h') or 
+                            kid.tag.startswith('ADVP')): # ADVP as sibling of IP in 11:39(63)
+                            tag(kid, 'l')
                 else:
                     for kid in node[0:node.count()-1]:
                         if (is_postverbal_adjunct_tag(kid.tag) or

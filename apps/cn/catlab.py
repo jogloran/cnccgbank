@@ -164,7 +164,9 @@ Map = {
     'JJ': NfN,
     # to account for CLP modification (the modifiers should end up as M/M, see 0:9(3))
     'CLP': C('M'),
-    'DP': C('NP/N')
+    'DP': C('NP/N'),
+    
+    'FW': N, # last ditch for filler words
     
     #'CP': C('NP/NP'),
 }
