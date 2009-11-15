@@ -27,8 +27,8 @@ def get_nonpunct_kid(node, get_last=True):
     return None, None
 
 PredicationRegex = re.compile(r'''
-    (?:\w+)?
-    (\s+\w+\s*)* # adjuncts
+    (?:[\w-]+)?
+    (\s+[\w-]+\s*)* # adjuncts (allow dashes too)
     # allow dashes in the subject tag -- sometimes there are indices in the tag (NP-1)
     [\w-]+-(?:PN|SBJ)\s+ # grammatical subject. IP < NP-PN VP occurs in 0:40(5)
     (?:PU\s+)?
