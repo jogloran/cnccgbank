@@ -72,10 +72,7 @@ CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\
 def is_coordination(node):
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
     kid_tags = ' '.join(kid.tag for kid in node)
-#    return CoordinationRegex.match(kid_tags)
-    matches = CoordinationRegex.search(kid_tags)
-    if matches and len(matches.groups()) > 1:
-        matches.
+    return CoordinationRegex.match(kid_tags)
     
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
