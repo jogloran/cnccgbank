@@ -78,13 +78,16 @@ def write_png(deriv, fn):
 def write_pdf(deriv, fn):
     return write_dot_format(deriv, fn, "pdf")
 
+dot_path = None
 def write_dot_format(deriv, fn, format):
     cin = cout = None
     try:
-        dot_path = os.popen('which dot').read().strip()
+        global dot_path
         if not dot_path:
-            err('dot not found on this system. Ensure that dot is in the PATH.')
-            return
+            dot_path = os.popen('which dot').read().strip()
+            if not dot_path:
+                err('dot not found on this system. Ensure that dot is in the PATH.')
+                return
             
         cmd = '%s -T%s -o %s 2>/dev/null' % (dot_path, format, fn)
         pipes = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, close_fds=True)
