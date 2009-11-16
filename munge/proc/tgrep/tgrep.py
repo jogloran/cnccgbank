@@ -117,14 +117,23 @@ class TgrepCore(Filter):
         
         self.expression = expression
         
+        self.nmatched = self.total = 0
+        
     def _not_implemented(self, *args):
         raise NotImplementedError('TgrepCore subclasses must implement match_generator and match_callback.')
     match_generator = _not_implemented
     match_callback = _not_implemented
         
     def accept_derivation(self, derivation_bundle):
+        matched = False
+        
         for match_node in self.match_generator(derivation_bundle.derivation, self.expression):
             self.match_callback(match_node, derivation_bundle)
+            if not matched: matched = True
+            
+        if matched:
+            self.nmatched += 1
+        self.total += 1
     
     @staticmethod
     def is_abstract(): return True
@@ -136,6 +145,9 @@ def FixedTgrep(expression):
     return _TgrepCore
     
 class Tgrep(TgrepCore):
+    def output(self):
+        print "matches: %d/%d derivs = %.2f%%" % (self.nmatched, self.total, self.nmatched/float(self.total)*100.0)
+        
     @staticmethod
     def show_node(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node)
