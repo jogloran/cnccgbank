@@ -1,5 +1,7 @@
 import re, copy
 
+from apps.util.echo import echo
+
 from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, find_first, find_all
 from munge.penn.aug_nodes import Node
@@ -118,6 +120,7 @@ class FixExtraction(Fix):
         else:
             return T|(T/X)
             
+    @echo
     def fix_categories_starting_from(self, node, until):
         debug("fix from %s to %s", node, until)
         while node is not until:
@@ -135,7 +138,9 @@ class FixExtraction(Fix):
             if applied_rule is None:
                 debug("invalid rule %s %s -> %s", L, R, P)
                 if L.is_leaf():
-                    if L == R.left.right:
+                    if l.tag == "PU": # treat as absorption
+                        p.category = r.category 
+                    elif R.is_complex() and R.left.is_complex() and L == R.left.right:
                         T = R.left.left
                         new_category = self.typeraise(L, T, self.FORWARD)#T/(T|L)
                         node.parent[0] = Node(new_category, node.tag, [l])
@@ -148,7 +153,9 @@ class FixExtraction(Fix):
                         debug("New category: %s", new_category)
                     
                 elif R.is_leaf():
-                    if R == L.left.right:
+                    if r.tag == "PU": # treat as absorption
+                        p.category = l.category
+                    elif L.is_complex() and L.left.is_complex() and R == L.left.right:
                         T = L.left.left
                         new_category = self.typeraise(R, T, self.BACKWARD)#T|(T/R)
                         node.parent[1] = Node(new_category, node.tag, [r])
