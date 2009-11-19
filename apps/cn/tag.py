@@ -166,7 +166,7 @@ def label(root):
                # (because of PP IP configuration) in 10:76(4)
                or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")
                # QP is headed by M
-               and not first_kid.tag in ("OD", "CD")):
+               # and not first_kid.tag in ("OD", "CD")):
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
                     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
@@ -186,7 +186,7 @@ def label(root):
 
             # head final complementation
             elif (last_kid.is_leaf() or 
-                  last_kid.tag == "CLP" or
+                  #last_kid.tag == "CLP" or
                   is_vp_internal_structure(last_kid) or
                   # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
                   # this should be treated as head-final complementation, not adjunction.
@@ -243,7 +243,7 @@ def label(root):
                     if not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'a')
                     else:
-                        tag_if_topicalisation(kid)                      
+                        tag_if_topicalisation(kid)
     return root
     
 class TagStructures(Filter, OutputDerivation):
