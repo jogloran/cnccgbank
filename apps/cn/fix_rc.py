@@ -41,9 +41,12 @@ class FixExtraction(Fix):
             
             # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
          #   (r'', self.fix_long_bei_gap),
+         
+            # ba-construction object gap
+            (r'*=TOP < { /BA/ $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
             
-            (r'/IP/=P < {/NP-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
-            (r'/IP/=P < {/NP-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
+            (r'/IP/=P < {/[^-]+-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
+            (r'/IP/=P < {/[^-]+-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
             # Removes the prodrop trace *pro*
             (r'* < { * < ^"*pro*" }', self.fix_prodrop),
         ))
@@ -137,9 +140,31 @@ class FixExtraction(Fix):
 
             if applied_rule is None:
                 debug("invalid rule %s %s -> %s", L, R, P)
-                if L.is_leaf():
+                
+                # conj R -> P
+                # Make P into R[conj] 
+                if str(L) in ('conj', 'LCM'):
+                    p.category = R.clone().add_feature('conj')
+                    debug("New category: %s", p.category)
+                    
+                # L R[conj] -> P
+                # 
+                elif R.has_feature('conj'):
+#                    import pdb; pdb.set_trace()
+                    new_L = L.clone()
+                    new_L.features = []
+                    
+                    r.category = new_L.add_feature('conj')
+                    p.category = new_L
+#                    l.category = p.category = new_L
+                    
+                    debug("New category: %s", new_L)
+                
+                elif L.is_leaf():
                     if l.tag == "PU": # treat as absorption
+                        debug("Fixing left absorption: %s" % P)
                         p.category = r.category 
+                        
                     elif R.is_complex() and R.left.is_complex() and L == R.left.right:
                         T = R.left.left
                         new_category = self.typeraise(L, T, self.FORWARD)#T/(T|L)
@@ -154,7 +179,9 @@ class FixExtraction(Fix):
                     
                 elif R.is_leaf():
                     if r.tag == "PU": # treat as absorption
+                        debug("Fixing right absorption: %s" % P)
                         p.category = l.category
+                        
                     elif L.is_complex() and L.left.is_complex() and R == L.left.right:
                         T = L.left.left
                         new_category = self.typeraise(R, T, self.BACKWARD)#T|(T/R)
@@ -171,7 +198,7 @@ class FixExtraction(Fix):
                     new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R)
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)
-                        p.category = new_parent_category                  
+                        p.category = new_parent_category
             
             node = node.parent
             
@@ -227,6 +254,16 @@ class FixExtraction(Fix):
         if not self.relabel_relativiser(node):
             # TOP is the S node
             replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+            
+    def fix_ba_object_gap(self, node, top, c):
+        debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
+        
+        for trace_NP, context in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
+            debug("Found %s", trace_NP)
+            pp, p, t, s = (context[n] for n in "PP P T S".split())
+            
+            self.fix_object_gap(pp, p, t, s)
+            self.fix_categories_starting_from(s, until=c)
         
     @staticmethod
     def fix_object_gap(pp, p, t, s):
@@ -246,7 +283,11 @@ class FixExtraction(Fix):
         
     def fix_topicalisation_without_gap(self, node, p, s, t):
         debug("Fixing topicalisation without gap: %s", lrp_repr(node))
-        replace_kid(p, t, Node(S/S, t.tag, [t]))
+
+        new_kid = copy.copy(t)
+        new_kid.tag = self.strip_tag(new_kid.tag)
+        
+        replace_kid(p, t, Node(S/S, t.tag, [new_kid]))
         
     def fix_prodrop(self, node):
         node.kids.pop(0)

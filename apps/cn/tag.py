@@ -96,6 +96,20 @@ def tag(kid, tag):
     if len(kid.tag) >= 2 and kid.tag[-2] == ':': return
 
     kid.tag += (':' + tag)
+    
+if config.only_np_topicalisation_valid:
+    def tag_if_topicalisation(node):
+        # topicalisation WITH gap (NP-TPC-i)
+        if node.tag.startswith('NP-TPC-'):
+            tag(node, 't')
+
+        # topicalisation WITHOUT gap (NP-TPC)
+        elif node.tag.startswith('NP-TPC'):
+            tag(node, 'T')
+else:
+    def tag_if_topicalisation(node):
+        if node.tag.find('-TPC-') != -1: tag(node, 't')
+        elif node.tag.find('-TPC') != -1: tag(node, 'T')
 
 def label(root):
     for node in nodes(root):
@@ -106,14 +120,9 @@ def label(root):
             for kid in node:
                 if has_modification_tag(kid):
                     tag(kid, 'm')
-
-                # topicalisation WITH gap (NP-TPC-i)
-                elif kid.tag.startswith('NP-TPC-'):
-                    tag(kid, 't')
-
-                # topicalisation WITHOUT gap (NP-TPC)
-                elif kid.tag.startswith('NP-TPC'):
-                    tag(kid, 'T')
+                    
+                else:
+                    tag_if_topicalisation(kid)
 
             if is_predication(node):
                 for kid in node:
@@ -151,11 +160,13 @@ def label(root):
                     if kid.tag not in ('CC', 'PU', 'ADVP'):
                         tag(kid, 'c')
 
-            elif (first_kid.is_leaf() 
+            elif ((first_kid.is_leaf() 
                or is_vp_internal_structure(first_kid) # head initial complementation
                # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
                # (because of PP IP configuration) in 10:76(4)
-               or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P"):
+               or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")
+               # QP is headed by M
+               and not first_kid.tag in ("OD", "CD")):
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
                     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
@@ -163,18 +174,19 @@ def label(root):
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'r')
 
-            # topicalisation WITH gap (NP-TPC-i)
-            elif first_kid.tag.startswith('NP-TPC-'):
-                tag(first_kid, 't')
-                # really, we might want to tag the 'rest of phrase' as if the topicalised constituent
-                # weren't there
-
-            # topicalisation WITHOUT gap (NP-TPC)
-            elif first_kid.tag.startswith('NP-TPC'):
-                tag(first_kid, 'T')
+            # # topicalisation WITH gap (NP-TPC-i)
+            # elif first_kid.tag.startswith('NP-TPC-'):
+            #     tag(first_kid, 't')
+            #     # really, we might want to tag the 'rest of phrase' as if the topicalised constituent
+            #     # weren't there
+            # 
+            # # topicalisation WITHOUT gap (NP-TPC)
+            # elif first_kid.tag.startswith('NP-TPC'):
+            #     tag(first_kid, 'T')
 
             # head final complementation
             elif (last_kid.is_leaf() or 
+                  last_kid.tag == "CLP" or
                   is_vp_internal_structure(last_kid) or
                   # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
                   # this should be treated as head-final complementation, not adjunction.
@@ -221,30 +233,17 @@ def label(root):
                         elif not kid.tag.startswith('PU'):
                             tag(kid, 'a')
 
-                        # XXX: this code is duplicated from above
-                        # topicalisation WITH gap (NP-TPC-i)
-                        elif kid.tag.startswith('NP-TPC-'):
-                            tag(kid, 't')
-
-                        # topicalisation WITHOUT gap (NP-TPC)
-                        elif kid.tag.startswith('NP-TPC'):
-                            tag(kid, 'T')
+                        else:
+                            tag_if_topicalisation(kid)
 
             else: # adjunction
                 tag(last_kid, 'h')
 
                 for kid in node[0:node.count()-1]:
-                    # XXX: this code is duplicated from above
-                    # topicalisation WITH gap (NP-TPC-i)
-                    if kid.tag.startswith('NP-TPC-'):
-                        tag(kid, 't')
-
-                    # topicalisation WITHOUT gap (NP-TPC)
-                    elif kid.tag.startswith('NP-TPC'):
-                        tag(kid, 'T')
-
-                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                        tag(kid, 'a')                        
+                    if not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                        tag(kid, 'a')
+                    else:
+                        tag_if_topicalisation(kid)                      
     return root
     
 class TagStructures(Filter, OutputDerivation):
