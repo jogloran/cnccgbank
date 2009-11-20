@@ -168,6 +168,8 @@ Map = {
     
     'FW': N, # last ditch for filler words
     
+    'CP': Sdcl, # for top level CP (like 6:6(4))
+    
     #'CP': C('NP/NP'),
 }
 

@@ -164,7 +164,7 @@ def label(root):
                or is_vp_internal_structure(first_kid) # head initial complementation
                # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
                # (because of PP IP configuration) in 10:76(4)
-               or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")
+               or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")):
                # QP is headed by M
                # and not first_kid.tag in ("OD", "CD")):
                 tag(first_kid, 'h')
