@@ -91,30 +91,30 @@ class FixExtraction(Fix):
         
         return node[0].category.left / node[1].category.right
         
-    @staticmethod
-    def fcomp(l, r):
+    @classmethod
+    def fcomp(C, l, r):
         if (l.is_leaf() or r.is_leaf() or 
             l.right != r.left or 
             l.direction != FORWARD or l.direction != r.direction): return None
             
-        return fake_unify(l, r, l.left / r.right)
+        return C.fake_unify(l, r, l.left / r.right)
                 
-    @staticmethod
-    def bxcomp(l, r):
+    @classmethod
+    def bxcomp(C, l, r):
         # Y/Z X\Y -> X/Z
         if (l.is_leaf() or r.is_leaf() or
             l.left != r.right or
             l.direction != FORWARD or l.direction == r.direction): return None
             
-        return fake_unify(l, r, r.left / l.right)
+        return C.fake_unify(l, r, r.left / l.right)
         
-    @staticmethod
-    def fxcomp(l, r):
+    @classmethod
+    def fxcomp(C, l, r):
         if (l.is_leaf() or r.is_leaf() or
             l.right != r.left or
             l.direction != FORWARD or r.direction == l.direction): return None
 
-        return fake_unify(l, r, l.left | r.right)
+        return C.fake_unify(l, r, l.left | r.right)
         
     @staticmethod
     def fake_unify(l, r, result):
