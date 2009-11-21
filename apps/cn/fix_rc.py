@@ -24,6 +24,9 @@ from apps.identify_lrhca import base_tag
 class FixExtraction(Fix):
     def pattern(self): 
         return list((
+            (r'/IP/=P < {/[^-]+-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
+            (r'/IP/=P < {/[^-]+-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
+        
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
             # and what is expected (eg S/S)
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
@@ -45,8 +48,6 @@ class FixExtraction(Fix):
             # ba-construction object gap
             (r'*=TOP < { /BA/ $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
             
-            (r'/IP/=P < {/[^-]+-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
-            (r'/IP/=P < {/[^-]+-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
             # Removes the prodrop trace *pro*
             (r'* < { * < ^"*pro*" }', self.fix_prodrop),
         ))
@@ -57,17 +58,25 @@ class FixExtraction(Fix):
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
         # XXX: check that we're removing the right nodes
-        node[0] = node[0][1]
+#        node[0] = node[0][1]
+        pp, context = get_first(node, r'*=PP < { *=P < { /WHNP/=T $ *=S } }', with_context=True)
+        p, t, s = context['P'], context['T'], context['S']
+        
+        replace_kid(pp, p, s)
         
     def remove_PRO_gap(self, node):
         node[1] = node[1][1]
         
+    @echo
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
         
         # we want the closest DEC, so we can't use the DFS implicit in tgrep
         # relativiser, context = get_first(node, r'/DEC/ $ *=S', with_context=True)
         # s = context['S']
+        # print ">>> %s"% pprint(node)
+        # s, context = get_first(node, r'/[CIV]P/ < { * $ /DEC/=REL }', with_context=True)
+        # relativiser = context['REL']
         relativiser, s = node[0][1], node[0][0]
         if not relativiser.tag.startswith('DEC'):
             warn("Didn't get relativiser in expected position, got %s", relativiser)
@@ -89,12 +98,35 @@ class FixExtraction(Fix):
             l.right != r.left or 
             l.direction != FORWARD or l.direction != r.direction): return None
             
-        result = (l.left / r.right).clone()
+        return fake_unify(l, r, l.left / r.right)
+                
+    @staticmethod
+    def bxcomp(l, r):
+        # Y/Z X\Y -> X/Z
+        if (l.is_leaf() or r.is_leaf() or
+            l.left != r.right or
+            l.direction != FORWARD or l.direction == r.direction): return None
+            
+        return fake_unify(l, r, r.left / l.right)
+        
+    @staticmethod
+    def fxcomp(l, r):
+        if (l.is_leaf() or r.is_leaf() or
+            l.right != r.left or
+            l.direction != FORWARD or r.direction == l.direction): return None
+
+        return fake_unify(l, r, l.left | r.right)
+        
+    @staticmethod
+    def fake_unify(l, r, result):
         # Fake unification onto result category
         # 1. get inner-most result category from R
         # 2. give its features to L's result category
         # 3. ???
         # 4. Profit!!!
+        
+        result = result.clone()
+        
         cur = r
         while cur.is_complex(): cur = cur.left
         
@@ -103,15 +135,7 @@ class FixExtraction(Fix):
         res.features = copy.copy(cur.features)
         
         return result
-        
-    @staticmethod
-    def bxcomp(l, r):
-        # Y/Z X\Y -> X/Z
-        if (l.is_leaf() or r.is_leaf() or
-            l.left != r.right or
-            l.direction != FORWARD or l.direction == r.direction): return None
-            
-        return r.left / l.right
+
         
     FORWARD, BACKWARD = 1, 2
     @classmethod
@@ -123,11 +147,13 @@ class FixExtraction(Fix):
         else:
             return T|(T/X)
             
-    @echo
+    #@echo
     def fix_categories_starting_from(self, node, until):
         debug("fix from %s to %s", node, until)
         while node is not until:
-            l, r, p = node.parent[0], node.parent[1], node.parent        
+            if node.parent.count() < 2: break
+            
+            l, r, p = node.parent[0], node.parent[1], node.parent
             L, R, P = (n.category for n in (l, r, p))
             debug("L: %s R: %s P: %s", L, R, P)
 
@@ -195,41 +221,54 @@ class FixExtraction(Fix):
                         debug("New category: %s", new_category)
                     
                 else:
-                    new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R)
+                    new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R) or self.fxcomp(L, R)
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)
                         p.category = new_parent_category
             
             node = node.parent
             
+    #@echo
     def fix_subject_extraction(self, node):
         debug("Fixing subject extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
         # Find and remove the trace
         # we use find_all to find all traces in the case of coordination
-        for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
-            trace_NP_parent[0] = trace_NP_parent[0][1]
+        # for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
+        #     trace_NP_parent[0] = trace_NP_parent[0][1]
+            
+        trace_NP, context = get_first(node, r'*=PP < { *=P < { /NP-SBJ/=T < ^/\*T\*/ $ *=S } }', with_context=True)
+        pp, p, t, s = (context[n] for n in "PP P T S".split())
+            
+        self.fix_object_gap(pp, p, t, s)
+        self.fix_categories_starting_from(s, until=node)
         
         if not self.relabel_relativiser(node):
             # TOP is the shrunk VP
-            top, context = get_first(node, r'/VP/=TOP $ *=SS', with_context=True)
+            print ">>> NODE: ", node
+            top, context = get_first(node, r'/[IC]P/=TOP $ *=SS', with_context=True)
             ss = context["SS"]
             
+            debug("Creating null relativiser unary category: %s", ss.category/ss.category)
             replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
         
     def fix_nongap_extraction(self, node):
         debug("Fixing nongap extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
-        # Find and remove the trace
-        for trace_NP_parent in find_all(node, r'* < { * < { /NP-TPC/ < ^/\*T\*/ } }'):
-            trace_NP_parent[0] = trace_NP_parent[0][1]
+        # # Find and remove the trace
+        # for trace_NP_parent in find_all(node, r'* < { * < { /NP-TPC/ < ^/\*T\*/ } }'):
+        #     trace_NP_parent[0] = trace_NP_parent[0][1]
+        
+        trace_NP, context = get_first(node, r'*=PP < { *=P < { /NP-TPC/=T < ^/\*T\*/ $ *=S } }', with_context=True)
+        pp, p, t, s = (context[n] for n in "PP P T S".split())
         
         if not self.relabel_relativiser(node):
             top, context = get_first(node, r'/IP/=TOP $ *=SS', with_context=True)
             ss = context["SS"]
             
+            debug("Creating null relativiser unary category: %s", ss.category/ss.category)
             replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
             
     def fix_ip_app(self, p, a, s):
@@ -238,6 +277,7 @@ class FixExtraction(Fix):
         new_kid.tag = base_tag(new_kid.tag) # relabel to stop infinite matching
         replace_kid(p, a, Node(s.category/s.category, "NN", [new_kid]))
         
+    #@echo
     def fix_object_extraction(self, node, **vars):
         debug("Fixing object extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
@@ -253,6 +293,7 @@ class FixExtraction(Fix):
         # If we couldn't find the DEC node, this is the null relativiser case
         if not self.relabel_relativiser(node):
             # TOP is the S node
+            debug("Creating null relativiser unary category: %s", ss.category/ss.category)
             replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
             
     def fix_ba_object_gap(self, node, top, c):
