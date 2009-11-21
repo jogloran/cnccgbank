@@ -24,6 +24,7 @@ from apps.identify_lrhca import base_tag
 class FixExtraction(Fix):
     def pattern(self): 
         return list((
+            # TODO: needs to be tested with (!NP)-TPC
             (r'/IP/=P < {/[^-]+-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
             (r'/IP/=P < {/[^-]+-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
         
@@ -89,11 +90,6 @@ class FixExtraction(Fix):
         # if not relativiser.tag.startswith('DEC'):
         #     
         #     return False
-        
-    def fcomp_children(self, node):
-        if not (node[0].category.is_complex() and node[1].category.is_complex()): return node.category
-        
-        return node[0].category.left / node[1].category.right
         
     @classmethod
     def fcomp(C, l, r):
