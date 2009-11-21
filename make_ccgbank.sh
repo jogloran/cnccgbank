@@ -11,4 +11,4 @@ else
 fi
 
 rm -rf ./final/${TARGET};
-./t -q -lapps.cn.output -r CCGbankStyleOutput final -0 -R AugmentedPTBReader fixed_np/${TARGET}
+./t -q -lapps.cn.output -r CCGbankStyleOutput final -0 -lapps.sanity -r SanityChecks -0 -R AugmentedPTBReader fixed_np/${TARGET}
