@@ -1,5 +1,7 @@
 import re, copy
 
+from apps.cn.catlab import ptb_to_cat
+
 from apps.util.echo import echo
 
 from munge.proc.filter import Filter
@@ -25,8 +27,8 @@ class FixExtraction(Fix):
     def pattern(self): 
         return list((
             # TODO: needs to be tested with (!NP)-TPC
-            (r'/IP/=P < {/[^-]+-TPC-\d+/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
-            (r'/IP/=P < {/[^-]+-TPC:.+/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
+            (r'/IP/=P < {/[^-]+-TPC-\d+:t/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
+            (r'/IP/=P < {/[^-]+-TPC:T/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
         
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
             # and what is expected (eg S/S)
@@ -86,10 +88,6 @@ class FixExtraction(Fix):
         else:
             warn("Couldn't find relativiser under %s", node)
             return False
-        #relativiser, s = node[0][1], node[0][0]
-        # if not relativiser.tag.startswith('DEC'):
-        #     
-        #     return False
         
     @classmethod
     def fcomp(C, l, r):
@@ -136,15 +134,19 @@ class FixExtraction(Fix):
         return result
 
         
-    FORWARD, BACKWARD = 1, 2
+    FORWARD, BACKWARD, TOPICALISATION = 1, 2, 3
     @classmethod
     def typeraise(C, x, t, dir):
         T, X = featureless(t), featureless(x)
         
         if dir == C.FORWARD:
             return T/(T|X)
-        else:
+        elif dir == C.BACKWARD:
             return T|(T/X)
+        elif dir == C.TOPICALISATION:
+            return T/(T/X)
+        else:
+            raise RuntimeException, "Invalid typeraise direction."
             
     #@echo
     def fix_categories_starting_from(self, node, until):
@@ -175,13 +177,11 @@ class FixExtraction(Fix):
                 # L R[conj] -> P
                 # 
                 elif R.has_feature('conj'):
-#                    import pdb; pdb.set_trace()
                     new_L = L.clone()
                     new_L.features = []
                     
                     r.category = new_L.add_feature('conj')
                     p.category = new_L
-#                    l.category = p.category = new_L
                     
                     debug("New category: %s", new_L)
                 
@@ -314,15 +314,18 @@ class FixExtraction(Fix):
     @staticmethod
     def fix_object_gap(pp, p, t, s):
         p.kids.remove(t)
-        replace_kid(pp, p, s)        
+        replace_kid(pp, p, s)
         
     def fix_topicalisation_with_gap(self, node, p, s, t):
-        debug("Fixing topicalisation with gap: %s", lrp_repr(node))
+        debug("Fixing topicalisation with gap:\nnode=%s\ns=%s", lrp_repr(node), pprint(s))
 
-        # create topicalised category
-        replace_kid(p, t, Node(S/(S/NP), t.tag, [t]))
+        # stop this method from matching again (in case there's absorption on the top node, cf 2:22(5))
+        t.tag = self.strip_tag(t.tag)
+        # create topicalised category based on the tag of T
+        typeraise_t_category = ptb_to_cat(t)
+        replace_kid(p, t, Node(self.typeraise(S, typeraise_t_category, self.TOPICALISATION), self.strip_tag(t.tag), [t]))
         
-        top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
+        top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /[NI]P-(?:SBJ|OBJ)/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
         
         self.fix_categories_starting_from(ctx['S'], until=top)
