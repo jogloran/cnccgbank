@@ -37,7 +37,7 @@ class FixExtraction(Fix):
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
             (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
-            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-TPC/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|LOC)/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
             
             # 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
@@ -67,24 +67,28 @@ class FixExtraction(Fix):
     def remove_PRO_gap(self, node):
         node[1] = node[1][1]
         
-    @echo
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
         
         # we want the closest DEC, so we can't use the DFS implicit in tgrep
         # relativiser, context = get_first(node, r'/DEC/ $ *=S', with_context=True)
         # s = context['S']
-        _, context = get_first(node, r'*=S $ /DEC/=REL', with_context=True)
-        s, relativiser = context['S'], context['REL']
-        #relativiser, s = node[0][1], node[0][0]
-        if not relativiser.tag.startswith('DEC'):
-            warn("Didn't get relativiser in expected position, got %s", relativiser)
-            return False
-        else:
+        result = get_first(node, r'*=S $ /DEC/=REL', with_context=True)
+        if result is not None:
+            _, context = result
+            s, relativiser = context['S'], context['REL']
+            
             relativiser.category.right = s.category
             debug("New rel category: %s", relativiser.category)
             
             return True
+        else:
+            warn("Couldn't find relativiser under %s", node)
+            return False
+        #relativiser, s = node[0][1], node[0][0]
+        # if not relativiser.tag.startswith('DEC'):
+        #     
+        #     return False
         
     def fcomp_children(self, node):
         if not (node[0].category.is_complex() and node[1].category.is_complex()): return node.category
@@ -245,7 +249,7 @@ class FixExtraction(Fix):
         
         if not self.relabel_relativiser(node):
             # TOP is the shrunk VP
-            top, context = get_first(node, r'/[IC]P/=TOP $ *=SS', with_context=True)
+            top, context = get_first(node, r'/[ICV]P/=TOP $ *=SS', with_context=True)
             ss = context["SS"]
             
             debug("Creating null relativiser unary category: %s", ss.category/ss.category)
@@ -261,7 +265,7 @@ class FixExtraction(Fix):
         
         #                                                                 v "<<" here, because fix_*_topicalisation comes
         # before fix_nongap_extraction, and this can introduce an extra layer here
-        trace_NP, context = get_first(node, r'*=PP < { *=P < { /NP-TPC/=T << ^/\*T\*/ $ *=S } }', with_context=True)
+        trace_NP, context = get_first(node, r'*=PP < { *=P < { /NP-(?:TPC|LOC)/=T << ^/\*T\*/ $ *=S } }', with_context=True)
         pp, p, t, s = (context[n] for n in "PP P T S".split())
         
         # remove T from P
