@@ -137,6 +137,9 @@ class FixExtraction(Fix):
     FORWARD, BACKWARD, TOPICALISATION = 1, 2, 3
     @classmethod
     def typeraise(C, x, t, dir):
+        '''
+        Performs the typeraising X -> T|(T|X).
+        '''
         T, X = featureless(t), featureless(x)
         
         if dir == C.FORWARD:
@@ -321,7 +324,11 @@ class FixExtraction(Fix):
         t.tag = self.strip_tag(t.tag)
         # create topicalised category based on the tag of T
         typeraise_t_category = ptb_to_cat(t)
-        replace_kid(p, t, Node(self.typeraise(S, typeraise_t_category, self.TOPICALISATION), self.strip_tag(t.tag), [t]))
+        # insert a node with the topicalised category
+        replace_kid(p, t, Node(
+            self.typeraise(S, typeraise_t_category, self.TOPICALISATION), 
+            self.strip_tag(t.tag), 
+            [t]))
         
         top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /[NI]P-(?:SBJ|OBJ)/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
