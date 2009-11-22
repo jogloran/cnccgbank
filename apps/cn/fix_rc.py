@@ -256,10 +256,6 @@ class FixExtraction(Fix):
         debug("Fixing nongap extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
-        # # Find and remove the trace
-        # for trace_NP_parent in find_all(node, r'* < { * < { /NP-TPC/ < ^/\*T\*/ } }'):
-        #     trace_NP_parent[0] = trace_NP_parent[0][1]
-        
         #                                                                 v "<<" here, because fix_*_topicalisation comes
         # before fix_nongap_extraction, and this can introduce an extra layer here
         trace_NP, context = get_first(node, r'*=PP < { *=P < { /NP-(?:TPC|LOC)/=T << ^/\*T\*/ $ *=S } }', with_context=True)
@@ -287,13 +283,15 @@ class FixExtraction(Fix):
         debug("Fixing object extraction: %s", lrp_repr(node))
         self.remove_null_element(node)
         
-        trace_NP, context = get_first(node, r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
+        # FIXME: this matches only once (because it's TOP being matched, not T)
+        for trace_NP, context in find_all(node, 
+            r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True):
         
-        top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
+            top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
         
-        self.fix_object_gap(pp, p, t, s)
+            self.fix_object_gap(pp, p, t, s)
         
-        self.fix_categories_starting_from(s, until=top)
+            self.fix_categories_starting_from(s, until=top)
         
         # If we couldn't find the DEC node, this is the null relativiser case
         if not self.relabel_relativiser(node):

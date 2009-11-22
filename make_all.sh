@@ -14,5 +14,5 @@ echo Started at: `date`
 ./make_lab.sh "$TARGET" \
 && ./make_fix.sh "$TARGET" \
 && ./make_ccgbank.sh "$TARGET"  \
-#&& ./t -q -D final_dots -lapps.sanity -r SanityChecks -0 final/"$TARGET" 
+&& ./t -q -D final_dots final/"$TARGET" 
 echo Finished at: `date`
