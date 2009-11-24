@@ -1,5 +1,11 @@
 #! /bin/bash
 
+if [ -f '.trace_break' ]; then
+    break_flag=-b
+else
+    break_flag=
+fi
+
 if [[ $1 == "all" || $1 == "*" ]]; then
     SECTION=""
     TARGET="*"
@@ -14,7 +20,7 @@ fi
 
 echo Doing category labelling.
 rm -rf ./labelled/"$TARGET";
-./t -q -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET" 2>&1 | tee lab_errors 
+./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET" 2>&1 | tee lab_errors 
 
 echo Making DOTs.
 #./t -q -D labelled_dots -R AugmentedPTBReader labelled/"$TARGET"

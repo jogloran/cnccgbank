@@ -17,8 +17,6 @@ from apps.cn.fix_utils import *
 from apps.identify_lrhca import *
 from apps.cn.output import OutputDerivation
 
-from munge.util.deco_utils import memoised
-
 def echo(fn, write=sys.stdout.write):
     return E.echo(fn, lrp_repr, write)
 
@@ -227,6 +225,7 @@ Dashes = set("── - --- ---- ━ ━━ — —— ———".split())
 def is_dashlike(t):
     return t in Dashes
     
+from munge.util.deco_utils import memoised
 @memoised
 def make_atomic_category(atom):
     return AtomicCategory(atom)
@@ -237,16 +236,16 @@ def ptb_to_cat(node, return_none_when_unmatched=False):
         if node.lex in PunctuationMap:
             return make_atomic_category(PunctuationMap[node.lex])
         elif is_dashlike(node.lex):
-            return make_atomic_category('-')
-        else: # noisy PU
-            return make_atomic_category('-')
+            return make_atomic_category('DSH')
+        else:
+            return make_atomic_category(',')
     
     original_tag = node.tag
     stemmed_tag = base_tag(node.tag)
     
     ret = Map.get(original_tag, None)
     return copy(Map.get(original_tag, None)
-             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag)))
+             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag )))
 
 NPModifierMap = {
 #    'QP': C('NP/NP'),

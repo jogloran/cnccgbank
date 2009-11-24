@@ -112,7 +112,7 @@ class TraceCore(object):
         if self.reader_class_name:
             try:
                 reader_class = globals()[self.reader_class_name]
-                info("Using reader_class %s.", self.reader_class_name)
+                info("Using reader class %s.", self.reader_class_name)
             except KeyError:
                 err("Reader class %s not found.", self.reader_class_name)
         
