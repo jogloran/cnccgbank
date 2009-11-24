@@ -286,7 +286,7 @@ a pager program.'''
             'pp_whole_tree': 'pp_tree',
             'label':      'label',
             'tokens':     'tokens',
-            'tokens_only':'tokens_only'
+            'tokens_only':'tokens_only',
             'rule':       'rule',
             'tags':       'tags',
             'tags_and_text':'tags_and_text',
