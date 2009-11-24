@@ -212,7 +212,7 @@ PunctuationMap = {
     '』': 'RCD',
     
     '「': 'LCS', # Chinese single left corner bracket
-    '」', 'RCS',
+    '」': 'RCS',
 }
 ##@echo
 def ptb_to_cat(node, return_none_when_unmatched=False):
