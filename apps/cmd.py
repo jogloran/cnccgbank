@@ -267,7 +267,7 @@ a pager program.'''
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
                            dest='show_mode', action='store_const', const='tokens'),
                make_option('-T', '--tokens-only', help='Print only tokens of matching trees.',
-                           dest='show_mode', action='store_const', const='tokens_only')
+                           dest='show_mode', action='store_const', const='tokens_only'),
                make_option('-r', '--rule', help='Shows the local category context of the match.',
                            dest='show_mode', action='store_const', const='rule'),
                            
