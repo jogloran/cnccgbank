@@ -10,9 +10,12 @@ def replace_kid(node, old, new):
 #       / \
 #       l  r
 def shrink_left(node, parent):
-    kid = node[1]
-    replace_kid(parent, node, kid)
-    return kid
+    if parent:
+        kid = node[1]
+        replace_kid(parent, node, kid)
+        return kid
+    else: # is root
+        return node[1]
     
 def inherit_tag(node, other):
     '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''

@@ -46,7 +46,9 @@ def is_right_absorption(node):
         # LC PU -> LCP (6:47(5))
         (node[0].tag.startswith('LC') and node.tag.startswith('LCP')) or
         # PU IP DEC PU -> CP (1:85(9))
-        (node[0].tag.startswith("DEC") and node.tag.startswith('CP')))
+        (node[0].tag.startswith("DEC") and node.tag.startswith('CP')) or
+        # CP < IP PU (6:72(13))
+        (node[0].tag.startswith("IP") and node.tag.startswith('CP')))
 
 def is_xp_sbj(node):
     return re.search(r'-SBJ', node.tag) is not None

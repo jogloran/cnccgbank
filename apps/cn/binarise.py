@@ -110,7 +110,10 @@ def label_predication(node, inherit_tag=False):
 def label_root(node):
     final_punctuation_stk = []
     
-    if all(kid.tag.startswith('PU') for kid in node):
+    # These derivations consist of a leaf PU root: 24:73(4), 25:81(4), 28:52(21)
+    if node.is_leaf():
+        return node
+    elif all(kid.tag.startswith('PU') for kid in node):
         # Weird derivation (5:0(21)):
         # ((FRAG (PU --) (PU --) (PU --) (PU --) (PU --) (PU -)))
         return label_adjunction(node)
@@ -120,7 +123,7 @@ def label_root(node):
         
         if not node.kids: return result 
         
-    result = label_node(node)
+    result = label_node(node, do_shrink=False)
     tag = result.tag
     
     while final_punctuation_stk:
@@ -134,11 +137,11 @@ def inherit_tag(node, other):
         node.tag += other.tag[other.tag.find(":"):]
     
 #@echo
-def label_node(node, inside_np_internal_structure=False):
+def label_node(node, inside_np_internal_structure=False, do_shrink=True):
     if node.is_leaf(): return node
     elif node.count() == 1:
         # shrinkage rules (NP < NN shrinks to NN)
-        if ((inside_np_internal_structure and node.tag.startswith("NP") and 
+        if (do_shrink and ((inside_np_internal_structure and node.tag.startswith("NP") and 
                 has_noun_tag(node.kids[0])
                 or node.kids[0].tag == "AD") or
             (node.tag.startswith("VP") and 
@@ -161,8 +164,8 @@ def label_node(node, inside_np_internal_structure=False):
             (node.tag.startswith('CP') and node.kids[0].tag.startswith('IP')) or
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
             (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
-            (node.tag.startswith('FLR')) or (node.tag.startswith('FW'))):
-            
+            (node.tag.startswith('FLR')) or (node.tag.startswith('FW')))):
+
             replacement = node.kids[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node.kids[0])

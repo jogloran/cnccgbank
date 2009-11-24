@@ -52,7 +52,7 @@ class Node(object):
                 value.parent = self
 
     def __eq__(self, other):
-        return self.tag == other.tag and self.kids == other.kids
+        return (not other.is_leaf()) and self.tag == other.tag and self.kids == other.kids
     def __ne__(self, other): return not (self == other)
     
 class Leaf(object):
@@ -88,5 +88,5 @@ class Leaf(object):
     __getitem__ = __setitem__ = not_implemented
         
     def __eq__(self, other):
-        return self.tag == other.tag and self.lex == other.lex
+        return other.is_leaf() and self.tag == other.tag and self.lex == other.lex
     def __ne__(self, other): return not (self == other)
