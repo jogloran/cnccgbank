@@ -22,7 +22,7 @@ def warn(msg, *fmts):
 def info(msg, *fmts):
     global muzzled
     if not muzzled:
-        stream_report(sys.stderr, "info", msg, *fmts)
+        stream_report(sys.stdout, "info", msg, *fmts)
         
 def msg(msg, *fmts):
     stream_report(sys.stderr, "msg", msg, *fmts)

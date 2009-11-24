@@ -199,6 +199,20 @@ PunctuationMap = {
     
     '）': 'RPA', # Chinese closing paren
     ')': 'RPA',
+    
+    '“': 'LQU', # Roman open quote
+    '”': 'RQU',
+    
+    '—': '-', # Chinese dash
+    
+    '《': 'LTL', # Chinese left title bracket
+    '》': 'RTL', # Chinese right title bracket
+    
+    '『': 'LCD', # Chinese double left corner bracket
+    '』': 'RCD',
+    
+    '「': 'LCS', # Chinese single left corner bracket
+    '」', 'RCS',
 }
 ##@echo
 def ptb_to_cat(node, return_none_when_unmatched=False):

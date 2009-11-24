@@ -149,6 +149,10 @@ class Tgrep(TgrepCore):
         print "matches: %d/%d derivs = %.2f%%" % (self.nmatched, self.total, self.nmatched/float(self.total)*100.0)
         
     @staticmethod
+    def show_tokens_only(match_node, bundle):
+        print ''.join(match_node.text())
+        
+    @staticmethod
     def show_node(match_node, bundle):
         print "%s: %s" % (bundle.label(), match_node)
         
