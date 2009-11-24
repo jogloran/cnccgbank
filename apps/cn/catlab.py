@@ -17,6 +17,8 @@ from apps.cn.fix_utils import *
 from apps.identify_lrhca import *
 from apps.cn.output import OutputDerivation
 
+from munge.util.deco_utils import memoised
+
 def echo(fn, write=sys.stdout.write):
     return E.echo(fn, lrp_repr, write)
 
@@ -203,6 +205,9 @@ PunctuationMap = {
     '“': 'LQU', # Roman open quote
     '”': 'RQU',
     
+    '‘': 'LSQ', # Roman single open quote
+    '’': 'RSQ',
+    
     '—': '-', # Chinese dash
     
     '《': 'LTL', # Chinese left title bracket
@@ -213,18 +218,35 @@ PunctuationMap = {
     
     '「': 'LCS', # Chinese single left corner bracket
     '」': 'RCS',
+    
+    '/': '/',
+    '//': '/',
 }
+
+Dashes = set("── - --- ---- ━ ━━ — —— ———".split())
+def is_dashlike(t):
+    return t in Dashes
+    
+@memoised
+def make_atomic_category(atom):
+    return AtomicCategory(atom)
+
 ##@echo
 def ptb_to_cat(node, return_none_when_unmatched=False):
-    if node.tag == 'PU' and node.lex in PunctuationMap:
-        return AtomicCategory(PunctuationMap[node.lex])
+    if node.tag == 'PU':
+        if node.lex in PunctuationMap:
+            return make_atomic_category(PunctuationMap[node.lex])
+        elif is_dashlike(node.lex):
+            return make_atomic_category('-')
+        else: # noisy PU
+            return make_atomic_category('-')
     
     original_tag = node.tag
     stemmed_tag = base_tag(node.tag)
     
     ret = Map.get(original_tag, None)
     return copy(Map.get(original_tag, None)
-             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag )))
+             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag)))
 
 NPModifierMap = {
 #    'QP': C('NP/NP'),
