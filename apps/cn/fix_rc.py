@@ -287,14 +287,14 @@ class FixExtraction(Fix):
         self.remove_null_element(node)
         
         # FIXME: this matches only once (because it's TOP being matched, not T)
-        for trace_NP, context in find_all(node, 
-            r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True):
-        
-            top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
-        
-            self.fix_object_gap(pp, p, t, s)
-        
-            self.fix_categories_starting_from(s, until=top)
+        trace_NP, context = get_first(node, 
+            r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
+    
+        top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
+    
+        self.fix_object_gap(pp, p, t, s)
+    
+        self.fix_categories_starting_from(s, until=top)
         
         # If we couldn't find the DEC node, this is the null relativiser case
         if not self.relabel_relativiser(node):
@@ -330,7 +330,7 @@ class FixExtraction(Fix):
             self.strip_tag(t.tag), 
             [t]))
         
-        top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /[NI]P-(?:SBJ|OBJ)/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
+        top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /[NIC]P-(?:SBJ|OBJ)/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
         self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
         
         self.fix_categories_starting_from(ctx['S'], until=top)

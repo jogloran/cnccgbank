@@ -133,6 +133,8 @@ def label(root):
                         tag(kid, 'h')
                     elif kid.tag != 'PU':
                         tag(kid, 'a')
+                        
+            # elif is_parenthetical(node):
 
             elif is_np_internal_structure(node):
                 first = True
