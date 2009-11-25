@@ -148,9 +148,7 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             #     node.kids[0].tag.startswith("CP")) or
             (node.tag.startswith("VP") and 
                 (has_verbal_tag(node.kids[0]) 
-                 # or node.kids[0].tag.startswith("VRD")
-                 or node.kids[0].tag.startswith("VPT")
-                 or node.kids[0].tag.startswith('VSB')
+                 or any(node.kids[0].tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))
                  or node.kids[0].tag.startswith("AD"))) or
             (node.tag.startswith("ADJP") and 
                 (node.kids[0].tag.startswith("JJ") 
