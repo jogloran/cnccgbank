@@ -171,16 +171,22 @@ def label(root):
                         first = True
                         
             elif is_vpt(node): # fen de kai, da bu ying. vpt is head-final
-                tag(last_kid, 'r')
-                for kid in node[0:node.count()-1]:
-                    if kid.tag.startswith('AD'): tag(kid, 'a')
-                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                # tag(last_kid, 'h')
+                # for kid in node[0:node.count()-1]:
+                #     if kid.tag.startswith('AD'): tag(kid, 'h')
+                #     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                #         tag(kid, 'l')
+                left = True
+                for kid in node:
+                    if kid.tag.startswith("AD"):
+                        tag(kid, 'h')
+                        left = False
+                    elif left: 
                         tag(kid, 'l')
+                    else:
+                        tag(kid, 'r')
                         
-            elif is_vcd(node):
-                pass
-                
-            elif is_vrd(node) or is_vcp(node): # vrd is head-initial
+            elif is_vrd(node) or is_vcp(node) or is_vsb(node): # vrd is head-initial
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
                     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
@@ -188,12 +194,8 @@ def label(root):
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'r')
                         
-            elif is_vsb(node): # vsb is head-final
-                tag(last_kid, 'r')
-                for kid in node[0:node.count()-1]:
-                    if kid.tag.startswith('AD'): tag(kid, 'a')
-                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
-                        tag(kid, 'l')
+            elif is_vcd(node):
+                pass
 
             elif is_internal_structure(node) or is_verb_compound(node):
                 pass

@@ -322,6 +322,16 @@ def label(node, inside_np=False):
         node.kids[0] = label(node[0])
         
         return node
+        
+    # elif any(node.tag.startswith(cand) for cand in ('VPT', 'VCD', 'VRD', 'VCP', 'VSB')):
+    #     pass
+    # elif node.tag.startswith('VPT'):
+    #     node.category = node.parent.category
+    #     node.kids[0] = label(node[0])
+    #     if node.count() > 1:
+    #         node.kids[1] = label(node[1])
+    #         
+    #     return node
     
     elif (node.count() == 1
        or is_topicalisation(node)
