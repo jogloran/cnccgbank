@@ -335,12 +335,40 @@ def label(node, inside_np=False):
     #         
     #     return node
     
-    elif node.tag.startswith('VSB'):    
-        node.kids[1].category = node.category
+    elif node.tag.startswith('VSB'):
+        node[1].category = node.category
         node.kids[1] = label(node[1])
         
         node[0].category = node.category / node[1].category
         node.kids[0] = label(node.kids[0])
+        
+        return node
+        
+    elif node.tag.startswith('VCD'):
+        if has_verbal_tag(node[0]):
+            node[0].category = node.category
+            node.kids[0] = label(node[0])
+        if has_verbal_tag(node[1]):
+            node[1].category = node.category
+            node.kids[1] = label(node[1])
+            
+        return node
+        
+    elif node.tag.startswith('VRD'):
+        return label_right_adjunction(node)
+        
+    elif node.tag.startswith('VNV'):
+        if has_verbal_tag(node[0]):
+            node[0].category = node.category
+        elif node[0].tag.startswith('AD'):
+            node[0].category = node.category / node.category
+        else:
+            node[0].category = ptb_to_cat(node)
+            
+        node.kids[0] = label(node[0])
+        
+        node[1].category = node.category
+        node.kids[1] = label(node[1])
         
         return node
     

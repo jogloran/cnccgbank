@@ -93,6 +93,9 @@ def is_postverbal_adjunct_tag(tag):
     
 def is_vpt(node):
     return node.tag.startswith('VPT')
+
+def is_vnv(node):
+    return node.tag.startswith('VNV')
     
 def is_vcd(node):
     return node.tag.startswith('VCD')
@@ -105,6 +108,9 @@ def is_vcp(node):
     
 def is_vsb(node):
     return node.tag.startswith('VSB')
+
+def is_vp_compound(node):
+    return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
 
 def tag(kid, tag):
     # make sure kid is not already tagged
@@ -178,7 +184,7 @@ def label(root):
                 #         tag(kid, 'l')
                 left = True
                 for kid in node:
-                    if kid.tag.startswith("AD"):
+                    if kid.tag.startswith("AD") or kid.tag.startswith("DER"):
                         tag(kid, 'h')
                         left = False
                     elif left: 
@@ -200,6 +206,9 @@ def label(root):
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'r')
                         
+            elif is_vcd(node) or is_vnv(node):
+                pass
+                        
             elif is_vrd(node) or is_vcp(node) or is_vsb(node): # vrd is head-initial
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
@@ -207,10 +216,6 @@ def label(root):
                         tag(kid, 'a') # treat aspect particles as adjuncts
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'r')
-                        
-            elif is_vcd(node):
-                pass
-
             elif is_internal_structure(node) or is_verb_compound(node):
                 pass
 
@@ -221,8 +226,9 @@ def label(root):
                     if kid.tag not in ('CC', 'PU', 'ADVP'):
                         tag(kid, 'c')
                         
-            elif ((first_kid.is_leaf() 
-               or is_vp_internal_structure(first_kid) # head initial complementation
+            elif ((first_kid.is_leaf() # head initial complementation
+#               or is_vp_internal_structure(first_kid) 
+                or is_vp_compound(first_kid)
                # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
                # (because of PP IP configuration) in 10:76(4)
                or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")):
@@ -248,7 +254,8 @@ def label(root):
             # head final complementation
             elif (last_kid.is_leaf() or 
                   #last_kid.tag == "CLP" or
-                  is_vp_internal_structure(last_kid) or
+                  is_vp_compound(last_kid) or
+#                  is_vp_internal_structure(last_kid) or
                   # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
                   # this should be treated as head-final complementation, not adjunction.
                   is_lcp_internal_structure(last_kid)):
