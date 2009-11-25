@@ -28,6 +28,9 @@ def msg(msg, *fmts):
     stream_report(sys.stderr, "msg", msg, *fmts)
     
 def debug(msg, *fmts):
+    global muzzled
+    if muzzled: return
+    
     try:    caller_name = sys._getframe(1).f_code.co_name
     except: caller_name = "?"
     

@@ -33,6 +33,8 @@ def is_left_absorption(node):
         (node[1].tag.startswith('CP-Q') and node.tag.startswith('IP')) or
         # 3:10(18) nearly all of these seem to be phrase-final P(yinwei)
         (node[1].tag.startswith('PP') and node.tag.startswith('IP')) or
+        # 21:36(4) VP final P(yinwei)
+        (node[1].tag.startswith('PP') and node.tag.startswith('VP')) or
         # 5:95(38)
         (node[1].tag.startswith('CP') and node.tag.startswith('IP')))
     
