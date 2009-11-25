@@ -66,7 +66,9 @@ class FixAdverbs(Fix):
             l, r, p = node.parent[0], node.parent[1], node.parent
             L, R, P = (n.category for n in (l, r, p))
             
-            if (C.is_modifier_category(R) and
+            if ((not any(
+                    p.tag.startswith(cand) for cand in ('VSB',))) and
+                C.is_modifier_category(R) and
                 L.is_complex() and
                 r is node):
                 

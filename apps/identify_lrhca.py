@@ -35,8 +35,14 @@ def is_left_absorption(node):
         (node[1].tag.startswith('PP') and node.tag.startswith('IP')) or
         # 21:36(4) VP final P(yinwei)
         (node[1].tag.startswith('PP') and node.tag.startswith('VP')) or
+        # 10:55(34), 10:50(39)
+        (node[1].tag.startswith('NP') and node.tag.startswith('IP')) or
+        # 10:28(38)
+        (node[1].tag.startswith('VP') and node.tag.startswith('IP')) or
         # 5:95(38)
-        (node[1].tag.startswith('CP') and node.tag.startswith('IP')))
+        (node[1].tag.startswith('CP') and node.tag.startswith('IP')) or
+        # 10:48(85)
+        (node[1].tag.startswith('IP') and node.tag.startswith('CP')))
     
 def is_right_absorption(node):
     # TODO: refactor into one method

@@ -154,6 +154,8 @@ Map = {
     # appears in 25:97(2). We'll just treat this as a noisy unary rule.
     'VE': SdclbNP,
     
+    'VSB': SdclbNP,
+    
     'CC': conj,
     
     'CD': Nnum,
@@ -333,6 +335,15 @@ def label(node, inside_np=False):
     #         
     #     return node
     
+    elif node.tag.startswith('VSB'):    
+        node.kids[1].category = node.category
+        node.kids[1] = label(node[1])
+        
+        node[0].category = node.category / node[1].category
+        node.kids[0] = label(node.kids[0])
+        
+        return node
+    
     elif (node.count() == 1
        or is_topicalisation(node)
        or is_topicalisation_without_gap(node)
@@ -348,10 +359,10 @@ def label(node, inside_np=False):
     elif is_etc(node):
         return label_head_final(node)
     
-    elif is_verb_compound(node):
-        if not node.category:
-            node.category = node.parent.category # VP < VRD, ...
-        return label_verb_compound(node)
+    # elif is_verb_compound(node):
+    #     if not node.category:
+    #         node.category = node.parent.category # VP < VRD, ...
+    #     return label_verb_compound(node)
     
     elif is_left_absorption(node):
         return label_left_absorption(node)

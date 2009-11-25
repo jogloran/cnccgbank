@@ -186,6 +186,20 @@ def label(root):
                     else:
                         tag(kid, 'r')
                         
+            elif is_vsb(node):
+                # tag(last_kid, 'h')
+                # for kid in node[0:node.count()-1]:
+                #     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
+                #         tag(kid, 'a') # treat aspect particles as adjuncts
+                #     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                #         tag(kid, 'l')
+                tag(first_kid, 'h')
+                for kid in node[1:node.count()]:
+                    if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
+                        tag(kid, 'a') # treat aspect particles as adjuncts
+                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                        tag(kid, 'r')
+                        
             elif is_vrd(node) or is_vcp(node) or is_vsb(node): # vrd is head-initial
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
