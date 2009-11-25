@@ -136,8 +136,8 @@ def label(root):
                 if has_modification_tag(kid):
                     tag(kid, 'm')
                     
-                # elif kid.tag == "SP":
-                #     tag(kid, 'a')
+                elif kid.tag == "SP":
+                    tag(kid, 'a')
                     
                 else:
                     tag_if_topicalisation(kid)

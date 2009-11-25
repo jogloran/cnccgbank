@@ -32,7 +32,9 @@ def is_left_absorption(node):
         # 10:3(7)
         (node[1].tag.startswith('CP-Q') and node.tag.startswith('IP')) or
         # 3:10(18) nearly all of these seem to be phrase-final P(yinwei)
-        (node[1].tag.startswith('PP') and node.tag.startswith('IP')))
+        (node[1].tag.startswith('PP') and node.tag.startswith('IP')) or
+        # 5:95(38)
+        (node[1].tag.startswith('CP') and node.tag.startswith('IP')))
     
 def is_right_absorption(node):
     # TODO: refactor into one method
