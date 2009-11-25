@@ -90,6 +90,21 @@ def is_lcp_internal_structure(node):
     
 def is_postverbal_adjunct_tag(tag):
     return tag.startswith('AS') or tag.startswith('DER')
+    
+def is_vpt(node):
+    return node.tag.startswith('VPT')
+    
+def is_vcd(node):
+    return node.tag.startswith('VCD')
+    
+def is_vrd(node):
+    return node.tag.startswith('VRD')
+    
+def is_vcp(node):
+    return node.tag.startswith('VCP')
+    
+def is_vsb(node):
+    return node.tag.startswith('VSB')
 
 def tag(kid, tag):
     # make sure kid is not already tagged
@@ -121,6 +136,9 @@ def label(root):
                 if has_modification_tag(kid):
                     tag(kid, 'm')
                     
+                # elif kid.tag == "SP":
+                #     tag(kid, 'a')
+                    
                 else:
                     tag_if_topicalisation(kid)
 
@@ -151,6 +169,31 @@ def label(root):
                         # if tag is CC or PU, we want the previous
                         # tag to be N, not n
                         first = True
+                        
+            elif is_vpt(node): # fen de kai, da bu ying. vpt is head-final
+                tag(last_kid, 'r')
+                for kid in node[0:node.count()-1]:
+                    if kid.tag.startswith('AD'): tag(kid, 'a')
+                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                        tag(kid, 'l')
+                        
+            elif is_vcd(node):
+                pass
+                
+            elif is_vrd(node) or is_vcp(node): # vrd is head-initial
+                tag(first_kid, 'h')
+                for kid in node[1:node.count()]:
+                    if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
+                        tag(kid, 'a') # treat aspect particles as adjuncts
+                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                        tag(kid, 'r')
+                        
+            elif is_vsb(node): # vsb is head-final
+                tag(last_kid, 'r')
+                for kid in node[0:node.count()-1]:
+                    if kid.tag.startswith('AD'): tag(kid, 'a')
+                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                        tag(kid, 'l')
 
             elif is_internal_structure(node) or is_verb_compound(node):
                 pass
@@ -161,7 +204,7 @@ def label(root):
                     # want coordination of adverbs?
                     if kid.tag not in ('CC', 'PU', 'ADVP'):
                         tag(kid, 'c')
-
+                        
             elif ((first_kid.is_leaf() 
                or is_vp_internal_structure(first_kid) # head initial complementation
                # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial

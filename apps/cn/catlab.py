@@ -206,7 +206,7 @@ PunctuationMap = {
     '‘': 'LSQ', # Roman single open quote
     '’': 'RSQ',
     
-    '—': '-', # Chinese dash
+    '—': 'DSH', # Chinese dash
     
     '《': 'LTL', # Chinese left title bracket
     '》': 'RTL', # Chinese right title bracket
@@ -217,8 +217,8 @@ PunctuationMap = {
     '「': 'LCS', # Chinese single left corner bracket
     '」': 'RCS',
     
-    '/': '/',
-    '//': '/',
+    '/': 'SLS',
+    '//': 'SLS',
 }
 
 Dashes = set("── - --- ---- ━ ━━ — —— ———".split())

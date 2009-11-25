@@ -155,7 +155,7 @@ class FixExtraction(Fix):
     def fix_categories_starting_from(self, node, until):
         debug("fix from %s to %s", node, until)
         while node is not until:
-            if node.parent.count() < 2: break
+            if (not node.parent) or node.parent.count() < 2: break
             
             l, r, p = node.parent[0], node.parent[1], node.parent
             L, R, P = (n.category for n in (l, r, p))
@@ -261,7 +261,7 @@ class FixExtraction(Fix):
         
         # we use "<<" in the expression, because fix_*_topicalisation comes
         # before fix_nongap_extraction, and this can introduce an extra layer between
-        # the phrasal tag and the traceF
+        # the phrasal tag and the trace
         trace_NP, context = get_first(node, 
             r'*=PP < { *=P < { /NP-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL)/=T << ^/\*T\*/ $ *=S } }', with_context=True)
         pp, p, t, s = (context[n] for n in "PP P T S".split())

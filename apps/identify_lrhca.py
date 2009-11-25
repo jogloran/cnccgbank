@@ -28,7 +28,11 @@ def is_left_absorption(node):
     return node[0].is_leaf() and node[0].tag == 'PU' and (
         (base_tag(node[1].tag) == base_tag(node.tag)) or
         (has_verbal_tag(node[1]) and node.tag.startswith('VP')) or
-        (has_noun_tag(node[1]) and node.tag.startswith('NP')))
+        (has_noun_tag(node[1]) and node.tag.startswith('NP')) or
+        # 10:3(7)
+        (node[1].tag.startswith('CP-Q') and node.tag.startswith('IP')) or
+        # 3:10(18) nearly all of these seem to be phrase-final P(yinwei)
+        (node[1].tag.startswith('PP') and node.tag.startswith('IP')))
     
 def is_right_absorption(node):
     # TODO: refactor into one method
