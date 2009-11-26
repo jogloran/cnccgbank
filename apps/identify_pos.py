@@ -16,4 +16,4 @@ def has_noun_tag(node):
 
 def is_verb_compound(node):
 #    return all((has_verbal_tag(kid) or kid.tag == 'CC') for kid in leaves(node))
-    return any(node.tag.startswith(cand) for cand in ('VSB',))
+    return any(node.tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))

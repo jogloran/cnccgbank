@@ -176,6 +176,9 @@ def label(root):
                         # tag to be N, not n
                         first = True
                         
+            elif node.count() == 1 and node.tag.startswith('VP') and is_vp_compound(node[0]):
+                pass
+                        
             elif is_vpt(node): # fen de kai, da bu ying. vpt is head-final
                 # tag(last_kid, 'h')
                 # for kid in node[0:node.count()-1]:
@@ -259,6 +262,7 @@ def label(root):
                   # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
                   # this should be treated as head-final complementation, not adjunction.
                   is_lcp_internal_structure(last_kid)):
+                  
                 tag(last_kid, 'h')
 
                 # cf 2:23(7),1:9(28), a number of derivations have (CP(WHNP-1 CP(IP) DEC) XP) instead of

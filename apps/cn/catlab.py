@@ -335,6 +335,7 @@ def label(node, inside_np=False):
     #         
     #     return node
     
+    # VSB is analysed as head-initial
     elif node.tag.startswith('VSB'):
         node[1].category = node.category
         node.kids[1] = label(node[1])
@@ -344,6 +345,7 @@ def label(node, inside_np=False):
         
         return node
         
+    # VCD is treated like apposition
     elif node.tag.startswith('VCD'):
         if has_verbal_tag(node[0]):
             node[0].category = node.category

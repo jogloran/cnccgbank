@@ -53,7 +53,7 @@ def is_right_absorption(node):
         # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
         #       and VC PU -> VP (3:23(4)).
         # it seems we get NN PU -> NP as well (10:2(17))
-        (has_verbal_tag(node[0]) and node.tag.startswith('VP')) or
+        ( (has_verbal_tag(node[0]) or is_verb_compound(node[0])) and node.tag.startswith('VP')) or
         (has_noun_tag(node[0]) and node.tag.startswith('NP')) or
         # 8:38(22)
         (node[0].tag == 'P' and node.tag.startswith('PP')) or

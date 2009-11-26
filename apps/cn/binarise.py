@@ -146,8 +146,9 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
                 or node.kids[0].tag == "AD") or
             # (node.tag.startswith("NP-PRD") and
             #     node.kids[0].tag.startswith("CP")) or
-            (node.tag.startswith("VP") and 
-                (has_verbal_tag(node.kids[0]) 
+            ( (node.tag.startswith("VP") or
+                    is_verb_compound(node))  # a handful of VRDs project a single child (11:29(4))
+                and (has_verbal_tag(node.kids[0]) 
                  or any(node.kids[0].tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))
                  or node.kids[0].tag.startswith("AD"))) or
             (node.tag.startswith("ADJP") and 
