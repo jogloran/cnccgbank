@@ -364,10 +364,17 @@ def label(node, inside_np=False):
     elif node.tag.startswith('VCD'):
         if has_verbal_tag(node[0]):
             node[0].category = node.category
-            node.kids[0] = label(node[0])
+        else:
+            node[0].category = ptb_to_cat(node[0])
+            
+        node.kids[0] = label(node[0])
+            
         if has_verbal_tag(node[1]):
             node[1].category = node.category
-            node.kids[1] = label(node[1])
+        else:
+            node[1].category = ptb_to_cat(node[1])
+            
+        node.kids[1] = label(node[1])
             
         return node
         
