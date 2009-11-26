@@ -26,6 +26,8 @@ from apps.identify_lrhca import base_tag
 class FixExtraction(Fix):
     def pattern(self): 
         return list((
+            (r'*=TOP < { /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}}', self.fix_long_bei_gap),
+            
             # TODO: needs to be tested with (!NP)-TPC
             (r'/IP/=P < {/[^-]+-TPC-\d+:t/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
             (r'/IP/=P < {/[^-]+-TPC:T/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
@@ -37,7 +39,6 @@ class FixExtraction(Fix):
             
                # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
             #   (r'', self.fix_long_bei_gap),
-           (r'*=TOP < { /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}}', self.fix_long_bei_gap),
             
             # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
             # IP for the null relativiser construction.
@@ -61,8 +62,6 @@ class FixExtraction(Fix):
         
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
-        # XXX: check that we're removing the right nodes
-#        node[0] = node[0][1]
         pp, context = get_first(node, r'*=PP < { *=P < { /WH[NP]P/=T $ *=S } }', with_context=True)
         p, t, s = context['P'], context['T'], context['S']
         
@@ -313,16 +312,25 @@ class FixExtraction(Fix):
             
     def fix_long_bei_gap(self, node, top, bei):
         debug("Fixing long bei gap: %s", lrp_repr(node))
+        print "OVERTHERE"
+        print pprint(node)
         self.remove_null_element(node)
         
         # FIXME: this matches only once (because it's TOP being matched, not T)
         trace_NP, context = get_first(node, 
-            r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
+            r'*=PP < { *=P < { /NP-(?:TPC|OBJ)/=T < ^/\*T\*/ $ *=S } }', with_context=True)
     
-        pp, p, t, s, ss = (context[n] for n in "PP P T S SS".split())
-    
+        pp, p, t, s = (context[n] for n in "PP P T S".split())
+        print "THERE"
+        print pprint(node)    
+        # remove T from P
+        # replace P with S
         self.fix_object_gap(pp, p, t, s)
+
         self.fix_categories_starting_from(s, until=top)
+        
+        print "HERE"
+        print pprint(node)
         
         self.relabel_bei_category(top)
             
@@ -338,6 +346,7 @@ class FixExtraction(Fix):
         
     @staticmethod
     def fix_object_gap(pp, p, t, s):
+        debug("pp:%s\npp:%s\nt:%s\ns:%s", *map(pprint, (pp,p,t,s)))
         p.kids.remove(t)
         replace_kid(pp, p, s)
         

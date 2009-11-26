@@ -157,6 +157,7 @@ Map = {
     'VSB': SdclbNP,
     'VRD': SdclbNP,
     'VCD': SdclbNP,
+    'VNV': SdclbNP,
     
     'CC': conj,
     
