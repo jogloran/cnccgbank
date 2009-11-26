@@ -35,6 +35,10 @@ class FixExtraction(Fix):
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
             
+               # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
+            #   (r'', self.fix_long_bei_gap),
+           (r'*=TOP < { /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}}', self.fix_long_bei_gap),
+            
             # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
@@ -44,9 +48,6 @@ class FixExtraction(Fix):
             
             # 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
-            
-            # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
-         #   (r'', self.fix_long_bei_gap),
          
             # ba-construction object gap
             (r'*=TOP < { /BA/ $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
@@ -303,6 +304,27 @@ class FixExtraction(Fix):
             # TOP is the S node
             debug("Creating null relativiser unary category: %s", ss.category/ss.category)
             replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+            
+    def relabel_bei_category(self, top):
+        bei, context = get_first(top, r'/LB/=BEI $ *=S', with_context=True)
+        s = context['S']
+        
+        bei.category.right = s.category
+            
+    def fix_long_bei_gap(self, node, top, bei):
+        debug("Fixing long bei gap: %s", lrp_repr(node))
+        self.remove_null_element(node)
+        
+        # FIXME: this matches only once (because it's TOP being matched, not T)
+        trace_NP, context = get_first(node, 
+            r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
+    
+        pp, p, t, s, ss = (context[n] for n in "PP P T S SS".split())
+    
+        self.fix_object_gap(pp, p, t, s)
+        self.fix_categories_starting_from(s, until=top)
+        
+        self.relabel_bei_category(top)
             
     def fix_ba_object_gap(self, node, top, c):
         debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
