@@ -156,6 +156,7 @@ Map = {
     
     'VSB': SdclbNP,
     'VRD': SdclbNP,
+    'VCD': SdclbNP,
     
     'CC': conj,
     
@@ -175,6 +176,8 @@ Map = {
     #'CP': Sdcl, # for top level CP (like 6:6(4))
     
     #'CP': C('NP/NP'),
+    
+    'CP-PRD': NP,
 }
 
 PunctuationMap = {
@@ -253,7 +256,7 @@ def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
     if node.tag.startswith("CP") and node[-1].tag.startswith("SP"):
         return Sdcl
     
-    original_tag = node.tag
+    original_tag = base_tag(node.tag, strip_cptb_tag=False)
     stemmed_tag = base_tag(node.tag)
     
     ret = Map.get(original_tag, None)

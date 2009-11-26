@@ -6,7 +6,7 @@ from munge.trees.traverse import leaves
 from apps.identify_pos import *
 
 # 
-def base_tag(tag):
+def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
     '''
     Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
     unmodified.
@@ -15,12 +15,14 @@ def base_tag(tag):
     if len(tag) >= 3 and (tag[0] == tag[-1] == "-"): return tag
 
     # Remove our tags
-    colon_index = tag.find(":")
-    if colon_index != -1: tag = tag[:colon_index]
+    if strip_tag:
+        colon_index = tag.find(":")
+        if colon_index != -1: tag = tag[:colon_index]
     
     # Remove CPTB tags
-    dash_index = tag.find("-")
-    if dash_index != -1: tag = tag[:dash_index]
+    if strip_cptb_tag:
+        dash_index = tag.find("-")
+        if dash_index != -1: tag = tag[:dash_index]
     
     return tag
 

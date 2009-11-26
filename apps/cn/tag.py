@@ -211,8 +211,14 @@ def label(root):
                         
             elif is_vcd(node) or is_vnv(node):
                 pass
+                
+            elif is_vcp(node):
+                tag(first_kid, 'h')
+                for kid in node[1:node.count()]:
+                    if kid.tag == "VC":
+                        tag(kid, 'a')
                         
-            elif is_vrd(node) or is_vcp(node) or is_vsb(node): # vrd is head-initial
+            elif is_vrd(node) or is_vsb(node): # vrd is head-initial
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
                     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
