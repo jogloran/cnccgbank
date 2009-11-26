@@ -140,7 +140,7 @@ def label(root):
             last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
             
             # PP(P CP NP) in derivations like 5:11(3) should be PP(P NP(CP NP))
-            if first_kid.tag == "P" and node.count() > 2:
+            if first_kid and first_kid.tag == "P" and node.count() > 2:
                 last_tag = last_kid.tag
                 rest = node.kids[1:]
                 del node.kids[1:]
