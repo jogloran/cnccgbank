@@ -155,6 +155,7 @@ Map = {
     'VE': SdclbNP,
     
     'VSB': SdclbNP,
+    'VRD': SdclbNP,
     
     'CC': conj,
     
@@ -231,9 +232,13 @@ from munge.util.deco_utils import memoised
 @memoised
 def make_atomic_category(atom):
     return AtomicCategory(atom)
+    
+RootMap = {
+    'CP': Sdcl,
+}
 
 ##@echo
-def ptb_to_cat(node, return_none_when_unmatched=False):
+def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
     if node.tag == 'PU':
         if node.lex in PunctuationMap:
             return make_atomic_category(PunctuationMap[node.lex])
@@ -246,7 +251,8 @@ def ptb_to_cat(node, return_none_when_unmatched=False):
     stemmed_tag = base_tag(node.tag)
     
     ret = Map.get(original_tag, None)
-    return copy(Map.get(original_tag, None)
+    return copy((is_root and RootMap.get(original_tag, None))
+             or Map.get(original_tag, None)
              or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag )))
 
 NPModifierMap = {
@@ -462,7 +468,7 @@ def label(node, inside_np=False):
         return label_adjunction(node)
 
 def label_root(node):
-    node.category = ptb_to_cat(node)
+    node.category = ptb_to_cat(node, is_root=True)
     return label(node)
 
 class LabelNodes(Filter, OutputDerivation):

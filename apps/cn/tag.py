@@ -142,7 +142,7 @@ def label(root):
                 if has_modification_tag(kid):
                     tag(kid, 'm')
                     
-                elif kid.tag == "SP":
+                elif kid.tag in ('SP', 'MSP'):
                     tag(kid, 'a')
                     
                 else:
