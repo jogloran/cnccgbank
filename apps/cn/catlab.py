@@ -235,6 +235,8 @@ def make_atomic_category(atom):
     
 RootMap = {
     'CP': Sdcl,
+    'IP': Sdcl,
+    'CP-Q': Sq,
 }
 
 ##@echo
@@ -246,6 +248,10 @@ def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
             return make_atomic_category('DSH')
         else:
             return make_atomic_category(',')
+            
+    # CP ending in SP (5:95(30)) should be treated as IP
+    if node.tag.startswith("CP") and node[-1].tag.startswith("SP"):
+        return Sdcl
     
     original_tag = node.tag
     stemmed_tag = base_tag(node.tag)
