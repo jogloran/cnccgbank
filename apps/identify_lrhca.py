@@ -63,6 +63,8 @@ def is_right_absorption(node):
         (node[0].tag.startswith('LC') and node.tag.startswith('LCP')) or
         # PU IP DEC PU -> CP (1:85(9))
         (node[0].tag.startswith("DEC") and node.tag.startswith('CP')) or
+        # 2:12(3)
+        (node[0].tag.startswith("DEG") and node.tag.startswith('DNP')) or
         # CP < IP PU (6:72(13))
         (node[0].tag.startswith("IP") and node.tag.startswith('CP')))
 

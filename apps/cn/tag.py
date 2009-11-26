@@ -145,6 +145,9 @@ def label(root):
                 rest = node.kids[1:]
                 del node.kids[1:]
                 node.kids.append(Node(last_tag, rest, node))
+            # 2:12(3). DNP-PRD fixed by adding a layer of NP
+            elif node.tag.startswith('VP') and node.count() == 2 and node[0].tag.startswith('VC') and node[1].tag.startswith('DNP-PRD'):
+                node[1] = Node('NP', [node[1]], node)
 
             for kid in node:
                 if has_modification_tag(kid):

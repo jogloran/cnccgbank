@@ -158,9 +158,9 @@ def main(argv):
     tracer.run(opts.filters_to_run, files)
         
 if __name__ == '__main__':
-    try:
-        import psyco
-        psyco.full()
-    except ImportError: pass
+#    try:
+#        import psyco
+#        psyco.full()
+#    except ImportError: pass
 
     main(sys.argv)
