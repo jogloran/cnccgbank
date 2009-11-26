@@ -132,11 +132,19 @@ else:
         if node.tag.find('-TPC-') != -1: tag(node, 't')
         elif node.tag.find('-TPC') != -1: tag(node, 'T')
 
+from munge.penn.nodes import Node
 def label(root):
     for node in nodes(root):
         if not node.is_leaf():
             first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
             last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
+            
+            # PP(P CP NP) in derivations like 5:11(3) should be PP(P NP(CP NP))
+            if first_kid.tag == "P" and node.count() > 2:
+                last_tag = last_kid.tag
+                rest = node.kids[1:]
+                del node.kids[1:]
+                node.kids.append(Node(last_tag, rest, node))
 
             for kid in node:
                 if has_modification_tag(kid):
@@ -241,24 +249,13 @@ def label(root):
                # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
                # (because of PP IP configuration) in 10:76(4)
                or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")):
-               # QP is headed by M
-               # and not first_kid.tag in ("OD", "CD")):
+               
                 tag(first_kid, 'h')
                 for kid in node[1:node.count()]:
                     if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                         tag(kid, 'a') # treat aspect particles as adjuncts
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'r')
-
-            # # topicalisation WITH gap (NP-TPC-i)
-            # elif first_kid.tag.startswith('NP-TPC-'):
-            #     tag(first_kid, 't')
-            #     # really, we might want to tag the 'rest of phrase' as if the topicalised constituent
-            #     # weren't there
-            # 
-            # # topicalisation WITHOUT gap (NP-TPC)
-            # elif first_kid.tag.startswith('NP-TPC'):
-            #     tag(first_kid, 'T')
 
             # head final complementation
             elif (last_kid.is_leaf() or 
