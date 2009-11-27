@@ -179,6 +179,7 @@ Map = {
     #'CP': C('NP/NP'),
     
     'CP-PRD': NP,
+    'CP-OBJ': Sdcl, # 8:16(9) CP in object position is treated as IP
 }
 
 PunctuationMap = {
@@ -261,7 +262,7 @@ def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
     stemmed_tag = base_tag(node.tag)
     
     ret = Map.get(original_tag, None)
-    return copy((is_root and RootMap.get(original_tag, None))
+    return copy((is_root and (RootMap.get(original_tag, None) or RootMap.get(stemmed_tag, None)))
              or Map.get(original_tag, None)
              or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag )))
 
@@ -321,11 +322,6 @@ def label(node, inside_np=False):
     '''
     Labels the descendants of _node_ and returns _node_.
     '''
-    print node.tag
-    if node.tag == "NP:a":
-        print "HEREHERE"
-#        pdb.set_trace()
-
     if node.category is None:
         node.category = ptb_to_cat(node)
         
