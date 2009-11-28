@@ -54,7 +54,7 @@ class FixExtraction(Fix):
             (r'*=TOP < { /BA/ $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
             
             # Removes the prodrop trace *pro*
-            (r'* < { * < ^"*pro*" }', self.fix_prodrop),
+            (r'*=PP < { *=P < ^"*pro*" }', self.fix_prodrop),
         ))
     
     def __init__(self, outdir):
@@ -312,8 +312,6 @@ class FixExtraction(Fix):
             
     def fix_long_bei_gap(self, node, top, bei):
         debug("Fixing long bei gap: %s", lrp_repr(node))
-        print "OVERTHERE"
-        print pprint(node)
         self.remove_null_element(node)
         
         # FIXME: this matches only once (because it's TOP being matched, not T)
@@ -321,17 +319,12 @@ class FixExtraction(Fix):
             r'*=PP < { *=P < { /NP-(?:TPC|OBJ)/=T < ^/\*T\*/ $ *=S } }', with_context=True)
     
         pp, p, t, s = (context[n] for n in "PP P T S".split())
-        print "THERE"
-        print pprint(node)    
         # remove T from P
         # replace P with S
         self.fix_object_gap(pp, p, t, s)
 
         self.fix_categories_starting_from(s, until=top)
-        
-        print "HERE"
-        print pprint(node)
-        
+                
         self.relabel_bei_category(top)
             
     def fix_ba_object_gap(self, node, top, c):
@@ -376,20 +369,27 @@ class FixExtraction(Fix):
         
         replace_kid(p, t, Node(S/S, t.tag, [new_kid]))
         
-    def fix_prodrop(self, node):
-        node.kids.pop(0)
+    def fix_prodrop(self, node, pp, p):
+        #      X=PP
+        #      |
+        #      NP=P
+        #      |
+        #    -NONE- '*pro*'
+        pp.kids.remove(p)
         
         # this step happens after fix_rc, and object extraction with subject pro-drop can
         # lead to a pro-dropped node like:
-        #     S/(S\NP)
+        #        X
         #        |
-        #       NP
+        #     S/(S\NP)=PP
+        #        |
+        #       NP=P
         #        |
         #   -NONE- '*pro*'
         # In this case, we want to remove the whole structure
-        if not node.kids:
-            node = node.parent
-            node.kids.pop(0)
+        if (not pp.kids) and pp.parent:
+            ppp = pp.parent
+            ppp.kids.remove(pp)
             
     @staticmethod
     def strip_tag(tag):
