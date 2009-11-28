@@ -26,8 +26,9 @@ from apps.identify_lrhca import base_tag
 class FixExtraction(Fix):
     def pattern(self): 
         return list((
-            (r'*=TOP < { /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}}', self.fix_long_bei_gap),
-            (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_gap),
+            (r'{ /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}} > *=TOP', self.fix_long_bei_gap),
+            (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_subj_gap), #0:11(4)
+            (r'{ /SB/=BEI $ { /VP/=P << { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S } } } > *=PP', self.fix_short_bei_obj_gap), #1:54(3)
             
             # TODO: needs to be tested with (!NP)-TPC
             (r'/IP/=P < {/[^-]+-TPC-\d+:t/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
@@ -44,8 +45,8 @@ class FixExtraction(Fix):
             # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
-            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
-            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
+           (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
+           (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
             (r'* < { /CP/ < {/WH[NP]P-\d+/ $ {/[CI]P/ << {/[NP]P-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL)/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
             
             # 
@@ -61,11 +62,15 @@ class FixExtraction(Fix):
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
         
-    def fix_short_bei_gap(self, node, bei, pp, p, t, s):
+    def fix_short_bei_subj_gap(self, node, bei, pp, p, t, s):
         # take the VP sibling of SB
         # replace T with S
         # this analysis isn't entirely correct
         replace_kid(pp, p, s)
+        
+    def fix_short_bei_obj_gap(self, node, pp, bei, t, p, s):
+        replace_kid(pp, p, s)
+        bei.category.right = s.category
         
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
