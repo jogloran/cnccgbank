@@ -27,6 +27,7 @@ class FixExtraction(Fix):
     def pattern(self): 
         return list((
             (r'*=TOP < { /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}}', self.fix_long_bei_gap),
+            (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_gap),
             
             # TODO: needs to be tested with (!NP)-TPC
             (r'/IP/=P < {/[^-]+-TPC-\d+:t/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
@@ -59,6 +60,12 @@ class FixExtraction(Fix):
     
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
+        
+    def fix_short_bei_gap(self, node, bei, pp, p, t, s):
+        # take the VP sibling of SB
+        # replace T with S
+        # this analysis isn't entirely correct
+        replace_kid(pp, p, s)
         
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
