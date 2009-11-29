@@ -47,7 +47,7 @@ class FixExtraction(Fix):
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
            (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
-            (r'* < { /CP/ < {/WH[NP]P-\d+/ $ {/[CI]P/ << {/[NP]P-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL)/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            (r'* < { /CP/ < {/WH[NP]P-\d+/ $ {/[CI]P/ << {/[NP]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
             
             # 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
@@ -275,7 +275,7 @@ class FixExtraction(Fix):
         # before fix_nongap_extraction, and this can introduce an extra layer between
         # the phrasal tag and the trace
         trace_NP, context = get_first(node, 
-            r'*=PP < { *=P < { /[NP]P-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL)/=T << ^/\*T\*/ $ *=S } }', with_context=True)
+            r'*=PP < { *=P < { /[NP]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?/=T << ^/\*T\*/ $ *=S } }', with_context=True)
         pp, p, t, s = (context[n] for n in "PP P T S".split())
         
         # remove T from P
