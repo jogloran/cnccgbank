@@ -78,7 +78,7 @@ else:
         return node[1].is_leaf() and node[1].tag == "PU"
 
 def is_xp_sbj(node):
-    return re.search(r'-SBJ', node.tag) is not None
+    return node.tag.find('-SBJ') != -1
 
 def is_vp(node):
     return node.tag.startswith('VP')
