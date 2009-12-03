@@ -4,6 +4,7 @@ import re
 from apps.cn.tag import last_nonpunct_kid
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
+from apps.util.config import config
 
 # 
 def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
