@@ -25,48 +25,56 @@ def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
         if dash_index != -1: tag = tag[:dash_index]
     
     return tag
-
-def is_left_absorption(node):
-    return node[0].is_leaf() and node[0].tag == 'PU' and (
-        (base_tag(node[1].tag) == base_tag(node.tag)) or
-        (has_verbal_tag(node[1]) and node.tag.startswith('VP')) or
-        (has_noun_tag(node[1]) and node.tag.startswith('NP')) or
-        # 10:3(7)
-        (node[1].tag.startswith('CP-Q') and node.tag.startswith('IP')) or
-        # 3:10(18) nearly all of these seem to be phrase-final P(yinwei)
-        (node[1].tag.startswith('PP') and node.tag.startswith('IP')) or
-        # 21:36(4) VP final P(yinwei)
-        (node[1].tag.startswith('PP') and node.tag.startswith('VP')) or
-        # 10:55(34), 10:50(39)
-        (node[1].tag.startswith('NP') and node.tag.startswith('IP')) or
-        # 10:28(38)
-        (node[1].tag.startswith('VP') and node.tag.startswith('IP')) or
-        # 5:95(38)
-        (node[1].tag.startswith('CP') and node.tag.startswith('IP')) or
-        # 10:48(85)
-        (node[1].tag.startswith('IP') and node.tag.startswith('CP')))
     
-def is_right_absorption(node):
-    # TODO: refactor into one method
-    # are these special cases? or are they just a consequence of binarisation?
-    # if you have IP < NP , VP you will get IP < , VP after binarisation
-    return node[1].is_leaf() and node[1].tag == 'PU' and (
-        (base_tag(node[0].tag) == base_tag(node.tag)) or
-        # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
-        #       and VC PU -> VP (3:23(4)).
-        # it seems we get NN PU -> NP as well (10:2(17))
-        ( (has_verbal_tag(node[0]) or is_verb_compound(node[0])) and node.tag.startswith('VP')) or
-        (has_noun_tag(node[0]) and node.tag.startswith('NP')) or
-        # 8:38(22)
-        (node[0].tag == 'P' and node.tag.startswith('PP')) or
-        # LC PU -> LCP (6:47(5))
-        (node[0].tag.startswith('LC') and node.tag.startswith('LCP')) or
-        # PU IP DEC PU -> CP (1:85(9))
-        (node[0].tag.startswith("DEC") and node.tag.startswith('CP')) or
-        # 2:12(3)
-        (node[0].tag.startswith("DEG") and node.tag.startswith('DNP')) or
-        # CP < IP PU (6:72(13))
-        (node[0].tag.startswith("IP") and node.tag.startswith('CP')))
+if config.restrictive_absorption:
+    def is_left_absorption(node):
+        return node[0].is_leaf() and node[0].tag == 'PU' and (
+            (base_tag(node[1].tag) == base_tag(node.tag)) or
+            (has_verbal_tag(node[1]) and node.tag.startswith('VP')) or
+            (has_noun_tag(node[1]) and node.tag.startswith('NP')) or
+            # 10:3(7)
+            (node[1].tag.startswith('CP-Q') and node.tag.startswith('IP')) or
+            # 3:10(18) nearly all of these seem to be phrase-final P(yinwei)
+            (node[1].tag.startswith('PP') and node.tag.startswith('IP')) or
+            # 21:36(4) VP final P(yinwei)
+            (node[1].tag.startswith('PP') and node.tag.startswith('VP')) or
+            # 10:55(34), 10:50(39)
+            (node[1].tag.startswith('NP') and node.tag.startswith('IP')) or
+            # 10:28(38)
+            (node[1].tag.startswith('VP') and node.tag.startswith('IP')) or
+            # 5:95(38)
+            (node[1].tag.startswith('CP') and node.tag.startswith('IP')) or
+            # 10:48(85)
+            (node[1].tag.startswith('IP') and node.tag.startswith('CP')))
+else:
+    def is_left_absorption(node):
+        return node[0].is_leaf() and node[0].tag == "PU"
+    
+if config.restrictive_absorption:
+    def is_right_absorption(node):
+        # TODO: refactor into one method
+        # are these special cases? or are they just a consequence of binarisation?
+        # if you have IP < NP , VP you will get IP < , VP after binarisation
+        return node[1].is_leaf() and node[1].tag == 'PU' and (
+            (base_tag(node[0].tag) == base_tag(node.tag)) or
+            # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
+            #       and VC PU -> VP (3:23(4)).
+            # it seems we get NN PU -> NP as well (10:2(17))
+            ( (has_verbal_tag(node[0]) or is_verb_compound(node[0])) and node.tag.startswith('VP')) or
+            (has_noun_tag(node[0]) and node.tag.startswith('NP')) or
+            # 8:38(22)
+            (node[0].tag == 'P' and node.tag.startswith('PP')) or
+            # LC PU -> LCP (6:47(5))
+            (node[0].tag.startswith('LC') and node.tag.startswith('LCP')) or
+            # PU IP DEC PU -> CP (1:85(9))
+            (node[0].tag.startswith("DEC") and node.tag.startswith('CP')) or
+            # 2:12(3)
+            (node[0].tag.startswith("DEG") and node.tag.startswith('DNP')) or
+            # CP < IP PU (6:72(13))
+            (node[0].tag.startswith("IP") and node.tag.startswith('CP')))
+else:
+    def is_right_absorption(node):
+        return node[1].is_leaf() and node[1].tag == "PU"
 
 def is_xp_sbj(node):
     return re.search(r'-SBJ', node.tag) is not None

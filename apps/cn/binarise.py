@@ -12,9 +12,15 @@ from apps.cn.output import OutputDerivation
 from apps.cn.fix_utils import *
 from apps.util.echo import *
 
+def strip_tag_if(cond, tag):
+    if cond:
+        return base_tag(tag, strip_cptb_tag=False)
+    else:
+        return tag
+
 #@echo
 def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False):
-    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+    kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
     if not without_labelling:
         kids = map(lambda node: label_node(node, inside_np_internal_structure=inside_np_internal_structure), node.kids)
@@ -39,7 +45,7 @@ def label_np_internal_structure(node, inherit_tag=False):
         and node.count() > 2):
         
         etc = node.kids.pop()
-        kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+        kid_tag = strip_tag_if(not inherit_tag, node.tag)
         
         old_tag = node.tag
         node.tag = kid_tag
@@ -60,7 +66,7 @@ def label_coordination(node, inside_np_internal_structure=False):
 
 #@echo
 def label_head_initial(node, inherit_tag=False):
-    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+    kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = kids.pop(), kids.pop()
@@ -87,14 +93,15 @@ def label_predication(node, inherit_tag=False):
     kids = map(label_node, node.kids)
     last_kid, second_last_kid = kids.pop(), kids.pop()
     
-    kid_tag = node.tag if inherit_tag else re.sub(r':.+$', '', node.tag)
+    kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
     # TODO: think of a better and more general way of doing this
     # this is to stop what happens in 2:4(2) with PU. what is actually happening?
-    if is_left_punct_absorption(second_last_kid):
-        initial_tag = 'VP'
-    else:
-        initial_tag = kid_tag
+    # if is_left_punct_absorption(second_last_kid):
+    #     initial_tag = 'VP'
+    # else:
+    #     initial_tag = kid_tag
+    initial_tag = kid_tag
 
     cur = Node(initial_tag, [second_last_kid, last_kid])
 

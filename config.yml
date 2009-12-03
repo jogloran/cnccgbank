@@ -1,2 +1,3 @@
 modification_unary_rules: false
 only_np_topicalisation_valid: false
+restrictive_absorption: true

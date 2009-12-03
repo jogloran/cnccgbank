@@ -200,7 +200,7 @@ PunctuationMap = {
     ':': ':',
     
     '；': ';', # Chinese semicolon
-    ';': ':',
+    ';': ';',
     
     '（': 'LPA', # Chinese opening paren
     '(': 'LPA',
@@ -264,7 +264,7 @@ def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
     ret = Map.get(original_tag, None)
     return copy((is_root and (RootMap.get(original_tag, None) or RootMap.get(stemmed_tag, None)))
              or Map.get(original_tag, None)
-             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag )))
+             or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag)))
 
 NPModifierMap = {
 #    'QP': C('NP/NP'),
