@@ -44,7 +44,7 @@ def is_apposition(node):
         any(kid.tag != "CP-APP" and kid.tag.endswith('-APP') for kid in node))
 
 # We exclude -IJ, so we can get analyses of INTJ nodes
-FunctionTags = set('ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split())
+FunctionTags = frozenset('ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split())
 
 def is_modification(node):
     lnpk = last_nonpunct_kid(node)
@@ -56,13 +56,15 @@ def is_modification(node):
     return False
     
 ModificationRegex = re.compile(r'\w+-(\w+)')
-def has_modification_tag(node):
-    if not config.modification_unary_rules: return False
+if config.modification_unary_rules:
+    def has_modification_tag(node):
+        if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
     
-    if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
-    
-    last_dash_index = node.tag.rfind('-')
-    return last_dash_index != -1 and node.tag[last_dash_index+1:] in FunctionTags
+        last_dash_index = node.tag.rfind('-')
+        return last_dash_index != -1 and node.tag[last_dash_index+1:] in FunctionTags
+else:
+    def has_modification_tag(node):
+        return False
     
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
@@ -77,9 +79,10 @@ def is_coordination(node):
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
     
+ValidNPInternalTags = frozenset(('NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC'))
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
-        all(kid.tag in ('NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC') for kid in leaves(node)))
+        all(kid.tag in ValidNPInternalTags for kid in leaves(node)))
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)

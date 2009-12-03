@@ -34,7 +34,8 @@ class Node(object):
     def __getitem__(self, index):
         # TODO: This is slightly broken. Since we can't define len() for nodes, we can't use negative (or omitted) slice indices properly.
         try:
-            if not (-len(self.kids) <= index < len(self.kids)): 
+            n = len(self.kids)
+            if not (-n <= index < n): 
                 raise RuntimeError("Invalid index %d into Node %s." % (index, self))
             return self.kids[index]
         except TypeError:
@@ -42,7 +43,8 @@ class Node(object):
             
     def __setitem__(self, index, value):
         try:
-            if not (-len(self.kids) <= index < len(self.kids)): 
+            n = len(self.kids)
+            if not (-n <= index < n): 
                 raise RuntimeError("Invalid index %d into Node %s." % (index, self))
             self.kids[index] = value
             value.parent = self
