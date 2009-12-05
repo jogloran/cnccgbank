@@ -23,7 +23,7 @@ class CStackbasedPressplitIterator(object):
         self.toks.reverse()
         
     def __iter__(self):
-        for tok in self.toks[::-1]: yield tok
+        for tok in reversed(self.toks): yield tok
         
     def peek(self):
         if not self.toks: return None
@@ -125,7 +125,7 @@ class PressplitIterator(object):
 
         return previous_top
 
-def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=CPressplitIterator):
+def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=CStackbasedPressplitIterator):
     '''Returns an iterator yielding successive tokens from _str_ as split on three
     kinds of separators. 
       - _split_chars_ will split the string, and appear in the resulting stream.
