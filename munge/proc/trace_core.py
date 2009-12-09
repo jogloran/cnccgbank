@@ -142,8 +142,6 @@ class TraceCore(object):
                             filter.context = None
                             
                     except Exception, e:
-                        # import pdb
-                        # pdb.set_trace()
                         self.last_exceptions.append( (derivation_bundle, sys.exc_info()) )
                         
                         if self._break_on_exception:

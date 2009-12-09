@@ -81,7 +81,7 @@ def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False
 if it was not consumed.'''
     result = []
 
-    for slash in range(slash_count):
+    for slash in xrange(slash_count):
         consumer = None # the rule which consumed this slash, if any
         first = True
         
