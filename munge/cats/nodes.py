@@ -8,18 +8,36 @@ APPLY, ALL, COMP, NULL = range(4)
 
 ShowModes = False
 
-class AtomicCategory(object):
+class Featured(object):
+    def __init__(self, features=None):
+        self.features = features or []
+        
+    def feature_repr(self):
+        '''Returns the concatenation of each feature in this category's feature set.'''
+        n = len(self.features)
+        if n == 0: return ''
+        elif n == 1: return "[" +  self.features[0] + "]"
+        else: return ''.join("[%s]" % feature for feature in self.features)
+        
+    def has_feature(self, feature):
+        '''Determines whether the given feature is present in this category's feature set.'''
+        return feature in self.features
+        
+    def add_feature(self, feature):
+        # TODO: switch this over to a set
+        # TODO: this makes atomiccategory mutable
+        if feature not in self.features:
+            self.features.append(feature)
+        return self
+
+class AtomicCategory(Featured):
     '''Represents an atomic category (one without a directional slash).'''
     def __init__(self, cat, features=None):
+        Featured.__init__(self, features)
         self.cat = cat
-        self.features = features or []
         
     def __hash__(self):
         return hash(repr(self))
-
-    def feature_repr(self):
-        '''Returns the concatenation of each feature in this category's feature set.'''
-        return ''.join("[%s]" % feature for feature in self.features)
 
     def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category. Ignores both its arguments
@@ -34,17 +52,6 @@ class AtomicCategory(object):
         '''Returns a copy of this category. AtomicCategory is intended to be immutable,
         so this returns the category itself.'''
         return deepcopy(self)
-        
-    def add_feature(self, feature):
-        # TODO: switch this over to a set
-        # TODO: this makes atomiccategory mutable
-        if feature not in self.features:
-            self.features.append(feature)
-        return self
-        
-    def has_feature(self, feature):
-        '''Determines whether the given feature is present in this category's feature set.'''
-        return feature in self.features
 
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
@@ -85,7 +92,7 @@ class AtomicCategory(object):
         '''Constructs the complex category (self / right).'''
         return ComplexCategory(self, FORWARD, right)
 
-class ComplexCategory(object):
+class ComplexCategory(Featured):
     '''Represents a complex category.'''
     
     # Index i into mode_symbols references the mode with integer representation i.
@@ -103,25 +110,13 @@ class ComplexCategory(object):
         return hash(repr(self))
 
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
+        Featured.__init__(self, features)
+        
         self.left, self.direction, self.right = left, direction, right
         self.mode = mode
-        self.features = features or []
         self.label = label
 
         self.slash = "\\" if self.direction == BACKWARD else "/"
-
-    def feature_repr(self):
-        '''Returns the concatenation of each feature in this category's feature set.'''
-        n = len(self.features)
-        if n == 0: return ''
-        elif n == 1: return "[" +  self.features[0] + "]"
-        else: return ''.join("[%s]" % feature for feature in self.features)
-        
-    def add_feature(self, feature):
-        # TODO: switch this over to a set
-        if feature not in self.features:
-            self.features.append(feature)
-        return self
 
     def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category.'''
@@ -145,12 +140,6 @@ class ComplexCategory(object):
                                self.direction, 
                                self.right and self.right.clone(),
                                self.mode, copy(self.features))
-                               
-    def has_feature(self, feat):
-        '''Determines whether the given feature is present in this category's feature set.'''
-        return (feat in self.features or
-                self.left.has_feature(feat) or
-                self.right.has_feature(feat))
 
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
