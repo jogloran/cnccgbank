@@ -112,7 +112,10 @@ class ComplexCategory(object):
 
     def feature_repr(self):
         '''Returns the concatenation of each feature in this category's feature set.'''
-        return ''.join("[%s]" % feature for feature in self.features)
+        n = len(self.features)
+        if n == 0: return ''
+        elif n == 1: return "[" +  self.features[0] + "]"
+        else: return ''.join("[%s]" % feature for feature in self.features)
         
     def add_feature(self, feature):
         # TODO: switch this over to a set

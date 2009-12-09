@@ -273,3 +273,5 @@ class TraceTests(unittest.TestCase):
         apps = list(applications_per_slash_with_path(catseq, 4))
         self.assertEqual([ "fwd_appl", "fwd_appl", "bwd_appl", None ], apps)
     
+if __name__ == '__main__':
+    unittest.main()

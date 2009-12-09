@@ -51,10 +51,10 @@ class CPTBReader(object):
     '''An iterator over a CPTB document yielding derivation bundles.'''
     def __init__(self, filename):
         self.filename = filename
-        self.file = open(filename, 'r')
-        
+
         self.contents = SGMLBag()
-        self.contents.feed(self.file.read())
+        with open(filename, 'r') as file:
+            self.contents.feed(file.read())
         
         self.derivs = parse_tree('\n'.join(self.contents['s']), PennParser)
         self.sec_no, self.doc_no = self.determine_sec_and_doc()

@@ -30,9 +30,10 @@ class PTBReader(object):
     '''An iterator over each derivation in a PTB document.'''
     def __init__(self, filename):
         self.filename = filename
-        self.file = open(filename, 'r')
-
-        self.derivs = self.parse_file(self.file.read())
+        
+        self.derivs = None
+        with open(filename, 'r') as file:
+            self.derivs = self.parse_file(file.read())
         
         self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
         
