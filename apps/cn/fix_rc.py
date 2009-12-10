@@ -302,7 +302,7 @@ class FixExtraction(Fix):
         
         # FIXME: this matches only once (because it's TOP being matched, not T)
         trace_NP, context = get_first(node, 
-            r'/[CI]P/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
+            r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
     
         top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
     

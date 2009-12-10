@@ -54,7 +54,7 @@ class AtomicCategory(Featured):
     def clone(self):
         '''Returns a copy of this category. AtomicCategory is intended to be immutable,
         so this returns the category itself.'''
-        return deepcopy(self)
+        return copy(self)
         
     def clone_with(self, features=None):
         return AtomicCategory(self.cat, features if features else copy(self.features))
