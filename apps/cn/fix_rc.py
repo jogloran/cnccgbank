@@ -70,7 +70,7 @@ class FixExtraction(Fix):
         
     def fix_short_bei_obj_gap(self, node, pp, bei, t, p, s):
         replace_kid(pp, p, s)
-        bei.category.right = s.category
+        bei.category = bei.category.clone_with(right=s.category)
         
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
@@ -93,7 +93,7 @@ class FixExtraction(Fix):
             _, context = result
             s, relativiser = context['S'], context['REL']
             
-            relativiser.category.right = s.category
+            relativiser.category = relativiser.category.clone_with(right=s.category)
             debug("New rel category: %s", relativiser.category)
             
             return True
@@ -186,7 +186,7 @@ class FixExtraction(Fix):
                 # conj R -> P
                 # Make P into R[conj] 
                 if str(L) in ('conj', 'LCM'):
-                    p.category = R.clone().add_feature('conj')
+                    p.category = R.clone_adding_feature('conj')
                     debug("New category: %s", p.category)
                     
                 # L R[conj] -> P
@@ -195,7 +195,7 @@ class FixExtraction(Fix):
                     new_L = L.clone()
                     new_L.features = []
                     
-                    r.category = new_L.add_feature('conj')
+                    r.category = new_L.clone_adding_feature('conj')
                     p.category = new_L
                     
                     debug("New category: %s", new_L)
@@ -320,7 +320,7 @@ class FixExtraction(Fix):
         bei, context = get_first(top, r'/LB/=BEI $ *=S', with_context=True)
         s = context['S']
         
-        bei.category.right = s.category
+        bei.category = bei.category.clone_with(right=s.category)
             
     def fix_long_bei_gap(self, node, top, bei):
         debug("Fixing long bei gap: %s", lrp_repr(node))

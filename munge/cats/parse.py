@@ -9,6 +9,7 @@ from munge.util.deco_utils import memoised
 
 DefaultMode = ALL
 
+@memoised
 def parse_category(cat_string):
     # Return each mode symbol as a token too when encountered.
     # Important: avoid using mode symbols in atomic category labels.

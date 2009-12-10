@@ -23,12 +23,15 @@ class Featured(object):
         '''Determines whether the given feature is present in this category's feature set.'''
         return feature in self.features
         
-    def add_feature(self, feature):
-        # TODO: switch this over to a set
-        # TODO: this makes atomiccategory mutable
-        if feature not in self.features:
-            self.features.append(feature)
-        return self
+    # def add_feature(self, feature):
+    #     # TODO: switch this over to a set
+    #     # TODO: this makes atomiccategory mutable
+    #     if feature not in self.features:
+    #         self.features.append(feature)
+    #     return self
+    #     
+    def clone_adding_feature(self, feature):
+        return self.clone_with(features=(list(self.features) + [feature]))
 
 class AtomicCategory(Featured):
     '''Represents an atomic category (one without a directional slash).'''
@@ -52,6 +55,9 @@ class AtomicCategory(Featured):
         '''Returns a copy of this category. AtomicCategory is intended to be immutable,
         so this returns the category itself.'''
         return deepcopy(self)
+        
+    def clone_with(self, features=None):
+        return AtomicCategory(self.cat, features if features else copy(self.features))
 
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
@@ -112,11 +118,18 @@ class ComplexCategory(Featured):
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         Featured.__init__(self, features)
         
-        self.left, self.direction, self.right = left, direction, right
+        self._left, self.direction, self._right = left, direction, right
         self.mode = mode
         self.label = label
 
         self.slash = "\\" if self.direction == BACKWARD else "/"
+        
+    @property
+    def left(self):
+        return self._left
+    @property
+    def right(self):
+        return self._right
 
     def __repr__(self, first=True, show_modes=ShowModes):
         '''A (non-evaluable) representation of this category.'''
@@ -125,22 +138,29 @@ class ComplexCategory(Featured):
         
         return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",
-            'lch': self.left.__repr__(False, show_modes),
+            'lch': self._left.__repr__(False, show_modes),
             'slash': self.slash,
           #  'label': self.label if self.is_labelled() else "",
             'mode': ComplexCategory.get_mode_symbol(self.mode) if show_modes else "",
-            'rch': self.right.__repr__(False, show_modes),
+            'rch': self._right.__repr__(False, show_modes),
             'close': "" if first else ")",
             'feats': self.feature_repr()
         }
 
     def clone(self):
         '''Returns a copy of this category.'''
-        return ComplexCategory(self.left.clone(),
+        return ComplexCategory(self._left.clone(),
                                self.direction, 
-                               self.right and self.right.clone(),
+                               self._right and self._right.clone(),
                                self.mode, copy(self.features))
-
+                  
+    def clone_with(self, left=None, direction=None, right=None, features=None):
+        return ComplexCategory(left if left else self._left.clone(),
+                               direction if direction else self.direction,
+                               right if right else self._right.clone(),
+                               self.mode, 
+                               features if features else copy(self.features))
+                               
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
 #        if self is other: return True
@@ -148,8 +168,8 @@ class ComplexCategory(Featured):
 
         return (self.direction == other.direction and 
                 self.features == other.features and
-                self.left.equal_respecting_features(other.left) and
-                self.right.equal_respecting_features(other.right))
+                self._left.equal_respecting_features(other.left) and
+                self._right.equal_respecting_features(other.right))
 
     def __eq__(self, other):
         '''Determines if this category is equal to another, without inspecting any features.'''
@@ -157,8 +177,8 @@ class ComplexCategory(Featured):
         if not other.is_complex(): return False
 
         return (self.direction == other.direction and
-                self.left == other.left and
-                self.right == other.right)
+                self._left == other.left and
+                self._right == other.right)
                 
     def __ne__(self, other): return not (self == other)
 
@@ -167,8 +187,8 @@ class ComplexCategory(Featured):
 category in a pre-order traversal of the category tree.'''
         self.label = index
         index += 1 # the current node gets the label _index_
-        index = self.left.labelled(index)
-        index = self.right.labelled(index)
+        index = self._left.labelled(index)
+        index = self._right.labelled(index)
         return index
 
     def is_labelled(self):
@@ -176,27 +196,27 @@ category in a pre-order traversal of the category tree.'''
         return self.label or any(kid.is_labelled() for kid in self)
 
     def slash_count(self):
-        return 1 + self.left.slash_count() + self.right.slash_count()
+        return 1 + self._left.slash_count() + self._right.slash_count()
 
     def __iter__(self):
         '''Iterates over the result, then the argument of this category.'''
-        yield self.left
-        yield self.right
+        yield self._left
+        yield self._right
         
     def slashes(self):
         '''For each slash of this compound category, yields a tuple of the category containing that slash
 and its labelled index.'''
         yield (self, self.label)
         
-        for child in (self.left, self.right):
+        for child in (self._left, self._right):
             if child.is_complex():
                 for (node, slash_index) in child.slashes(): 
                     yield (node, slash_index)
                         
     def nested_compound_categories(self):
         yield self
-        for cat in self.left.nested_compound_categories(): yield cat
-        for cat in self.right.nested_compound_categories(): yield cat
+        for cat in self._left.nested_compound_categories(): yield cat
+        for cat in self._right.nested_compound_categories(): yield cat
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.slash)

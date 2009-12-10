@@ -115,7 +115,7 @@ def label_coordination(node, inside_np=False):
     node[1].category = node.category
     # Label then apply [conj], so that kid categories don't inherit the feature
     node.kids[1] = label(node[1])
-    node[1].category = node.category.clone().add_feature('conj')
+    node[1].category = node.category.clone_adding_feature('conj')
     
     return node
 
