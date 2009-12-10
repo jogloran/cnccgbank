@@ -205,7 +205,6 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
     elif (is_apposition(node)
        or is_modification(node)
        or is_adjunction(node)
-       # TODO: what to do about VC?
        or is_verb_compound(node)):
         return label_adjunction(node)
     elif is_head_final(node):

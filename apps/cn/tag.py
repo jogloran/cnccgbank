@@ -54,8 +54,7 @@ def is_modification(node):
         return has_modification_tag(node[0])
     
     return False
-    
-ModificationRegex = re.compile(r'\w+-(\w+)')
+
 if config.modification_unary_rules:
     def has_modification_tag(node):
         if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
@@ -244,9 +243,9 @@ def label(root):
 
             elif is_coordination(node): # coordination
                 for kid in node:
-                    # TODO: putting ADVP in here stops misanalysis of 1:4(11), but what if we actually
-                    # want coordination of adverbs?
-                    if kid.tag not in ('CC', 'PU', 'ADVP'):
+                    # a previous revision stopped ADVP from being assigned :c "to stop misanalysis of 1:4(11)"
+                    # but it seems to work now
+                    if kid.tag not in ('CC', 'PU'):
                         tag(kid, 'c')
                         
             elif ((first_kid.is_leaf() # head initial complementation
