@@ -20,7 +20,7 @@ class Node(object):
                                 ")" if first else "")
 
     def __iter__(self):
-        for kid in self.kids: yield kid
+        return self.kids.__iter__()
 
     def count(self):
         return len(self.kids)
