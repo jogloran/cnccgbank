@@ -13,6 +13,7 @@ from munge.trees.traverse import nodes, leaves, tag_and_lex, tag_and_text_under
 import munge.trees.pprint as pp
 from munge.util.iter_utils import take
 from munge.util.dict_utils import smash_key_case
+from munge.util.err_utils import debug
 
 from munge.proc.filter import Filter
 
@@ -44,9 +45,10 @@ def tgrep(deriv, expression, with_context=False):
         initialise()
             
         if _tgrep_debug:
+            debug("Lexing %s", expression)
             lex.input(expression)
             for tok in iter(lex.token, None):
-                print tok.type, tok.value
+                debug("%s %s", tok.type, tok.value)
 
         query = yacc.parse(expression)
         expression_cache[expression] = query
@@ -64,10 +66,10 @@ def multi_tgrep(deriv, query_callback_map):
     
     if _tgrep_debug:
         for expression in query_callback_map.keys():
-            print "Lexing %s" % expression
+            debug("Lexing %s", expression)
             lex.input(expression)
             for tok in iter(lex.token, None):
-                print tok.type, tok.value
+                debug("\t%s %s", tok.type, tok.value)
     
     queries = [yacc.parse(expression) for expression in query_callback_map.keys()]
     for node in nodes(deriv):
@@ -147,10 +149,6 @@ def FixedTgrep(expression):
 class Tgrep(TgrepCore):
     def output(self):
         print "matches: %d/%d derivs = %.2f%%" % (self.nmatched, self.total, self.nmatched/float(self.total)*100.0)
-        
-    @staticmethod
-    def show_tokens_only(match_node, bundle):
-        print ''.join(match_node.text())
         
     @staticmethod
     def show_node(match_node, bundle):
