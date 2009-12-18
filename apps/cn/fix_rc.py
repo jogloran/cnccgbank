@@ -45,9 +45,10 @@ class FixExtraction(Fix):
             # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
-           (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
-           (r'* < { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
-            (r'* < { /CP/ < {/WH[NP]P-\d+/ $ {/[CI]P/ << {/[NP]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            # the index on WHNP may be missing (see 11:9(9))
+           (r'* < { /CP/ < {/WHNP(-\d+)?/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
+           (r'* < { /CP/ < {/WHNP(-\d+)?/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
+            (r'* < { /CP/ < {/WH[NP]P(-\d+)?/ $ {/[CI]P/ << {/[NP]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
             
             # 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
