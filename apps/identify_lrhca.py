@@ -72,7 +72,9 @@ if config.restrictive_absorption:
             # 2:12(3)
             (node[0].tag.startswith("DEG") and node.tag.startswith('DNP')) or
             # CP < IP PU (6:72(13))
-            (node[0].tag.startswith("IP") and node.tag.startswith('CP')))
+            (node[0].tag.startswith("IP") and node.tag.startswith('CP')) or
+            # parentheticals
+            (node.tag.startswith('PRN')))
 else:
     def is_right_absorption(node):
         return node[1].is_leaf() and node[1].tag == "PU"

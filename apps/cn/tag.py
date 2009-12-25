@@ -42,6 +42,9 @@ def is_apposition(node):
     return (node.tag.startswith('NP') and 
         # exclude CP-APP? it's not really apposition, rather adjunction
         any(kid.tag != "CP-APP" and kid.tag.endswith('-APP') for kid in node))
+        
+def is_prn(node):
+    return node.tag == "PRN:&"
 
 # We exclude -IJ, so we can get analyses of INTJ nodes
 FunctionTags = frozenset('ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split())
@@ -158,6 +161,9 @@ def label(root):
                 elif kid.tag in ('SP', 'MSP'):
                     tag(kid, 'a')
                     
+                elif kid.tag == "PRN":
+                    tag(kid, '&')
+                    
                 else:
                     tag_if_topicalisation(kid)
 
@@ -171,12 +177,13 @@ def label(root):
                     elif kid.tag != 'PU':
                         tag(kid, 'a')
                         
-            # elif is_parenthetical(node):
+            elif is_prn(node):
+                tag(node[0], 'h')
 
             elif is_np_internal_structure(node):
                 first = True
                 for kid in reversed(list(leaves(node))):
-                    if kid.tag == 'ETC':
+                    if kid.tag in ('ETC', 'PRN'):
                         tag(kid, '&')
                     elif kid.tag not in ('CC', 'PU'):
                         if first:
@@ -239,7 +246,7 @@ def label(root):
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'r')
             elif is_internal_structure(node) or is_verb_compound(node):
-                pass
+                pass                
 
             elif is_coordination(node): # coordination
                 for kid in node:
