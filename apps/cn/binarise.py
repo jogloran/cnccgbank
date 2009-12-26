@@ -19,8 +19,8 @@ def strip_tag_if(cond, tag):
         return tag
 
 #@echo
-def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False, kid_tag=None):
-    kid_tag = kid_tag or strip_tag_if(not inherit_tag, node.tag)
+def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False):
+    kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
     if not without_labelling:
         kids = map(lambda node: label_node(node, inside_np_internal_structure=inside_np_internal_structure), node.kids)
@@ -81,8 +81,8 @@ def label_head_initial(node, inherit_tag=False):
     return cur
 
 #@echo
-def label_head_final(node, *args, **kwargs):
-    return label_adjunction(node, *args, **kwargs)
+def label_head_final(node):
+    return label_adjunction(node)
     
 #@echo
 def is_left_punct_absorption(l):
@@ -142,9 +142,6 @@ def inherit_tag(node, other):
     '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
     if node.tag.find(":") == -1 and other.tag.find(":") != -1:
         node.tag += other.tag[other.tag.find(":"):]
-        
-def is_prn(node):
-    return node.tag == "PRN:&"
     
 #@echo
 def label_node(node, inside_np_internal_structure=False, do_shrink=True):
@@ -201,8 +198,6 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             
     elif is_predication(node):
         return label_predication(node)
-    elif is_prn(node):
-        return label_head_final(node, kid_tag=node[1].tag)
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
