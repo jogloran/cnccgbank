@@ -89,10 +89,6 @@ def t_ATOM(t):
     r'''[^/\\"\s{][^\s]+[^/\\"\s}]|[^/\\\s{][^/\\\s}]|[^/\\\s{}]'''
     return t
 
-def t_AMP(t):
-    r'''&'''
-    return t
-    
 # ignore whitespace tokens
 t_ignore = ' \t\r\v\f\n'
 

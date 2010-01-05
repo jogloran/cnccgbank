@@ -113,6 +113,9 @@ def is_vsb(node):
 
 def is_vp_compound(node):
     return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
+    
+def is_prn(node):
+    return node.tag.startswith('PRN') and node[0].tag.startswith('PU') and node[-1].tag.startswith('PU')
 
 def tag(kid, tag):
     # make sure kid is not already tagged
@@ -158,6 +161,11 @@ def label(root):
                 elif kid.tag in ('SP', 'MSP'):
                     tag(kid, 'a')
                     
+                elif is_prn(kid):
+                    kid.tag = kid[1].tag
+                    tag(kid, 'a')
+                    tag(kid[0], 'h')
+                    
                 else:
                     tag_if_topicalisation(kid)
 
@@ -170,8 +178,6 @@ def label(root):
                         tag(kid, 'h')
                     elif kid.tag != 'PU':
                         tag(kid, 'a')
-                        
-            # elif is_parenthetical(node):
 
             elif is_np_internal_structure(node):
                 first = True
