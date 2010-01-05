@@ -102,7 +102,7 @@ def is_adjunction(node):
     return node[0].tag.endswith(':a')
     
 def is_right_adjunction(node):
-    return node[1].tag.endswith(':a')
+    return node[1].tag.endswith(':a') or node[1].tag.endswith(':p')
         
 # conj NP -> NP[conj]
 def is_partial_coordination(node):
@@ -149,3 +149,6 @@ def is_topicalisation_without_gap(node):
     
 def is_etc(node):
     return node[1].tag.endswith(':&')
+    
+def is_prn(node):
+    return node.tag.endswith(':p')

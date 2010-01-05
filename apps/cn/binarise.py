@@ -198,7 +198,7 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             
     elif is_predication(node):
         return label_predication(node)
-    elif node.tag == 'PRN:a':
+    elif is_prn(node):
         return label_head_final(node)
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer

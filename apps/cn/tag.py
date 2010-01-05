@@ -115,7 +115,7 @@ def is_vp_compound(node):
     return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
     
 def is_prn(node):
-    return node.tag.startswith('PRN') and node[0].tag.startswith('PU') and node[-1].tag.startswith('PU')
+    return node.tag.startswith('PRN') and node[0].tag.startswith('PU')
 
 def tag(kid, tag):
     # make sure kid is not already tagged
@@ -161,15 +161,20 @@ def label(root):
                 elif kid.tag in ('SP', 'MSP'):
                     tag(kid, 'a')
                     
-                elif is_prn(kid):
-                    kid.tag = kid[1].tag
-                    tag(kid, 'a')
-                    tag(kid[0], 'h')
+                # elif is_prn(kid):
+                #     kid.tag = kid[1].tag
+                #     tag(kid, 'a')
+                #     tag(kid[0], 'h')
                     
                 else:
                     tag_if_topicalisation(kid)
+                    
+            if is_prn(node):
+                node.tag = node[1].tag
+                tag(node, 'p')
+                tag(node[0], 'h')
 
-            if is_predication(node):
+            elif is_predication(node):
                 for kid in node:
                     # TODO: we can get IP < NP-PN VP (0:40(5)). is this correct?
                     if kid.tag.endswith('-SBJ') or kid.tag.endswith('-PN'):
