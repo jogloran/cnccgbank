@@ -108,11 +108,11 @@ def label_head_initial(node):
     return node
 
 #@echo
-def label_coordination(node, inside_np=False):
+def label_coordination(node, inside_np=False, ucp=False):
     node[0].category = node.category
     node.kids[0] = label(node[0], inside_np)
     
-    node[1].category = node.category
+    node[1].category = ptb_to_cat(node[1]) if ucp else node.category 
     # Label then apply [conj], so that kid categories don't inherit the feature
     node.kids[1] = label(node[1])
     node[1].category = node.category.clone_adding_feature('conj')
@@ -120,11 +120,11 @@ def label_coordination(node, inside_np=False):
     return node
 
 #@echo
-def label_partial_coordination(node, inside_np=False):
+def label_partial_coordination(node, inside_np=False, ucp=False):
     node[0].category = ptb_to_cat(node[0])
     node.kids[0] = label(node[0], inside_np)
     
-    node[1].category = node.category
+    node[1].category = ptb_to_cat(node[1]) if ucp else node.category 
     node.kids[1] = label(node[1], inside_np)
     
     return node
@@ -414,6 +414,13 @@ def label(node, inside_np=False):
     
     elif is_etc(node):
         return label_head_final(node)
+        
+    # TODO: handle UCP
+    elif is_partial_ucp(node):
+        return label_partial_coordination(node, ucp=True)
+    elif is_ucp(node):
+        return label_coordination(node, ucp=True)
+    
     
     # elif is_verb_compound(node):
     #     if not node.category:
@@ -435,9 +442,10 @@ def label(node, inside_np=False):
         return label_predication(node)
     elif is_right_adjunction(node): # (:h :a), for aspect particles
         return label_right_adjunction(node)
-    
+            
     elif is_partial_coordination(node):
         return label_partial_coordination(node)
+        
     elif is_coordination(node):
         return label_coordination(node)
     

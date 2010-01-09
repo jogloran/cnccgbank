@@ -75,6 +75,9 @@ def is_coordination(node):
     kid_tags = ' '.join(kid.tag for kid in node)
     return CoordinationRegex.match(kid_tags)
     
+def is_ucp(node):
+    return node.tag.startswith("UCP") and not (node[0].tag == "PU" and node[-1].tag == "PU")
+    
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
     
@@ -153,6 +156,18 @@ def label(root):
             # 2:12(3). DNP-PRD fixed by adding a layer of NP
             elif node.tag.startswith('VP') and node.count() == 2 and node[0].tag.startswith('VC') and node[1].tag.startswith('DNP-PRD'):
                 node[1] = Node('NP', [node[1]], node)
+ #            elif node.count() > 2 and node[0].tag == "PU" and node[-1].tag == "PU":
+ # #                from munge.trees.pprint import pprint
+ # #                 print "HEY"
+ # #                 k = (node.kids[1:-1])
+ # #                 print len(node.kids)
+ # # #                del node.kids[1:-2] 
+ # #                 node.kids[1:-1] = [ Node(node.tag, k, node) ]
+ # #                 print pprint(node.kids[1])
+ # #                 print len(node.kids)
+ # #                 print (node.kids)
+ #                del node.kids[0]
+ #                del node.kids[-1]
 
             for kid in node:
                 if has_modification_tag(kid):
@@ -160,11 +175,6 @@ def label(root):
                     
                 elif kid.tag in ('SP', 'MSP'):
                     tag(kid, 'a')
-                    
-                # elif is_prn(kid):
-                #     kid.tag = kid[1].tag
-                #     tag(kid, 'a')
-                #     tag(kid[0], 'h')
                     
                 else:
                     tag_if_topicalisation(kid)
@@ -252,13 +262,24 @@ def label(root):
             elif is_internal_structure(node) or is_verb_compound(node):
                 pass
 
+            # must be above is_coordination (it subsumes UCP)
+            elif is_ucp(node):
+                left_conjunct_tag = first_kid.tag
+                node.tag = left_conjunct_tag
+                for kid in nodes(node):
+                    if kid.tag.startswith('UCP'): 
+                        kid.tag = left_conjunct_tag
+                for kid in node:
+                    if kid.tag not in ('CC', 'PU'):
+                        tag(kid, 'C')
+                        
             elif is_coordination(node): # coordination
                 for kid in node:
                     # a previous revision stopped ADVP from being assigned :c "to stop misanalysis of 1:4(11)"
                     # but it seems to work now
                     if kid.tag not in ('CC', 'PU'):
                         tag(kid, 'c')
-                        
+            
             elif ((first_kid.is_leaf() # head initial complementation
 #               or is_vp_internal_structure(first_kid) 
                 or is_vp_compound(first_kid)

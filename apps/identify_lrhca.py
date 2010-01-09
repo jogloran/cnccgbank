@@ -73,6 +73,7 @@ if config.restrictive_absorption:
             (node[0].tag.startswith("DEG") and node.tag.startswith('DNP')) or
             # CP < IP PU (6:72(13))
             (node[0].tag.startswith("IP") and node.tag.startswith('CP')) or
+            (node[0].tag.startswith('IP') and node.tag.startswith('NP')) or
             # parentheticals
             (node.tag.startswith('PRN')))
 else:
@@ -110,6 +111,19 @@ def is_partial_coordination(node):
 
 def is_coordination(node):
     return node[0].tag.endswith(':c') or node[1].tag.endswith(':c')
+
+def is_partial_ucp(node):
+    return ((node[0].is_leaf() and (node[0].tag.startswith('CC') or node[0].tag == 'PU') and node[1].tag.endswith(':C')) and
+        base_tag(node.tag) != base_tag(node[1].tag))
+
+def is_ucp(node):
+    return node[0].tag.endswith(':C') or node[1].tag.endswith('C')
+    # if node[0].tag.endswith(':C'):
+    #     return base_tag(node[0].tag) != base_tag(node.tag)
+    # elif node[1].tag.endswith(':C'):
+    #     return base_tag(node[1].tag) != base_tag(node.tag)
+    #     
+    # return False
 
 def is_np_internal_structure(node):
     return (node.tag.startswith('NP') and 

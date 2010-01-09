@@ -177,7 +177,8 @@ class Shell(HistorySavingDefaultShell):
         return subprocess.Popen(
             (self.pager_path, '-'),
             stdin=subprocess.PIPE,
-            stdout=None, stderr=None)
+            stdout=None, stderr=None,
+            shell=False)
             
     def do_into(self, args):
         '''Sets or displays the destination for filter output. The special filename 
@@ -204,7 +205,6 @@ class Shell(HistorySavingDefaultShell):
     def redirecting_stdout(self, action, filter_name, filter_args):
         '''Calls the given _action_ with stdout temporarily redirected to _self.output_file_ or
 a pager program.'''
-        
         try:
             old_stdout = sys.stdout
             
@@ -229,6 +229,7 @@ a pager program.'''
                 pipe.wait()
                 
             msg("\nFilter run %s halted by user.", filter_run_name(filter_name, filter_args))
+             
         except Exception, e:
             if pipe:
                 pipe.stdin.close()
