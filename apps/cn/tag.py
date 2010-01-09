@@ -180,9 +180,9 @@ def label(root):
                     tag_if_topicalisation(kid)
                     
             if is_prn(node):
-                node.tag = node[1].tag
+                node.tag = first_kid.tag
                 tag(node, 'p')
-                tag(node[0], 'h')
+                tag(node[0], 'h') # assume that the first PU introduces the PRN
 
             elif is_predication(node):
                 for kid in node:
