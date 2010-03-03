@@ -9,7 +9,7 @@ from munge.util.err_utils import warn, info
 from munge.trees.pprint import *
 from munge.cats.nodes import *
 from munge.cats.cat_defs import *
-from munge.trees.traverse import lrp_repr
+from munge.trees.traverse import lrp_repr, nodes
 
 import apps.util.echo as E
 
@@ -69,6 +69,7 @@ def label_adjunction(node):
     
     return node
 
+#@echo
 def label_np_structure(node):
     node[0].category = node.category / node.category
     node.kids[0] = label(node[0])
@@ -158,6 +159,7 @@ Map = {
     'VRD': SdclbNP,
     'VCD': SdclbNP,
     'VNV': SdclbNP,
+    'VPT': SdclbNP,
     
     'CC': conj,
     
@@ -180,6 +182,7 @@ Map = {
     
     'CP-PRD': NP,
     'CP-OBJ': Sdcl, # 8:16(9) CP in object position is treated as IP
+    'CP-CND': SfS,
 }
 
 PunctuationMap = {
@@ -317,7 +320,7 @@ def is_PRO_trace(node):
 
 import pdb
 
-##@echo
+#@echo
 def label(node, inside_np=False):
     '''
     Labels the descendants of _node_ and returns _node_.
@@ -343,18 +346,8 @@ def label(node, inside_np=False):
         node.kids[0] = label(node[0])
         
         return node
-        
-    # elif any(node.tag.startswith(cand) for cand in ('VPT', 'VCD', 'VRD', 'VCP', 'VSB')):
-    #     pass
-    # elif node.tag.startswith('VPT'):
-    #     node.category = node.parent.category
-    #     node.kids[0] = label(node[0])
-    #     if node.count() > 1:
-    #         node.kids[1] = label(node[1])
-    #         
-    #     return node
     
-    # VSB is analysed as head-initial
+    # VSB is analysed as head-final
     elif node.tag.startswith('VSB'):
         node[1].category = node.category
         node.kids[1] = label(node[1])
@@ -399,7 +392,11 @@ def label(node, inside_np=False):
         node.kids[1] = label(node[1])
         
         return node
-    
+
+    # must be above is_apposition, because there exist NP-APP:a ETC:& cases
+    elif is_etc(node):
+        return label_head_final(node)
+        
     elif (node.count() == 1
        or is_topicalisation(node)
        or is_topicalisation_without_gap(node)
@@ -412,20 +409,10 @@ def label(node, inside_np=False):
         
         return node
     
-    elif is_etc(node):
-        return label_head_final(node)
-        
-    # TODO: handle UCP
     elif is_partial_ucp(node):
         return label_partial_coordination(node, ucp=True)
     elif is_ucp(node):
         return label_coordination(node, ucp=True)
-    
-    
-    # elif is_verb_compound(node):
-    #     if not node.category:
-    #         node.category = node.parent.category # VP < VRD, ...
-    #     return label_verb_compound(node)
     
     elif is_left_absorption(node):
         return label_left_absorption(node)
@@ -433,10 +420,17 @@ def label(node, inside_np=False):
         return label_right_absorption(node)
     
     # must be above predication
-    elif is_PRO_trace(node):
-        new_node = shrink_left(node, node.parent)
-        ret = label(new_node)
-        return ret
+    # elif is_PRO_trace(node):
+    #     new_node = shrink_left(node, node.parent)
+    #     new_node.tag = base_tag(new_node.tag, strip_cptb_tag=False)
+    #     print new_node.tag
+    #     print node.tag
+    #     
+    #     inherit_tag(new_node, node)
+    #     print new_node.tag
+    #     
+    #     ret = label(new_node)
+    #     return ret
     
     elif is_predication(node):
         return label_predication(node)
@@ -495,9 +489,17 @@ def label(node, inside_np=False):
             node.__repr__(suppress_lex=True))
         return label_adjunction(node)
 
-def label_root(node):
-    node.category = ptb_to_cat(node, is_root=True)
-    return label(node)
+def label_root(root):
+    root.category = ptb_to_cat(root, is_root=True)
+    
+    for node in nodes(root):
+        if is_PRO_trace(node):
+            new_node = shrink_left(node, node.parent)
+            new_node.tag = base_tag(new_node.tag, strip_cptb_tag=False)
+
+            inherit_tag(new_node, node)
+        
+    return label(root)
 
 class LabelNodes(Filter, OutputDerivation):
     def __init__(self, outdir):
