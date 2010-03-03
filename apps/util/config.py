@@ -6,8 +6,8 @@ class Config(object):
         self.config = Y.load(open(config_file, 'r').read())
         
     def __getattr__(self, attr):
-        val = self.config.get(attr, None) 
-        if val is not None: 
+        val = self.config.get(attr, None)
+        if val is not None:
             return val
         else:
             raise AttributeError("No key %s in config." % attr)

@@ -2,6 +2,7 @@
 
 from munge.cats.nodes import AtomicCategory
 from munge.cats.parse import parse_category
+from apps.util.config import config
 
 def featureless(cat):
     ret = cat.clone()
@@ -11,13 +12,22 @@ def featureless(cat):
     return ret
 
 S, N, NP, PP = (AtomicCategory(atom) for atom in "S N NP PP".split())
+
 LeftAbsorbedPunctuationCats = ", . `` : ; LRB RRB".split()
 RightAbsorbedPunctuationCats = ", . '' : ; LRB RRB".split()
 ConjPunctuationCats = ", ; :".split()
+
+if config.cn_puncts:
+    LeftAbsorbedPunctuationCats += "LCM LPA LQU LSQ LTL RTL LCD LCS RCS DSH SLS".split()
+    RightAbsorbedPunctuationCats += "LCM RPA RQU RSQ RTL RCD RCS DSH SLS ? !".split()
+    ConjPunctuationCats.append("LCM")
+
 SbNP, SfNP, NPbNP, NPfNP, NbN, NfN, SbNPbSbNP, \
 SbS, SfS, SbNPfSbNP, conj = [parse_category(cat) for cat in
                         '''S\\NP S/NP NP\\NP NP/NP N\\N N/N (S\\NP)\\(S\\NP)
                            S\\S  S/S (S\\NP)/(S\\NP) conj'''.split()]
+SfSfNP = parse_category(r'S/(S/NP)')
+SbNPfNP = parse_category(r'(S\NP)/NP')
 Sq, Sdcl = parse_category('S[q]'), parse_category('S[dcl]')
 SadjbNP = parse_category(r'S[adj]\NP')
 SdclbNP, Sfrg = parse_category(r'S[dcl]\NP'), parse_category(r'S[frg]')

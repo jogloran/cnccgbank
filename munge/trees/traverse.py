@@ -1,6 +1,11 @@
 import re
 from itertools import izip, count
 
+def ancestors(node):
+    while node.parent:
+        node = node.parent
+        yield node
+
 def nodes(deriv):
     '''Preorder iterates over each node in a derivation.'''
     yield deriv
@@ -25,6 +30,22 @@ def nodes_inorder(deriv):
     if not is_leaf:
         for node in nodes_inorder(deriv.rch):
             yield node
+            
+def nodes_postorder(n):
+    if n.is_leaf():
+        yield n
+    else:
+        for kid in nodes_postorder(n[0]): yield kid
+        if n.count() > 1:
+            for kid in nodes_postorder(n[1]): yield kid
+        yield n
+
+def pairs_postorder(n):
+    if not n.is_leaf():
+        for v in pairs_postorder(n[0]): yield v
+        if n.count() > 1:
+            for v in pairs_postorder(n[1]): yield v
+        yield (n[0], n[1] if n.count() > 1 else None, n)
 
 def leaves(deriv, pred=None):
     '''Iterates from left to right over the leaves of a derivation.'''

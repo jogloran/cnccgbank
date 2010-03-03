@@ -1,0 +1,49 @@
+( (IP
+(NP-SBJ I)
+(VP (VV eat)
+(NP
+(NP (JJ sour)
+(NN lemon))
+(CC and)
+(NP (JJ tasty)
+(NN pie))
+)
+)
+)
+)
+( (IP
+(NP-SBJ I)
+(VP (VV eat)
+(NP
+(NP
+(NN lemon))
+(CC and)
+(NP
+(NN pie))
+)
+)
+)
+)
+( (IP
+(NP-SBJ I)
+(VP (VV eat)
+(NP
+(NP (JJ sour)
+(NN lemon))
+(PU ,)
+(NP (JJ tasty)
+(NN pie))
+(CC and)
+(NP (JJ aniseedy)
+(NN licorice))
+)
+)
+)
+)
+(
+(IP
+(NP-SBJ I)
+(VP (VP (VV eat) (NN rice))
+(CC and)
+(VP (VV jump) (NN rope))
+)))

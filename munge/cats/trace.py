@@ -5,6 +5,7 @@ from munge.cats.cat_defs import *
 def analyse(l, r, cur, examine_modes=False):
     '''Determines which parser rule was used in the production [l r -> cur].'''
     return (try_unary_rules(l, r, cur) if not r else
+            try_binary_rules(l, r, cur) or 
             try_application(l, r, cur, examine_modes) or
             try_absorption(l, r, cur) or
             try_composition_or_substitution(l, r, cur, examine_modes))
@@ -16,9 +17,19 @@ def try_unary_rules(l, r, cur):
             SfS: "lex_typechange",
             NP:  "lex_typechange",
             SbNPfSbNP: "lex_typechange",
-            SbS: "lex_typechange"
+            SbS: "lex_typechange",
+            SfSfNP: "np_topicalisation",
         }.iteritems(): 
             if cur == cand_cat: return rule
+            
+        if config.cn_rules and cur == S: return "subject_prodrop"
+        
+    if config.cn_rules:
+        if cur == SfNP and l == SbNPfNP: return "subject_prodrop"
+        if cur == SfS and l == N or l == NP: return "nongap_topicalisation"
+        if cur == SfSfNP and l == NP: return "gap_topicalisation"
+        if cur == NP and l == NPfNP: return "de_nominalisation"
+        if cur == NfN and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
 
     if l == SfNP and cur == NPbNP:
         return "lex_typechange"
@@ -42,6 +53,18 @@ def try_unary_rules(l, r, cur):
         if str(l.cat) == 'N' and str(cur.cat) == 'NP': return "np_typechange"
 
     return None # no rule matched
+
+def rooted_in_Sdcl(cat):
+    cur = cat
+    while not cur.is_leaf() and cur.left:
+        cur = cur.left
+    return cur == Sdcl
+    
+def try_binary_rules(l, r, cur):
+    if not config.cn_rules: return False
+    
+    if l == NP and r == NP and cur == NP: return "bare_apposition"
+    if rooted_in_Sdcl(l) and l == r and r == cur: return "vcd_compound"
 
 def allows_application(mode_index):
     '''Returns whether the given mode indicated by the index allows the
@@ -161,12 +184,16 @@ def try_absorption(l, r, cur):
             # # == ignores features
             # print ">>> L:%s R:%s P:%s" % (type(l),type(r),type(cur))
             # conj X -> X[cur]
-            if l.cat in ("conj", "PU", "LCM") and r == cur: return "conj_absorb"
+            if (l.cat in ("conj", "PU", "LCM") or l.cat in (",",)) and r == cur: return "conj_absorb"
 
         if cur == SbNPbSbNP and l.cat == "," and str(r) == "NP": # , NP -> (S\NP)\(S\NP)
             return "appositive_comma_absorb"
-        if str(cur) == "N" and l.cat == "conj" and str(r) == "N":
+#        if str(cur) == "N" and l.cat == "conj" and str(r) == "N":
+        if cur == N and l == conj and r == N:
             return "funny_conj" # conj N -> N is the funny conj rule
+        if config.cn_rules:
+            if cur == NfN and l == conj and r == NfN:
+                return "funny_conj" # conj N/N -> N/N for partially bracketed CPTB structures
 
         if l.cat in LeftAbsorbedPunctuationCats and r == cur:
             return "l_punct_absorb"

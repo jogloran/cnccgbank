@@ -92,6 +92,8 @@ class Leaf(object):
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
         '''Creates a new leaf node.'''
         self.cat = cat
+        self.cat.slot.head.lex = lex
+        
         self.pos1, self.pos2 = pos1, pos2
         self.lex = lex
         self.catfix = catfix

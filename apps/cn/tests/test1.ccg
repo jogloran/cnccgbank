@@ -1,0 +1,8 @@
+ID=wsj_9997.1 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 2> (<L NP NP-SBJ NP-SBJ I NP>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV eat (S[dcl]\NP)/NP>) (<T NP 0 2> (<T NP 0 1> (<T N 0 2> (<L N/N JJ JJ sour N/N>) (<L N NN NN lemon N>) ) ) (<T NP[conj] 0 2> (<L conj CC CC and conj>) (<T NP 0 1> (<T N 0 2> (<L N/N JJ JJ tasty N/N>) (<L N NN NN pie N>) ) ) ) ) ) )
+ID=wsj_9997.2 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 2> (<L NP NP-SBJ NP-SBJ I NP>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV eat (S[dcl]\NP)/NP>) (<T NP 0 2> (<L NP NN NN lemon NP>) (<T NP[conj] 0 2> (<L conj CC CC and conj>) (<L NP NN NN pie NP>) ) ) ) )
+ID=wsj_9997.3 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 2> (<L NP NP-SBJ NP-SBJ I NP>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV eat (S[dcl]\NP)/NP>) (<T NP 0 2> (<T NP 0 1> (<T N 0 2> (<L N/N JJ JJ sour N/N>) (<L N NN NN lemon N>) ) ) (<T NP[conj] 0 2> (<L , PU PU , ,>) (<T NP 0 2> (<T NP 0 1> (<T N 0 2> (<L N/N JJ JJ tasty N/N>) (<L N NN NN pie N>) ) ) (<T NP[conj] 0 2> (<L conj CC CC and conj>) (<T NP 0 1> (<T N 0 2> (<L N/N JJ JJ aniseedy N/N>) (<L N NN NN licorice N>) ) ) ) ) ) ) ) )
+ID=wsj_9997.4 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 2> (<L NP NP-SBJ NP-SBJ I NP>) (<T S[dcl]\NP 0 2> (<T S[dcl]\NP 0 2> (<L (S\NP)/N VV VV eat (S\NP)/N>) (<L N NN NN rice N>) ) (<T (S[dcl]\NP)[conj] 0 2> (<L conj CC CC and conj>) (<T S[dcl]\NP 0 2> (<L (S\NP)/N VV VV jump (S\NP)/N>) (<L N NN NN rope N>) ) ) ) )

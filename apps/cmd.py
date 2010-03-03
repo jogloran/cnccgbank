@@ -19,6 +19,8 @@ from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep
 import munge.proc.trace as T
 
+from apps.util.config import config
+
 BuiltInPackages = T.BuiltInPackages
 DefaultPager = '/usr/bin/less' # pager to use if $PAGER not set
 
@@ -32,7 +34,7 @@ class Shell(HistorySavingDefaultShell):
     def __init__(self, pager_path=None, files=None, verbose=True):
         HistorySavingDefaultShell.__init__(self)
         
-        self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose)
+        self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose, reader_class_name=config.cmd_reader_class)
         self.prompt = "trace> "
         
         self.files = files or []

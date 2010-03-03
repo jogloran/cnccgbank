@@ -1,4 +1,7 @@
-import re, copy
+# coding=utf-8
+import re
+
+from copy import copy
 
 from apps.cn.catlab import ptb_to_cat
 
@@ -23,69 +26,147 @@ from apps.cn.fix_utils import *
 
 from apps.identify_lrhca import base_tag
 
+def get_trace_index_from_tag(tag):
+    bits = base_tag(tag, strip_cptb_tag=False).rsplit('-', 1)
+    if len(bits) != 2:
+        return ""
+    else:
+        return "-" + bits[1]
+
 class FixExtraction(Fix):
-    def pattern(self): 
+    def pattern(self):
         return list((
-            (r'{ /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}} > *=TOP', self.fix_long_bei_gap),
+            # must come before object extraction
+#            (r'{ /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB/=PRED }}}}} > *=TOP', self.fix_long_bei_gap),
+#            (r'*=TOP < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_long_bei_gap),
+#            (r'{ /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}}=SIB > *=TOP', self.fix_reduced_long_bei_gap),
+#            (r'{ /LB/=BEI $ { * << { /NP-(?:TPC|OBJ)/ < ^/\*/ } } }=SIB > *=TOP', self.fix_reduced_long_bei_gap),
+            (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI }       << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+            (r'*=TOP < { * < /LB/=BEI }       << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+            
+            # doesn't work for 1:34(8) where an additional PP adjunct intervenes
+            (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+
             (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_subj_gap), #0:11(4)
             (r'{ /SB/=BEI $ { /VP/=P << { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S } } } > *=PP', self.fix_short_bei_obj_gap), #1:54(3)
-            
+            (r'{ /SB/=BEI $ { /VP/=BEIS << { /VP/=P < { /NP-IO/=T < ^/\*-\d+$/ $ *=S } > *=PP } } }', self.fix_short_bei_io_gap), # 31:2(3)
+
+#            (r'*=PP < {/PP-LGS/ $ { /VP/=P << { /NP-OBJ/=T < ^/\*-\d+/ $ *=S} }}', self.fix_pp_lgs),
+
             # TODO: needs to be tested with (!NP)-TPC
-            (r'/IP/=P < {/[^-]+-TPC-\d+:t/=T $ /IP/=S }', self.fix_topicalisation_with_gap),
-            (r'/IP/=P < {/[^-]+-TPC:T/=T $ /IP/=S }', self.fix_topicalisation_without_gap),
-        
-            # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP) 
+            (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S}', self.fix_topicalisation_with_gap),
+            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
+
+            # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
             # and what is expected (eg S/S)
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
-            
+
                # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
             #   (r'', self.fix_long_bei_gap),
-            
+
             # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
-            # the index on WHNP may be missing (see 11:9(9))
-           (r'* < { /CP/ < {/WHNP(-\d+)?/ $ {/[CI]P/ << {/NP-SBJ/ < ^/\*T\*/}}}}', self.fix_subject_extraction),
-           (r'* < { /CP/ < {/WHNP(-\d+)?/ $ {/[CI]P/ << {/NP-OBJ/ < ^/\*T\*/}}}}', self.fix_object_extraction),
-            (r'* < { /CP/ < {/WH[NP]P(-\d+)?/ $ {/[CI]P/ << {/[NP]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?/ < ^/\*T\*/}}}}', self.fix_nongap_extraction),
+            (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
+
+            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /CP/ > *=N } } }', self.fix_subject_extraction),
+            (r'^/\*T\*/ > { /NP-SBJ/ >> { /CP/ > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
             
-            # 
+            (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /CP/ > *=N } } }', self.fix_object_extraction),
+            (r'^/\*T\*/ > { /NP-OBJ/ >> { /CP/ > *=N } }', self.fix_reduced(self.fix_object_extraction)),
+
+            # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
+            (r'^/\*T\*/ > { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?(?!-\d+)/=K >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/ > *=N } } } }', self.fix_nongap_extraction),
+
+            #
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
-         
+
             # ba-construction object gap
             (r'*=TOP < { /BA/ $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
-            
+
             # Removes the prodrop trace *pro*
             (r'*=PP < { *=P < ^"*pro*" }', self.fix_prodrop),
+
+            # Removes wayward WHNP traces without a coindex (e.g. 0:86(5), 11:9(9))
+            (r'* < { * < /WHNP(?!-)/ }', self.remove_null_element),
+            # try: Undischarged topicalisation traces
+            (r'*=PP < { *=P < { /-TPC/a=T << ^/\*T\*/ $ *=S } }', self.remove_tpc_trace),
         ))
-    
+
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
+
+    def fix_pp_lgs(self, pp, p, s, t):
+        pass
         
+    def remove_tpc_trace(self, _, pp, p, t, s):
+        replace_kid(pp, p, s)
+
+    def fix_rnr(self, rnr, g):
+        debug("Fixing RNR: %s", pprint(g))
+        index = get_trace_index_from_tag(rnr.lex) # -i
+        debug("index: %s", index)
+        expr = r'*=PP < { *=P < { *=T < ^/\*RNR\*%s/ $ *=S } }' % index
+        for node, ctx in find_all(g, expr, with_context=True):
+            inherit_tag(ctx['S'], ctx['P'])
+            self.fix_object_gap(ctx['PP'], ctx['P'], ctx['T'], ctx['S'])
+            self.fix_categories_starting_from(ctx['S'], g)
+        
+        debug("post deletion: %s", pprint(g))
+
+        expr = r'*=PP < { *=P < { /%s/a=T $ *=S } }' % index
+        node, ctx = get_first(g, expr, with_context=True)
+
+        argument = ctx['T']
+        self.fix_object_gap(ctx['PP'], ctx['P'], ctx['T'], ctx['S'])
+        
+        debug("T(argument): %s", lrp_repr(argument))
+        debug("G: %s", lrp_repr(g))
+        debug('PP: %s, P: %s, T: %s, S: %s', *map(lrp_repr, (ctx['PP'],ctx['P'],ctx['T'],ctx['S'])))
+
+        new_g = Node(g.category, g.tag, [g, argument])
+
+        replace_kid(g.parent, g, new_g)
+        argument.parent = new_g # argument was previously disconnected
+
+        new_g.category = ctx['S'].category.left
+
+        self.fix_categories_starting_from(argument, new_g)
+
+        debug("Done: %s", pprint(g))
+        # print pprint(g.parent)
+
     def fix_short_bei_subj_gap(self, node, bei, pp, p, t, s):
+        debug("fixing short bei subject gap: %s", lrp_repr(pp))
         # take the VP sibling of SB
         # replace T with S
         # this analysis isn't entirely correct
         replace_kid(pp, p, s)
-        
+
     def fix_short_bei_obj_gap(self, node, pp, bei, t, p, s):
+        debug("fixing short bei object gap: pp:%s\np:%s\ns:%s", lrp_repr(pp), lrp_repr(p), lrp_repr(s))
+        
         replace_kid(pp, p, s)
         bei.category = bei.category.clone_with(right=s.category)
         
+    def fix_short_bei_io_gap(self, node, pp, bei, beis, t, p, s):
+        debug("fixing short bei io gap: pp:%s\np:%s\ns:%s", lrp_repr(pp), lrp_repr(p), lrp_repr(s))
+        
+        replace_kid(pp, p, s)
+        self.fix_categories_starting_from(s, until=pp)
+        bei.category = bei.category.clone_with(right=beis.category)
+
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
         pp, context = get_first(node, r'*=PP < { *=P < { /WH[NP]P/=T $ *=S } }', with_context=True)
         p, t, s = context['P'], context['T'], context['S']
-        
+
         replace_kid(pp, p, s)
-        
-    def remove_PRO_gap(self, node):
-        node[1] = node[1][1]
-        
+
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
-        
+
         # we want the closest DEC, so we can't use the DFS implicit in tgrep
         # relativiser, context = get_first(node, r'/DEC/ $ *=S', with_context=True)
         # s = context['S']
@@ -93,269 +174,287 @@ class FixExtraction(Fix):
         if result is not None:
             _, context = result
             s, relativiser = context['S'], context['REL']
-            
+
             relativiser.category = relativiser.category.clone_with(right=s.category)
             debug("New rel category: %s", relativiser.category)
-            
+
             return True
         else:
             warn("Couldn't find relativiser under %s", node)
             return False
-        
-    @classmethod
-    def fcomp(C, l, r):
-        if (l.is_leaf() or r.is_leaf() or 
-            l.right != r.left or 
-            l.direction != FORWARD or l.direction != r.direction): return None
-            
-        return C.fake_unify(l, r, l.left / r.right)
-                
-    @classmethod
-    def bxcomp(C, l, r):
-        # Y/Z X\Y -> X/Z
-        if (l.is_leaf() or r.is_leaf() or
-            l.left != r.right or
-            l.direction != FORWARD or l.direction == r.direction): return None
-            
-        return C.fake_unify(l, r, r.left / l.right)
-        
-    @classmethod
-    def fxcomp(C, l, r):
-        if (l.is_leaf() or r.is_leaf() or
-            l.right != r.left or
-            l.direction != FORWARD or r.direction == l.direction): return None
 
-        return C.fake_unify(l, r, l.left | r.right)
-        
     @staticmethod
-    def fake_unify(l, r, result):
-        # Fake unification onto result category
-        # 1. get inner-most result category from R
-        # 2. give its features to L's result category
-        # 3. ???
-        # 4. Profit!!!
-        
-        result = result.clone()
-        
-        cur = r
-        while cur.is_complex(): cur = cur.left
-        
-        res = result
-        while res.is_complex(): res = res.left
-        res.features = copy.copy(cur.features)
-        
-        return result
+    def is_topicalisation(cat):
+        # T/(T/X)
+        return (cat.is_complex() and cat.right.is_complex()
+                and cat.left == cat.right.left
+                and cat.direction == FORWARD and cat.right.direction == FORWARD)
 
-        
-    FORWARD, BACKWARD, TOPICALISATION = 1, 2, 3
-    @classmethod
-    def typeraise(C, x, t, dir):
-        '''
-        Performs the typeraising X -> T|(T|X).
-        '''
-        T, X = featureless(t), featureless(x)
-        
-        if dir == C.FORWARD:
-            return T/(T|X)
-        elif dir == C.BACKWARD:
-            return T|(T/X)
-        elif dir == C.TOPICALISATION:
-            return T/(T/X)
-        else:
-            raise RuntimeException, "Invalid typeraise direction."
-            
-    #@echo
     def fix_categories_starting_from(self, node, until):
-        debug("fix from %s to %s", node, until)
+#        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
+
         while node is not until:
             if (not node.parent) or node.parent.count() < 2: break
-            
+
             l, r, p = node.parent[0], node.parent[1], node.parent
             L, R, P = (n.category for n in (l, r, p))
             debug("L: %s R: %s P: %s", L, R, P)
 
             applied_rule = analyse(L, R, P)
-            debug("[ %s'%s' %s'%s' -> %s'%s' ] %s", 
-                L, ''.join(l.text()), 
-                R, ''.join(r.text()), 
-                P, ''.join(p.text()), 
+            debug("[ %s'%s' %s'%s' -> %s'%s' ] %s",
+                L, ''.join(l.text()),
+                R, ''.join(r.text()),
+                P, ''.join(p.text()),
                 applied_rule)
 
             if applied_rule is None:
                 debug("invalid rule %s %s -> %s", L, R, P)
-                
+
                 # conj R -> P
-                # Make P into R[conj] 
-                if str(L) in ('conj', 'LCM'):
+                # Make P into R[conj]
+                if str(L) in ('conj', 'LCM', ','):
                     p.category = R.clone_adding_feature('conj')
                     debug("New category: %s", p.category)
-                    
+
                 # L R[conj] -> P
-                # 
+                #
                 elif R.has_feature('conj'):
                     new_L = L.clone()
-                    new_L.features = []
-                    
+#                    new_L.features = []
+
                     r.category = new_L.clone_adding_feature('conj')
                     p.category = new_L
-                    
+
                     debug("New category: %s", new_L)
-                
+
                 elif L.is_leaf():
                     if l.tag == "PU": # treat as absorption
                         debug("Fixing left absorption: %s" % P)
-                        p.category = r.category 
-                        
+                        p.category = r.category
+
                     elif R.is_complex() and R.left.is_complex() and L == R.left.right:
                         T = R.left.left
-                        new_category = self.typeraise(L, T, self.FORWARD)#T/(T|L)
-                        node.parent[0] = Node(new_category, node.tag, [l])
+                        new_category = typeraise(L, T, FORWARD)#T/(T|L)
+                        node.parent[0] = Node(new_category, l.tag, [l])
 
-                        new_parent_category = self.fcomp(new_category, R)
-                        if new_parent_category: 
+                        new_parent_category = fcomp(new_category, R)
+                        if new_parent_category:
                             debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
-                        
+
                         debug("New category: %s", new_category)
-                    
+
                 elif R.is_leaf():
                     if r.tag == "PU": # treat as absorption
                         debug("Fixing right absorption: %s" % P)
                         p.category = l.category
-                        
+
                     elif L.is_complex() and L.left.is_complex() and R == L.left.right:
                         T = L.left.left
-                        new_category = self.typeraise(R, T, self.BACKWARD)#T|(T/R)
-                        node.parent[1] = Node(new_category, node.tag, [r])
-                        
-                        new_parent_category = self.bxcomp(L, new_category)
-                        if new_parent_category: 
+                        new_category = typeraise(R, T, BACKWARD)#T|(T/R)
+                        node.parent[1] = Node(new_category, r.tag, [r])
+
+                        new_parent_category = bxcomp(L, new_category)
+                        if new_parent_category:
                             debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
-                        
+
                         debug("New category: %s", new_category)
-                    
+
                 else:
-                    new_parent_category = self.fcomp(L, R) or self.bxcomp(L, R) or self.fxcomp(L, R)
+                    # try typeraising fix
+                    # T/(T/X) (T\A)/X -> T can be fixed:
+                    # (T\A)/((T\A)/X) (T\A)/X -> T\A
+                    if self.is_topicalisation(L) and (
+                        L.right.right == R.right and
+                        P == L.left and P == R.left.left):
+                        T_A = R.left
+                        X = R.right
+
+                        l.category = T_A/(T_A/X)
+                        new_parent_category = T_A
+                    else:
+                        new_parent_category = fcomp(L, R) or bxcomp(L, R) or fxcomp(L, R)
+
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)
                         p.category = new_parent_category
-            
+                    else:
+                        debug("couldn't fix, skipping")
+
             node = node.parent
-            
+
     #@echo
-    def fix_subject_extraction(self, node):
+    def fix_subject_extraction(self, _, n, w=None, reduced=False):
+        node = n
         debug("Fixing subject extraction: %s", lrp_repr(node))
-        self.remove_null_element(node)
-        
+        if not reduced:
+            self.remove_null_element(node)
+
         # Find and remove the trace
         # we use find_all to find all traces in the case of coordination
         # for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
         #     trace_NP_parent[0] = trace_NP_parent[0][1]
+
+        if w:
+            index = get_trace_index_from_tag(w.tag)
+        else:
+            index = ''
             
-        trace_NP, context = get_first(node, r'*=PP < { *=P < { /NP-SBJ/=T < ^/\*T\*/ $ *=S } }', with_context=True)
-        pp, p, t, s = (context[n] for n in "PP P T S".split())
-            
-        self.fix_object_gap(pp, p, t, s)
-        self.fix_categories_starting_from(s, until=node)
-        
-        if not self.relabel_relativiser(node):
-            # TOP is the shrunk VP
-            # after shrinking, we can get VV or VA here
-            top, context = get_first(node, r'/([ICV]P|V[VA])/=TOP $ *=SS', with_context=True)
-            ss = context["SS"]
-            
-            debug("Creating null relativiser unary category: %s", ss.category/ss.category)
-            replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
-        
-    def fix_nongap_extraction(self, node):
-        debug("Fixing nongap extraction: %s", lrp_repr(node))
+        expr = r'*=PP < { *=P < { /NP-SBJ/=T << ^/\*T\*%s/ $ *=S } }' % index
+
+        for trace_NP, context in find_all(node, expr, with_context=True):
+            pp, p, t, s = (context[n] for n in "PP P T S".split())
+
+            self.fix_object_gap(pp, p, t, s)
+            self.fix_categories_starting_from(s, until=node)
+
+            if not self.relabel_relativiser(node):
+                # TOP is the shrunk VP
+                # after shrinking, we can get VV or VA here
+                top, context = get_first(node, r'/([ICV]P|V[VA])/=TOP $ *=SS', with_context=True)
+                ss = context["SS"]
+
+                debug("Creating null relativiser unary category: %s", ss.category/ss.category)
+                replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+
+        debug(pprint(node))
+
+    #@echo
+    def fix_nongap_extraction(self, _, n, k):
+        node = n
+        debug("Fixing nongap extraction: %s", pprint(node))
+        debug("k %s", pprint(k))
         self.remove_null_element(node)
-        
+
+        index = get_trace_index_from_tag(k.tag)
+        expr = r'*=PP < { *=P < { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?%s/=T << ^/\*T\*/ $ *=S } }' % index
+
         # we use "<<" in the expression, because fix_*_topicalisation comes
         # before fix_nongap_extraction, and this can introduce an extra layer between
         # the phrasal tag and the trace
-        trace_NP, context = get_first(node, 
-            r'*=PP < { *=P < { /[NP]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?/=T << ^/\*T\*/ $ *=S } }', with_context=True)
-        pp, p, t, s = (context[n] for n in "PP P T S".split())
-        
-        # remove T from P
-        # replace P with S
-        self.fix_object_gap(pp, p, t, s)
-        
-        if not self.relabel_relativiser(node):
-            top, context = get_first(node, r'/[IC]P/=TOP $ *=SS', with_context=True)
-            ss = context["SS"]
-            
-            debug("Creating null relativiser unary category: %s", ss.category/ss.category)
-            replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
-            
+        for trace_NP, context in find_all(node, expr, with_context=True):
+            pp, p, t, s = (context[n] for n in "PP P T S".split())
+
+            # remove T from P
+            # replace P with S
+            self.fix_object_gap(pp, p, t, s)
+
+            if not self.relabel_relativiser(node):
+                top, context = get_first(node, r'/[ICV]P/=TOP $ *=SS', with_context=True)
+                ss = context["SS"]
+
+                debug("Creating null relativiser unary category: %s", ss.category/ss.category)
+                replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+
     def fix_ip_app(self, p, a, s):
         debug("Fixing IP-APP NX: %s", lrp_repr(p))
-        new_kid = copy.copy(a)
+        new_kid = copy(a)
         new_kid.tag = base_tag(new_kid.tag) # relabel to stop infinite matching
         replace_kid(p, a, Node(s.category/s.category, "NN", [new_kid]))
-        
-    #@echo
-    def fix_object_extraction(self, node, **vars):
+
+    def fix_object_extraction(self, _, n, w=None, reduced=False):
+        node = n
         debug("Fixing object extraction: %s", lrp_repr(node))
-        self.remove_null_element(node)
+        if not reduced:
+            self.remove_null_element(node)
         
-        # FIXME: this matches only once (because it's TOP being matched, not T)
-        trace_NP, context = get_first(node, 
-            r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T < ^/\*T\*/ $ *=S } } } $ *=SS', with_context=True)
-    
-        top, pp, p, t, s, ss = (context[n] for n in "TOP PP P T S SS".split())
-    
-        self.fix_object_gap(pp, p, t, s)
-    
-        self.fix_categories_starting_from(s, until=top)
-        
-        # If we couldn't find the DEC node, this is the null relativiser case
-        if not self.relabel_relativiser(node):
-            # TOP is the S node
-            debug("Creating null relativiser unary category: %s", ss.category/ss.category)
-            replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+        if w:
+            index = get_trace_index_from_tag(w.tag)
+        else:
+            index = ''
             
-    def relabel_bei_category(self, top):
-        bei, context = get_first(top, r'/LB/=BEI $ *=S', with_context=True)
+        expr = r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T << ^/\*T\*%s/ $ *=S } } }' % index
+
+        for trace_NP, context in find_all(node, expr, with_context=True):
+            top, pp, p, t, s = (context[n] for n in "TOP PP P T S".split())
+
+            self.fix_object_gap(pp, p, t, s)
+
+            self.fix_categories_starting_from(s, until=top)
+
+            # If we couldn't find the DEC node, this is the null relativiser case
+            if not self.relabel_relativiser(node):
+                # TOP is the S node
+                # null relativiser category comes from sibling of TOP
+                # if TOP has no sibling, then we're likely inside a NP-PRD < CP reduced relative (cf 1:2(9))
+                result = get_first(top, r'* $ *=SS', with_context=True, nonrecursive=True)
+                if result:
+                    _, ctx = result; ss = ctx['SS']
+                    debug("Creating null relativiser unary category: %s", ss.category/ss.category)
+                    replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+
+    def relabel_bei_category(self, top, pred):
+        bei, context = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
         s = context['S']
-        
+        bei = context['BEI']
+
         bei.category = bei.category.clone_with(right=s.category)
-            
-    def fix_long_bei_gap(self, node, top, bei):
-        debug("Fixing long bei gap: %s", lrp_repr(node))
-        self.remove_null_element(node)
+        bei.category.left._right = pred.category
         
+        bei.parent.category = bei.category.left
+        
+        debug("new bei category: %s", bei.category)
+        return bei
+
+    def fix_reduced_long_bei_gap(self, node, *args, **kwargs):
+        debug("Fixing reduced long bei gap: %s", lrp_repr(node))
+
+        kwargs.update(reduced=True)
+        return self.fix_long_bei_gap(node, *args, **kwargs)
+        
+    def fix_reduced(self, f):
+        def _f(node, *args, **kwargs):
+            kwargs.update(reduced=True)
+            debug('\n'.join("%s: %s"%(k,v) for k, v in kwargs.iteritems()))
+            return f(node, *args, **kwargs)
+        return _f
+
+    def fix_long_bei_gap(self, node, bei, pred, top, n=None, reduced=False):
+        debug("Fixing long bei gap: %s", lrp_repr(node))
+
+        if not reduced:
+            self.remove_null_element(top)
+            
+        if n:
+            index = get_trace_index_from_tag(n.tag)
+        else:
+            index = r'\*'
+
         # FIXME: this matches only once (because it's TOP being matched, not T)
-        trace_NP, context = get_first(node, 
-            r'*=PP < { *=P < { /NP-(?:TPC|OBJ)/=T < ^/\*T\*/ $ *=S } }', with_context=True)
-    
+        # \*(?!T) to avoid matching *T* traces
+        expr = r'*=PP < { *=P < { /NP-(?:TPC|OBJ)/=T < ^/%s/a $ *=S } }' % index
+        trace_NP, context = get_first(top, expr, with_context=True)
+
         pp, p, t, s = (context[n] for n in "PP P T S".split())
         # remove T from P
         # replace P with S
         self.fix_object_gap(pp, p, t, s)
 
         self.fix_categories_starting_from(s, until=top)
-                
-        self.relabel_bei_category(top)
-            
+        self.relabel_bei_category(top, pred)
+        
+        top.category = top[0].category.left
+
+        debug("done %s", pprint(top))
+
     def fix_ba_object_gap(self, node, top, c):
         debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
-        
+
         for trace_NP, context in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
             debug("Found %s", trace_NP)
             pp, p, t, s = (context[n] for n in "PP P T S".split())
-            
+
             self.fix_object_gap(pp, p, t, s)
             self.fix_categories_starting_from(s, until=c)
-        
+
     @staticmethod
     def fix_object_gap(pp, p, t, s):
-        debug("pp:%s\npp:%s\nt:%s\ns:%s", *map(pprint, (pp,p,t,s)))
+        '''Given a trace _t_, its sibling _s_, its parent _p_ and its grandparent _pp_, replaces _p_ with its sibling.'''
+#        debug("pp:%s\npp:%s\nt:%s\ns:%s", *map(pprint, (pp,p,t,s)))
         p.kids.remove(t)
         replace_kid(pp, p, s)
-        
+
     def fix_topicalisation_with_gap(self, node, p, s, t):
         debug("Fixing topicalisation with gap:\nnode=%s\ns=%s", lrp_repr(node), pprint(s))
 
@@ -365,23 +464,42 @@ class FixExtraction(Fix):
         typeraise_t_category = ptb_to_cat(t)
         # insert a node with the topicalised category
         replace_kid(p, t, Node(
-            self.typeraise(S, typeraise_t_category, self.TOPICALISATION), 
-            self.strip_tag(t.tag), 
+            typeraise(typeraise_t_category, S, TOPICALISATION),
+            self.strip_tag(t.tag),
             [t]))
-        
-        top, ctx = get_first(s, r'/IP/=TOP << { *=PP < { *=P < { /[NIC]P-(?:SBJ|OBJ)/=T < ^/\*T\*/ $ *=S } } }', with_context=True)
-        self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
-        
-        self.fix_categories_starting_from(ctx['S'], until=top)
-        
-    def fix_topicalisation_without_gap(self, node, p, s, t):
-        debug("Fixing topicalisation without gap: %s", lrp_repr(node))
 
-        new_kid = copy.copy(t)
+        index = get_trace_index_from_tag(t.tag)
+
+        # attested gaps:
+        # 575 IP-TPC:t
+        # 134 NP-TPC:t
+        #  10 IP-Q-TPC:t
+        #   8 CP-TPC:t
+        #   4 NP-PN-TPC:t
+        #   2 QP-TPC:t
+        #   2 NP-TTL-TPC:t
+        #   1 PP-TPC:t
+        #   1 IP-IJ-TPC:t
+        #   1 INTJ-TPC:t
+        #   1 CP-Q-TPC:t
+        #   1 CP-CND-TPC:t
+        expr = r'/IP/=TOP << { *=PP < { *=P < { /[NICQP]P-(?:SBJ|OBJ)/=T < ^/\*T\*%s/ $ *=S } } }' % index
+
+        for top, ctx in find_all(s, expr, with_context=True):
+            self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
+
+            self.fix_categories_starting_from(ctx['S'], until=top)
+
+    def fix_topicalisation_without_gap(self, node, p, s, t):
+        debug("Fixing topicalisation without gap: %s", pprint(node))
+
+        new_kid = copy(t)
         new_kid.tag = self.strip_tag(new_kid.tag)
-        
-        replace_kid(p, t, Node(S/S, t.tag, [new_kid]))
-        
+
+#        new_category = s.category/s.category
+        new_category = S/S
+        replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
+
     def fix_prodrop(self, node, pp, p):
         #      X=PP
         #      |
@@ -389,7 +507,7 @@ class FixExtraction(Fix):
         #      |
         #    -NONE- '*pro*'
         pp.kids.remove(p)
-        
+
         # this step happens after fix_rc, and object extraction with subject pro-drop can
         # lead to a pro-dropped node like:
         #        X
@@ -403,21 +521,21 @@ class FixExtraction(Fix):
         if (not pp.kids) and pp.parent:
             ppp = pp.parent
             ppp.kids.remove(pp)
-            
+
     @staticmethod
     def strip_tag(tag):
         return re.sub(r':.+$', '', tag)
-            
+
     def fix_modification(self, node, p, s, t):
         debug("Fixing modification: %s", lrp_repr(node))
         S, P = s.category, p.category
 
         # If you don't strip the tag :m from the newly created child (new_kid),
         # the fix_modification pattern will match infinitely when tgrep visits new_kid
-        new_kid = copy.copy(t)
+        new_kid = copy(t)
         new_kid.tag = self.strip_tag(new_kid.tag)
-        
+
         new_category = featureless(P) / featureless(S)
         debug("Creating category %s", new_category)
         replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
-        
+

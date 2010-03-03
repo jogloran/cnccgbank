@@ -1,6 +1,6 @@
 from munge.trees.traverse import nodes
 from munge.util.deco_utils import cast_to
-from munge.trees.traverse import get_index_of_leaf, get_leaf, leaves
+from munge.trees.traverse import get_index_of_leaf, get_leaf, leaves, ancestors
 from itertools import islice
 
 def IsParentOf(candidate, node, context):
@@ -21,6 +21,7 @@ def IsChildOf(candidate, node, context):
 def IsDominatedBy(candidate, node, context):
     if node.parent is None: return False
 #    return any(internal_node.is_satisfied_by(candidate, context) for internal_node in nodes(node))
+    return any(candidate.is_satisfied_by(ancestor, context) for ancestor in ancestors(node))
     
 def get_root(node):
     while node.parent: node = node.parent

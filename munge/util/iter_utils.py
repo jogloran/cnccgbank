@@ -26,3 +26,14 @@ predicate.'''
 def take(seq, n):
     '''Returns the first _n_ elements from the given sequence.'''
     return islice(seq, 0, n)
+
+def seqify(e):
+    '''If _e_ is a sequence, returns an iterator over _e_. Otherwise, returns a single-element
+iterator yielding _e_.'''
+    if isinstance(e, (list, tuple)):
+        for el in e: yield el
+    else:
+        yield e
+        
+def single(e):
+    yield e

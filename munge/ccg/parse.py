@@ -1,5 +1,5 @@
 from munge.lex.lex import preserving_split
-from munge.cats.parse import parse_category
+from munge.cats.headed.parse import parse_category
 from munge.util.exceptions import CCGbankParseException
 from munge.util.parse_utils import with_parens, shift_and_check, ensure_stream_exhausted
 from nodes import Node, Leaf

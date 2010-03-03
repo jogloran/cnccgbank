@@ -9,9 +9,9 @@ class TgrepException(Exception): pass
 
 import munge.proc.tgrep.parse as parse
 from munge.proc.tgrep.nodes import Context
-from munge.trees.traverse import nodes, leaves, tag_and_lex, tag_and_text_under
+from munge.trees.traverse import nodes, leaves, nodes_postorder, nodes_reversed, tag_and_lex, tag_and_text_under, lrp_repr
 import munge.trees.pprint as pp
-from munge.util.iter_utils import take
+from munge.util.iter_utils import take, single
 from munge.util.dict_utils import smash_key_case
 from munge.util.err_utils import debug
 
@@ -34,7 +34,7 @@ def initialise():
 # semantically identical expressions with trivial differences such as whitespace
 # will not be considered identical
 expression_cache = {}
-def tgrep(deriv, expression, with_context=False):
+def tgrep(deriv, expression, with_context=False, nonrecursive=False):
     '''Performs the given tgrep query on the given tree.'''
     if not expression: raise RuntimeError('No query expression given.')
 
@@ -53,9 +53,13 @@ def tgrep(deriv, expression, with_context=False):
         query = yacc.parse(expression)
         expression_cache[expression] = query
     
-    for node in nodes(deriv):
+    traversal_method = single if nonrecursive else nodes_reversed
+    for node in traversal_method(deriv):
+#        debug("evaluating %s against %s", expression, node)
+            
         context = Context()
         if query.is_satisfied_by(node, context):
+            debug("%s matched %s", lrp_repr(node), query)
             if with_context:
                 yield node, context
             else: yield node
@@ -129,8 +133,12 @@ class TgrepCore(Filter):
     def accept_derivation(self, derivation_bundle):
         matched = False
         
-        for match_node in self.match_generator(derivation_bundle.derivation, self.expression):
+        for match_node, context in self.match_generator(derivation_bundle.derivation, self.expression, with_context=True):
             self.match_callback(match_node, derivation_bundle)
+            # for var, node in context.iteritems():
+            #     print var
+            #     print "-" * 25
+            #     self.match_callback(node, derivation_bundle)
             if not matched: matched = True
             
         if matched:

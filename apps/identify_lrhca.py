@@ -5,6 +5,7 @@ from apps.cn.tag import last_nonpunct_kid
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
 from apps.util.config import config
+from munge.util.func_utils import satisfies_any
 
 # 
 def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
@@ -31,7 +32,7 @@ if config.restrictive_absorption:
     def is_left_absorption(node):
         return node[0].is_leaf() and node[0].tag == 'PU' and (
             (base_tag(node[1].tag) == base_tag(node.tag)) or
-            (has_verbal_tag(node[1]) and node.tag.startswith('VP')) or
+            (satisfies_any(has_verbal_tag, is_verb_compound)(node[1]) and node.tag.startswith('VP')) or
             (has_noun_tag(node[1]) and node.tag.startswith('NP')) or
             # 10:3(7)
             (node[1].tag.startswith('CP-Q') and node.tag.startswith('IP')) or
@@ -46,7 +47,9 @@ if config.restrictive_absorption:
             # 5:95(38)
             (node[1].tag.startswith('CP') and node.tag.startswith('IP')) or
             # 10:48(85)
-            (node[1].tag.startswith('IP') and node.tag.startswith('CP')))
+            (node[1].tag.startswith('IP') and node.tag.startswith('CP')) or
+            # 11:26(81), 11:13(131) buggy sentences were breaking tokenisation
+            (node[1].tag.startswith('NP') and (node.tag.startswith('PRN') or node.tag.startswith('FRAG'))) )
 else:
     def is_left_absorption(node):
         return node[0].is_leaf() and node[0].tag == "PU"
@@ -61,7 +64,7 @@ if config.restrictive_absorption:
             # HACK: special case, it seems VV PU -> VP is attested (31:42(2)),
             #       and VC PU -> VP (3:23(4)).
             # it seems we get NN PU -> NP as well (10:2(17))
-            ( (has_verbal_tag(node[0]) or is_verb_compound(node[0])) and node.tag.startswith('VP')) or
+            (satisfies_any(has_verbal_tag, is_verb_compound)(node[0]) and node.tag.startswith('VP')) or
             (has_noun_tag(node[0]) and node.tag.startswith('NP')) or
             # 8:38(22)
             (node[0].tag == 'P' and node.tag.startswith('PP')) or
@@ -74,6 +77,8 @@ if config.restrictive_absorption:
             # CP < IP PU (6:72(13))
             (node[0].tag.startswith("IP") and node.tag.startswith('CP')) or
             (node[0].tag.startswith('IP') and node.tag.startswith('NP')) or
+            # v this mess took me half an hour to debug (29:93(15))
+            (node[0].tag.startswith('PP') and node.tag.startswith('IP')) or
             # parentheticals
             (node.tag.startswith('PRN')))
 else:
@@ -145,7 +150,9 @@ def is_np_structure(node):
         kid.tag.startswith('DNP') or
         kid.tag.startswith('ADVP') or
         kid.tag.startswith('IP') or
-        kid.tag.startswith('JJ') or 
+        kid.tag.startswith('JJ') or # JJ is in here because ADJP < JJ may have been shrunk already
+        kid.tag.startswith('LCP') or
+        kid.tag.startswith('PP') or
         kid.tag == "PU" or
         kid.tag.startswith('NP') for kid in node)
     
@@ -162,7 +169,7 @@ def is_topicalisation_without_gap(node):
     return node[0].tag.endswith(':T')
     
 def is_etc(node):
-    return node[1].tag.endswith(':&')
+    return node.count() > 1 and node[1].tag.endswith(':&')
     
 def is_prn(node):
     return node.tag.endswith(':p')

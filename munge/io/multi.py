@@ -1,7 +1,7 @@
 import os, re
 from glob import glob
 from munge.io.guess import GuessReader
-from munge.util.err_utils import warn, info
+from munge.util.err_utils import warn, info, err
 
 class MultiGuessReader(object):
     '''A read-only reader which iterates over an entire PTB-structured corpus (one whose directory
@@ -61,7 +61,7 @@ class DirFileGuessReader(object):
             else:
                 reader = GuessReader(path)
         else:
-            warn("%s is neither a file nor a directory, so skipping.", path)
+            err("%s is neither a file nor a directory, so skipping.", path)
 
         for deriv_bundle in reader:
             yield deriv_bundle

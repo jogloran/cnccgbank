@@ -70,7 +70,9 @@ def make_graph(deriv):
 def write_graph(deriv, fn):
     '''Writes the DOT representation to a file.'''
     with open(fn, 'w') as f:
-        f.write(make_graph(deriv))
+        t = unicode(make_graph(deriv), 'utf-8')
+#        u = t.decode('utf-8')
+        f.write(t.encode('utf-8'))
 
 def write_png(deriv, fn):
     return write_dot_format(deriv, fn, "png")

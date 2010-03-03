@@ -56,14 +56,26 @@ def label_np_internal_structure(node, inherit_tag=False):
     
 #@echo
 def label_coordination(node, inside_np_internal_structure=False):
-    def label_nonconjunctions(kid):
-        if kid.tag not in ('CC', 'PU'): 
-            return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
-        else: return kid
-    
-    kids = map(label_nonconjunctions, node.kids)
-    return label_adjunction(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
+    if (node.kids[-1].tag.endswith(':&') 
+        # prevent movement when we have an NP with only two children NN ETC
+        and node.count() > 2):
 
+        etc = node.kids.pop()
+        kid_tag = strip_tag_if(not inherit_tag, node.tag)
+
+        old_tag = node.tag
+        node.tag = kid_tag
+
+        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
+    else:
+        def label_nonconjunctions(kid):
+            if kid.tag not in ('CC', 'PU'): 
+                return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
+            else: return kid
+
+        kids = map(label_nonconjunctions, node.kids)
+        return label_adjunction(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
+    
 #@echo
 def label_head_initial(node, inherit_tag=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
@@ -138,11 +150,6 @@ def label_root(node):
         
     return result
     
-def inherit_tag(node, other):
-    '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
-    if node.tag.find(":") == -1 and other.tag.find(":") != -1:
-        node.tag += other.tag[other.tag.find(":"):]
-    
 #@echo
 def label_node(node, inside_np_internal_structure=False, do_shrink=True):
     if node.is_leaf(): return node
@@ -174,6 +181,8 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith('CP') and node.kids[0].tag.startswith('IP')) or
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
             (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
+            # the below is to fix a tagging error in 10:49(69)
+            (node.tag.startswith('PRN') and node.count() == 1 and node.kids[0].tag == 'PU') or
             (node.tag.startswith('FLR')) or (node.tag.startswith('FW')))):
 
             replacement = node.kids[0]
@@ -200,6 +209,8 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
         return label_predication(node)
     elif is_prn(node):
         return label_head_final(node)
+    # elif is_apposition(node):
+    #     return label_adjunction(node)
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):

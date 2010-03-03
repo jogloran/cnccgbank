@@ -43,7 +43,7 @@ class AtomicCategory(Featured):
     def __hash__(self):
         return hash(repr(self))
 
-    def __repr__(self, first=True, show_modes=ShowModes):
+    def __repr__(self, first=True, show_modes=ShowModes, **kwargs):
         '''A (non-evaluable) representation of this category. Ignores both its arguments
         so it can be treated uniformly with ComplexCategory.'''
         return self.cat + self.feature_repr()
@@ -132,18 +132,18 @@ class ComplexCategory(Featured):
     def right(self):
         return self._right
 
-    def __repr__(self, first=True, show_modes=ShowModes):
+    def __repr__(self, first=True, show_modes=ShowModes, **kwargs):
         '''A (non-evaluable) representation of this category.'''
         # ensure that we display (X/Y)[f] and not X/Y[f]
         if self.features: first = False
         
         return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
             'open': "" if first else "(",
-            'lch': self._left.__repr__(False, show_modes),
+            'lch': self._left.__repr__(first=False, show_modes=show_modes),
             'slash': self.slash,
           #  'label': self.label if self.is_labelled() else "",
             'mode': ComplexCategory.get_mode_symbol(self.mode) if show_modes else "",
-            'rch': self._right.__repr__(False, show_modes),
+            'rch': self._right.__repr__(first=False, show_modes=show_modes),
             'close': "" if first else ")",
             'feats': self.feature_repr()
         }
