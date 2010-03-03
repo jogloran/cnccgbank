@@ -152,6 +152,7 @@ def is_np_structure(node):
         kid.tag.startswith('IP') or
         kid.tag.startswith('JJ') or # JJ is in here because ADJP < JJ may have been shrunk already
         kid.tag.startswith('LCP') or
+        kid.tag.startswith('CLP') or # 0:57(12) reduced M
         kid.tag.startswith('PP') or
         kid.tag == "PU" or
         kid.tag.startswith('NP') for kid in node)
