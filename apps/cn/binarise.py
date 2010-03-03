@@ -165,7 +165,8 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
                 and (has_verbal_tag(node.kids[0]) 
                  or any(node.kids[0].tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))
                  or node.kids[0].tag.startswith("AD")
-                 or node.kids[0].tag.startswith(cand) for cand in ('PP-PRD', 'QP-PRD', 'LCP-PRD'))) or
+                 or any(node.kids[0].tag.startswith(cand) for cand in ('PP-PRD', 'QP-PRD', 'LCP-PRD'))
+            ) ) or
             # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
             (node.tag.startswith('NP-TMP') and node.kids[0].tag.startswith('NT')) or
             (node.tag.startswith("ADJP") and 
