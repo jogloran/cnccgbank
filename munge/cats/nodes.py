@@ -1,12 +1,13 @@
 from copy import copy, deepcopy
 from munge.util.exceptions import CatParseException
+from apps.util.config import config
 
 import re
 
 BACKWARD, FORWARD = range(2)
 APPLY, ALL, COMP, NULL = range(4)
 
-ShowModes = False
+ShowModes = config.use_modes
 
 class Featured(object):
     def __init__(self, features=None):

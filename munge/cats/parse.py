@@ -7,13 +7,18 @@ from munge.util.exceptions import CatParseException
 
 from munge.util.deco_utils import memoised
 
+from apps.util.config import config
+
 DefaultMode = ALL
 
 @memoised
 def parse_category(cat_string):
     # Return each mode symbol as a token too when encountered.
     # Important: avoid using mode symbols in atomic category labels.
-    toks = preserving_split(cat_string, "(\\/)[]")# + ComplexCategory.mode_symbols)
+    split_chars = "(\\/)[]"
+    if config.use_modes: split_chars += ComplexCategory.mode_symbols
+    
+    toks = preserving_split(cat_string, split_chars)
 
     result = parse_compound(toks)
     ensure_stream_exhausted(toks, 'cats.parse_category')

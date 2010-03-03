@@ -1,6 +1,6 @@
 from __future__ import with_statement
 from collections import defaultdict
-from itertools import izip, count
+from itertools import izip, count, imap
 import re, os
 
 from munge.proc.filter import Filter
@@ -32,14 +32,21 @@ class Subst(DerivationOutput, Filter):
         Filter.__init__(self)
         DerivationOutput.__init__(self)
         
-        self.substs = substs
+        self.substs = self.parse_substs_file(substs)
         self.output_dir = output_dir
+        
+    def parse_substs_file(self, substs_file):
+        substs = {}
+        for k, v in imap(lambda line: re.sub(r'#.+$', '', line.rstrip()).split(), open(substs_file, 'r').xreadlines()):
+            substs[k] = v
+        return substs
         
     def accept_leaf(self, leaf):
         cat_string_without_modes = leaf.cat.__repr__(show_modes=False) # Hide modes
+
         if cat_string_without_modes in self.substs:
             debug("Substituting %s with %s", cat_string_without_modes, self.substs[cat_string_without_modes])
-            leaf.cat = self.substs[cat_string_without_modes]
+            leaf.cat = parse_category(self.substs[cat_string_without_modes])
     
     def accept_derivation(self, deriv):
         percolate(deriv.derivation)
