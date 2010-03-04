@@ -439,7 +439,6 @@ def label(node, inside_np=False):
             
     elif is_partial_coordination(node):
         return label_partial_coordination(node)
-        
     elif is_coordination(node):
         return label_coordination(node)
     

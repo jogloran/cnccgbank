@@ -279,12 +279,10 @@ def label(root):
                     tag(kid, 'C')
                     
         elif is_coordination(node): # coordination
-            # detecting RNR
             for kid in node:
                 if kid.tag == "ETC":
                     tag(kid, '&')
-                # a previous revision stopped ADVP from being assigned :c "to stop misanalysis of 1:4(11)"
-                # but it seems to work now
+
                 if kid.tag not in ('CC', 'PU'):
                     tag(kid, 'c')
 

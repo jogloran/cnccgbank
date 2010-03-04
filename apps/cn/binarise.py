@@ -38,6 +38,12 @@ def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np
     cur.tag = node.tag
     return cur
     
+def label_apposition(node, inherit_tag=False):
+    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+    
+    first, rest = node.kids.pop(0), node.kids
+    return Node(kid_tag, [label_node(first), label_node(node)])
+    
 #@echo
 def label_np_internal_structure(node, inherit_tag=False):
     if (node.kids[-1].tag.endswith(':&') 
@@ -216,7 +222,7 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
     elif is_prn(node):
         return label_head_final(node)
     elif is_apposition(node):
-        return label_adjunction(node)
+        return label_apposition(node)
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
