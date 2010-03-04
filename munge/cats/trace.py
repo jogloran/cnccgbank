@@ -27,7 +27,8 @@ def try_unary_rules(l, r, cur):
     if config.cn_rules:
         if cur == SfNP and l == SbNPfNP: return "subject_prodrop"
         if cur == SfS and l == N or l == NP: return "nongap_topicalisation"
-        if cur == SfSfNP and l == NP: return "gap_topicalisation"
+        if cur == SfSfS and l == Sdcl: return "s_gap_topicalisation"
+        if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
         if cur == NP and l == NPfNP: return "de_nominalisation"
         if cur == NfN and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
 
