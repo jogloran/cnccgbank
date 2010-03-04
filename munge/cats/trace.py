@@ -63,7 +63,11 @@ def rooted_in_Sdcl(cat):
 def try_binary_rules(l, r, cur):
     if not config.cn_rules: return False
     
-    if l == NP and r == NP and cur == NP: return "bare_apposition"
+    if r == NP and cur == NP: 
+        if   l == NP:   return 'np_np_apposition'
+        elif l == S:    return 's_np_apposition'
+        elif l == SbNP: return 'vp_np_apposition'
+    
     if rooted_in_Sdcl(l) and l == r and r == cur: return "vcd_compound"
 
 def allows_application(mode_index):
