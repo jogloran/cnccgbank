@@ -59,7 +59,7 @@ def tgrep(deriv, expression, with_context=False, nonrecursive=False):
             
         context = Context()
         if query.is_satisfied_by(node, context):
-            debug("%s matched %s", lrp_repr(node), query)
+            if _tgrep_debug: debug("%s matched %s", lrp_repr(node), query)
             if with_context:
                 yield node, context
             else: yield node

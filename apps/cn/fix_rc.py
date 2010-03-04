@@ -212,7 +212,9 @@ class FixExtraction(Fix):
 
                 # conj R -> P
                 # Make P into R[conj]
-                if str(L) in ('conj', 'LCM', ','):
+                # L cannot be the comma category (,), otherwise we get a mis-analysis
+                # in 2:22(5)
+                if str(L) in ('conj', 'LCM'):
                     p.category = R.clone_adding_feature('conj')
                     debug("New category: %s", p.category)
 

@@ -142,6 +142,9 @@ else:
     def tag_if_topicalisation(node):
         if node.tag.find('-TPC-') != -1: tag(node, 't')
         elif node.tag.find('-TPC') != -1: tag(node, 'T')
+        
+def is_right_absorption(node):
+    return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
 
 from munge.util.tgrep_utils import get_first
 from munge.penn.nodes import Node
@@ -166,6 +169,9 @@ def label(root):
         # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
         elif node.tag.startswith('VP') and node.count() >= 2 and node[0].tag == 'VV' and node[-1].tag == 'NP':
             node[-1].tag += "-OBJ"
+        # fix bad annotation IP < IP (2:7(28))
+        elif node.tag.startswith('IP') and node.count() == 1 and node[0].tag == 'IP' and not node[0].is_leaf():
+            node.kids[0] = node[0][0]
         # ---------------------------
         
         # Reshape LB (long bei)
@@ -200,6 +206,10 @@ def label(root):
             node.tag = first_kid.tag
             tag(node, 'p')
             tag(node[0], 'h') # assume that the first PU introduces the PRN
+            
+        # occasionally something that looks like CCG right absorption occurs in the original annotation (0:23(8))
+        elif is_right_absorption(node):
+            pass
 
         elif is_predication(node):
             for kid in node:
