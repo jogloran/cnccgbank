@@ -18,7 +18,7 @@ RightAbsorbedPunctuationCats = ", . '' : ; LRB RRB".split()
 ConjPunctuationCats = ", ; :".split()
 
 if config.cn_puncts:
-    LeftAbsorbedPunctuationCats += "LCM LPA LQU LSQ LTL RTL LCD LCS RCS DSH SLS".split()
+    LeftAbsorbedPunctuationCats += "LCM LPA LQU RQU LSQ LTL RTL LCD LCS RCS DSH SLS ? !".split()
     RightAbsorbedPunctuationCats += "LCM RPA RQU RSQ RTL RCD RCS DSH SLS ? !".split()
     ConjPunctuationCats.append("LCM")
 
