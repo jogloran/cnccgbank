@@ -26,7 +26,10 @@ SbNP, SfNP, NPbNP, NPfNP, NbN, NfN, SbNPbSbNP, \
 SbS, SfS, SbNPfSbNP, conj = [parse_category(cat) for cat in
                         '''S\\NP S/NP NP\\NP NP/NP N\\N N/N (S\\NP)\\(S\\NP)
                            S\\S  S/S (S\\NP)/(S\\NP) conj'''.split()]
-SfSfNP = parse_category(r'S/(S/NP)')
+                           
+# Chinese topicalised cats
+SfSfNP, SfSfS = parse_category(r'S/(S/NP)'), parse_category(r'S/(S/S)')
+
 SbNPfNP = parse_category(r'(S\NP)/NP')
 Sq, Sdcl = parse_category('S[q]'), parse_category('S[dcl]')
 SadjbNP = parse_category(r'S[adj]\NP')
