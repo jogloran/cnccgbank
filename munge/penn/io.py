@@ -38,7 +38,8 @@ class PTBReader(SingleReader):
     def derivation_with_index(self, filename, index=None):
         with open(filename, 'r') as file:
             if index:
-                return self.parse_file(''.join(nth_occurrence(file.xreadlines(),
+                return self.parse_file(''.join(
+                       nth_occurrence(file.xreadlines(),
                                       N=index, 
                                       when=lambda line: re.match(r"^\(", line),
                                       until=lambda line: re.match(r"^\(", line))))
