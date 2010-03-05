@@ -1,5 +1,7 @@
 from itertools import izip, count
 from munge.penn.parse import parse_tree, PennParser
+from munge.io.single import SingleReader
+from munge.util.str_utils import nth_occurrence
 import os, re
 
 # Represents a derivation bundle in the Chinese Penn Treebank. This consists of a standard Penn 
@@ -47,17 +49,27 @@ class SGMLBag(SGMLParser):
     def __getitem__(self, key):
         return self.fields.get(key, None)
     
-class CPTBReader(object):
+class CPTBReader(SingleReader):
     '''An iterator over a CPTB document yielding derivation bundles.'''
     def __init__(self, filename):
-        self.filename = filename
-
+        SingleReader.__init__(self, filename)
+                
+        self.sec_no, self.doc_no = self.determine_sec_and_doc()
+        
+    def derivation_with_index(self, filename, i=None):
         self.contents = SGMLBag()
         with open(filename, 'r') as file:
-            self.contents.feed(file.read())
-        
-        self.derivs = parse_tree('\n'.join(self.contents['s']), PennParser)
-        self.sec_no, self.doc_no = self.determine_sec_and_doc()
+            if i:
+                text = ''.join(nth_occurrence(file.xreadlines(),
+                                      N=i,
+                                      when=lambda line: re.match(r'^<S', line),
+                                      until=lambda line: re.match(r'^</S', line)))
+            else:
+                text = file.read()
+                
+            self.contents.feed(text)
+    
+        return parse_tree('\n'.join(self.contents['s']), PennParser)
         
     def determine_sec_and_doc(self):
         ctb_value = self.contents['ctbid']
@@ -80,7 +92,7 @@ class CPTBReader(object):
         
     def __iter__(self):
         for deriv, der_no in izip(self.derivs, count(1)):
-            yield Derivation(self.sec_no, self.doc_no, der_no, deriv)
+            yield Derivation(self.sec_no, self.doc_no, self.index or der_no, deriv)
             
 if __name__ == '__main__':
     from munge.trees.traverse import *

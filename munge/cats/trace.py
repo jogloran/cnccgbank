@@ -26,6 +26,8 @@ def try_unary_rules(l, r, cur):
         
     if config.cn_rules:
         if cur == SfNP and l == SbNPfNP: return "subject_prodrop"
+        # [ta] yi qu VP(jiu bu hui lai)
+        if cur == SfS and l == C(r'(S/S)\NP'): return "yi_subject_prodrop"
         if cur == SfS and l == N or l == NP: return "nongap_topicalisation"
         if cur == SfSfS and l == Sdcl: return "s_gap_topicalisation"
         if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
@@ -64,11 +66,15 @@ def rooted_in_Sdcl(cat):
 def try_binary_rules(l, r, cur):
     if not config.cn_rules: return False
     
-    if r == NP and cur == NP: 
-        if   l == NP:   return 'np_np_apposition'
-        elif l == S:    return 's_np_apposition'
-        elif l == SbNP: return 'vp_np_apposition'
+    if r == NP:
+        if cur == NP: 
+            if   l == NP:   return 'np_np_apposition' # NP   NP -> NP
+            elif l == S:    return 's_np_apposition'  # S    NP -> NP
+            elif l == SbNP: return 'vp_np_apposition' # S\NP NP -> NP
     
+        elif cur == NfN:
+            if l == NP:     return 'np_np_apposition' # NP   NP -> N/N
+            
     if rooted_in_Sdcl(l) and l == r and r == cur: return "vcd_compound"
 
 def allows_application(mode_index):

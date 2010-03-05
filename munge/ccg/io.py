@@ -1,8 +1,9 @@
 import re
-from itertools import imap, count, izip
+from itertools import imap, count, izip, islice
 
 from munge.util.exceptions import CCGbankParseException
 from munge.ccg.parse import parse_tree
+from munge.io.single import SingleReader
 
 class Derivation(object):
     '''Represents a single derivation inside a CCGbank document.'''
@@ -39,19 +40,19 @@ class Derivation(object):
 
         raise CCGbankParseException, "Malformed CCGbank header: %s" % header
 
-class CCGbankReader(object):
+class CCGbankReader(SingleReader):
     '''An iterator over each derivation in a CCGbank document.'''
     def __init__(self, filename):
-        # if isinstance(filename, basestring):
-        #     self.filename = filename
-        #     self.file = open(filename, 'r')
-        # else: # is file-like? TODO: this is really awful
-        #     self.filename = str(filename)
-        #     self.file = filename
+        SingleReader.__init__(self, filename)
         
-        # lazy I/O
+    def derivation_with_index(self, filename, index=None):
         self.file = open(filename, 'r')
-        self.lines = imap(lambda line: line.rstrip(), self.file.xreadlines())
+        
+        base = imap(lambda line: line.rstrip(), self.file.xreadlines())
+        if index:
+            return islice(base, 2*index - 2, 2*index)
+        else:
+            return base
                           
     def __getitem__(self, index):
         '''Index-based retrieval of a derivation.'''
@@ -64,7 +65,7 @@ class CCGbankReader(object):
         '''Yields an iterator over this document.'''
         while True:
             try:
-                header, deriv_string = self.lines.next(), self.lines.next()
+                header, deriv_string = self.derivs.next(), self.derivs.next()
             except StopIteration:
                 self.file.close()
                 raise

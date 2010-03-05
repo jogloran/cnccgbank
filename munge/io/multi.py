@@ -34,6 +34,7 @@ modification of derivations, nor corpus output.'''
     def __str__(self):
         raise NotImplementedError("Cannot directly generate treebank with PTBCorpusReader.")
 
+from munge.util.str_utils import padded_rsplit
 class DirFileGuessReader(object):
     '''Reader allowing the uniform treatment of directories and files.'''
     def __init__(self, path, verbose=True, reader_class=None):
@@ -42,7 +43,7 @@ class DirFileGuessReader(object):
         self.reader_class = reader_class
 
     def __iter__(self):
-        path = self.path
+        path, index = padded_rsplit(self.path, ':', 1)
 
         if not os.path.exists(path):
             # TODO: This doesn't skip the current file (can we do that from inside the iterator?)
@@ -57,9 +58,9 @@ class DirFileGuessReader(object):
             reader = MultiGuessReader(path, verbose=self.verbose, **reader_arg)
         elif os.path.isfile(path):
             if self.reader_class:
-                reader = self.reader_class(path)
+                reader = self.reader_class(self.path)
             else:
-                reader = GuessReader(path)
+                reader = GuessReader(self.path)
         else:
             err("%s is neither a file nor a directory, so skipping.", path)
 

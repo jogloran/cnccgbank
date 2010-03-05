@@ -3,6 +3,7 @@ from munge.io.guess_cptb import CPTBGuesser
 from munge.io.guess_ccgbank import CCGbankGuesser
 
 from munge.util.err_utils import warn
+from munge.util.str_utils import padded_rsplit
 
 class GuessReader(object):
     '''A reader which attempts to automatically guess the treebank
@@ -11,13 +12,17 @@ type based on the first bytes of the document (the context).'''
         '''Initialises a GuessReader with a given set of guessers.'''
         self.guessers = list(guessers)
         self.default = default
+        
+        filename_only, index = padded_rsplit(filename, ':', 1)
 
-        with open(filename, 'r') as file:
+        with open(filename_only, 'r') as file:
             self.preview = (file
                     .read(max(guessers, key=lambda guesser: guesser.bytes_of_context_needed())
                     .bytes_of_context_needed()))
 
         self.reader_class = self.determine_reader(self.preview)
+        print self.reader_class
+        print filename
         self.reader = self.reader_class(filename)
         
     def determine_reader(self, preview):
