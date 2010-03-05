@@ -21,8 +21,6 @@ type based on the first bytes of the document (the context).'''
                     .bytes_of_context_needed()))
 
         self.reader_class = self.determine_reader(self.preview)
-        print self.reader_class
-        print filename
         self.reader = self.reader_class(filename)
         
     def determine_reader(self, preview):

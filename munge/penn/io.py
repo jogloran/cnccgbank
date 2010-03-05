@@ -1,7 +1,7 @@
 import os
 import re
 
-from munge.penn.parse import parse_tree
+from munge.penn.parse import parse_tree, PennParser
 from munge.util.err_utils import warn
 from itertools import izip, count
 from munge.util.str_utils import padded_rsplit
@@ -36,14 +36,14 @@ class PTBReader(SingleReader):
         self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
         
     def derivation_with_index(self, filename, index=None):
-        if index:
-            with open(filename, 'r') as file:
+        with open(filename, 'r') as file:
+            if index:
                 return self.parse_file(''.join(nth_occurrence(file.xreadlines(),
                                       N=index, 
                                       when=lambda line: re.match(r"^\(", line),
                                       until=lambda line: re.match(r"^\(", line))))
-        else:
-            return self.parse_file(file.read())
+            else:
+                return self.parse_file(file.read())
         
     @staticmethod
     def parse_file(text):
