@@ -31,6 +31,9 @@ class DepTests(unittest.TestCase):
                         print "GOT\n---"
                         for depl, depr in sorted(deps):
                             print depl, depr
+                        print "DIFF\n----"
+                        print "false negatives: %s" % ' '.join('|'.join((u, v)) for u, v in list(set(gsdeps) - set(deps)))
+                        print "false positives: %s" % ' '.join('|'.join((u, v)) for u, v in list(set(deps) - set(gsdeps)))
                             
                         raise
         

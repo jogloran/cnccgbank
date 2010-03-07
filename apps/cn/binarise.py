@@ -6,6 +6,7 @@ from munge.penn.io import parse_tree
 from munge.penn.nodes import Leaf, Node
 from munge.trees.pprint import pprint
 from munge.proc.filter import Filter
+from munge.util.err_utils import debug
 
 from apps.identify_lrhca import *
 from apps.cn.output import OutputDerivation
@@ -40,9 +41,11 @@ def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np
     
 def label_apposition(node, inherit_tag=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
-    
-    first, rest = node.kids.pop(0), node.kids
-    return Node(kid_tag, [label_node(first), label_node(node)])
+
+    if node.count() > 2:
+        first, rest = node.kids.pop(0), node.kids
+        return Node(kid_tag, [label_node(first), label_node(node)])
+    return label_adjunction(node, inherit_tag=inherit_tag)
     
 #@echo
 def label_np_internal_structure(node, inherit_tag=False):

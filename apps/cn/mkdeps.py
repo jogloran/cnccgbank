@@ -35,7 +35,7 @@ def mkdeps(root):
         
         if config.debug:
             debug("%s %s %s", L, R, P)
-            debug(comb)
+            debug(str(comb))
 
         if comb == 'fwd_appl': # X/Y Y
             unifier = unify(L.right, R, copy_to=RIGHT)
@@ -65,6 +65,7 @@ def mkdeps(root):
             P.slot = deepcopy(P.slot)
             update_with_fresh_var(p, P.slot)
             P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
+            debug('HERE: %s', P.slot.head.lex)
             
             unifier = unify(L, R, ignore=True, copy_to=RIGHT, copy_vars=False) # unify variables only in the two conjuncts
             for (dest, src) in unifier:
@@ -121,7 +122,10 @@ def mkdeps(root):
             p.cat = R
 
         else:
+            debug('Unhandled combinator %s (%s %s -> %s)', comb, L, R, P)
             unanalysed.add(comb)
+            
+            P.slot = L.slot
             
         if config.debug:
             debug("> %s" % P)
@@ -212,9 +216,9 @@ if __name__ == '__main__':
     from apps.cn.mkmarked import *
 
 #    t=naive_label_derivation(parse_tree(open('final/chtb_0119.fid').readlines()[13]))
-#    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test2.ccg').readlines()[9]))
-    file = "final/%s" % sys.argv[1]
-    t=naive_label_derivation(parse_tree(open(file).readlines()[2*int(sys.argv[2])+1]))
+    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test1.ccg').readlines()[1]))
+#    file = "final/%s" % sys.argv[1]
+#    t=naive_label_derivation(parse_tree(open(file).readlines()[2*int(sys.argv[2])+1]))
     print t
     print "sent:"
     print "-----"
