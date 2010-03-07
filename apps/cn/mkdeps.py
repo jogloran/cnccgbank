@@ -7,9 +7,12 @@ from apps.util.config import config
 
 from munge.proc.filter import Filter
 from munge.cats.trace import analyse
-from munge.trees.traverse import leaves, pairs_postorder
+from munge.trees.traverse import leaves, pairs_postorder, nodes
 from munge.util.iter_utils import flatten, seqify
 from munge.util.err_utils import debug
+from munge.trees.pprint import pprint
+
+from apps.cn.mkmarked import is_modifier
 
 def copy_vars(frm, to):
     for (frms, tos) in izip(frm.nested_compound_categories(), to.nested_compound_categories()):
@@ -28,23 +31,24 @@ def mkdeps(root):
     for l, r, p in pairs_postorder(root):
         L, R, P = map(lambda x: x and x.cat, (l, r, p))
         comb = analyse(L, R, P)
+        if not comb: debug("Unrecognised rule %s %s -> %s", L, R, P)
         
         if config.debug:
             debug("%s %s %s", L, R, P)
             debug(comb)
 
         if comb == 'fwd_appl': # X/Y Y
-            unifier = unify(L.right, R)
+            unifier = unify(L.right, R, copy_to=RIGHT)
             p.cat = L.left
 
         elif comb == 'bwd_appl': # Y X\Y
-            unifier = unify(L, R.right)
+            unifier = unify(L, R.right, copy_to=LEFT)
             p.cat = R.left
 
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
             P.slot = L.slot # lexical head comes from L (X/Y)
 
-            unifier = unify(L.right, R.left)
+            unifier = unify(L.right, R.left, copy_to=RIGHT)
             p.cat._left = L.left
             p.cat._right = R.right
             
@@ -57,29 +61,37 @@ def mkdeps(root):
 
         elif comb == 'conjoin': # X X[conj] -> X
             copy_vars(frm=R, to=P)
-#            unify(P, R)
 
             P.slot = deepcopy(P.slot)
             update_with_fresh_var(p, P.slot)
-
             P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
-            unify(L, R, ignore=True) # unify variables only in the two conjuncts
-            unify(P, R, ignore=True) # unify variables only in the two conjuncts
+            
+            unifier = unify(L, R, ignore=True, copy_to=RIGHT, copy_vars=False) # unify variables only in the two conjuncts
+            for (dest, src) in unifier:
+                old_head = src.slot.head
+                
+                # look under L and transform all references to 'Z' to references to the 'Z' inside R                
+                for node in nodes(l):
+                    for subcat in node.cat.nested_compound_categories():
+                        if subcat.slot.head is old_head:
+                            subcat.slot.head = dest.slot.head
+
+            unify(P, R, ignore=True, copy_to=RIGHT) # unify variables only in the two conjuncts
 
         elif comb in ('conj_absorb', 'conj_comma_absorb', 'funny_conj'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
-            unify(P, R)
+            unify(P, R, copy_to=RIGHT) # R.slot.head = P.slot.head
             
-        elif comb == 'fwd_xcomp': # X/Y Y\Z -> X\Z
+        elif comb == 'fwd_xcomp': # X/Y Y\Z -> X/Z
             unifier = unify(L.right, R.left)
             p.cat._left = L.left
             p.cat._right = R.right
 
-        elif comb == 'bwd_xcomp': # Y\Z X/Y -> X\Z
-            unifier = unify(L.left, R.right)
+        elif comb == 'bwd_xcomp': # Y/Z X\Y -> X/Z
+            unifier = unify(L.left, R.right, copy_to=LEFT)
             p.cat._left = R.left
             p.cat._right = L.right
-        elif comb == 'bwd_r1xcomp': # (Y\Z)/W X\Y -> (X\Z)/W
+        elif comb == 'bwd_r1xcomp': # (Y/Z)/W X\Y -> (X\Z)/W
             unifier = unify(L.left.left, R.right)
             p.cat._left._left = R.left
             p.cat._left._right = L.left.right
@@ -114,6 +126,8 @@ def mkdeps(root):
         if config.debug:
             debug("> %s" % P)
             debug('---')
+        
+#        print pprint(root)
 
     # Collect deps from arguments
     deps = []
@@ -135,8 +149,11 @@ def mkdeps(root):
                 
     return result
 
+LEFT, RIGHT = 1, 2
 class UnificationException(Exception): pass
-def unify(L, R, ignore=False):
+def unify(L, R, ignore=False, copy_to=LEFT, copy_vars=True):
+    assgs = []
+    
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
         if Ls.slot.is_filled() and Rs.slot.is_filled():
             if (not ignore) and Ls.slot.head.lex != Rs.slot.head.lex:
@@ -151,7 +168,24 @@ def unify(L, R, ignore=False):
             Ls.slot.head.filler = R
 
         else: # both slots are variables, need to unify variables
-            Rs.slot.head = Ls.slot.head # Direction matters, unification is asymmetric
+            # print "vars Ls: %s Rs: %s" % (Ls, Rs)
+            # print "vars L: %s R: %s" % (L, R)
+            #Rs.slot.head = Ls.slot.head # Direction matters, unification is asymmetric
+#            if copy_to == LEFT:
+            # we should be copying from modifiers to heads
+#                if copy_vars: Ls.slot.head = Rs.slot.head
+#                print "Lh done L head(%s) = R head(%s)" % (Ls.slot, Rs.slot)
+                
+#                assgs.append( (Ls, Rs) )
+#            else: #elif L.is_modifier():
+#            else:
+#                if copy_vars: Rs.slot.head = Ls.slot.head
+#                print "Rh done R head(%s) = L head(%s)" % (Rs.slot, Ls.slot)
+                
+#                assgs.append( (Rs, Ls) )
+            if copy_vars: Rs.slot.head = Ls.slot.head
+            assgs.append( (Rs, Ls) )
+    return assgs
 
 class MakeDependencies(Filter):
     def __init__(self, outdir):
@@ -179,10 +213,22 @@ if __name__ == '__main__':
 
 #    t=naive_label_derivation(parse_tree(open('final/chtb_0119.fid').readlines()[13]))
 #    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test2.ccg').readlines()[9]))
-    t=naive_label_derivation(parse_tree(open('final/chtb_0302.fid').readlines()[9]))
+    file = "final/%s" % sys.argv[1]
+    t=naive_label_derivation(parse_tree(open(file).readlines()[2*int(sys.argv[2])+1]))
     print t
+    print "sent:"
+    print "-----"
     print ' '.join(t.text())
     deps = mkdeps(t)
     
-    for l, r in deps: print l, r
-
+    print "deps:"
+    print "-----"
+    for l, r in deps: print "%s|%s" % (l, r)
+    
+    print "leaves:"
+    print "-------"
+    for leaf in leaves(t):
+        print leaf.lex, leaf.cat
+        
+    print "finished:"
+    print pprint(t)
