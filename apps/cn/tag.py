@@ -259,6 +259,14 @@ def label(root):
                     tag(kid, 'a') # treat aspect particles as adjuncts
                 elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                     tag(kid, 'r')
+
+        elif is_coordination(node): # coordination
+            for kid in node:
+                if kid.tag == "ETC":
+                    tag(kid, '&')
+
+                if kid.tag not in ('CC', 'PU'):
+                    tag(kid, 'c')
                     
         elif is_np_internal_structure(node):
             first = True
@@ -274,7 +282,7 @@ def label(root):
                 else:
                     # if tag is CC or PU, we want the previous
                     # tag to be N, not n
-                    #first = True
+#                    first = True
                     pass
                     
         # must be above is_coordination (it subsumes UCP)
@@ -288,19 +296,11 @@ def label(root):
                 if kid.tag not in ('CC', 'PU'):
                     tag(kid, 'C')
                     
-        elif is_coordination(node): # coordination
-            for kid in node:
-                if kid.tag == "ETC":
-                    tag(kid, '&')
 
-                if kid.tag not in ('CC', 'PU'):
-                    tag(kid, 'c')
 
         elif is_internal_structure(node) or is_verb_compound(node):
-            pass    
-    
+            pass
 
-        
         elif ((first_kid.is_leaf() # head initial complementation
 #               or is_vp_internal_structure(first_kid) 
             or is_vp_compound(first_kid)
