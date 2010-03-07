@@ -66,7 +66,9 @@ def rooted_in_Sdcl(cat):
 def try_binary_rules(l, r, cur):
     if not config.cn_rules: return False
     
-    if r == NP:
+    # rhs NP needs to be feature-less, otherwise NP NP[conj] gets interpreted
+    # as apposition
+    if r.equal_respecting_features(NP):
         if cur == NP: 
             if   l == NP:   return 'np_np_apposition' # NP   NP -> NP
             elif l == S:    return 's_np_apposition'  # S    NP -> NP
