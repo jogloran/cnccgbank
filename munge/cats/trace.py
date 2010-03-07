@@ -28,7 +28,7 @@ def try_unary_rules(l, r, cur):
         if cur == SfNP and l == SbNPfNP: return "subject_prodrop"
         # [ta] yi qu VP(jiu bu hui lai)
         if cur == SfS and l == C(r'(S/S)\NP'): return "yi_subject_prodrop"
-        if cur == SfS and l == N or l == NP: return "nongap_topicalisation"
+        if cur == SfS and (l == N or l == NP): return "nongap_topicalisation"
         if cur == SfSfS and l == Sdcl: return "s_gap_topicalisation"
         if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
         if cur == NP and l == NPfNP: return "de_nominalisation"
@@ -77,7 +77,9 @@ def try_binary_rules(l, r, cur):
         elif cur == NfN:
             if l == NP:     return 'np_np_apposition' # NP   NP -> N/N
             
-    if rooted_in_Sdcl(l) and l == r and r == cur: return "vcd_compound"
+    # Likewise, lhs and rhs must both be feature-less to prevent VP VP[conj] from
+    # being interpreted as VCD
+    if rooted_in_Sdcl(l) and l.equal_respecting_features(r) and r == cur: return "vcd_compound"
 
 def allows_application(mode_index):
     '''Returns whether the given mode indicated by the index allows the
