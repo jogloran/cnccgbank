@@ -458,7 +458,7 @@ class FixExtraction(Fix):
         replace_kid(pp, p, s)
 
     def fix_topicalisation_with_gap(self, node, p, s, t):
-        debug("Fixing topicalisation with gap:\nnode=%s\ns=%s", lrp_repr(node), pprint(s))
+        debug("Fixing topicalisation with gap:\nnode=%s\ns=%s\nt=%s", lrp_repr(node), pprint(s), pprint(t))
 
         # stop this method from matching again (in case there's absorption on the top node, cf 2:22(5))
         t.tag = self.strip_tag(t.tag)

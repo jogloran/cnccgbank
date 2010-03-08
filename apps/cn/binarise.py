@@ -63,27 +63,56 @@ def label_np_internal_structure(node, inherit_tag=False):
     else:
         return label_adjunction(node, inside_np_internal_structure=True)
     
+def label_with_final_punctuation_high(f):
+    def _label(node, *args, **kwargs):
+        final_punctuation_stk = []
+    
+        # These derivations consist of a leaf PU root: 24:73(4), 25:81(4), 28:52(21)
+        if node.is_leaf():
+            return node
+        elif all(kid.tag.startswith('PU') for kid in node):
+            # Weird derivation (5:0(21)):
+            # ((FRAG (PU --) (PU --) (PU --) (PU --) (PU --) (PU -)))
+            return label_adjunction(node)
+    
+        while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
+            final_punctuation_stk.append( node.kids.pop() )
+        
+            if not node.kids: return result 
+        
+        result = f(node, *args, **kwargs)
+        tag = result.tag
+    
+        while final_punctuation_stk:
+            result = Node(tag, [result, final_punctuation_stk.pop()])
+        
+        return result
+    return _label
+    
 #@echo
-def label_coordination(node, inside_np_internal_structure=False):
-    if (node.kids[-1].tag.endswith(':&') 
-        # prevent movement when we have an NP with only two children NN ETC
-        and node.count() > 2):
+def label_coordination(node):
+    def _label_coordination(node, inside_np_internal_structure=False):
+        if (node.kids[-1].tag.endswith(':&') 
+            # prevent movement when we have an NP with only two children NN ETC
+            and node.count() > 2):
 
-        etc = node.kids.pop()
-        kid_tag = strip_tag_if(not inherit_tag, node.tag)
+            etc = node.kids.pop()
+            kid_tag = base_tag(tag, strip_cptb_tag=False)
 
-        old_tag = node.tag
-        node.tag = kid_tag
+            old_tag = node.tag
+            node.tag = kid_tag
 
-        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
-    else:
-        def label_nonconjunctions(kid):
-            if kid.tag not in ('CC', 'PU'): 
-                return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
-            else: return kid
+            return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
+        else:
+            def label_nonconjunctions(kid):
+                if kid.tag not in ('CC', 'PU'): 
+                    return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
+                else: return kid
 
-        kids = map(label_nonconjunctions, node.kids)
-        return reshape_for_coordination(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure)
+            kids = map(label_nonconjunctions, node.kids)
+            return reshape_for_coordination(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure)
+    
+    return label_with_final_punctuation_high(_label_coordination)
         
 def get_kid(kids, node_tag, seen_cc):
     pu = kids.pop()
@@ -107,7 +136,7 @@ def reshape_for_coordination(node, inside_np_internal_structure):
         # attach PU to the right _unless_ it is followed by CC
         # easier to iterate in reverse?
         
-        kid_tag = strip_tag_if(not inherit_tag, node.tag)
+        kid_tag = base_tag(node.tag, strip_cptb_tag=False)
 
         kids = node.kids
         
@@ -157,12 +186,6 @@ def label_predication(node, inherit_tag=False):
     
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
-    # TODO: think of a better and more general way of doing this
-    # this is to stop what happens in 2:4(2) with PU. what is actually happening?
-    # if is_left_punct_absorption(second_last_kid):
-    #     initial_tag = 'VP'
-    # else:
-    #     initial_tag = kid_tag
     initial_tag = kid_tag
 
     cur = Node(initial_tag, [second_last_kid, last_kid])
