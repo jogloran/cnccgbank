@@ -83,8 +83,59 @@ def label_coordination(node, inside_np_internal_structure=False):
             else: return kid
 
         kids = map(label_nonconjunctions, node.kids)
-        return label_adjunction(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
-    
+        return reshape_for_coordination(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure)
+        
+def get_kid(kids, node_tag, seen_cc):
+    print "1: %s" % kids
+    pu = kids.pop()
+    print "2: %s" % kids
+    if seen_cc and len(kids) > 0:
+        xp = kids.pop()
+        print "3: %s" % kids
+        xp_ = Node(xp.tag, [xp, pu])
+        
+        # if len(kids) > 0 and kids[-1].tag == 'PU':
+        #     _pu = kids.pop()
+        #     print "4: %s" % kids
+        #     xp__ = Node(xp.tag, [_pu, xp_])
+        #     
+        #     return xp__, False
+        # else:
+        return xp_, False
+    else:
+        return pu, pu.tag == 'CC'
+        
+@echo
+def reshape_for_coordination(node, inside_np_internal_structure):
+    if node.count() >= 3:
+        # (XP PU) (CC XP)
+        # if we get contiguous PU CC, associate the PU with the previous conjunct
+        # but:
+        # XP (PU XP) (CC XP)
+        # XP (PU XP PU) (CC XP)
+        # the rule is:
+        # attach PU to the right _unless_ it is followed by CC
+        # easier to iterate in reverse?
+        
+        kid_tag = strip_tag_if(not inherit_tag, node.tag)
+
+        kids = node.kids
+        
+        seen_cc = False
+        last_kid, seen_cc = get_kid(kids, kid_tag, seen_cc)
+        second_last_kid, seen_cc = get_kid(kids, kid_tag, seen_cc)
+
+        cur = Node(kid_tag, [second_last_kid, last_kid])
+
+        while kids:
+            kid, seen_cc = get_kid(kids, kid_tag, seen_cc)
+            cur = Node(kid_tag, [kid, cur])
+
+        cur.tag = node.tag
+        return cur
+            
+    return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
+        
 #@echo
 def label_head_initial(node, inherit_tag=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
