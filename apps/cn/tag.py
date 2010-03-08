@@ -290,7 +290,7 @@ def label(root):
             left_conjunct_tag = first_kid.tag
             node.tag = left_conjunct_tag
             for kid in nodes(node):
-                if kid.tag.startswith('UCP'): 
+                if kid.tag.startswith('UCP'):
                     kid.tag = left_conjunct_tag
             for kid in node:
                 if kid.tag not in ('CC', 'PU'):
