@@ -247,9 +247,9 @@ RootMap = {
     'CP-Q': Sq,
 }
 
-##@echo
+#@echo
 def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
-    if node.tag == 'PU':
+    if node.tag == 'PU' and node.is_leaf():
         if node.lex in PunctuationMap:
             return make_atomic_category(PunctuationMap[node.lex])
         elif is_dashlike(node.lex):
