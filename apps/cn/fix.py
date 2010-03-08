@@ -27,12 +27,15 @@ class Fix(Filter, OutputDerivation):
         
     @staticmethod
     def do_tgrep_with_callback(root, pattern, callback):
+        new_root = None
         for match_node, context in tgrep(root, pattern, with_context=True):
             if context: # only supply a context if the expression binds variables
                 # smash the case, variables in tgrep expressions are case insensitive
-                callback(match_node, **smash_key_case(context))
+                new_root = callback(match_node, **smash_key_case(context))
             else:
-                callback(match_node)
+                new_root = callback(match_node)
+
+        return new_root or root
     
     @staticmethod
     def is_valid_pattern_and_callback_tuple(v):
@@ -48,10 +51,10 @@ class Fix(Filter, OutputDerivation):
             for pattern_and_callback in pattern:
                 if Fix.is_valid_pattern_and_callback_tuple(pattern_and_callback):
                     pattern, callback = pattern_and_callback
-                    Fix.do_tgrep_with_callback(bundle.derivation, pattern, callback)
+                    bundle.derivation = Fix.do_tgrep_with_callback(bundle.derivation, pattern, callback)
                     
         elif isinstance(pattern, basestring):
-            Fix.do_tgrep_with_callback(bundle.derivation, pattern, self.fix)
+            bundle.derivation = Fix.do_tgrep_with_callback(bundle.derivation, pattern, self.fix)
             
         elif callable(pattern):
             try:
