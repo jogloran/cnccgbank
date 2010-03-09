@@ -32,7 +32,7 @@ def rename_category_while_labelling_with(label_function, node, substitute, when=
     
     return ret
 
-@echo
+#@echo
 def label_predication(node):
     node.kids[0] = label(node[0])
     
@@ -41,7 +41,7 @@ def label_predication(node):
     
     return node
 
-@echo
+#@echo
 def label_left_absorption(node):
     node[0].category = ptb_to_cat(node[0])
     
@@ -50,7 +50,7 @@ def label_left_absorption(node):
     
     return node
 
-@echo
+#@echo
 def label_right_absorption(node):
     node[1].category = ptb_to_cat(node[1])
     
@@ -59,7 +59,7 @@ def label_right_absorption(node):
     
     return node
 
-@echo
+#@echo
 def label_adjunction(node):
     node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True) or node.category
     node.kids[1] = label(node[1])
@@ -69,7 +69,7 @@ def label_adjunction(node):
     
     return node
 
-@echo
+#@echo
 def label_np_structure(node):
     node[0].category = node.category / node.category
     node.kids[0] = label(node[0])
@@ -79,7 +79,7 @@ def label_np_structure(node):
     
     return node
 
-@echo
+#@echo
 def label_right_adjunction(node):
     node[0].category = node.category
     node.kids[0] = label(node[0])
@@ -90,7 +90,7 @@ def label_right_adjunction(node):
     
     return node
 
-@echo
+#@echo
 def label_head_final(node):
     node.kids[0] = label(node[0])
     
@@ -99,7 +99,7 @@ def label_head_final(node):
     
     return node
 
-@echo
+#@echo
 def label_head_initial(node):
     node.kids[1] = label(node[1])
     
@@ -108,7 +108,7 @@ def label_head_initial(node):
     
     return node
 
-@echo
+#@echo
 def label_coordination(node, inside_np=False, ucp=False):
     node[0].category = node.category
     node.kids[0] = label(node[0], inside_np)
@@ -120,7 +120,7 @@ def label_coordination(node, inside_np=False, ucp=False):
     
     return node
 
-@echo
+#@echo
 def label_partial_coordination(node, inside_np=False, ucp=False):
     node[0].category = ptb_to_cat(node[0])
     node.kids[0] = label(node[0], inside_np)
@@ -247,7 +247,7 @@ RootMap = {
     'CP-Q': Sq,
 }
 
-@echo
+#@echo
 def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
     if node.tag == 'PU' and node.is_leaf():
         if node.lex in PunctuationMap:
@@ -288,7 +288,7 @@ def np_modifier_tag_to_cat(ptb_tag):
     ptb_tag = base_tag(ptb_tag)
     return copy(NPModifierMap.get(ptb_tag, None))
 
-@echo
+#@echo
 def label_verb_compound(node):
     node[0].category = conj if node[0].tag == 'CC' else node.category
     node[1].category = conj if node[1].tag == 'CC' else node.category
@@ -320,7 +320,7 @@ def is_PRO_trace(node):
 
 import pdb
 
-@echo
+#@echo
 def label(node, inside_np=False):
     '''
     Labels the descendants of _node_ and returns _node_.
