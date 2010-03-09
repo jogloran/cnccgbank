@@ -35,7 +35,7 @@ def try_unary_rules(l, r, cur):
         
         # TOPICALISATIONS:
         # ----------------
-        if cur == SfS and (l == N or l == NP): return "nongap_topicalisation"
+        if cur == SfS and (l == N or l == NP or l == Sdcl): return "nongap_topicalisation"
         if cur == SfSfS and l == Sdcl: return "s_gap_topicalisation"
         if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
         
