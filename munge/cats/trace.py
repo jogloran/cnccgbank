@@ -25,12 +25,20 @@ def try_unary_rules(l, r, cur):
         if config.cn_rules and cur == S: return "subject_prodrop"
         
     if config.cn_rules:
+        # PRO-DROPS:
+        # ----------
         if cur == SfNP and l == SbNPfNP: return "subject_prodrop"
         # [ta] yi qu VP(jiu bu hui lai)
         if cur == SfS and l == C(r'(S/S)\NP'): return "yi_subject_prodrop"
+        if cur == C('(S[dcl]\NP)/(S[dcl]\NP)') and l == C('((S[dcl]\NP)/(S[dcl]\NP))/NP'): return 'vp_vp_object_prodrop'
+        if cur == C('(S\NP)/(S\NP)') and l == C('((S\NP)/(S\NP))\NP'): return 'vp_modifier_subject_prodrop'
+        
+        # TOPICALISATIONS:
+        # ----------------
         if cur == SfS and (l == N or l == NP): return "nongap_topicalisation"
         if cur == SfSfS and l == Sdcl: return "s_gap_topicalisation"
         if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
+        
         if cur == NP and l == NPfNP: return "de_nominalisation"
         if cur == NfN and l == C('M'): return "measure_word_number_elision"
         if cur == NfN and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"

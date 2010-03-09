@@ -86,7 +86,7 @@ def t_UNARY_OP(t):
     return t
 
 def t_ATOM(t):
-    r'''[^/\\"\s{][^\s]+[^/\\"\s}]|[^/\\\s{][^/\\\s}]|[^/\\\s{}]'''
+    r'''[^/\\"\s{=][^\s]+[^/\\"\s}=]|[^/\\\s{=][^/\\\s}=]|[^/\\\s{}=]'''
     return t
 
 # ignore whitespace tokens
