@@ -174,9 +174,8 @@ def label_head_initial(node, inherit_tag=False):
 def label_head_final(node):
     return label_adjunction(node)
     
-#@echo
-def is_left_punct_absorption(l):
-    return l.is_leaf() and l.tag == 'PU'
+def is_right_punct_absorption(node):
+    return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
 
 #@echo
 def label_predication(node, inherit_tag=False):
@@ -194,7 +193,7 @@ def label_predication(node, inherit_tag=False):
         cur = Node(kid_tag, [kid, cur])
 
     cur.tag = node.tag # restore the full tag at the topmost level
-    
+
     return cur
     
 #@echo
@@ -204,6 +203,10 @@ def label_root(node):
     # These derivations consist of a leaf PU root: 24:73(4), 25:81(4), 28:52(21)
     if node.is_leaf():
         return node
+    # inconsistent top-level taggings (0:21(4)) lead to a CCG-like absorption analysis
+    elif is_right_punct_absorption(node):
+        return label_node(node, do_shrink=False)
+        
     elif all(kid.tag.startswith('PU') for kid in node):
         # Weird derivation (5:0(21)):
         # ((FRAG (PU --) (PU --) (PU --) (PU --) (PU --) (PU -)))
