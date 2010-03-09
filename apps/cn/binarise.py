@@ -90,29 +90,28 @@ def label_with_final_punctuation_high(f):
     return _label
     
 #@echo
-def label_coordination(node):
-    def _label_coordination(node, inside_np_internal_structure=False):
-        if (node.kids[-1].tag.endswith(':&') 
-            # prevent movement when we have an NP with only two children NN ETC
-            and node.count() > 2):
+def _label_coordination(node, inside_np_internal_structure=False):
+    if (node.kids[-1].tag.endswith(':&') 
+        # prevent movement when we have an NP with only two children NN ETC
+        and node.count() > 2):
 
-            etc = node.kids.pop()
-            kid_tag = base_tag(tag, strip_cptb_tag=False)
+        etc = node.kids.pop()
+        kid_tag = base_tag(tag, strip_cptb_tag=False)
 
-            old_tag = node.tag
-            node.tag = kid_tag
+        old_tag = node.tag
+        node.tag = kid_tag
 
-            return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
-        else:
-            def label_nonconjunctions(kid):
-                if kid.tag not in ('CC', 'PU'): 
-                    return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
-                else: return kid
+        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
+    else:
+        def label_nonconjunctions(kid):
+            if kid.tag not in ('CC', 'PU'): 
+                return label_node(kid, inside_np_internal_structure=inside_np_internal_structure)
+            else: return kid
 
-            kids = map(label_nonconjunctions, node.kids)
-            return reshape_for_coordination(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure)
-    
-    return label_with_final_punctuation_high(_label_coordination)
+        kids = map(label_nonconjunctions, node.kids)
+        return reshape_for_coordination(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure)
+        
+label_coordination = label_with_final_punctuation_high(_label_coordination)
         
 def get_kid(kids, node_tag, seen_cc):
     pu = kids.pop()
