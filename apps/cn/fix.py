@@ -32,10 +32,11 @@ class Fix(Filter, OutputDerivation):
             if context: # only supply a context if the expression binds variables
                 # smash the case, variables in tgrep expressions are case insensitive
                 result = callback(match_node, **smash_key_case(context))
-                if result: new_root = result
             else:
                 result = callback(match_node)
-                if result: new_root = result
+                
+            # a new root will be returned if one has been installed
+            if result: new_root = result
         
         return new_root or root
     

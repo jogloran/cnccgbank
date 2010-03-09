@@ -54,7 +54,7 @@ else:
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
 # \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
-CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+')
+CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+$')
 # Below regex accounts for coordination when POS tags differ by CPTB tag (eg IP-OBJ PU IP PU IP): is 29:99(14) just a tagging error?
 #CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)[\w:-]+\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+')
 
@@ -125,6 +125,9 @@ if config.only_np_topicalisation_valid:
             tag(node, 'T')
 else:
     def tag_if_topicalisation(node):
+        # PP-TPC (7:4(5)) should not result in a unary rule PP -> S/S
+        if node.tag == 'PP-TPC': return
+        
         if node.tag.find('-TPC-') != -1: tag(node, 't')
         elif node.tag.find('-TPC') != -1: tag(node, 'T')
         
