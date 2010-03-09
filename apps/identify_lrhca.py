@@ -165,7 +165,8 @@ def is_np_structure(node):
         kid.tag.startswith('NP') for kid in node)
     
 def is_apposition(node):
-    return node[0].tag.endswith(':A')
+#    return node[0].tag.endswith(':A')
+    return any(kid.tag.endswith(':A') for kid in node)
     
 def is_modification(node):
     return node[0].tag.endswith(':m')
