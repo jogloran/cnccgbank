@@ -1,11 +1,26 @@
 import re
 #from echo import echo
 
-from apps.cn.tag import last_nonpunct_kid
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
 from apps.util.config import config
 from munge.util.func_utils import satisfies_any
+
+def last_nonpunct_kid(node):
+    kid, index = get_nonpunct_kid(node)
+    return kid
+    
+def get_nonpunct_kid(node, get_last=True):
+    if node.is_leaf(): return None, None
+    
+    if get_last:
+        for i, kid in enumerate(reversed(node.kids)):
+            if not kid.tag.startswith('PU'): return kid, node.count() - i - 1
+    else:
+        for i, kid in enumerate(node.kids):
+            if not kid.tag.startswith('PU'): return kid, i
+            
+    return None, None
 
 # 
 def base_tag(tag, strip_cptb_tag=True, strip_tag=True):

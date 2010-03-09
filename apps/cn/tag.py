@@ -4,27 +4,12 @@ import os, re
 from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
 from munge.util.dict_utils import sorted_by_value_desc
+from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid
 
 from apps.identify_pos import is_verb_compound
 from apps.cn.output import OutputDerivation
 
 from apps.util.config import config
-
-def last_nonpunct_kid(node):
-    kid, index = get_nonpunct_kid(node)
-    return kid
-    
-def get_nonpunct_kid(node, get_last=True):
-    if node.is_leaf(): return None, None
-    
-    if get_last:
-        for i, kid in enumerate(reversed(node.kids)):
-            if not kid.tag.startswith('PU'): return kid, node.count() - i - 1
-    else:
-        for i, kid in enumerate(node.kids):
-            if not kid.tag.startswith('PU'): return kid, i
-            
-    return None, None
 
 PredicationRegex = re.compile(r'''
     (?:[:\w-]+)?
@@ -147,7 +132,7 @@ def is_right_absorption(node):
     return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
     
 def is_repeated_unary_projection(tag, node):
-    return node.tag.startswith(tag) and node.count() == 1 and node[0].tag == tag and not node[0].is_leaf()
+    return node.tag.startswith(tag) and node.count() == 1 and base_tag(node[0].tag) == tag and not node[0].is_leaf()
 
 from munge.util.tgrep_utils import get_first
 from munge.penn.nodes import Node
