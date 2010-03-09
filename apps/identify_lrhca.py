@@ -59,6 +59,8 @@ if config.restrictive_absorption:
             (node[1].tag.startswith('NP') and node.tag.startswith('IP')) or
             # 10:28(38)
             (node[1].tag.startswith('VP') and node.tag.startswith('IP')) or
+            # 1:50(7)
+            (has_verbal_tag(node[1]) and node.tag.startswith('IP')) or
             # 5:95(38)
             (node[1].tag.startswith('CP') and node.tag.startswith('IP')) or
             # 10:48(85)
@@ -177,7 +179,8 @@ def is_np_structure(node):
         kid.tag.startswith('CLP') or # 0:57(12) reduced M
         kid.tag.startswith('PP') or
         kid.tag == "PU" or
-        kid.tag.startswith('NP') for kid in node)
+        kid.tag.startswith('NP') or
+        kid.tag.endswith(':p') for kid in node)
     
 def is_apposition(node):
 #    return node[0].tag.endswith(':A')
