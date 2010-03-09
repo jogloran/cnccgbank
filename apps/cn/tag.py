@@ -145,6 +145,9 @@ else:
         
 def is_right_absorption(node):
     return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
+    
+def is_repeated_unary_projection(tag, node):
+    return node.tag.startswith(tag) and node.count() == 1 and node[0].tag == tag and not node[0].is_leaf()
 
 from munge.util.tgrep_utils import get_first
 from munge.penn.nodes import Node
@@ -169,8 +172,8 @@ def label(root):
         # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
         elif node.tag.startswith('VP') and node.count() >= 2 and node[0].tag == 'VV' and node[-1].tag == 'NP':
             node[-1].tag += "-OBJ"
-        # fix bad annotation IP < IP (2:7(28))
-        elif node.tag.startswith('IP') and node.count() == 1 and node[0].tag == 'IP' and not node[0].is_leaf():
+        # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
+        elif is_repeated_unary_projection('IP', node) or is_repeated_unary_projection('VP', node):
             node.kids[0] = node[0][0]
         # ---------------------------
         

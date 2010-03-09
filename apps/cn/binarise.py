@@ -96,7 +96,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
         and node.count() > 2):
 
         etc = node.kids.pop()
-        kid_tag = base_tag(tag, strip_cptb_tag=False)
+        kid_tag = base_tag(node.tag, strip_cptb_tag=False)
 
         old_tag = node.tag
         node.tag = kid_tag
