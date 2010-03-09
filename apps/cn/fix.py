@@ -31,10 +31,12 @@ class Fix(Filter, OutputDerivation):
         for match_node, context in tgrep(root, pattern, with_context=True):
             if context: # only supply a context if the expression binds variables
                 # smash the case, variables in tgrep expressions are case insensitive
-                new_root = callback(match_node, **smash_key_case(context))
+                result = callback(match_node, **smash_key_case(context))
+                if result: new_root = result
             else:
-                new_root = callback(match_node)
-
+                result = callback(match_node)
+                if result: new_root = result
+        
         return new_root or root
     
     @staticmethod
