@@ -168,7 +168,7 @@ def label(root):
             maybe_pu = node[last_kid_index-1]
             if maybe_pu.tag == 'PU':
                 del node.kids[last_kid_index-1]
-                last_kid.kids[0:1] = [maybe_pu]
+                last_kid.kids.insert(0, maybe_pu) # prepend
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.tag in ('ADVP', 'NP') and node.count() == 1 and node[0].tag == 'JJ':
             node.tag = 'ADJP'
@@ -196,14 +196,14 @@ def label(root):
                 
             elif kid.tag in ('SP', 'MSP'):
                 tag(kid, 'a')
-                
-            elif is_prn(kid):
-                # PRN tagging error in 10:49(69)
-                if not first_kid: continue
-
-                node.tag = first_kid.tag
-                tag(node, 'p')
-                tag(node[0], 'h') # assume that the first PU introduces the PRN
+            #     
+            # elif is_prn(kid):
+            #     # PRN tagging error in 10:49(69)
+            #     if not first_kid: continue
+            # 
+            #     node.tag = first_kid.tag
+            #     tag(node, 'p')
+            #     tag(node[0], 'h') # assume that the first PU introduces the PRN
                 
             else:
                 tag_if_topicalisation(kid)
