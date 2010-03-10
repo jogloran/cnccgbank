@@ -162,7 +162,7 @@ def label(root):
             node[-1].tag += "-OBJ"
         # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
         elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP')):
-            node.kids[0] = node[0][0]
+            node.kids = node[0].kids
         # ---------------------------
         
         # Reshape LB (long bei)
