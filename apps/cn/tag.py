@@ -167,7 +167,7 @@ def label(root):
         elif last_kid and last_kid.tag == 'PRN' and last_kid.count() == 1:
             maybe_pu = node[last_kid_index-1]
             if maybe_pu.tag == 'PU':
-                del node[last_kid_index-1]
+                del node.kids[last_kid_index-1]
                 last_kid.kids[0:1] = [maybe_pu]
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.tag in ('ADVP', 'NP') and node.count() == 1 and node[0].tag == 'JJ':
