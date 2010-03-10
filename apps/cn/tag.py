@@ -163,6 +163,16 @@ def label(root):
         # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
         elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP')):
             node.kids = node[0].kids
+        # attach the PU preceding a PRN under the PRN
+        elif last_kid and last_kid.tag == 'PRN' and last_kid.count() == 1:
+            maybe_pu = node[last_kid_index-1]
+            if maybe_pu.tag == 'PU':
+                del node[last_kid_index-1]
+                last_kid.kids[0:1] = [maybe_pu]
+        # fix mistaggings of the form ADVP < JJ (1:7(9))
+        elif node.tag == 'ADVP' and node.count() == 1 and node[0].tag == 'JJ':
+            node.tag = 'ADJP'
+            
         # ---------------------------
         
         # Reshape LB (long bei)
@@ -186,6 +196,14 @@ def label(root):
                 
             elif kid.tag in ('SP', 'MSP'):
                 tag(kid, 'a')
+                
+            elif is_prn(kid):
+                # PRN tagging error in 10:49(69)
+                if not first_kid: continue
+
+                node.tag = first_kid.tag
+                tag(node, 'p')
+                tag(node[0], 'h') # assume that the first PU introduces the PRN
                 
             else:
                 tag_if_topicalisation(kid)
