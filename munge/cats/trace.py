@@ -78,7 +78,7 @@ def try_binary_rules(l, r, cur):
     # rhs NP needs to be feature-less, otherwise NP NP[conj] gets interpreted
     # as apposition
     if r.equal_respecting_features(NP):
-        if cur == NP: 
+        if cur == NP or cur == N: 
             if   l == NP:   return 'np_np_apposition' # NP   NP -> NP
             elif l == S:    return 's_np_apposition'  # S    NP -> NP
             elif l == SbNP: return 'vp_np_apposition' # S\NP NP -> NP
