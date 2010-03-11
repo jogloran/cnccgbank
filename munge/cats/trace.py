@@ -41,7 +41,7 @@ def try_unary_rules(l, r, cur):
         
         if cur == NP and l == NPfNP: return "de_nominalisation"
         if cur == NfN and l == C('M'): return "measure_word_number_elision"
-        if cur == NfN and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
+        if cur in (NfN, C('(N/N)/(N/N)')) and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
 
     if l == SfNP and cur == NPbNP:
         return "lex_typechange"
@@ -127,16 +127,20 @@ def try_composition(l, r, cur, examine_modes=False):
     true, then the modes of the arguments are checked to see if they permit composition.'''
     if is_composition(l, r, cur, examine_modes):
         if l.direction == FORWARD: # Forward harmonic or crossed composition
+            # X/Y Y/Z -> X/Z
             if cur.direction == FORWARD and cur.direction == r.direction:
                 return "fwd_comp"
-            if cur.direction == BACKWARD and cur.direction != r.direction:
+            # X/Y Y\Z -> X\Z
+            if cur.direction == BACKWARD and cur.direction == r.direction:
                 return "fwd_xcomp"
 
     if is_composition(r, l, cur, examine_modes):
         if r.direction == BACKWARD: # Backward harmonic or crossed composition
-            if cur.direction == FORWARD and cur.direction != r.direction:
+            # Y/Z X\Y -> X/Z
+            if cur.direction == FORWARD and cur.direction == l.direction:
                 return "bwd_xcomp"
-            if cur.direction == BACKWARD and cur.direction == r.direction:
+            # Y\Z X\Y -> X\Z
+            if cur.direction == BACKWARD and cur.direction == l.direction:
                 return "bwd_comp"
 
     # Recognise backward recursive crossed composition with depth 1 as a special case
