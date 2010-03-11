@@ -6,9 +6,10 @@ show_vars: false
 #show_vars: true
 debug: false
 low_key_debug: false
-aug_pprint: false
-#cmd_reader_class: AugmentedPTBReader
-cmd_reader_class: GuessReader
+#aug_pprint: false
+aug_pprint: true
+cmd_reader_class: AugmentedPTBReader
+#cmd_reader_class: GuessReader
 cn_puncts: true
 cn_rules: true
 use_modes: false

@@ -8,7 +8,7 @@ except ImportError:
         def _f(*args, **kwargs): pass
         return _f
     def make_option(*args, **kwargs): pass
-    import cmd
+    #import cmd
 
 from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method

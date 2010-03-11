@@ -216,9 +216,9 @@ if __name__ == '__main__':
     from apps.cn.mkmarked import *
 
 #    t=naive_label_derivation(parse_tree(open('final/chtb_0119.fid').readlines()[13]))
-    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test1.ccg').readlines()[1]))
-#    file = "final/%s" % sys.argv[1]
-#    t=naive_label_derivation(parse_tree(open(file).readlines()[2*int(sys.argv[2])+1]))
+#    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test1.ccg').readlines()[1]))
+    file = "final/%s" % sys.argv[1]
+    t=naive_label_derivation(parse_tree(open(file).readlines()[2*int(sys.argv[2])+1]))
     print t
     print "sent:"
     print "-----"

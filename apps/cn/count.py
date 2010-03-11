@@ -29,8 +29,7 @@ class ListAtoms(Filter):
         Filter.__init__(self)
         self.atoms = set()
                 
-    @staticmethod
-    def get_atoms(cat):
+    def get_atoms(self, cat):
         result = set()
         for sub in cat:
             if not sub.is_complex():
@@ -38,12 +37,15 @@ class ListAtoms(Filter):
                 sub = sub.clone()
                 sub.features = []
                 result.add(sub)
-            else: result.update(ListAtoms.get_atoms(sub))
+            else: result.update(self.get_atoms(sub))
+        for new in result - self.atoms:
+            print new
+
         return result
         
     def accept_derivation(self, bundle):
         for node in nodes(bundle.derivation):
-            self.atoms.update(ListAtoms.get_atoms(node.cat))
+            self.atoms.update(self.get_atoms(node.cat))
         
     def output(self):
         for atom in sorted(map(str, self.atoms)):
