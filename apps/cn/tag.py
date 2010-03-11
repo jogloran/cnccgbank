@@ -54,9 +54,9 @@ else:
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
 # \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
-CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+')
+#CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+')
 # Below regex accounts for coordination when POS tags differ by CPTB tag (eg IP-OBJ PU IP PU IP): is 29:99(14) just a tagging error?
-#CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)[\w:-]+\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+')
+CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)[\w:-]+\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+')
 
 def is_coordination(node):
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
