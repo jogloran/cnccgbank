@@ -251,7 +251,10 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             # DT < OD found in 6:25(11)
             (node.tag.startswith("DP") and node.kids[0].tag in ("DT", "OD")) or
             # QP < AD in 24:68(8)
-            (node.tag.startswith("QP") and node.kids[0].tag.startswith("QP")) or
+            (node.tag.startswith("QP") and (node.kids[0].tag.startswith("QP") or node.kids[0].tag.startswith('M'))) or
+            
+            (node.parent and node.parent.tag.startswith('QP') and node[0].tag.startswith('NN')) or
+            
             # see head-initial case in tag.py (hack for unary PP < P)
             (node.tag.startswith('PP') and node.kids[0].tag == "P") or
             # see bad tagging (WHNP CP DEC) in tag.py head-final case
