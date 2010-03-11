@@ -52,9 +52,9 @@ else:
         return False
     
 # coordination is
-# (PU spaces)+ (conjunct)( (PU spaces) conjunct)+
+# (PU spaces)+ (conjunct)( (PU spaces) conjunct)+ (final punctuation)*
 # \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
-CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+$')
+CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+\s*(?: PU)*$')
 # Below regex accounts for coordination when POS tags differ by CPTB tag (eg IP-OBJ PU IP PU IP): is 29:99(14) just a tagging error?
 #CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)[\w:-]+\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+')
 
@@ -382,7 +382,7 @@ def label(root):
             tag(last_kid, 'h')
 
             for kid in node[0:node.count()-1]:
-                if not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                if not (kid.tag.startswith('PU') or kid.tag.startswith('CC') or kid.tag.endswith(':h')):
                     tag(kid, 'a')
                 else:
                     tag_if_topicalisation(kid)
