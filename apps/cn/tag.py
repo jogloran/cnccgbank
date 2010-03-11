@@ -227,7 +227,7 @@ def label(root):
                     tag(kid, 'l') # TODO: is subject always left of predicate?
                 elif kid.tag == 'VP':
                     tag(kid, 'h')
-                elif kid.tag != 'PU':
+                elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
         elif node.count() == 1 and node.tag.startswith('VP') and is_vp_compound(node[0]):
