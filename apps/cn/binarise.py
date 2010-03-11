@@ -242,10 +242,6 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
                  or node.kids[0].tag.startswith("AD")
                  or any(node.kids[0].tag.startswith(cand) for cand in ('PP', 'QP', 'LCP', 'NP'))
             ) ) or
-            # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
-            (node.tag.startswith('NP') and node.kids[0].tag.startswith('NT')) or
-            (any(node.tag.startswith(cand) for cand in ('NP-LOC', 'NP-ADV', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
-                and has_noun_tag(node.kids[0])) or
             (node.tag.startswith("ADJP") and 
                 (node.kids[0].tag.startswith("JJ") 
                  or node.kids[0].tag.startswith("AD"))) or
@@ -273,7 +269,11 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
         elif ((node.tag.startswith('NP') and node.kids[0].tag == "PN") or
-              (node.tag.startswith("QP") and node.kids[0].tag in ("OD", "CD"))):
+              (node.tag.startswith("QP") and node.kids[0].tag in ("OD", "CD")) or
+              # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
+              (node.tag.startswith('NP') and node.kids[0].tag.startswith('NT')) or
+              (any(node.tag.startswith(cand) for cand in ('NP-LOC', 'NP-ADV', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
+                  and has_noun_tag(node.kids[0]))):
             replacement = node.kids[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node.kids[0])
