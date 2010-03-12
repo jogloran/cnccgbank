@@ -29,6 +29,7 @@ SbS, SfS, SbNPfSbNP, conj = [parse_category(cat) for cat in
                            
 # Chinese topicalised cats
 SfSfNP, SfSfS = parse_category(r'S/(S/NP)'), parse_category(r'S/(S/S)')
+QP = parse_category('QP')
 
 SbNPfNP = parse_category(r'(S\NP)/NP')
 Sq, Sdcl = parse_category('S[q]'), parse_category('S[dcl]')

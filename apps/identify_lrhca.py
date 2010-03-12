@@ -146,7 +146,7 @@ def is_partial_ucp(node):
         base_tag(node.tag) != base_tag(node[1].tag))
 
 def is_ucp(node):
-    return node[0].tag.endswith(':C') or node[1].tag.endswith(':C')
+    return node[0].tag.endswith(':C')# or node[1].tag.endswith(':C')
     # if node[0].tag.endswith(':C'):
     #     return base_tag(node[0].tag) != base_tag(node.tag)
     # elif node[1].tag.endswith(':C'):

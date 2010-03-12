@@ -40,7 +40,7 @@ def try_unary_rules(l, r, cur):
         if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
         
         if cur == NP and l == NPfNP: return "de_nominalisation"
-        if cur == NfN and l == C('M'): return "measure_word_number_elision"
+        if cur == NfN and (l == C('M') or l == QP): return "measure_word_number_elision"
         if cur in (NfN, C('(N/N)/(N/N)')) and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
 
     if l == SfNP and cur == NPbNP:

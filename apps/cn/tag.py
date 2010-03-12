@@ -173,6 +173,8 @@ def label(root):
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.tag.startswith('ADVP') or node.tag.startswith('NP') and node.count() == 1 and node[0].tag == 'JJ':
             node.tag = node.tag.replace('ADVP', 'ADJP')
+        # elif node.tag.startswith('NP') or node.count() == 1 and node[0].tag == 'ADJP':
+            
             
         # ---------------------------
         
@@ -303,10 +305,10 @@ def label(root):
                 if kid.tag.startswith('UCP'):
                     kid.tag = left_conjunct_tag
             for kid in node:
-                if kid.tag not in ('CC', 'PU'):
+                if kid.tag == 'ETC':
+                    tag(kid, '&')
+                elif kid.tag not in ('CC', 'PU'):
                     tag(kid, 'C')
-                    
-
 
         elif is_internal_structure(node) or is_verb_compound(node):
             pass
