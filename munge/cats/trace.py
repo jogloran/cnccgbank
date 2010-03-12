@@ -220,7 +220,7 @@ def try_absorption(l, r, cur):
         if cur == N and l == conj and r == N:
             return "funny_conj" # conj N -> N is the funny conj rule
         if config.cn_rules:
-            if cur == NfN and l == conj and r == NfN:
+            if cur.equal_respecting_features(r) and l == conj:
                 return "funny_conj" # conj N/N -> N/N for partially bracketed CPTB structures
 
         if l.cat in LeftAbsorbedPunctuationCats and r == cur:
