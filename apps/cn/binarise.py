@@ -269,6 +269,8 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
         elif ((node.tag.startswith('NP') and node.kids[0].tag == "PN") or
+              # 21:2(6)
+              (node.tag.startswith('ADVP') and node.kids[0].tag == 'CC') or
               (node.tag.startswith("QP") and node.kids[0].tag in ("OD", "CD")) or
               # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
               (node.tag.startswith('NP') and node.kids[0].tag.startswith('NT')) or
