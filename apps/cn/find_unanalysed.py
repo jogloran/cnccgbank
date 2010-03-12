@@ -20,7 +20,7 @@ with_ucp = 0
 def is_ucp(l, r, p):
     if r is None: return False
     
-    return l == conj and p.has_feature('conj') and p != r
+    return l in (conj, C('LCM'), C(',')) and p.has_feature('conj') and p != r
 
 for file in glob(sys.argv[1]):
     for bundle in CCGbankReader(file):
