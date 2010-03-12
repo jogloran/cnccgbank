@@ -12,6 +12,9 @@ from apps.util.echo import echo
 import copy
 
 def _insert_unary(new_P_cat, new_N_cat):
+    '''Returns a fix method which, when given a node, sandwiches a node with
+category _new_N_cat_ between that node and its children, then re-labels that
+node with category _new_P_cat_.'''
     def _fix(self, node, p, l, r):
         new_N = copy.copy(p)
         new_N.category = new_N_cat

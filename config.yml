@@ -12,3 +12,4 @@ cmd_reader_class: GuessReader
 cn_puncts: true
 cn_rules: true
 use_modes: false
+headed_cats: true
