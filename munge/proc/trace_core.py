@@ -20,21 +20,23 @@ class TraceCore(object):
         self.loaded_modules = set(load_requested_packages(libraries))
         self.update_available_filters_dict()
         
-        self.set_verbose(verbose)
+        self.verbose = verbose
         self.reader_class_name = reader_class_name
         
         self.last_exceptions = []
-        self.set_break_on_exception(break_on_exception)
+        self.break_on_exception = break_on_exception
         
-    def get_verbose(self): return self._verbose
-    def set_verbose(self, v):
+    @property
+    def verbose(self): return self._verbose
+    @verbose.setter
+    def verbose(self, v):
         self._verbose = v
         muzzle(quiet=not self._verbose)
-    verbose = property(get_verbose, set_verbose)
     
-    def get_break_on_exception(self): return self._break_on_exception
-    def set_break_on_exception(self, v): self._break_on_exception = v
-    break_on_exception = property(get_break_on_exception, set_break_on_exception)
+    @property
+    def break_on_exception(self): return self._break_on_exception
+    @break_on_exception.setter
+    def break_on_exception(self, v): self._break_on_exception = v
 
     def __getitem__(self, key):
         return self.available_filters_dict.get(key, None)
