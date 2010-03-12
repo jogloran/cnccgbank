@@ -296,6 +296,9 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)
+    # 0:68(4) has both cases. If there are NP modifiers of a QP or an ADJP, we want them shrunk.
+    elif node.kids[-1].tag in ('QP:h', 'ADJP:h'):
+        return label_adjunction(node, inside_np_internal_structure=True)
     elif (is_apposition(node)
        or is_modification(node)
        or is_adjunction(node)
