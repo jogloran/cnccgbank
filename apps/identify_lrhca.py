@@ -96,6 +96,7 @@ if config.restrictive_absorption:
             (node[0].tag.startswith('IP') and node.tag.startswith('NP')) or
             # v this mess took me half an hour to debug (29:93(15))
             (node[0].tag.startswith('PP') and node.tag.startswith('IP')) or
+            (node[0].tag.startswith('NP') and node.tag.startswith('VP')) or
             # parentheticals
             (node.tag.startswith('PRN')))
 else:
