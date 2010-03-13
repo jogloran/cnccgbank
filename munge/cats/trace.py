@@ -35,9 +35,10 @@ def try_unary_rules(l, r, cur):
         
         # TOPICALISATIONS:
         # ----------------
-        if cur == SfS and (l == N or l == NP or l == Sdcl): return "nongap_topicalisation"
+        if cur == SfS and (l == N or l == NP or l == Sdcl or l == QP): return "nongap_topicalisation"
         if cur == SfSfS and l == Sdcl: return "s_gap_topicalisation"
         if cur == SfSfNP and l == NP: return "np_gap_topicalisation"
+        if cur == C('S/(S/QP)') and l == QP: return "qp_gap_topicalisation"
         
         if cur == NP and l == NPfNP: return "de_nominalisation"
         if cur == NfN and (l == C('M') or l == QP): return "measure_word_number_elision"
