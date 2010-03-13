@@ -257,7 +257,7 @@ def label_node(node, inside_np_internal_structure=False, do_shrink=True):
             # see bad tagging (WHNP CP DEC) in tag.py head-final case
             (node.tag.startswith('CP') and node.kids[0].tag.startswith('IP')) or
             (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
-            (node.tag.startswith("LST") and node.kids[0].tag == "OD") or
+            (node.tag.startswith("LST") and node.kids[0].tag in ("OD", "CD")) or
             # the below is to fix a tagging error in 10:49(69)
             (node.tag.startswith('PRN') and node.count() == 1 and node.kids[0].tag == 'PU') or
             (node.tag.startswith('FLR')) or (node.tag.startswith('FW')))):

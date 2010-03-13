@@ -154,6 +154,7 @@ Map = {
     # not really intended for use. FLR < VE (see the "Addendum to the Bracketing Guidelines for the ACE Chinese Broadcast News Data")
     # appears in 25:97(2). We'll just treat this as a noisy unary rule.
     'VE': SdclbNP,
+#    'VC': SdclbNPfNP,
     
     'VSB': SdclbNP,
     'VRD': SdclbNP,

@@ -498,8 +498,8 @@ class FixExtraction(Fix):
         new_kid = copy(t)
         new_kid.tag = self.strip_tag(new_kid.tag)
 
-#        new_category = s.category/s.category
-        new_category = S/S
+        new_category = featureless(p.category)/featureless(s.category)
+#        new_category = S/S
         replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
 
     def fix_prodrop(self, node, pp, p):
