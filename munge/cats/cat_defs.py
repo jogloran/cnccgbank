@@ -32,6 +32,7 @@ SfSfNP, SfSfS = parse_category(r'S/(S/NP)'), parse_category(r'S/(S/S)')
 QP = parse_category('QP')
 
 SbNPfNP = parse_category(r'(S\NP)/NP')
+SdclbNPfNP = parse_category(r'(S[dcl]\NP)/NP')
 Sq, Sdcl = parse_category('S[q]'), parse_category('S[dcl]')
 SadjbNP = parse_category(r'S[adj]\NP')
 SdclbNP, Sfrg = parse_category(r'S[dcl]\NP'), parse_category(r'S[frg]')

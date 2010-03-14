@@ -113,7 +113,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
         
 label_coordination = label_with_final_punctuation_high(_label_coordination)
         
-def get_kid(kids, node_tag, seen_cc):
+def get_kid(kids, seen_cc):
     pu = kids.pop()
 
     if seen_cc and pu.tag == 'PU' and len(kids) > 0:
@@ -123,6 +123,9 @@ def get_kid(kids, node_tag, seen_cc):
         return xp_, False
     else:
         return pu, pu.tag == 'CC'
+        
+def get_kid_(kids):
+    return get_kid(kids, True)[0]
         
 def reshape_for_coordination(node, inside_np_internal_structure):
     if node.count() >= 3:
@@ -140,13 +143,13 @@ def reshape_for_coordination(node, inside_np_internal_structure):
         kids = node.kids
         
         seen_cc = False
-        last_kid, seen_cc = get_kid(kids, kid_tag, seen_cc)
-        second_last_kid, seen_cc = get_kid(kids, kid_tag, seen_cc)
+        last_kid, seen_cc = get_kid(kids, seen_cc)
+        second_last_kid, seen_cc = get_kid(kids, seen_cc)
 
         cur = Node(kid_tag, [second_last_kid, last_kid])
 
         while kids:
-            kid, seen_cc = get_kid(kids, kid_tag, seen_cc)
+            kid, seen_cc = get_kid(kids, seen_cc)
             cur = Node(kid_tag, [kid, cur])
 
         cur.tag = node.tag
@@ -177,10 +180,12 @@ def label_head_final(node):
 def is_right_punct_absorption(node):
     return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
 
-#@echo
+@echo
 def label_predication(node, inherit_tag=False):
     kids = map(label_node, node.kids)
-    last_kid, second_last_kid = kids.pop(), kids.pop()
+#    last_kid, second_last_kid = kids.pop(), kids.pop()
+    last_kid = get_kid_(kids)
+    second_last_kid = get_kid_(kids)
     
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
@@ -189,7 +194,7 @@ def label_predication(node, inherit_tag=False):
     cur = Node(initial_tag, [second_last_kid, last_kid])
 
     while kids:
-        kid = kids.pop()
+        kid = get_kid_(kids)
         cur = Node(kid_tag, [kid, cur])
 
     cur.tag = node.tag # restore the full tag at the topmost level
