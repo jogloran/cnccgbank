@@ -232,7 +232,8 @@ def label_root(node):
     return result
     
 def has_paired_punctuation(node):
-    return node.count() > 2 and node.kids[0].is_leaf() and node.kids[-1].is_leaf() and node.kids[0].lex == "“" and node.kids[-1].lex == "”"
+    # if node has fewer than 3 kids, the analysis is the same as the default (right-branching)
+    return node.count() > 3 and node.kids[0].is_leaf() and node.kids[-1].is_leaf() and node.kids[0].lex == "“" and node.kids[-1].lex == "”"
     
 def hoist_punctuation_then(label_func, node):
     initial = node.kids.pop(0)
