@@ -5,6 +5,7 @@ from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
 from munge.util.dict_utils import sorted_by_value_desc
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid
+from apps.cn.fix_utils import inherit_tag
 
 from apps.identify_pos import is_verb_compound
 from apps.cn.output import OutputDerivation
@@ -171,11 +172,17 @@ def label(root):
                 del node.kids[last_kid_index-1]
                 last_kid.kids.insert(0, maybe_pu) # prepend
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
-        elif node.count() == 1 and node[0].tag == 'JJ':
-            if node.tag.startswith('ADVP'):
-                node.tag = node.tag.replace('ADVP', 'ADJP')
-            elif node.tag.startswith('NP'):
-                node.tag = node.tag.replace('NP', 'ADJP')
+        elif node.count() == 1:
+            if node[0].tag == 'JJ':
+                if node.tag.startswith('ADVP'):
+                    node.tag = node.tag.replace('ADVP', 'ADJP')
+                elif node.tag.startswith('NP'):
+                    node.tag = node.tag.replace('NP', 'ADJP')
+            # fix projections NP < QP
+            elif node[0].tag.startswith('QP') and node.tag.startswith('NP'):
+                inherit_tag(node[0], node) # copy PCTB tags from NP to QP
+                node.tag = node[0].tag # copy QP to parent, replacing NP
+                node.kids = node[0].kids
             
         # ---------------------------
         
