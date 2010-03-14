@@ -181,7 +181,7 @@ def label_head_final(node):
 def is_right_punct_absorption(node):
     return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
 
-@echo
+#@echo
 def label_predication(node, inherit_tag=False):
     kids = map(label_node, node.kids)
 #    last_kid, second_last_kid = kids.pop(), kids.pop()
