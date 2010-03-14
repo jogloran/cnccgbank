@@ -217,7 +217,6 @@ def try_absorption(l, r, cur):
 
         if cur == SbNPbSbNP and l.cat == "," and str(r) == "NP": # , NP -> (S\NP)\(S\NP)
             return "appositive_comma_absorb"
-#        if str(cur) == "N" and l.cat == "conj" and str(r) == "N":
         if cur == N and l == conj and r == N:
             return "funny_conj" # conj N -> N is the funny conj rule
         if config.cn_rules:

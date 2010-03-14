@@ -21,6 +21,9 @@ def echo(fn, write=sys.stdout.write):
     return E.echo(fn, lrp_repr, write)
 
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
+    '''Applies the labelling function _label_function_ to the given _node_, replacing
+its category with _substitute_ before labelling, and re-instating the former category
+afterwards, when the predicate _when_ is true for the node's category.'''
     if when and (not when(node.category)): return label_function(node)
     
     old_category = node.category

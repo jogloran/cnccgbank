@@ -11,6 +11,8 @@ DefaultMode = ALL
 
 @memoised
 def parse_category(cat_string):
+    '''Parses a category string into a category object. Throws DocParseException if unconsumed
+tokens remain.'''
     # Return each mode symbol as a token too when encountered.
     # Important: avoid using mode symbols in atomic category labels.
     toks = preserving_split(cat_string, "(\\/)[]")# + ComplexCategory.mode_symbols)

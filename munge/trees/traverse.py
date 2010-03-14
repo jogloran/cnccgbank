@@ -2,6 +2,7 @@ import re
 from itertools import izip, count
 
 def ancestors(node):
+    '''Iterates over the nodes on a path from the given _node_ to the root.'''
     while node.parent:
         node = node.parent
         yield node
@@ -32,6 +33,7 @@ def nodes_inorder(deriv):
             yield node
             
 def nodes_postorder(n):
+    '''Given a node _n_, iterates over its nodes in post-order.'''
     if n.is_leaf():
         yield n
     else:
@@ -41,6 +43,7 @@ def nodes_postorder(n):
         yield n
 
 def pairs_postorder(n):
+    '''Given a node _n_, iterates over pairs (l, r, p) in post-order.'''
     if not n.is_leaf():
         for v in pairs_postorder(n[0]): yield v
         if n.count() > 1:
