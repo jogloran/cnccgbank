@@ -60,7 +60,7 @@ if __name__ == '__main__':
     from munge.penn.parse import *
     import sys
 
-    trees = parse_tree(sys.stdin.read())
+    trees = parse_tree(sys.stdin.read(), AugmentedPennParser)
     for tree in trees:
         print pprint(tree, sep='  ')
         print
