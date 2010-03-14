@@ -17,6 +17,8 @@ total, with_unrecognised_rules = 0, 0
 ucp_rules = defaultdict(lambda: 0)
 with_ucp = 0
 
+unary, binary = defaultdict(lambda: 0), defaultdict(lambda: 0)
+
 def is_ucp(l, r, p):
     if r is None: return False
     
@@ -32,17 +34,24 @@ for file in glob(sys.argv[1]):
             lrp = map(lambda e: e and e.cat, (node[0], node[1] if node.count() > 0 else None, node))
             
             comb = analyse(*lrp)
+            l, r, p = lrp
+            rule_tuple = (str(l), str(r), str(p))
+            
             if comb:
                 combs[comb] += 1
             elif is_ucp(*lrp):
-                l, r, p = lrp
-                ucp_rules[ (str(l), str(r), str(p)) ] += 1
+                ucp_rules[rule_tuple] += 1
                 if not has_ucp:
                     with_ucp += 1
                 has_ucp = True
             else:
-                l, r, p = lrp
-                unrecognised_rules[ (str(l), str(r), str(p)) ] += 1
+                # Split unrecognised rules by type
+                if r:
+                    binary[rule_tuple] += 1
+                else:
+                    unary[rule_tuple] += 1
+                    
+                unrecognised_rules[rule_tuple] += 1
                 if not has_unrecognised_rules:
                     with_unrecognised_rules += 1
                 has_unrecognised_rules = True
@@ -56,5 +65,15 @@ for rule, freq in sorted_by_value_desc(unrecognised_rules):
 
 print "UCP rules: %d/%d=%.2f" % (with_ucp, total, with_ucp/float(total)*100.0)
 for rule, freq in sorted_by_value_desc(ucp_rules):
+    l, r, p = rule
+    print "% 4d | %20s %20s -> %s" % (freq, l, r, p)
+    
+print "Unrecognised binary rules:"
+for rule, freq in sorted_by_value_desc(binary):
+    l, r, p = rule
+    print "% 4d | %20s %20s -> %s" % (freq, l, r, p)
+    
+print "Unrecognised unary rules:"
+for rule, freq in sorted_by_value_desc(unary):
     l, r, p = rule
     print "% 4d | %20s %20s -> %s" % (freq, l, r, p)
