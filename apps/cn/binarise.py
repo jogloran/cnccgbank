@@ -1,3 +1,4 @@
+# coding: utf-8
 from __future__ import with_statement
 import sys, re, os
 
@@ -230,8 +231,25 @@ def label_root(node):
         
     return result
     
+def has_paired_punctuation(node):
+    return node.count() > 2 and node.kids[0].is_leaf() and node.kids[-1].is_leaf() and node.kids[0].lex == "“" and node.kids[-1].lex == "”"
+    
+def hoist_punctuation_then(label_func, node):
+    initial = node.kids.pop(0)
+    final = node.kids.pop()
+    
+    return Node(node.tag, [initial, Node(node.tag, [ label_func(node), final ])])
+    
+def label_node(node, *args, **kwargs):
+    if node.is_leaf() or node.count() == 1: return _label_node(node, *args, **kwargs)
+    
+    if has_paired_punctuation(node):
+        return hoist_punctuation_then(_label_node, node)
+    else:
+        return _label_node(node, *args, **kwargs)
+    
 #@echo
-def label_node(node, inside_np_internal_structure=False, do_shrink=True):
+def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     if node.is_leaf(): return node
     elif node.count() == 1:
         # shrinkage rules (NP < NN shrinks to NN)
