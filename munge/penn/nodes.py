@@ -1,4 +1,5 @@
 from munge.trees.traverse import text_without_traces, text_without_quotes_or_traces
+from munge.util.func_utils import const_
 import re
 
 class Node(object):
@@ -24,6 +25,8 @@ class Node(object):
 
     def count(self):
         return len(self.kids)
+    __len__ = count
+    __nonzero__ = const_(True)
 
     def is_leaf(self): return False
     def label_text(self): return re.escape(self.tag)
@@ -77,9 +80,12 @@ class Leaf(object):
             
     def __iter__(self): raise StopIteration
 
-    def count(self): return 0
+    count = const_(0)
+    __len__ = count
+    __nonzero__ = const_(True)
+    
+    is_leaf = const_(True)
 
-    def is_leaf(self): return True
     def label_text(self): return "%s '%s'" % (re.escape(self.tag), self.lex)
     
     def text(self, with_quotes=True):
