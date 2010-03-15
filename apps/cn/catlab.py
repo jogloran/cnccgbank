@@ -254,6 +254,11 @@ RootMap = {
 
 #@echo
 def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
+    '''Given _node_, returns a category object based only on its treebank
+tag, using the mapping. If _return_none_when_unmatched_ is True, None is
+returned if the mapping yields no category; otherwise, an atomic category
+is returned with the base CPTB tag. If _is_root_, a special mapping is
+consulted first.'''
     if node.tag == 'PU' and node.is_leaf():
         if node.lex in PunctuationMap:
             return make_atomic_category(PunctuationMap[node.lex])
@@ -275,19 +280,7 @@ def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
              or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag)))
 
 NPModifierMap = {
-#    'QP': C('NP/NP'),
-#    'QP-OBJ': C('NP/NP'),
-    
-    # 'ADJP': C('N/N'),
-    # 'CP': C('N/N'),
-    # 'QP': C('NP/N'),
-    # 'DP': C('NP/N'),
-    
-    # 'ADJP': C('NP/NP'),
     'CP': C('NP/NP'),
-    # 'QP': C('NP/NP'),
-    # 'DP': C('NP/NP'),
-#    'ADVP': C('NP/NP')
 }
 def np_modifier_tag_to_cat(ptb_tag):
     ptb_tag = base_tag(ptb_tag)
