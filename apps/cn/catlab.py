@@ -128,7 +128,8 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
     node[0].category = ptb_to_cat(node[0])
     node.kids[0] = label(node[0], inside_np)
     
-    node[1].category = ptb_to_cat(node[1]) if ucp else node[1].category 
+    #node[1].category = ptb_to_cat(node[1]) if ucp else node[1].category 
+    node[1].category = ptb_to_cat(node[1]) if ucp else node.category 
     node.kids[1] = label(node[1], inside_np)
     
     return node
