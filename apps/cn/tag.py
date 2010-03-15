@@ -257,7 +257,7 @@ def label(root):
                     
         elif is_vsb(node): # VSB is modifier+head, and hence is head-final
             tag(first_kid, 'h')
-            for kid in node[1:node.count()]:
+            for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                     tag(kid, 'a') # treat aspect particles as adjuncts
                 elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
@@ -268,13 +268,13 @@ def label(root):
             
         elif is_vcp(node):
             tag(first_kid, 'h')
-            for kid in node[1:node.count()]:
+            for kid in node[1:]:
                 if kid.tag == "VC":
                     tag(kid, 'a')
                     
         elif is_vrd(node) or is_vsb(node): # vrd is head-initial
             tag(first_kid, 'h')
-            for kid in node[1:node.count()]:
+            for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                     tag(kid, 'a') # treat aspect particles as adjuncts
                 elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
@@ -329,7 +329,7 @@ def label(root):
            or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")):
            
             tag(first_kid, 'h')
-            for kid in node[1:node.count()]:
+            for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                     tag(kid, 'a') # treat aspect particles as adjuncts
                 elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
@@ -351,13 +351,13 @@ def label(root):
             # This lets us treat what would otherwise be considered head-final as an
             # adjunction
             if last_kid.tag.startswith('DEC'):
-                for kid in node[0:node.count()-1]:
+                for kid in node[0:-1]:
                     if kid.tag.startswith('WHNP') or kid.tag.startswith('WHPP'): tag(kid, 'a')
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h') or
                         kid.tag.startswith('ADVP')): # ADVP as sibling of IP in 11:39(63)
                         tag(kid, 'l')
             else:
-                for kid in node[0:node.count()-1]:
+                for kid in node[0:-1]:
                     if (is_postverbal_adjunct_tag(kid.tag) or
                         # exception added to account for direct modification of V{V,A} with ADVP (0:47(9))
                         kid.tag.startswith('ADVP')):
@@ -379,7 +379,7 @@ def label(root):
         elif is_modification(node):
             tag(last_kid, 'h')
 
-            for kid in node[0:node.count()-1]:
+            for kid in node[0:-1]:
                 if not kid.tag.endswith(':h'):
                     if has_modification_tag(kid):
                         tag(kid, 'm')
@@ -392,7 +392,7 @@ def label(root):
         else: # adjunction
             tag(last_kid, 'h')
 
-            for kid in node[0:node.count()-1]:
+            for kid in node[0:-1]:
                 if not (kid.tag.startswith('PU') or kid.tag.startswith('CC') or kid.tag.endswith(':h')):
                     tag(kid, 'a')
                 else:

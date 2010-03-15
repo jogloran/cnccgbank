@@ -27,15 +27,14 @@ class Node(object):
         return len(self.kids)
     __len__ = count
     __nonzero__ = const_(True)
-
-    def is_leaf(self): return False
+    is_leaf = const_(False)
+    
     def label_text(self): return re.escape(self.tag)
     
     def text(self, with_quotes=True):
         return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def __getitem__(self, index):
-        # TODO: This is slightly broken. Since we can't define len() for nodes, we can't use negative (or omitted) slice indices properly.
         try:
             n = len(self.kids)
             if not (-n <= index < n): 
@@ -55,6 +54,9 @@ class Node(object):
             self.kids[index.start:index.stop] = value
             for node in value:
                 value.parent = self
+                
+    def __delitem__(self, index):
+        self.kids.__delitem__(index)
 
     def __eq__(self, other):
         return (not other.is_leaf()) and self.tag == other.tag and self.kids == other.kids
@@ -83,7 +85,6 @@ class Leaf(object):
     count = const_(0)
     __len__ = count
     __nonzero__ = const_(True)
-    
     is_leaf = const_(True)
 
     def label_text(self): return "%s '%s'" % (re.escape(self.tag), self.lex)
