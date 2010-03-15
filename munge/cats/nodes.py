@@ -10,6 +10,7 @@ APPLY, ALL, COMP, NULL = range(4)
 ShowModes = config.use_modes
 
 class Featured(object):
+    '''Represents an object with a _features_ field.'''
     def __init__(self, features=None):
         self.features = features or []
         
@@ -24,14 +25,8 @@ class Featured(object):
         '''Determines whether the given feature is present in this category's feature set.'''
         return feature in self.features
         
-    # def add_feature(self, feature):
-    #     # TODO: switch this over to a set
-    #     # TODO: this makes atomiccategory mutable
-    #     if feature not in self.features:
-    #         self.features.append(feature)
-    #     return self
-    #     
     def clone_adding_feature(self, feature):
+        '''Returns a copy of this category with the given feature appended.'''
         return self.clone_with(features=(list(self.features) + [feature]))
 
 class AtomicCategory(Featured):
@@ -58,11 +53,11 @@ class AtomicCategory(Featured):
         return copy(self)
         
     def clone_with(self, features=None):
+        '''Returns a copy of this category with the given feature set.'''
         return AtomicCategory(self.cat, features if features else copy(self.features))
 
     def equal_respecting_features(self, other):
         '''Determines if this category is equal to another, taking into account their features.'''
-#        if self is other: return True
         if not other.is_leaf(): return False
         
         return (self == other and
@@ -70,7 +65,6 @@ class AtomicCategory(Featured):
 
     def __eq__(self, other):
         '''Determines if this category is equal to another, without inspecting any features.'''
-#        if self is other: return True
         if not other.is_leaf(): return False
         return self.cat == other.cat
         
@@ -137,16 +131,16 @@ class ComplexCategory(Featured):
         # ensure that we display (X/Y)[f] and not X/Y[f]
         if self.features: first = False
         
-        return "%(open)s%(lch)s%(slash)s%(mode)s%(rch)s%(close)s%(feats)s" % {
-            'open': "" if first else "(",
-            'lch': self._left.__repr__(first=False, show_modes=show_modes),
-            'slash': self.slash,
-          #  'label': self.label if self.is_labelled() else "",
-            'mode': ComplexCategory.get_mode_symbol(self.mode) if show_modes else "",
-            'rch': self._right.__repr__(first=False, show_modes=show_modes),
-            'close': "" if first else ")",
-            'feats': self.feature_repr()
-        }
+        bits = []
+        if not first: bits.append('(')
+        bits.append(self._left.__repr__(first=False, show_modes=show_modes))
+        bits.append(self.slash)
+        if show_modes: bits.append(ComplexCategory.get_mode_symbol(self.mode))
+        bits.append(self._right.__repr__(first=False, show_modes=show_modes))
+        if not first: bits.append(')')
+        bits.append(self.feature_repr())
+        
+        return ''.join(bits)
 
     def clone(self):
         '''Returns a copy of this category.'''
@@ -215,6 +209,7 @@ and its labelled index.'''
                     yield (node, slash_index)
                         
     def nested_compound_categories(self):
+        '''Iterates over each sub-category of this category.'''
         yield self
         for cat in self._left.nested_compound_categories(): yield cat
         for cat in self._right.nested_compound_categories(): yield cat
