@@ -1,3 +1,6 @@
+const = lambda v: lambda: v
+const_ = lambda v: lambda self: v
+
 def compose2(f, g):
     '''Returns the composition of the two functions given.'''
     def h(*args, **kwargs):
