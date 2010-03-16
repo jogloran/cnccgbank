@@ -34,7 +34,7 @@ def initialise():
 # semantically identical expressions with trivial differences such as whitespace
 # will not be considered identical
 expression_cache = {}
-def tgrep(deriv, expression, with_context=False, nonrecursive=False):
+def tgrep(deriv, expression, with_context=False, nonrecursive=False, left_to_right=False):
     '''Performs the given tgrep query on the given tree.'''
     if not expression: raise RuntimeError('No query expression given.')
 
@@ -53,7 +53,9 @@ def tgrep(deriv, expression, with_context=False, nonrecursive=False):
         query = yacc.parse(expression)
         expression_cache[expression] = query
     
-    traversal_method = single if nonrecursive else nodes_reversed
+    traversal_method = (single if nonrecursive  else 
+                        nodes  if left_to_right else 
+                        nodes_reversed)
     for node in traversal_method(deriv):
 #        debug("evaluating %s against %s", expression, node)
             

@@ -170,7 +170,7 @@ class FixExtraction(Fix):
         # we want the closest DEC, so we can't use the DFS implicit in tgrep
         # relativiser, context = get_first(node, r'/DEC/ $ *=S', with_context=True)
         # s = context['S']
-        result = get_first(node, r'*=S $ /DEC/=REL', with_context=True)
+        result = get_first(node, r'*=S $ /DEC/=REL', with_context=True, left_to_right=True)
         if result is not None:
             _, context = result
             s, relativiser = context['S'], context['REL']
