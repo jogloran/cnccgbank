@@ -3,6 +3,7 @@ from copy import copy
 
 from munge.cats.cat_defs import featureless
 from munge.trees.traverse import lrp_repr
+from apps.identify_lrhca import base_tag
 
 def replace_kid(node, old, new):
     # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
@@ -36,11 +37,15 @@ def inherit_index(node, other):
             index_to_inherit = matches.group(1)
             node.tag = till_tag + index_to_inherit + ":" + after_tag
     
-def inherit_tag(node, other):
+def inherit_tag(node, other, strip_marker=False):
+    # node = IP:h other = CP-APP:a
+    # node = IP:h-APP:a
     '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
-    if other.tag.rfind('-') != -1:
+    if strip_marker: node.tag = base_tag(node.tag, strip_cptb_tag=False)
+    
+    if other.tag.rfind('-') != -1 and node.tag.rfind(':') == -1:
         node.tag += other.tag[other.tag.rfind('-'):]
-    elif other.tag.rfind(':') != -1 and node.tag.find(':') == -1:
+    elif other.tag.rfind(':') != -1 and node.tag.rfind(':') == -1:
         node.tag += other.tag[other.tag.rfind(':'):]
 
 def fcomp(l, r):

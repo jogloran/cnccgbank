@@ -17,7 +17,7 @@ PredicationRegex = re.compile(r'''
     (\s+[:\w-]+\s*)* # adjuncts (allow dashes and colons too, topicalised constituents already have :t/T)
     # allow dashes in the subject tag -- sometimes there are indices in the tag (NP-1)
     (?:[\w-]+-(?:PN|SBJ)(?:-\d+)?|NP)\s+ # grammatical subject. IP < NP-PN VP occurs in 0:40(5), and an index may also be attached (2:68(3))
-    (?:PU\s+)?
+    (?:(PU|FLR)\s+)? # FLR between NP and VP (20:8(7))
     VP # predicate
 ''', re.VERBOSE)
 def is_predication(node):

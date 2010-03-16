@@ -287,7 +287,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith('FLR')) or (node.tag.startswith('FW')))):
 
             replacement = node.kids[0]
-            inherit_tag(replacement, node)
+            inherit_tag(replacement, node, strip_marker=True)
             replace_kid(node.parent, node, node.kids[0])
             return label_node(replacement)
             
