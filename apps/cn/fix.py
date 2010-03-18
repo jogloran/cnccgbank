@@ -47,18 +47,25 @@ class Fix(Filter, OutputDerivation):
     def accept_derivation(self, bundle):
         pattern = self.pattern()
         
+        # Unordered actions
+        # { pattern1: action1, ... }
         if isinstance(pattern, dict):
             multi_tgrep(bundle.derivation, pattern)
-            
+        
+        # Ordered actions    
+        # [ (pattern1, action1), ... ]
         elif isinstance(pattern, list):
             for pattern_and_callback in pattern:
                 if Fix.is_valid_pattern_and_callback_tuple(pattern_and_callback):
                     pattern, callback = pattern_and_callback
                     bundle.derivation = Fix.do_tgrep_with_callback(bundle.derivation, pattern, callback)
-                    
+        
+        # A string tgrep expression            
+        # "pattern": fix
         elif isinstance(pattern, basestring):
             bundle.derivation = Fix.do_tgrep_with_callback(bundle.derivation, pattern, self.fix)
             
+        # Iterator over nodes
         elif callable(pattern):
             try:
                 iterator = iter(pattern(bundle.derivation))
