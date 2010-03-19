@@ -14,7 +14,7 @@ from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method
 from apps.util.cmd_utils import DefaultShell, HistorySavingDefaultShell
 from munge.util.iter_utils import flatten
-from munge.util.err_utils import warn, info, msg
+from munge.util.err_utils import warn, info, msg, err
 from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep
 import munge.proc.trace as T
@@ -365,9 +365,17 @@ def run_file(option, opt_string, value, parser, *args, **kwargs):
         
     sys.exit()
     
+def set_config_file(option, opt_string, value, parser, *args, **kwargs):
+    try:
+        config.config_file = value
+    except IOError, e:
+        err("Couldn't load config file `%s': %s", value, e)
+
 def register_builtin_switches(parser):
     parser.add_option('-F', '--file-script', help='Reads and invokes cmd.py commands from a file, then terminates. Ignores input files given on the command line.', 
                       type='string', nargs=1, action='callback', callback=run_file)
+    parser.add_option('-c', '--config', help="Set config file.", type='string', nargs=1,
+                      action='callback', callback=set_config_file)
     parser.add_option('-p', '--pager', help='Feeds filter output through the specified pager (default: $PAGER or %s).'% DefaultPager,
                       type='string', nargs=1, default=(os.getenv('PAGER') or DefaultPager), dest='pager_path')
     parser.add_option('--no-pager', help='Filter output is redirected to stdout and not a pager.', action='store_const', dest='pager_path', const=None)

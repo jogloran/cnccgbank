@@ -2,9 +2,11 @@ from optparse import OptionParser, OptionGroup
 import sys, os, re
 
 from munge.proc.filter import Filter
-from munge.util.err_utils import warn, info
+from munge.util.err_utils import warn, info, err
 from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method
+
+from apps.util.config import config
     
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.tgrep.tgrep', 
@@ -68,6 +70,12 @@ to the filter when it is invoked.'''
             del rargs[0]
             
     parser.values.filters_to_run.append( (filter_name, filter_args) )
+
+def set_config_file(option, opt_string, value, parser, *args, **kwargs):
+    try:
+        config.config_file = value
+    except IOError, e:
+        err("Couldn't load config file `%s': %s", value, e)
     
 def register_builtin_switches(parser):
     '''Registers the command-line switches which are always available as an option group.'''
@@ -89,6 +97,8 @@ def register_builtin_switches(parser):
                       action='store_false', dest='verbose')
     group.add_option("-v", "--verbose", help="Print diagnostic messages.", 
                       action='store_true', dest='verbose')
+    group.add_option("-c", "--config", help="Set config file.", type='string', nargs=1,
+                      action='callback', callback=set_config_file)
                       
     errors_group = OptionGroup(parser, title='Error handling')
                       
@@ -138,7 +148,7 @@ def main(argv):
     opts, remaining_args = parser.parse_args(argv)
     # Done with parser
     parser.destroy()
-    
+            
     # Set verbose switch if given on command line
     tracer.verbose = opts.verbose
     tracer.break_on_exception = opts.break_on_exception
@@ -156,7 +166,7 @@ def main(argv):
         
     # Run requested filters
     tracer.run(opts.filters_to_run, files)
-        
+
 if __name__ == '__main__':
 #    try:
 #        import psyco
