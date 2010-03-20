@@ -34,15 +34,26 @@ afterwards, when the predicate _when_ is true for the node's category.'''
     node.category = old_category
     
     return ret
-
-#@echo
-def label_predication(node):
-    node.kids[0] = label(node[0])
     
+#@echo
+def label_head_final(node):
+    node.kids[0] = label(node[0])
+
     node[1].category = node.category | node[0].category
     node.kids[1] = label(node[1])
-    
+
     return node
+
+#@echo
+def label_head_initial(node):
+    node.kids[1] = label(node[1])
+
+    node[0].category = node.category / node[1].category
+    node.kids[0] = label(node[0])
+
+    return node
+
+label_predication = label_head_final
 
 #@echo
 def label_left_absorption(node):
@@ -90,24 +101,6 @@ def label_right_adjunction(node):
     no_features = featureless(node.category)
     node[1].category = no_features | no_features
     node.kids[1] = label(node[1])
-    
-    return node
-
-#@echo
-def label_head_final(node):
-    node.kids[0] = label(node[0])
-    
-    node[1].category = node.category | node[0].category
-    node.kids[1] = label(node[1])
-    
-    return node
-
-#@echo
-def label_head_initial(node):
-    node.kids[1] = label(node[1])
-    
-    node[0].category = node.category / node[1].category
-    node.kids[0] = label(node[0])
     
     return node
 
@@ -286,26 +279,6 @@ def np_modifier_tag_to_cat(ptb_tag):
     ptb_tag = base_tag(ptb_tag)
     return copy(NPModifierMap.get(ptb_tag, None))
 
-#@echo
-def label_verb_compound(node):
-    node[0].category = conj if node[0].tag == 'CC' else node.category
-    node[1].category = conj if node[1].tag == 'CC' else node.category
-    
-    if node[0].tag == 'CC':
-        node[0].category = conj
-        node[1].category = node.category
-    elif node[1].tag == 'CC':
-        node[1].category = conj
-        node[0].category = node.category
-    else:
-        node[0].category = node.category
-        node[1].category = node.category | node.category # TODO:
-    
-    node.kids[0] = label(node[0])
-    node.kids[1] = label(node[1])
-    
-    return node
-
 def is_cp_to_np_nominalisation(node):
     return (node.count() == 1 and
             node.tag.startswith('NP') and
@@ -315,8 +288,6 @@ def is_PRO_trace(node):
     return (node.count() >= 2 and node[0].count() == 1
             and node[0][0].tag == "-NONE-"
             and node[0][0].lex == "*PRO*")
-
-import pdb
 
 #@echo
 def label(node, inside_np=False):
@@ -416,19 +387,6 @@ def label(node, inside_np=False):
         return label_left_absorption(node)
     elif is_right_absorption(node):
         return label_right_absorption(node)
-    
-    # must be above predication
-    # elif is_PRO_trace(node):
-    #     new_node = shrink_left(node, node.parent)
-    #     new_node.tag = base_tag(new_node.tag, strip_cptb_tag=False)
-    #     print new_node.tag
-    #     print node.tag
-    #     
-    #     inherit_tag(new_node, node)
-    #     print new_node.tag
-    #     
-    #     ret = label(new_node)
-    #     return ret
     
     elif is_predication(node):
         return label_predication(node)
