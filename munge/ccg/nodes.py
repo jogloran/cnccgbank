@@ -5,6 +5,8 @@ import munge.trees.traverse as traverse
 class Node(object):
     '''Representation of a CCGbank internal node.'''
     
+    __slots__ = ["cat", "ind1", "ind2", "parent", "_lch", "_rch"]
+    
     # We allow lch to be None to make easier the incremental construction of Node structures in
     # the parser. Conventionally, lch can never be None.
     def __init__(self, cat, ind1, ind2, parent, lch=None, rch=None):
@@ -31,22 +33,23 @@ class Node(object):
         yield self.lch
         if self.rch: yield self.rch
 
-    def get_lch(self): return self._lch
-    def set_lch(self, new_lch):
+    @property
+    def lch(self): return self._lch
+    @lch.setter
+    def lch(self, new_lch):
         if not new_lch: return
         self._lch = new_lch
         self._lch.parent = self
-    lch = property(get_lch, set_lch)
 
-    def get_rch(self): return self._rch
-    def set_rch(self, new_rch):
+    @property
+    def rch(self): return self._rch
+    @rch.setter
+    def rch(self, new_rch):
         if not new_rch: return
         self._rch = new_rch
         self._rch.parent = self
-    rch = property(get_rch, set_rch)
 
     def __eq__(self, other):
-        #if not isinstance(other, Node): return False
         if other is None or other.is_leaf(): return False
         
         return (self.cat == other.cat and
@@ -61,6 +64,7 @@ class Node(object):
     def label_text(self): return re.escape(str(self.cat))
     
     def leaf_count(self):
+        '''Returns the number of leaves under this node.'''
         count = 1 + self._lch.leaf_count()
         if self._rch: count += self._rch.leaf_count()
         
@@ -79,6 +83,7 @@ class Node(object):
         return self.lch if index == 0 else self.rch
 
     def count(self):
+        '''Returns the number of children under this node.'''
         if self.rch is None: return 1
         else: return 2
         
@@ -88,6 +93,8 @@ class Node(object):
 
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
+    
+    __slots__ = ["cat", "pos1", "pos2", "lex", "catfix", "parent"]
     
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
         '''Creates a new leaf node.'''
@@ -122,7 +129,9 @@ class Leaf(object):
     
     def label_text(self): return """%s %s""" % (re.escape(str(self.cat)), self.lex)
     
-    def leaf_count(self): return 1
+    def leaf_count(self): 
+        '''Returns the number of leaves under this node.'''
+        return 1
     
     def clone(self): return copy.copy(self)
     
@@ -134,6 +143,7 @@ class Leaf(object):
         raise NotImplementedError('Leaf has no children.')
 
     def count(self):
+        '''Returns the number of children under this node.'''
         return 0
         
     @property

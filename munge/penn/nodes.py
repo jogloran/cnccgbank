@@ -4,6 +4,9 @@ import re
 
 class Node(object):
     '''Representation of a PTB internal node.'''
+    
+    __slots__ = ['tag', 'kids', 'parent']
+    
     def __init__(self, tag, kids, parent=None):
         self.tag = tag
         self.kids = kids
@@ -64,6 +67,9 @@ class Node(object):
     
 class Leaf(object):
     '''Representation of a PTB leaf.'''
+    
+    __slots__ = ['tag', 'lex', 'parent']
+
     def __init__(self, tag, lex, parent):
         self.tag = tag
         self.lex = lex
