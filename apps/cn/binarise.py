@@ -269,7 +269,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith("ADJP") and 
                 (node.kids[0].tag.startswith("JJ") 
                  or node.kids[0].tag.startswith("AD"))) or
-            (node.tag.startswith('NP') and any(node.kids[0].tag.startswith(mod_tag for mod_tag in ('NP-MNR', 'NP-PRP')))) or
+            (any(node.tag.startswith(mod_tag) for mod_tag in ('NP-MNR', 'NP-PRP')) and has_noun_tag(node.kids[0])) or
             (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS", "NN")) or
             (node.tag.startswith("CLP") and node.kids[0].tag == "M") or  
             (node.tag.startswith("LCP") and node.kids[0].tag == "LC") or  
