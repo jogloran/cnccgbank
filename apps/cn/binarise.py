@@ -231,9 +231,18 @@ def label_root(node):
         
     return result
     
+PunctuationPairs = frozenset(
+    # Our CCGbank tags for these paired punctuation tags are:
+    # XQU XCS XPA XPA XSQ XTL XCD XCS (where X denotes one of L, R)
+    ("“”", "「」", "（）", "()", "‘’", "《》", "『』", "「」")
+)
+def are_paired_punctuation(p1, p2):
+    return (p1 + p2) in PunctuationPairs
+    
 def has_paired_punctuation(node):
     # if node has fewer than 3 kids, the analysis is the same as the default (right-branching)
-    return node.count() > 3 and node.kids[0].is_leaf() and node.kids[-1].is_leaf() and node.kids[0].lex == "“" and node.kids[-1].lex == "”"
+    return (node.count() > 3 and node.kids[0].is_leaf() and node.kids[-1].is_leaf() and 
+            are_paired_punctuation(node.kids[0].lex, node.kids[-1].lex))
     
 def hoist_punctuation_then(label_func, node):
     initial = node.kids.pop(0)
