@@ -181,6 +181,10 @@ def preprocess(root):
                 inherit_tag(node[0], node) # copy PCTB tags from NP to QP
                 node.tag = node[0].tag # copy QP to parent, replacing NP
                 node.kids = node[0].kids
+            elif node[0].tag == 'IP' and node.tag == 'CP-APP':
+                inherit_tag(node[0], node)
+                node.tag = node[0].tag
+                node.kids = node[0].kids
                 
     return root
 
