@@ -138,10 +138,8 @@ def is_right_absorption(node):
     
 def is_repeated_unary_projection(tag, node):
     return node.tag.startswith(tag) and node.count() == 1 and base_tag(node[0].tag) == tag and not node[0].is_leaf()
-
-from munge.util.tgrep_utils import get_first
-from munge.penn.nodes import Node
-def label(root):
+    
+def preprocess(root):
     for node in nodes(root):
         if node.is_leaf(): continue
         
@@ -183,8 +181,19 @@ def label(root):
                 inherit_tag(node[0], node) # copy PCTB tags from NP to QP
                 node.tag = node[0].tag # copy QP to parent, replacing NP
                 node.kids = node[0].kids
-            
-        # ---------------------------
+                
+    return root
+
+from munge.util.tgrep_utils import get_first
+from munge.penn.nodes import Node
+def label(root):
+    root = preprocess(root)
+    
+    for node in nodes(root):
+        if node.is_leaf(): continue
+        
+        first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
+        last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         
         # Reshape LB (long bei)
         # ---------------------
