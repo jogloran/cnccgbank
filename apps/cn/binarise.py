@@ -327,10 +327,10 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     elif is_prn(node):
         # although we want a head-initial analysis, we want a right-branching structure
         return label_adjunction(node, inside_np_internal_structure=True)
-    elif is_apposition(node):
-        return label_apposition(node)
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
+    elif is_apposition(node):
+        return label_apposition(node)
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)
     # 0:68(4) has both cases. If there are NP modifiers of a QP or an ADJP, we want them shrunk.
