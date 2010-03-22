@@ -140,12 +140,15 @@ else:
         elif node.tag.find('-TPC') != -1: tag(node, 'T')
         
 def is_right_absorption(node):
-    return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
+    return node.count() == 2 and base_tag(node.tag) == base_tag(node[0].tag) and node[1].tag == 'PU'
     
 def is_repeated_unary_projection(tag, node):
     return node.tag.startswith(tag) and node.count() == 1 and base_tag(node[0].tag) == tag and not node[0].is_leaf()
     
 def preprocess(root):
+    # IP < PP PU -> PP < PP PU (20:58(1))
+    if root.count() == 2 and root[1].tag == 'PU' and root[0].tag.startswith('PP'): root.tag = root[0].tag
+    
     for node in nodes(root):
         if node.is_leaf(): continue
         
