@@ -167,8 +167,11 @@ class FixExtraction(Fix):
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
         
-        # There's a mis-annotated DEG for DEC in 21:2(1) inter alia
-        result = get_first(node, r'*=S $ /DE[CG]/=REL', with_context=True, left_to_right=True)
+        result = get_first(node, r'/DEC/=REL $ *=S', with_context=True, left_to_right=True)
+        if result is None:
+            # There's a mis-annotated DEG for DEC in 21:2(1) inter alia
+            result = get_first(node, r'/DEG/=REL $ *=S', with_context=True, left_to_right=True)
+
         if result is not None:
             _, context = result
             s, relativiser = context['S'], context['REL']
