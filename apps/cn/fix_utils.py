@@ -62,6 +62,10 @@ def bxcomp(l, r):
         l.direction != FORWARD or l.direction == r.direction): return None
 
     return fake_unify(l, r, r.left / l.right)
+    
+# def bxcomp2(l, r):
+#     # (Y/Z)|W X\Y -> (X/Z)|W
+#     if ()
 
 def fxcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or

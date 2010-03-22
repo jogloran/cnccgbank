@@ -169,6 +169,11 @@ def preprocess(root):
             if maybe_pu.tag == 'PU':
                 del node.kids[last_kid_index-1]
                 last_kid.kids.insert(0, maybe_pu) # prepend
+        # DEG instead of DEC (29:34(3)). if there's a trace in DEG's sibling and no DEC, then change DEG to DEC.
+        elif node.tag == 'CP' and node.count() == 2 and node[0].tag == 'IP' and node[1].tag == 'DEG':
+            if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
+                node[1].tag = 'DEC'
+            
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.count() == 1:
             if node[0].tag == 'JJ':
