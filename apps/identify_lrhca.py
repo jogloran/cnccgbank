@@ -94,6 +94,8 @@ if config.restrictive_absorption:
             # CP < IP PU (6:72(13))
             (node[0].tag.startswith("IP") and node.tag.startswith('CP')) or
             (node[0].tag.startswith('IP') and node.tag.startswith('NP')) or
+            # after PRO trace is shrunk (10:12(33))
+            (node[0].tag.startswith('VP') and node.tag.startswith('IP')) or
             # v this mess took me half an hour to debug (29:93(15))
             (node[0].tag.startswith('PP') and node.tag.startswith('IP')) or
             (node[0].tag.startswith('NP') and node.tag.startswith('VP')) or

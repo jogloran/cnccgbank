@@ -61,8 +61,14 @@ CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?
 #CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)[\w:-]+\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+')
 
 def is_coordination(node):
+    def _fix(tag):
+        if tag in ('CP', 'CP-Q'): return 'IP'
+        return tag
+        
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
-    kid_tags = ' '.join(kid.tag for kid in node)
+    # Special case:
+    # let IP and CP coordinate (SFP sentences are annotated CP)
+    kid_tags = ' '.join(_fix(kid.tag) for kid in node)
     return CoordinationRegex.match(kid_tags)
     
 def is_ucp(node):
