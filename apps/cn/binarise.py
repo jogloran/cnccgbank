@@ -40,13 +40,14 @@ def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np
     cur.tag = node.tag
     return cur
     
-def label_apposition(node, inherit_tag=False):
+def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
     if node.count() > 2:
         first, rest = node.kids.pop(0), node.kids
-        return Node(kid_tag, [label_node(first), label_node(node)])
-    return label_adjunction(node, inherit_tag=inherit_tag)
+        return Node(kid_tag, [label_node(first, inside_np_internal_structure=inside_np_internal_structure), 
+                              label_node(node, inside_np_internal_structure=inside_np_internal_structure)])
+    return label_adjunction(node, inherit_tag=inherit_tag, inside_np_internal_structure=inside_np_internal_structure)
     
 #@echo
 def label_np_internal_structure(node, inherit_tag=False):
@@ -327,10 +328,10 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     elif is_prn(node):
         # although we want a head-initial analysis, we want a right-branching structure
         return label_adjunction(node, inside_np_internal_structure=True)
+    elif is_apposition(node):
+        return label_apposition(node, inside_np_internal_structure=node.tag.startswith('NP'))
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
-    elif is_apposition(node):
-        return label_apposition(node)
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)
     # 0:68(4) has both cases. If there are NP modifiers of a QP or an ADJP, we want them shrunk.
