@@ -199,6 +199,8 @@ def preprocess(root):
             # CLP < NN
             elif node[0].tag == 'NN' and node.tag == 'CLP':
                 node[0].tag = 'M'
+            elif node[0].tag == 'NN' and node.tag.startswith("VP"):
+                node[0].tag = 'VV'
                 
     return root
 
