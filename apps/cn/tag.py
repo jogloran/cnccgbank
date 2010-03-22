@@ -185,6 +185,9 @@ def preprocess(root):
                 inherit_tag(node[0], node)
                 node.tag = node[0].tag
                 node.kids = node[0].kids
+            # CLP < NN
+            elif node[0].tag == 'NN' and node.tag == 'CLP':
+                node[0].tag = 'M'
                 
     return root
 
