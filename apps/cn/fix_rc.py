@@ -37,12 +37,8 @@ class FixExtraction(Fix):
     def pattern(self):
         return list((
             # must come before object extraction
-#            (r'{ /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB/=PRED }}}}} > *=TOP', self.fix_long_bei_gap),
-#            (r'*=TOP < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_long_bei_gap),
-#            (r'{ /LB/=BEI $ { /CP/ < {/WHNP-\d+/ $ {/[CI]P/ << {/NP-(?:TPC|OBJ)/ < ^/\*T\*/}}}}}=SIB > *=TOP', self.fix_reduced_long_bei_gap),
-#            (r'{ /LB/=BEI $ { * << { /NP-(?:TPC|OBJ)/ < ^/\*/ } } }=SIB > *=TOP', self.fix_reduced_long_bei_gap),
-            (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI }       << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
-            (r'*=TOP < { * < /LB/=BEI }       << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+            (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+            (r'*=TOP                < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
             
             # doesn't work for 1:34(8) where an additional PP adjunct intervenes
             (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
@@ -79,7 +75,6 @@ class FixExtraction(Fix):
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
             (r'^/\*T\*/ > { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?(?!-\d+)/=K >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/ > *=N } } } }', self.fix_nongap_extraction),
 
-            #
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
             # ba-construction object gap
@@ -97,9 +92,6 @@ class FixExtraction(Fix):
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
 
-    def fix_pp_lgs(self, pp, p, s, t):
-        pass
-        
     def remove_tpc_trace(self, _, pp, p, t, s):
         replace_kid(pp, p, s)
 
@@ -295,11 +287,6 @@ class FixExtraction(Fix):
         debug("Fixing subject extraction: %s", lrp_repr(node))
         if not reduced:
             self.remove_null_element(node)
-
-        # Find and remove the trace
-        # we use find_all to find all traces in the case of coordination
-        # for trace_NP_parent in find_all(node, r'* < { * < { /NP-SBJ/ < ^/\*T\*/ } }'):
-        #     trace_NP_parent[0] = trace_NP_parent[0][1]
 
         if w:
             index = get_trace_index_from_tag(w.tag)

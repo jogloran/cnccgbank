@@ -1,7 +1,4 @@
 import sys
-import time
-
-from munge.util.func_utils import noop_function
 from apps.util.config import config
 
 muzzled = False
