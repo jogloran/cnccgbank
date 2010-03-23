@@ -413,6 +413,7 @@ def label_root(root):
     root.category = ptb_to_cat(root, is_root=True)
     
     for node in nodes(root):
+        # remove PRO traces as a preprocessing step
         if is_PRO_trace(node):
             new_node = shrink_left(node, node.parent)
             new_node.tag = base_tag(new_node.tag, strip_cptb_tag=False)

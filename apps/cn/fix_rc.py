@@ -47,8 +47,6 @@ class FixExtraction(Fix):
             (r'{ /SB/=BEI $ { /VP/=P << { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S } } } > *=PP', self.fix_short_bei_obj_gap), #1:54(3)
             (r'{ /SB/=BEI $ { /VP/=BEIS << { /VP/=P < { /NP-IO/=T < ^/\*-\d+$/ $ *=S } > *=PP } } }', self.fix_short_bei_io_gap), # 31:2(3)
 
-#            (r'*=PP < {/PP-LGS/ $ { /VP/=P << { /NP-OBJ/=T < ^/\*-\d+/ $ *=S} }}', self.fix_pp_lgs),
-
             # TODO: needs to be tested with (!NP)-TPC
             (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S}', self.fix_topicalisation_with_gap),
             (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),

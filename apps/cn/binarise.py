@@ -142,7 +142,6 @@ def reshape_for_coordination(node, inside_np_internal_structure):
         # XP (PU XP PU) (CC XP)
         # the rule is:
         # attach PU to the right _unless_ it is followed by CC
-        # easier to iterate in reverse?
         
         kid_tag = base_tag(node.tag, strip_cptb_tag=False)
 
@@ -299,6 +298,8 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith("LST") and node.kids[0].tag in ("OD", "CD")) or
             # the below is to fix a tagging error in 10:49(69)
             (node.tag.startswith('PRN') and node.count() == 1 and node.kids[0].tag == 'PU') or
+            # 0:15(5) LST < PU
+            (node.tag.startswith('LST') and node.kids[0].tag == 'PU') or
             (node.tag.startswith('FLR')) or (node.tag.startswith('FW')))):
 
             replacement = node.kids[0]
