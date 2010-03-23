@@ -444,13 +444,13 @@ class FixExtraction(Fix):
         debug("Fixing topicalisation with gap:\nnode=%s\ns=%s\nt=%s", lrp_repr(node), pprint(s), pprint(t))
 
         # stop this method from matching again (in case there's absorption on the top node, cf 2:22(5))
-        t.tag = self.strip_tag(t.tag)
+        t.tag = base_tag(t.tag, strip_cptb_tag=False)
         # create topicalised category based on the tag of T
         typeraise_t_category = ptb_to_cat(t)
         # insert a node with the topicalised category
         replace_kid(p, t, Node(
             typeraise(typeraise_t_category, S, TOPICALISATION),
-            self.strip_tag(t.tag),
+            base_tag(t.tag, strip_cptb_tag=False)
             [t]))
 
         index = get_trace_index_from_tag(t.tag)
@@ -479,7 +479,7 @@ class FixExtraction(Fix):
         debug("Fixing topicalisation without gap: %s", pprint(node))
 
         new_kid = copy(t)
-        new_kid.tag = self.strip_tag(new_kid.tag)
+        new_kid.tag = base_tag(new_kid.tag, strip_cptb_tag=False)
 
         new_category = featureless(p.category)/featureless(s.category)
         replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
@@ -506,10 +506,6 @@ class FixExtraction(Fix):
             ppp = pp.parent
             ppp.kids.remove(pp)
 
-    @staticmethod
-    def strip_tag(tag):
-        return re.sub(r':.+$', '', tag)
-
     def fix_modification(self, node, p, s, t):
         debug("Fixing modification: %s", lrp_repr(node))
         S, P = s.category, p.category
@@ -517,7 +513,7 @@ class FixExtraction(Fix):
         # If you don't strip the tag :m from the newly created child (new_kid),
         # the fix_modification pattern will match infinitely when tgrep visits new_kid
         new_kid = copy(t)
-        new_kid.tag = self.strip_tag(new_kid.tag)
+        new_kid.tag = base_tag(new_kid.tag, strip_cptb_tag=False)
 
         new_category = featureless(P) / featureless(S)
         debug("Creating category %s", new_category)
