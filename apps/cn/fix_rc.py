@@ -448,7 +448,7 @@ class FixExtraction(Fix):
         # insert a node with the topicalised category
         replace_kid(p, t, Node(
             typeraise(typeraise_t_category, S, TOPICALISATION),
-            base_tag(t.tag, strip_cptb_tag=False)
+            base_tag(t.tag, strip_cptb_tag=False),
             [t]))
 
         index = get_trace_index_from_tag(t.tag)
