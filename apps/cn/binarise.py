@@ -272,57 +272,55 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             ((inside_np_internal_structure and 
                 ((node.tag.startswith("NP") and 
                 (not node.tag.endswith(':A')) and 
-                has_noun_tag(node.kids[0])) or 
-                node.kids[0].tag == "AD") ) or
-            # (node.tag.startswith("NP-PRD") and
-            #     node.kids[0].tag.startswith("CP")) or
+                has_noun_tag(node[0])) or 
+                node[0].tag == "AD") ) or
             ( (node.tag.startswith("VP") or
                     is_verb_compound(node))  # a handful of VRDs project a single child (11:29(4))
-                and (has_verbal_tag(node.kids[0]) 
-                 or any(node.kids[0].tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))
-                 or node.kids[0].tag.startswith("AD")
-                 or any(node.kids[0].tag.startswith(cand) for cand in ('PP', 'QP', 'LCP', 'NP'))
+                and (has_verbal_tag(node[0]) 
+                 or any(node[0].tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))
+                 or node[0].tag.startswith("AD")
+                 or any(node[0].tag.startswith(cand) for cand in ('PP', 'QP', 'LCP', 'NP'))
             ) ) or
             (node.tag.startswith("ADJP") and 
-                (node.kids[0].tag.startswith("JJ") 
-                 or node.kids[0].tag.startswith("AD"))) or
-            (any(node.tag.startswith(mod_tag) for mod_tag in ('NP-MNR', 'NP-PRP')) and has_noun_tag(node.kids[0])) or
-            (node.tag.startswith("ADVP") and node.kids[0].tag in ("AD", "CS", "NN")) or
-            (node.tag.startswith("CLP") and node.kids[0].tag == "M") or  
-            (node.tag.startswith("LCP") and node.kids[0].tag == "LC") or  
+                (node[0].tag.startswith("JJ") 
+                 or node[0].tag.startswith("AD"))) or
+            (any(node.tag.startswith(mod_tag) for mod_tag in ('NP-MNR', 'NP-PRP')) and has_noun_tag(node[0])) or
+            (node.tag.startswith("ADVP") and node[0].tag in ("AD", "CS", "NN")) or
+            (node.tag.startswith("CLP") and node[0].tag == "M") or  
+            (node.tag.startswith("LCP") and node[0].tag == "LC") or  
             # DT < OD found in 6:25(11)
-            (node.tag.startswith("DP") and node.kids[0].tag in ("DT", "OD")) or
+            (node.tag.startswith("DP") and node[0].tag in ("DT", "OD")) or
             # QP < AD in 24:68(8)
-            (node.tag.startswith("QP") and (node.kids[0].tag.startswith("QP") or node.kids[0].tag.startswith('M'))) or
+            (node.tag.startswith("QP") and (node[0].tag.startswith("QP") or node[0].tag.startswith('M'))) or
             # see head-initial case in tag.py (hack for unary PP < P)
-            (node.tag.startswith('PP') and node.kids[0].tag == "P") or
+            (node.tag.startswith('PP') and node[0].tag == "P") or
             # see bad tagging (WHNP CP DEC) in tag.py head-final case
-            (node.tag.startswith('CP') and node.kids[0].tag.startswith('IP')) or
-            (node.tag.startswith('INTJ') and node.kids[0].tag == 'IJ') or
-            (node.tag.startswith("LST") and node.kids[0].tag in ("OD", "CD")) or
+            (node.tag.startswith('CP') and node[0].tag.startswith('IP')) or
+            (node.tag.startswith('INTJ') and node[0].tag == 'IJ') or
+            (node.tag.startswith("LST") and node[0].tag in ("OD", "CD")) or
             # the below is to fix a tagging error in 10:49(69)
-            (node.tag.startswith('PRN') and node.count() == 1 and node.kids[0].tag == 'PU') or
+            (node.tag.startswith('PRN') and node.count() == 1 and node[0].tag == 'PU') or
             # 0:15(5) LST < PU
-            (node.tag.startswith('LST') and node.kids[0].tag == 'PU') or
+            (node.tag.startswith('LST') and node[0].tag == 'PU') or
             (node.tag.startswith('FLR')) or (node.tag.startswith('FW')))):
 
-            replacement = node.kids[0]
+            replacement = node[0]
             inherit_tag(replacement, node, strip_marker=True)
-            replace_kid(node.parent, node, node.kids[0])
+            replace_kid(node.parent, node, node[0])
             return label_node(replacement)
             
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
-        elif ((node.tag.startswith('NP') and node.kids[0].tag == "PN") or
+        elif ((node.tag.startswith('NP') and node[0].tag == "PN") or
               # 21:2(6)
-              (node.tag.startswith('ADVP') and node.kids[0].tag == 'CC') or
-              (node.tag.startswith("QP") and node.kids[0].tag in ("OD", "CD")) or
+              (node.tag.startswith('ADVP') and node[0].tag == 'CC') or
+              (node.tag.startswith("QP") and node[0].tag in ("OD", "CD")) or
               # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
-              (node.tag.startswith('NP') and node.kids[0].tag.startswith('NT')) or
+              (node.tag.startswith('NP') and node[0].tag.startswith('NT')) or
               (any(node.tag.startswith(cand) for cand in ('NP-LOC', 'NP-ADV', 'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
-                  and has_noun_tag(node.kids[0]))):
-            replacement = node.kids[0]
+                  and has_noun_tag(node[0]))):
+            replacement = node[0]
             inherit_tag(replacement, node)
-            replace_kid(node.parent, node, node.kids[0])
+            replace_kid(node.parent, node, node[0])
             replacement.tag = node.tag
             
             return label_node(replacement)
