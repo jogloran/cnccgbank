@@ -44,6 +44,9 @@ def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
     if node.count() > 2:
+        # Label the first kid before removing it from the node: if we did this the
+        # other way around, then shrinking (which relies on replace_kid) would not
+        # find _node[0]_ among the kids of _node_, and fail.
         label_node(node[0], inside_np_internal_structure=inside_np_internal_structure)
         first = node.kids.pop(0)
         
