@@ -21,8 +21,8 @@ def strip_tag_if(cond, tag):
         return tag
 
 #@echo
-def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False):
-    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+def label_adjunction(node, without_labelling=False, inside_np_internal_structure=False):
+    kid_tag = node.tag
 
     if not without_labelling:
         kids = map(lambda node: label_node(node, inside_np_internal_structure=inside_np_internal_structure), node.kids)
@@ -40,27 +40,27 @@ def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np
     cur.tag = node.tag
     return cur
     
-def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
-    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+def label_apposition(node, inside_np_internal_structure=False):
+    kid_tag = node.tag
 
     if node.count() > 2:
         # Label the first kid before removing it from the node: if we did this the
         # other way around, then shrinking (which relies on replace_kid) would not
         # find _node[0]_ among the kids of _node_, and fail.
-        label_node(node[0], inside_np_internal_structure=inside_np_internal_structure)
-        first = node.kids.pop(0)
+        first = label_node(node[0], inside_np_internal_structure=inside_np_internal_structure)
+        node.kids.pop(0)
         
-        return Node(kid_tag, [first, label_node(node)])
-    return label_adjunction(node, inherit_tag=inherit_tag)
+        return Node(kid_tag, [first, label_node(node, inside_np_internal_structure=inside_np_internal_structure)])
+    return label_adjunction(node)
     
 #@echo
-def label_np_internal_structure(node, inherit_tag=False):
+def label_np_internal_structure(node):
     if (node.kids[-1].tag.endswith(':&') 
         # prevent movement when we have an NP with only two children NN ETC
         and node.count() > 2):
         
         etc = node.kids.pop()
-        kid_tag = strip_tag_if(not inherit_tag, node.tag)
+        kid_tag = node.tag
         
         old_tag = node.tag
         node.tag = kid_tag
@@ -107,7 +107,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
         old_tag = node.tag
         node.tag = kid_tag
 
-        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
+        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure=inside_np_internal_structure), etc ])
     else:
         def label_nonconjunctions(kid):
             if kid.tag not in ('CC', 'PU'): 
@@ -119,6 +119,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
         
 label_coordination = label_with_final_punctuation_high(_label_coordination)
         
+#@echo
 def get_kid(kids, seen_cc):
     pu = kids.pop()
 
@@ -159,13 +160,14 @@ def reshape_for_coordination(node, inside_np_internal_structure):
             cur = Node(kid_tag, [kid, cur])
 
         cur.tag = node.tag
+        print (cur)
         return cur
             
     return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
         
 #@echo
-def label_head_initial(node, inherit_tag=False):
-    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+def label_head_initial(node):
+    kid_tag = node.tag
     
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = kids.pop(), kids.pop()
@@ -187,13 +189,13 @@ def is_right_punct_absorption(node):
     return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
 
 #@echo
-def label_predication(node, inherit_tag=False):
+def label_predication(node):
     kids = map(label_node, node.kids)
 #    last_kid, second_last_kid = kids.pop(), kids.pop()
     last_kid = get_kid_(kids)
     second_last_kid = get_kid_(kids)
     
-    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+    kid_tag = node.tag
 
     initial_tag = kid_tag
 
