@@ -267,9 +267,13 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     if node.is_leaf(): return node
     elif node.count() == 1:
         # shrinkage rules (NP < NN shrinks to NN)
-        if (do_shrink and ((inside_np_internal_structure and node.tag.startswith("NP") and 
-                has_noun_tag(node.kids[0])
-                or node.kids[0].tag == "AD") or
+        if (do_shrink and 
+        
+            ((inside_np_internal_structure and 
+                ((node.tag.startswith("NP") and 
+                (not node.tag.endswith(':A')) and 
+                has_noun_tag(node.kids[0])) or 
+                node.kids[0].tag == "AD") ) or
             # (node.tag.startswith("NP-PRD") and
             #     node.kids[0].tag.startswith("CP")) or
             ( (node.tag.startswith("VP") or
