@@ -159,17 +159,12 @@ class FixExtraction(Fix):
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
         
-#        debug('Looking under %s', pprint(node))
         result = get_first(node, r'*=S $ /DEC/=REL', with_context=True, left_to_right=True)
-        # if result is None:
-        #     # There's a mis-annotated DEG for DEC in 21:2(1) inter alia
-        #     result = get_first(node, r'/DEG/=REL $ *=S', with_context=True, left_to_right=True)
 
         if result is not None:
             _, context = result
             s, relativiser = context['S'], context['REL']
 
-#            debug("operating on rel: %s", relativiser)
             relativiser.category = relativiser.category.clone_with(right=s.category)
             debug("New rel category: %s", relativiser.category)
 
@@ -398,7 +393,6 @@ class FixExtraction(Fix):
     def fix_reduced(self, f):
         def _f(node, *args, **kwargs):
             kwargs.update(reduced=True)
-            debug('\n'.join("%s: %s"%(k,v) for k, v in kwargs.iteritems()))
             return f(node, *args, **kwargs)
         return _f
 
@@ -443,7 +437,6 @@ class FixExtraction(Fix):
     @staticmethod
     def fix_object_gap(pp, p, t, s):
         '''Given a trace _t_, its sibling _s_, its parent _p_ and its grandparent _pp_, replaces _p_ with its sibling.'''
-#        debug("pp:%s\npp:%s\nt:%s\ns:%s", *map(pprint, (pp,p,t,s)))
         p.kids.remove(t)
         replace_kid(pp, p, s)
 
@@ -489,7 +482,6 @@ class FixExtraction(Fix):
         new_kid.tag = self.strip_tag(new_kid.tag)
 
         new_category = featureless(p.category)/featureless(s.category)
-#        new_category = S/S
         replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
 
     def fix_prodrop(self, node, pp, p):
