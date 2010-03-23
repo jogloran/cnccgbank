@@ -160,7 +160,6 @@ def reshape_for_coordination(node, inside_np_internal_structure):
             cur = Node(kid_tag, [kid, cur])
 
         cur.tag = node.tag
-        print (cur)
         return cur
             
     return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
