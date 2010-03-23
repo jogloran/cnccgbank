@@ -183,6 +183,7 @@ def is_np_structure(node):
         kid.tag.startswith('PP') or
         kid.tag == "PU" or
         kid.tag.startswith('NP') or
+        kid.tag.startswith('FLR') or # ignore FLR
         kid.tag.endswith(':p') for kid in node)
     
 def is_apposition(node):
