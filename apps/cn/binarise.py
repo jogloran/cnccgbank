@@ -40,14 +40,15 @@ def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np
     cur.tag = node.tag
     return cur
     
-def label_apposition(node, inherit_tag=False):
+def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
     if node.count() > 2:
-        first, rest = node.kids.pop(0), node.kids
-        #return Node(kid_tag, [label_node(first, inside_np_internal_structure=inside_np_structure), label_node(node, inside_np_internal_structure=inside_np_structure)])
-        return Node(kid_tag, [label_node(first), label_node(node)])
-    return label_adjunction(node, inherit_tag=inherit_tag)#, inside_np_internal_structure=inside_np_structure)
+        label_node(node[0], inside_np_internal_structure=inside_np_internal_structure)
+        first = node.kids.pop(0)
+        
+        return Node(kid_tag, [first, label_node(node)])
+    return label_adjunction(node, inherit_tag=inherit_tag)
     
 #@echo
 def label_np_internal_structure(node, inherit_tag=False):
@@ -329,7 +330,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         # although we want a head-initial analysis, we want a right-branching structure
         return label_adjunction(node, inside_np_internal_structure=True)
     elif is_apposition(node):
-        return label_apposition(node)
+        return label_apposition(node, inside_np_internal_structure=True)
     elif is_np_structure(node):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
