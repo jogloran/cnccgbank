@@ -55,10 +55,7 @@ else:
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+ (final punctuation)*
 # \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
-#CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)\b(?: (?:(?:PU|CC) )+\1)+\s*(?: PU)*$')
 CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+\s*(?: (?:PU|ETC))*$')
-# Below regex accounts for coordination when POS tags differ by CPTB tag (eg IP-OBJ PU IP PU IP): is 29:99(14) just a tagging error?
-#CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)[\w:-]+\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+')
 
 def is_coordination(node):
     def _fix(tag):
@@ -239,14 +236,6 @@ def label(root):
                 
             elif kid.tag in ('SP', 'MSP'):
                 tag(kid, 'a')
-            #     
-            # elif is_prn(kid):
-            #     # PRN tagging error in 10:49(69)
-            #     if not first_kid: continue
-            # 
-            #     node.tag = first_kid.tag
-            #     tag(node, 'p')
-            #     tag(node[0], 'h') # assume that the first PU introduces the PRN
                 
             else:
                 tag_if_topicalisation(kid)
@@ -332,9 +321,6 @@ def label(root):
                     else:
                         tag(kid, 'n')
                 else:
-                    # if tag is CC or PU, we want the previous
-                    # tag to be N, not n
-#                    first = True
                     pass
                     
         # must be above is_coordination (it subsumes UCP)
@@ -354,7 +340,6 @@ def label(root):
             pass
 
         elif ((first_kid.is_leaf() # head initial complementation
-#               or is_vp_internal_structure(first_kid) 
             or is_vp_compound(first_kid)
            # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
            # (because of PP IP configuration) in 10:76(4)
@@ -371,7 +356,6 @@ def label(root):
         elif (last_kid.is_leaf() or 
               #last_kid.tag == "CLP" or
               is_vp_compound(last_kid) or
-#                  is_vp_internal_structure(last_kid) or
               # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
               # this should be treated as head-final complementation, not adjunction.
               is_lcp_internal_structure(last_kid)):

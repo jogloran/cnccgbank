@@ -5,6 +5,7 @@ from copy import copy
 
 from munge.proc.filter import Filter
 from munge.util.err_utils import warn, info
+from munge.util.deco_utils import memoised
 
 from munge.trees.pprint import *
 from munge.cats.nodes import *
@@ -121,7 +122,6 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
     node[0].category = ptb_to_cat(node[0])
     node.kids[0] = label(node[0], inside_np)
     
-    #node[1].category = ptb_to_cat(node[1]) if ucp else node[1].category 
     node[1].category = ptb_to_cat(node[1]) if ucp else node.category 
     node.kids[1] = label(node[1], inside_np)
     
@@ -130,14 +130,10 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
 # If no process successfully assigns a category, these are used to map PTB tags to
 # a 'last-ditch' category.
 Map = {
-    'NP': NP,
-    'PN': NP,
-    
+    'NP': NP, 'PN': NP,
     'DT': NP,
     
-    'NN': N,
-    'NR': N,
-    'NT': N,
+    'NN': N, 'NR': N, 'NT': N,
     
     'FRAG': Sfrg,
     'IP': Sdcl,
@@ -145,20 +141,13 @@ Map = {
     
     'ADVP': SbNPfSbNP,
     
-    'VP': SdclbNP,
-    'VA': SdclbNP,
-    'VV': SdclbNP,
+    'VP': SdclbNP, 'VA': SdclbNP, 'VV': SdclbNP,
     # not really intended for use. FLR < VE (see the "Addendum to the Bracketing Guidelines for the ACE Chinese Broadcast News Data")
     # appears in 25:97(2). We'll just treat this as a noisy unary rule.
     'VE': SdclbNP,
 #    'VC': SdclbNPfNP,
     
-    'VSB': SdclbNP,
-    'VRD': SdclbNP,
-    'VCD': SdclbNP,
-    'VNV': SdclbNP,
-    'VPT': SdclbNP,
-    
+    'VSB': SdclbNP, 'VRD': SdclbNP, 'VCD': SdclbNP, 'VNV': SdclbNP, 'VPT': SdclbNP,
     'CC': conj,
     
     'CD': Nnum,
@@ -173,11 +162,6 @@ Map = {
     
     'FW': N, # last ditch for filler words
     
-    # can't add this without wrecking non-root CPs
-    #'CP': Sdcl, # for top level CP (like 6:6(4))
-    
-    #'CP': C('NP/NP'),
-    
     'CP-PRD': NP,
     'CP-OBJ': Sdcl, # 8:16(9) CP in object position is treated as IP
     'CP-CND': SfS,
@@ -191,50 +175,31 @@ PunctuationMap = {
     '，': ',', # Clausal comma (逗号)
     ',': ',', # Roman comma
     
-    '？': '?', # Chinese question mark
-    '?': '?',
+    '？': '?', '?': '?', # Chinese question mark
+    '！': '!', '!': '!', # Chinese exclamation mark
     
-    '！': '!', # Chinese exclamation mark
-    '!': '!',
+    '：': ':', ':': ':', # Chinese colon
+    '；': ';', ';': ';', # Chinese semicolon
     
-    '：': ':', # Chinese colon
-    ':': ':',
+    '（': 'LPA', '(': 'LPA', # Chinese opening paren
+    '）': 'RPA', ')': 'RPA', # Chinese closing paren
     
-    '；': ';', # Chinese semicolon
-    ';': ';',
-    
-    '（': 'LPA', # Chinese opening paren
-    '(': 'LPA',
-    
-    '）': 'RPA', # Chinese closing paren
-    ')': 'RPA',
-    
-    '“': 'LQU', # Roman open quote
-    '”': 'RQU',
-    
-    '‘': 'LSQ', # Roman single open quote
-    '’': 'RSQ',
+    '“': 'LQU', '”': 'RQU', # Roman double quote
+    '‘': 'LSQ', '’': 'RSQ', # Roman single quote
     
     '—': 'DSH', # Chinese dash
     
-    '《': 'LTL', # Chinese left title bracket
-    '》': 'RTL', # Chinese right title bracket
+    '《': 'LTL', '》': 'RTL', # Chinese title bracket
+    '『': 'LCD', '』': 'RCD', # Chinese double corner bracket
+    '「': 'LCS', '」': 'RCS', # Chinese left corner bracket
     
-    '『': 'LCD', # Chinese double left corner bracket
-    '』': 'RCD',
-    
-    '「': 'LCS', # Chinese single left corner bracket
-    '」': 'RCS',
-    
-    '/': 'SLS',
-    '//': 'SLS',
+    '/': 'SLS', '//': 'SLS',
 }
 
 Dashes = set("── - --- ---- ━ ━━ — —— ———".split())
 def is_dashlike(t):
     return t in Dashes
     
-from munge.util.deco_utils import memoised
 @memoised
 def make_atomic_category(atom):
     return AtomicCategory(atom)
