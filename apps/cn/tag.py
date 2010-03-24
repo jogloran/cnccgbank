@@ -361,8 +361,8 @@ def label(root):
 
         elif ((first_kid.is_leaf() # head initial complementation
             # quoted verb (see fix in _preprocess_ function)
-            or all(kid.is_leaf() and kid.tag in ('PU', 'VV') for kid in first_kid)
-            or is_vp_compound(first_kid)
+           or all((kid.is_leaf() and kid.tag in ('PU', 'VV')) for kid in first_kid)
+           or is_vp_compound(first_kid)
            # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
            # (because of PP IP configuration) in 10:76(4)
            or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")):

@@ -22,7 +22,7 @@ def get_nonpunct_element(e, get_last=True):
     
 def get_nonpunct_kid(node, get_last=True):
     if node.is_leaf(): return None, None
-    return get_nonpunct_element(node.kids)
+    return get_nonpunct_element(node.kids, get_last=get_last)
 
 def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
     '''
