@@ -1,9 +1,12 @@
+# coding: utf-8
 from __future__ import with_statement
 import os, re
 
 from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
 from munge.util.dict_utils import sorted_by_value_desc
+from munge.util.list_utils import first_index_such_that, last_index_such_that
+
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid
 from apps.cn.fix_utils import inherit_tag
 
@@ -143,6 +146,9 @@ def is_right_absorption(node):
 def is_repeated_unary_projection(tag, node):
     return node.tag.startswith(tag) and node.count() == 1 and base_tag(node[0].tag) == tag and not node[0].is_leaf()
     
+def leaf_kids(node):
+    return filter(lambda e: e.is_leaf(), node)
+    
 def preprocess(root):
     # IP < PP PU -> PP < PP PU (20:58(1))
     if root.count() == 2 and root[1].tag == 'PU' and root[0].tag.startswith('PP'): root.tag = root[0].tag
@@ -152,6 +158,16 @@ def preprocess(root):
         
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
+        
+        if any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
+            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
+            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
+            if rqu != node.count()-1:
+                quoted_kids = node.kids[lqu:rqu+1]
+                del node.kids[lqu:rqu+1]
+                
+                quoted_node = Node(quoted_kids[-2].tag, quoted_kids)
+                node.kids.insert(lqu, quoted_node)
         
         # CPTB/Chinese-specific fixes
         # ---------------------------
@@ -341,6 +357,8 @@ def label(root):
             pass
 
         elif ((first_kid.is_leaf() # head initial complementation
+            # quoted verb (see fix in _preprocess_ function)
+            or all(kid.is_leaf() and kid.tag in ('PU', 'VV') for kid in first_kid)
             or is_vp_compound(first_kid)
            # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
            # (because of PP IP configuration) in 10:76(4)
