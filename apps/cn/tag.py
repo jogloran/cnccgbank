@@ -63,13 +63,16 @@ CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?
 
 def is_coordination(node):
     def _fix(tag):
+        # Special case:
+        # let IP and CP coordinate (SFP sentences are annotated CP)
         if tag in ('CP', 'CP-Q'): return 'IP'
+        elif tag.startswith('SP'): return None # ignore SP (26:65(5))
         return tag
         
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
-    # Special case:
-    # let IP and CP coordinate (SFP sentences are annotated CP)
-    kid_tags = ' '.join(_fix(kid.tag) for kid in node)
+    
+    # filter None, because kids to be ignored for the purpose of deciding coordination will map to None
+    kid_tags = ' '.join(filter(None, (_fix(kid.tag) for kid in node)))
     return CoordinationRegex.match(kid_tags)
     
 def is_ucp(node):
