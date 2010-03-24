@@ -66,7 +66,7 @@ def is_coordination(node):
         # Special case:
         # let IP and CP coordinate (SFP sentences are annotated CP)
         if tag in ('CP', 'CP-Q'): return 'IP'
-        elif tag.startswith('SP'): return None # ignore SP (26:65(5))
+        elif tag.startswith('SP') or tag.startswith('MSP'): return None # ignore SP (26:65(5))
         return tag
         
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False

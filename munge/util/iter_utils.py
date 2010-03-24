@@ -37,3 +37,6 @@ iterator yielding _e_.'''
         
 def single(e):
     yield e
+
+def get_first(seq):
+    return take(seq, 1)
