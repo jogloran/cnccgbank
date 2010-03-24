@@ -92,26 +92,12 @@ def is_lcp_internal_structure(node):
     
 def is_postverbal_adjunct_tag(tag):
     return tag.startswith('AS') or tag.startswith('DER')
-    
-def is_vpt(node):
-    return node.tag.startswith('VPT')
 
-def is_vnv(node):
-    return node.tag.startswith('VNV')
+# defines the is_vpt, is_vnv, ... methods    
+for t in ('VPT', 'VNV', 'VCD', 'VRD', 'VCP', 'VSB'):
+    globals()['is_%s' % t.lower()] = lambda node: node.tag.startswith(t)
     
-def is_vcd(node):
-    return node.tag.startswith('VCD')
-    
-def is_vrd(node):
-    return node.tag.startswith('VRD')
-    
-def is_vcp(node):
-    return node.tag.startswith('VCP')
-    
-def is_vsb(node):
-    return node.tag.startswith('VSB')
-
-def is_vp_compound(node):
+def is_verb_compound(node):
     return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
     
 def is_prn(node):
@@ -238,8 +224,9 @@ def label(root):
         # Reshape LB (long bei)
         # ---------------------
         if first_kid and first_kid.tag == "LB":
-            expr = r'''* < { /LB/=LB [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
-                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } }  ] }'''
+            expr = r'''* < { /LB/=LB 
+                       [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
+                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
             _, ctx = get_first(node, expr, with_context=True)
             
             lb = ctx['LB']
@@ -282,7 +269,7 @@ def label(root):
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
-        elif node.count() == 1 and node.tag.startswith('VP') and is_vp_compound(node[0]):
+        elif node.count() == 1 and node.tag.startswith('VP') and is_verb_compound(node[0]):
             pass
                     
         elif is_vpt(node): # fen de kai, da bu ying. vpt is head-final
@@ -362,7 +349,7 @@ def label(root):
         elif ((first_kid.is_leaf() # head initial complementation
             # quoted verb (see fix in _preprocess_ function)
            or all((kid.is_leaf() and kid.tag in ('PU', 'VV')) for kid in first_kid)
-           or is_vp_compound(first_kid)
+           or is_verb_compound(first_kid)
            # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
            # (because of PP IP configuration) in 10:76(4)
            or first_kid.tag == 'PP' and first_kid.count() == 1 and first_kid[0].tag == "P")):
@@ -376,8 +363,7 @@ def label(root):
 
         # head final complementation
         elif (last_kid.is_leaf() or 
-              #last_kid.tag == "CLP" or
-              is_vp_compound(last_kid) or
+              is_verb_compound(last_kid) or
               # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
               # this should be treated as head-final complementation, not adjunction.
               is_lcp_internal_structure(last_kid)):

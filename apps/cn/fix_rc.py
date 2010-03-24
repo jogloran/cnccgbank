@@ -76,7 +76,7 @@ class FixExtraction(Fix):
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
             # ba-construction object gap
-            (r'*=TOP < { /BA/ $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
+            (r'*=TOP < { /BA/=BA $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
 
             # Removes the prodrop trace *pro*
             (r'*=PP < { *=P < ^"*pro*" }', self.fix_prodrop),
@@ -381,6 +381,15 @@ class FixExtraction(Fix):
         
         debug("new bei category: %s", bei.category)
         return bei
+        
+    def relabel_ba_category(self, top, ba):
+        ba, context = get_first(top, r'*=S [ $ /BA/=BA ]', with_context=True)
+        s, ba = context['S'], context['BA']
+
+        ba.category = ba.category.clone_with(right=s.category)
+        
+        debug("new ba category: %s", ba.category)
+        return ba
 
     def fix_reduced_long_bei_gap(self, node, *args, **kwargs):
         debug("Fixing reduced long bei gap: %s", lrp_repr(node))
@@ -422,7 +431,7 @@ class FixExtraction(Fix):
 
         debug("done %s", pprint(top))
 
-    def fix_ba_object_gap(self, node, top, c):
+    def fix_ba_object_gap(self, node, top, c, ba):
         debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
 
         for trace_NP, context in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
@@ -431,6 +440,8 @@ class FixExtraction(Fix):
 
             self.fix_object_gap(pp, p, t, s)
             self.fix_categories_starting_from(s, until=c)
+            
+        self.relabel_ba_category(top, ba)
 
     @staticmethod
     def fix_object_gap(pp, p, t, s):
