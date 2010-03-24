@@ -167,8 +167,10 @@ def preprocess(root):
                 del node.kids[lqu:rqu+1]
                 
                 last_nonpunct_kid, _ = get_nonpunct_element(quoted_kids, get_last=True)
-                quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
-                node.kids.insert(lqu, quoted_node)
+                # Bad punctuation in 27:84(4) causes a mis-analysis, just ignore
+                if last_nonpunct_kid:
+                    quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
+                    node.kids.insert(lqu, quoted_node)
         
         # CPTB/Chinese-specific fixes
         # ---------------------------

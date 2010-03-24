@@ -24,7 +24,6 @@ def get_nonpunct_kid(node, get_last=True):
     if node.is_leaf(): return None, None
     return get_nonpunct_element(node.kids)
 
-# 
 def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
     '''
     Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
