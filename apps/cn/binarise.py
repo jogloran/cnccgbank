@@ -316,7 +316,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
               (node.tag.startswith("QP") and node[0].tag in ("OD", "CD")) or
               # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
               (node.tag.startswith('NP') and node[0].tag.startswith('NT')) or
-              (any(node.tag.startswith(cand) for cand in ('NP-LOC', 'NP-ADV', 'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
+              (any(node.tag.startswith(cand) for cand in ('NP-PRD', 'NP-LOC', 'NP-ADV', 'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
                   and has_noun_tag(node[0]))):
             replacement = node[0]
             inherit_tag(replacement, node)
