@@ -176,7 +176,7 @@ def preprocess(root):
         elif node.tag.startswith('VP') and node.count() >= 2 and node[0].tag == 'VV' and node[-1].tag == 'NP':
             node[-1].tag += "-OBJ"
         # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
-        elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP')):
+        elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP', 'CP')):
             node.kids = node[0].kids
         # attach the PU preceding a PRN under the PRN
         elif last_kid and last_kid.tag == 'PRN' and last_kid.count() == 1:

@@ -182,8 +182,9 @@ def is_np_structure(node):
         kid.tag.startswith('LCP') or
         kid.tag.startswith('CLP') or # 0:57(12) reduced M
         kid.tag.startswith('PP') or
-        kid.tag == "PU" or
+        kid.tag in ("PU", "CC") or # CC for underspecified NP (27:24(3))
         kid.tag.startswith('NP') or
+        kid.tag.startswith('WHNP') or # 9:30(13)
         kid.tag.startswith('FLR') or # ignore FLR
         kid.tag.endswith(':p') for kid in node)
     
