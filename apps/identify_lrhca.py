@@ -10,17 +10,19 @@ def last_nonpunct_kid(node):
     kid, index = get_nonpunct_kid(node)
     return kid
     
-def get_nonpunct_kid(node, get_last=True):
-    if node.is_leaf(): return None, None
-    
+def get_nonpunct_element(e, get_last=True):
     if get_last:
-        for i, kid in enumerate(reversed(node.kids)):
-            if not kid.tag.startswith('PU'): return kid, node.count() - i - 1
+        for i, kid in enumerate(reversed(e)):
+            if not kid.tag.startswith('PU'): return kid, len(e) - i - 1
     else:
-        for i, kid in enumerate(node.kids):
+        for i, kid in enumerate(e):
             if not kid.tag.startswith('PU'): return kid, i
             
     return None, None
+    
+def get_nonpunct_kid(node, get_last=True):
+    if node.is_leaf(): return None, None
+    return get_nonpunct_element(node.kids)
 
 # 
 def base_tag(tag, strip_cptb_tag=True, strip_tag=True):

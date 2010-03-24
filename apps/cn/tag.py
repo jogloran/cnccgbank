@@ -7,7 +7,7 @@ from munge.trees.traverse import nodes, leaves
 from munge.util.dict_utils import sorted_by_value_desc
 from munge.util.list_utils import first_index_such_that, last_index_such_that
 
-from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid
+from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.cn.fix_utils import inherit_tag
 
 from apps.identify_pos import is_verb_compound
@@ -166,7 +166,8 @@ def preprocess(root):
                 quoted_kids = node.kids[lqu:rqu+1]
                 del node.kids[lqu:rqu+1]
                 
-                quoted_node = Node(quoted_kids[-2].tag, quoted_kids)
+                last_nonpunct_kid, _ = get_nonpunct_element(quoted_kids, get_last=True)
+                quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
                 node.kids.insert(lqu, quoted_node)
         
         # CPTB/Chinese-specific fixes
