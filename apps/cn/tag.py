@@ -6,6 +6,7 @@ from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
 from munge.util.dict_utils import sorted_by_value_desc
 from munge.util.list_utils import first_index_such_that, last_index_such_that
+from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.cn.fix_utils import inherit_tag
@@ -354,7 +355,10 @@ def label(root):
 
         elif ((first_kid.is_leaf() # head initial complementation
             # quoted verb (see fix in _preprocess_ function)
-           or all((kid.is_leaf() and kid.tag in ('PU', 'VV')) for kid in first_kid)
+#           or all((kid.is_leaf() and kid.tag in ('PU', 'VV')) for kid in first_kid)
+           or satisfies_all(
+                lambda fkid: any(kid.is_leaf() and kid.tag == 'PU' for kid in fkid),
+                lambda fkid: any(kid.is_leaf() and kid.tag == 'VV' for kid in fkid))(first_kid)
            or is_verb_compound(first_kid)
            # HACK: to fix weird case of unary PP < P causing adjunction analysis instead of head-initial
            # (because of PP IP configuration) in 10:76(4)

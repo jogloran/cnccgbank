@@ -44,7 +44,6 @@ class FixNP(Fix):
         r.category = N
         
     # * < /NP N   ---> * < /NP ( NP < N )
-    @echo
     def fix2(self, node, p, l, r):
         return _insert_unary(NP, N)(self, node, r)
         
