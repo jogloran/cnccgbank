@@ -230,6 +230,14 @@ def preprocess(root):
             elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
                 node.kids = node[0].kids
                 
+        # Fix wrongly attached DEC (5:26(6))
+        result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
+        if result:
+            _, ctx = result
+            top, p, dec = ctx['TOP'], ctx['P'], ctx['DEC']
+            top.kids.append(dec)
+            p.kids.remove(dec)
+            
     return root
 
 from munge.util.tgrep_utils import get_first
