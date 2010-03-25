@@ -148,6 +148,7 @@ def preprocess(root):
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         
+        # Where LPU, RPU are paired punctuation, reshape YP(LPU ... XP RPU YP) into YP(XP(LPU ... XP) YP)
         if any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
             lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
             rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
@@ -210,6 +211,8 @@ def preprocess(root):
                 node[0].tag = 'M'
             elif node[0].tag == 'NN' and node.tag.startswith("VP"):
                 node[0].tag = 'VV'
+            elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
+                node.kids = node[0].kids
                 
     return root
 
@@ -244,7 +247,7 @@ def label(root):
             if has_modification_tag(kid):
                 tag(kid, 'm')
                 
-            elif kid.tag in ('SP', 'MSP'):
+            elif kid.tag in ('MSP',):
                 tag(kid, 'a')
                 
             else:

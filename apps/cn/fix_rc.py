@@ -64,11 +64,12 @@ class FixExtraction(Fix):
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
             (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
 
-            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /CP/ > *=N } } }', self.fix_subject_extraction),
-            (r'^/\*T\*/ > { /NP-SBJ/ >> { /CP/ > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
+            # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
+            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_subject_extraction),
+            (r'^/\*T\*/ > { /NP-SBJ/ >>                               { /CP/ > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
             
             (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /CP/ > *=N } } }', self.fix_object_extraction),
-            (r'^/\*T\*/ > { /NP-OBJ/ >> { /CP/ > *=N } }', self.fix_reduced(self.fix_object_extraction)),
+            (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/ > *=N } }', self.fix_reduced(self.fix_object_extraction)),
 
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
             (r'^/\*T\*/ > { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?(?!-\d+)/=K >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/ > *=N } } } }', self.fix_nongap_extraction),
@@ -157,7 +158,7 @@ class FixExtraction(Fix):
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
         
-        result = get_first(node, r'*=S $ /DEC/=REL', with_context=True, left_to_right=True)
+        result = get_first(node, r'*=S $ /(DEC|SP)/=REL', with_context=True, left_to_right=True)
 
         if result is not None:
             _, context = result
@@ -276,6 +277,7 @@ class FixExtraction(Fix):
 
     #@echo
     def fix_subject_extraction(self, _, n, w=None, reduced=False):
+        debug("%s", reduced)
         node = n
         debug("Fixing subject extraction: %s", lrp_repr(node))
         if not reduced:

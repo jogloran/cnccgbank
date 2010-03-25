@@ -15,7 +15,7 @@ def _insert_unary(new_P_cat, new_N_cat):
     '''Returns a fix method which, when given a node, sandwiches a node with
 category _new_N_cat_ between that node and its children, then re-labels that
 node with category _new_P_cat_.'''
-    def _fix(self, node, p, l, r):
+    def _fix(self, node, p):
         new_N = copy.copy(p)
         new_N.category = new_N_cat
 
@@ -32,8 +32,9 @@ class FixNP(Fix):
     def pattern(self):
         return [
             (r'@"NP"=P <1 @/\/N$/a=L <2 @"NP"=R', self.fix1),
-            (r'@"NP"=P <1 @"N/N"=L <2 @"N"=R', self.fix_np),
-            (r'@"S/S"=P <1 @"NP"=L <2 @"NP"=R', self.fix_topicalised_apposition),
+            (r'*=P <1 @/\/NP$/a=L <2 @"N"=R', self.fix2),
+            (r'@"NP"=P <1 @"N/N" <2 @"N"', self.fix_np),
+            (r'@"S/S"=P <1 @"NP" <2 @"NP"', self.fix_topicalised_apposition),
         ]
     
     def __init__(self, outdir):
@@ -41,6 +42,11 @@ class FixNP(Fix):
         
     def fix1(self, node, p, l, r):
         r.category = N
+        
+    # * < /NP N   ---> * < /NP ( NP < N )
+    @echo
+    def fix2(self, node, p, l, r):
+        return _insert_unary(NP, N)(self, node, r)
         
     # NP < N/N N  ---> NP < N < N/N N
     fix_np = _insert_unary(NP, N)
