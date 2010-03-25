@@ -68,7 +68,7 @@ class FixExtraction(Fix):
             (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_subject_extraction),
             (r'^/\*T\*/ > { /NP-SBJ/ >>                               { /CP/ > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
             
-            (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /CP/ > *=N } } }', self.fix_object_extraction),
+            (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_object_extraction),
             (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/ > *=N } }', self.fix_reduced(self.fix_object_extraction)),
 
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP

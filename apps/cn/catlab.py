@@ -417,6 +417,9 @@ def label_root(root):
         if is_PRO_trace(node):
             new_node = shrink_left(node, node.parent)
             new_node.tag = base_tag(new_node.tag, strip_cptb_tag=False)
+            
+            if not node.parent:
+                root = new_node
 
             inherit_tag(new_node, node)
         
