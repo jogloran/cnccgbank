@@ -10,6 +10,7 @@ from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.cn.fix_utils import inherit_tag
+from apps.util.echo import echo
 
 from apps.identify_pos import is_verb_compound
 from apps.cn.output import OutputDerivation
@@ -97,9 +98,23 @@ def is_lcp_internal_structure(node):
 def is_postverbal_adjunct_tag(tag):
     return tag.startswith('AS') or tag.startswith('DER')
 
-# defines the is_vpt, is_vnv, ... methods    
-for t in ('VPT', 'VNV', 'VCD', 'VRD', 'VCP', 'VSB'):
-    globals()['is_%s' % t.lower()] = lambda node: node.tag.startswith(t)
+def is_vpt(node):
+    return node.tag.startswith('VPT')
+
+def is_vnv(node):
+    return node.tag.startswith('VNV')
+
+def is_vcd(node):
+    return node.tag.startswith('VCD')
+
+def is_vrd(node):
+    return node.tag.startswith('VRD')
+
+def is_vcp(node):
+    return node.tag.startswith('VCP')
+
+def is_vsb(node):
+    return node.tag.startswith('VSB')
     
 def is_verb_compound(node):
     return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
