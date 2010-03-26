@@ -192,6 +192,9 @@ def is_apposition(node):
 #    return node[0].tag.endswith(':A')
     return any(kid.tag.endswith(':A') for kid in node)
     
+def is_argument_cluster(node):
+    return all(kid.tag.endswith(':@') for kid in node)
+    
 def is_modification(node):
     return node[0].tag.endswith(':m')
 

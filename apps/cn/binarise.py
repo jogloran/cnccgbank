@@ -173,7 +173,7 @@ def label_head_initial(node, inherit_tag=False):
 
     while kids:
         kid = kids.pop()
-        cur = Node(node.tag, [cur, kid])
+        cur = Node(kid_tag, [cur, kid])
     
     cur.tag = node.tag
     return cur

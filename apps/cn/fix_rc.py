@@ -36,6 +36,7 @@ def get_trace_index_from_tag(tag):
 class FixExtraction(Fix):
     def pattern(self):
         return list((
+        # /VP/ < { /VP:c/ < /V[PVEC]|VRD|VSB|VCD/ < /NP/=NP < /QP/=QP } < { /VP:c/ < /NP/ < /QP/ ! < /V[PVEC]|VRD|VSB|VCD/ }
             # must come before object extraction
             (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
             (r'*=TOP                < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
@@ -63,6 +64,16 @@ class FixExtraction(Fix):
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
             (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
+            (r'''/VP/ 
+                    < { /VP:c/=PP
+                        < { /V[PVECA]|VRD|VSB|VCD/=P < { /NP/=S $ *=T } } 
+                        < /QP/ } 
+                    < { /VP/ 
+                        < { /(PU|CC)/ 
+                        $ { /VP:c/ 
+                            ! < /V[PVECA]|VRD|VSB|VCD/ 
+                            < /NP/ 
+                            < /QP/ } } }''', self.clusterfix),
 
             # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
             (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_subject_extraction),
@@ -90,6 +101,31 @@ class FixExtraction(Fix):
 
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
+        
+    def clusterfix(self, top, pp, p, s, t):
+        debug("Fixing argument cluster coordination: %s", pprint(top))
+        debug('T: %s', t)
+        # 1. Shrink the verb (node T)
+        self.fix_object_gap(pp, p, t, s)
+        # 2. Reattach the verb above the TOP node
+        new_node = Node(top.category, 'TAG', top.kids)
+        top.kids = [t, new_node]
+        # (Reattaching parent pointers)
+        for kid in new_node: kid.parent = new_node
+        
+        # 3. Relabel argument clusters
+        # 3a. Find argument clusters
+        for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /QP/=QP', with_context=True):
+            vp, np, qp = ctx.vp, ctx.np, ctx.qp
+            # Now, VP should have category ((S[dcl]\NP)/QP)/NP
+            SbNP = t.category.left.left
+            QP, NP = qp.category, np.category
+            # NP should have category ((S[dcl]\NP)/QP)\(((S[dcl]\NP)/QP)/NP)
+            np.category = (SbNP/QP)|((SbNP/QP)/NP)
+            # QP should have category ((S[dcl]\NP)\((S[dcl]\NP)/QP))
+            qp.category = (SbNP)|((SbNP)/QP)
+            
+            self.fix_categories_starting_from(np, top)
 
     def remove_tpc_trace(self, _, pp, p, t, s):
         replace_kid(pp, p, s)
@@ -179,6 +215,7 @@ class FixExtraction(Fix):
                 and cat.left == cat.right.left
                 and cat.direction == FORWARD and cat.right.direction == FORWARD)
 
+    @echo
     def fix_categories_starting_from(self, node, until):
 #        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
 
@@ -219,13 +256,18 @@ class FixExtraction(Fix):
                     debug("New category: %s", new_L)
 
                 elif L.is_leaf():
-                    if l.tag == "PU": # treat as absorption
+                    if P.has_feature('conj') and l.tag in ('PU', 'CC'): # treat as partial coordination
+                        debug("Fixing coordination: %s" % P)
+                        p.category = r.category.clone_adding_feature('conj')
+                        debug("new parent category: %s" % p.category)
+                        
+                    elif l.tag == "PU" and not P.has_feature('conj'): # treat as absorption
                         debug("Fixing left absorption: %s" % P)
                         p.category = r.category
 
                     elif R.is_complex() and R.left.is_complex() and L == R.left.right:
                         T = R.left.left
-                        new_category = typeraise(L, T, FORWARD)#T/(T|L)
+                        new_category = typeraise(L, T, TR_FORWARD)#T/(T|L)
                         node.parent[0] = Node(new_category, l.tag, [l])
 
                         new_parent_category = fcomp(new_category, R)
@@ -242,7 +284,7 @@ class FixExtraction(Fix):
 
                     elif L.is_complex() and L.left.is_complex() and R == L.left.right:
                         T = L.left.left
-                        new_category = typeraise(R, T, BACKWARD)#T|(T/R)
+                        new_category = typeraise(R, T, TR_BACKWARD)#T|(T/R)
                         node.parent[1] = Node(new_category, r.tag, [r])
 
                         new_parent_category = bxcomp(L, new_category)
@@ -265,7 +307,7 @@ class FixExtraction(Fix):
                         l.category = T_A/(T_A/X)
                         new_parent_category = T_A
                     else:
-                        new_parent_category = fcomp(L, R) or bxcomp(L, R) or fxcomp(L, R)
+                        new_parent_category = fcomp(L, R) or bcomp(L, R) or bxcomp(L, R) or fxcomp(L, R)
 
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)
@@ -274,6 +316,7 @@ class FixExtraction(Fix):
                         debug("couldn't fix, skipping")
 
             node = node.parent
+            debug('')
 
     #@echo
     def fix_subject_extraction(self, _, n, w=None, reduced=False):
@@ -460,7 +503,7 @@ class FixExtraction(Fix):
         typeraise_t_category = ptb_to_cat(t)
         # insert a node with the topicalised category
         replace_kid(p, t, Node(
-            typeraise(typeraise_t_category, S, TOPICALISATION),
+            typeraise(typeraise_t_category, S, TR_TOPICALISATION),
             base_tag(t.tag, strip_cptb_tag=False),
             [t]))
 

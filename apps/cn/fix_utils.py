@@ -4,6 +4,7 @@ from copy import copy
 from munge.cats.cat_defs import featureless
 from munge.trees.traverse import lrp_repr
 from apps.identify_lrhca import base_tag
+from munge.cats.nodes import BACKWARD, FORWARD
 
 def replace_kid(node, old, new):
     # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
@@ -54,6 +55,14 @@ def fcomp(l, r):
         l.direction != FORWARD or l.direction != r.direction): return None
 
     return fake_unify(l, r, l.left / r.right)
+    
+@echo
+def bcomp(l, r):
+    if (l.is_leaf() or r.is_leaf() or
+        l.left != r.right or
+        l.direction != BACKWARD or l.direction != r.direction): return None
+        
+    return fake_unify(l, r, r.left | l.right)
 
 def bxcomp(l, r):
     # Y/Z X\Y -> X/Z
@@ -92,18 +101,18 @@ def fake_unify(l, r, result):
 
     return result
     
-FORWARD, BACKWARD, TOPICALISATION = 1, 2, 3
+TR_FORWARD, TR_BACKWARD, TR_TOPICALISATION = 1, 2, 3
 def typeraise(x, t, dir):
     '''
     Performs the typeraising X -> T|(T|X).
     '''
     T, X = featureless(t), featureless(x)
 
-    if dir == FORWARD:
+    if dir == TR_FORWARD:
         return T/(T|X)
-    elif dir == BACKWARD:
+    elif dir == TR_BACKWARD:
         return T|(T/X)
-    elif dir == TOPICALISATION:
+    elif dir == TR_TOPICALISATION:
         return T/(T/X)
     else:
         raise RuntimeException, "Invalid typeraise direction."

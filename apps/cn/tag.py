@@ -242,6 +242,10 @@ def preprocess(root):
                 p.kids.remove(dec)
             
     return root
+    
+def is_argument_cluster(node):
+    return (node.tag.startswith("VP") and node.count() == 2 
+        and node[0].tag.startswith('NP') and node[1].tag.startswith('QP'))
 
 def label(root):
     root = preprocess(root)
@@ -446,6 +450,10 @@ def label(root):
 
                     else:
                         tag_if_topicalisation(kid)
+                        
+        elif is_argument_cluster(node):
+            for kid in node:
+                tag(kid, '@')
 
         else: # adjunction
             tag(last_kid, 'h')

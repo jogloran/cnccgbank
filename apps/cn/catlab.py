@@ -335,6 +335,7 @@ def label(node, inside_np=False):
        or is_topicalisation(node)
        or is_topicalisation_without_gap(node)
        or is_apposition(node)
+       or is_argument_cluster(node)
        or is_modification(node)):
         
         node.kids[0] = label(node[0])

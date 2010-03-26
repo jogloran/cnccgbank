@@ -4,8 +4,14 @@ from munge.proc.tgrep.tgrep import TgrepException
 import re
 import operator
 
+class AttributeAccessibleDict(dict):
+    def __getattr__(self, attr):
+        return self[attr.upper()]
+    def __setattr__(self, attr, v):
+        self[attr.upper()] = v
+
 # the context simply maps identifier names to tree nodes
-Context = dict
+Context = AttributeAccessibleDict
 
 class Node(object):
     '''Represents a head node matcher (the anchor) and its sequence of constraints.'''
