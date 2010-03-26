@@ -70,19 +70,19 @@ class FixExtraction(Fix):
             (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
             (r'''/VP/ 
                     < { /VP:c/=PP
-                        < { /V[PVECA]|VRD|VSB|VCD/=P < { /NP/=S $ *=T } } 
-                        < /QP/ } 
+                        <1 { /V[PVECA]|VRD|VSB|VCD/=P < { /NP/=S $ *=T } } 
+                        <2 /(QP|VP)/ } 
                     < { /VP/ 
                         < { /(PU|CC)/ 
                       [ $ { /VP:c/ 
-                            ! < /V[PVECA]|VRD|VSB|VCD/ 
-                            < /NP/ 
-                            < /QP/ }
+                            ! <1 /V[PVECA]|VRD|VSB|VCD/ 
+                            <1 /NP/ 
+                            <2 /(QP|VP)/ }
                       | $ { /VP/ <
                             { /VP:c/ 
-                                    ! < /V[PVECA]|VRD|VSB|VCD/ 
-                                    < /NP/ 
-                                    < /QP/ } } ] } }''', self.clusterfix),
+                                    ! <1 /V[PVECA]|VRD|VSB|VCD/ 
+                                    <1 /NP/ 
+                                    <2 /(QP|VP)/ } } ] } }''', self.clusterfix),
 
             # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
             (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_subject_extraction),
@@ -123,7 +123,7 @@ class FixExtraction(Fix):
         for kid in new_node: kid.parent = new_node
         
         # 3. Find and relabel argument clusters
-        for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /QP/=QP', with_context=True):
+        for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /(QP|VP)/=QP', with_context=True):
             vp, np, qp = ctx.vp, ctx.np, ctx.qp
             # Now, VP should have category ((S[dcl]\NP)/QP)/NP
             SbNP = t.category.left.left

@@ -244,10 +244,14 @@ def preprocess(root):
     return root
     
 def is_argument_cluster(node):
+    # Attested types of argument clusters are:
+    # NP QP and NP IP (0:78(4))
     return (node.tag.startswith("VP") and node.count() == 2 
         and node[0].tag.startswith('NP') 
         # need to exclude NP QP-PRD (2:22(4))
-        and (node[1].tag.startswith('QP') and not node[1].tag.startswith('QP-PRD')))
+        and (
+            (node[1].tag.startswith('QP') and not node[1].tag.startswith('QP-PRD')) or
+            (node[1].tag.startswith('IP'))))
 
 def label(root):
     root = preprocess(root)
