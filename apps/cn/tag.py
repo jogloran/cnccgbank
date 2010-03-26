@@ -245,7 +245,9 @@ def preprocess(root):
     
 def is_argument_cluster(node):
     return (node.tag.startswith("VP") and node.count() == 2 
-        and node[0].tag.startswith('NP') and node[1].tag.startswith('QP'))
+        and node[0].tag.startswith('NP') 
+        # need to exclude NP QP-PRD (2:22(4))
+        and (node[1].tag.startswith('QP') and not node[1].tag.startswith('QP-PRD')))
 
 def label(root):
     root = preprocess(root)

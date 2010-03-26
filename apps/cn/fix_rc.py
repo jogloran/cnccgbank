@@ -73,10 +73,15 @@ class FixExtraction(Fix):
                         < /QP/ } 
                     < { /VP/ 
                         < { /(PU|CC)/ 
-                        $ { /VP:c/ 
+                      [ $ { /VP:c/ 
                             ! < /V[PVECA]|VRD|VSB|VCD/ 
                             < /NP/ 
-                            < /QP/ } } }''', self.clusterfix),
+                            < /QP/ }
+                      | $ { /VP/ <
+                            { /VP:c/ 
+                                    ! < /V[PVECA]|VRD|VSB|VCD/ 
+                                    < /NP/ 
+                                    < /QP/ } } ] } }''', self.clusterfix),
 
             # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
             (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_subject_extraction),
