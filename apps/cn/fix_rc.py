@@ -34,11 +34,11 @@ def get_trace_index_from_tag(tag):
     else:
         return "-" + bits[1]
         
-def is_rooted_in(subcat, cat):
+def is_rooted_in(subcat, cat, respecting_features=False):
     cur = cat
     while not cur.is_leaf() and cur.left:
         cur = cur.left
-    return cur == subcat
+    return cur.equal_respecting_features(subcat) if respecting_features else cur == subcat
 
 class FixExtraction(Fix):
     def pattern(self):
@@ -233,8 +233,8 @@ class FixExtraction(Fix):
     @staticmethod
     def is_relativiser(cat):
         return (cat.is_complex() 
-            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left) or is_rooted_in(QP, cat.left))
-            and is_rooted_in(Sdcl, cat.right))
+            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left) or is_rooted_in(QP, cat.left) or is_rooted_in(S, cat.left))
+            and is_rooted_in(Sdcl, cat.right, respecting_features=True))
 
     def fix_categories_starting_from(self, node, until):
 #        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
