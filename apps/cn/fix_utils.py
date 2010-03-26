@@ -56,8 +56,7 @@ def fcomp(l, r):
         l.direction != FORWARD or l.direction != r.direction): return None
 
     return fake_unify(l, r, l.left / r.right)
-    
-@echo
+
 def bcomp(l, r, when=True):
     if not when: return None
     if (l.is_leaf() or r.is_leaf() or
