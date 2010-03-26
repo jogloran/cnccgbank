@@ -4,6 +4,7 @@ import re
 from copy import copy
 
 from apps.cn.catlab import ptb_to_cat
+from apps.cn.fix_np import _insert_unary
 
 from apps.util.echo import echo
 
@@ -128,9 +129,16 @@ class FixExtraction(Fix):
             SbNP = t.category.left.left
             QP, NP = qp.category, np.category
             # NP should have category ((S[dcl]\NP)/QP)\(((S[dcl]\NP)/QP)/NP)
-            np.category = (SbNP/QP)|((SbNP/QP)/NP)
+            new_np_category = (SbNP/QP)|((SbNP/QP)/NP)
             # QP should have category ((S[dcl]\NP)\((S[dcl]\NP)/QP))
-            qp.category = (SbNP)|((SbNP)/QP)
+            new_qp_category = (SbNP)|((SbNP)/QP)
+
+            # insert unary nodes
+            new_np_node = Node(new_np_category, np.tag, [np]); np.parent = new_np_node
+            new_qp_node = Node(new_qp_category, qp.tag, [qp]); qp.parent = new_qp_node
+
+            replace_kid(vp, np, new_qp_node)
+            replace_kid(vp, qp, new_qp_node)
             
             self.fix_categories_starting_from(np, top)
 
