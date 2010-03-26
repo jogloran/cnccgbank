@@ -140,7 +140,7 @@ class FixExtraction(Fix):
             replace_kid(vp, np, new_np_node)
             replace_kid(vp, qp, new_qp_node)
             
-            self.fix_categories_starting_from(np, top)
+            self.fix_categories_starting_from(new_np_node, top)
 
     def remove_tpc_trace(self, _, pp, p, t, s):
         replace_kid(pp, p, s)
