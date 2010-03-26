@@ -63,9 +63,6 @@ class FixExtraction(Fix):
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
 
-               # long bei-construction admits deletion of the object inside the S complement when it co-refers to the subject of bei.
-            #   (r'', self.fix_long_bei_gap),
-
             # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
@@ -119,8 +116,7 @@ class FixExtraction(Fix):
         # (Reattaching parent pointers)
         for kid in new_node: kid.parent = new_node
         
-        # 3. Relabel argument clusters
-        # 3a. Find argument clusters
+        # 3. Find and relabel argument clusters
         for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /QP/=QP', with_context=True):
             vp, np, qp = ctx.vp, ctx.np, ctx.qp
             # Now, VP should have category ((S[dcl]\NP)/QP)/NP
@@ -224,7 +220,7 @@ class FixExtraction(Fix):
     @staticmethod
     def is_relativiser(cat):
         return (cat.is_complex() 
-            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left) or is_rooted_in(QP, cat.right))
+            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left) or is_rooted_in(QP, cat.left))
             and is_rooted_in(Sdcl, cat.right))
 
     def fix_categories_starting_from(self, node, until):
