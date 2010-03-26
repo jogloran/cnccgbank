@@ -63,7 +63,6 @@ def bcomp(l, r, when=True):
         l.left != r.right or
         l.direction != BACKWARD or l.direction != r.direction): return None
         
-    debug('creating category %s', r.left | l.right)
     return fake_unify(l, r, r.left | l.right)
 
 def bxcomp(l, r):
