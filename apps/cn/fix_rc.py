@@ -137,7 +137,7 @@ class FixExtraction(Fix):
             new_np_node = Node(new_np_category, np.tag, [np]); np.parent = new_np_node
             new_qp_node = Node(new_qp_category, qp.tag, [qp]); qp.parent = new_qp_node
 
-            replace_kid(vp, np, new_qp_node)
+            replace_kid(vp, np, new_np_node)
             replace_kid(vp, qp, new_qp_node)
             
             self.fix_categories_starting_from(np, top)
