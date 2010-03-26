@@ -32,6 +32,12 @@ def get_trace_index_from_tag(tag):
         return ""
     else:
         return "-" + bits[1]
+        
+def is_rooted_in(subcat, cat):
+    cur = cat
+    while not cur.is_leaf() and cur.left:
+        cur = cur.left
+    return cur.equal_respecting_features(subcat)
 
 class FixExtraction(Fix):
     def pattern(self):
@@ -214,6 +220,10 @@ class FixExtraction(Fix):
         return (cat.is_complex() and cat.right.is_complex()
                 and cat.left == cat.right.left
                 and cat.direction == FORWARD and cat.right.direction == FORWARD)
+                
+    @staticmethod
+    def is_relativiser(cat):
+        return cat.is_complex() and is_rooted_in(N, cat.left) and is_rooted_in(Sdcl, cat.right)
 
     def fix_categories_starting_from(self, node, until):
 #        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
@@ -306,7 +316,7 @@ class FixExtraction(Fix):
                         l.category = T_A/(T_A/X)
                         new_parent_category = T_A
                     else:
-                        new_parent_category = fcomp(L, R) or bcomp(L, R) or bxcomp(L, R) or fxcomp(L, R)
+                        new_parent_category = fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) or bxcomp(L, R) or fxcomp(L, R)
 
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)

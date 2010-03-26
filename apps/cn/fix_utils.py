@@ -5,6 +5,7 @@ from munge.cats.cat_defs import featureless
 from munge.trees.traverse import lrp_repr
 from apps.identify_lrhca import base_tag
 from munge.cats.nodes import BACKWARD, FORWARD
+from munge.util.err_utils import debug
 
 def replace_kid(node, old, new):
     # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
@@ -56,11 +57,14 @@ def fcomp(l, r):
 
     return fake_unify(l, r, l.left / r.right)
     
-def bcomp(l, r):
+@echo
+def bcomp(l, r, when=True):
+    if not when: return None
     if (l.is_leaf() or r.is_leaf() or
         l.left != r.right or
         l.direction != BACKWARD or l.direction != r.direction): return None
         
+    debug('creating category %s', r.left | l.right)
     return fake_unify(l, r, r.left | l.right)
 
 def bxcomp(l, r):
@@ -70,10 +74,6 @@ def bxcomp(l, r):
         l.direction != FORWARD or l.direction == r.direction): return None
 
     return fake_unify(l, r, r.left / l.right)
-    
-# def bxcomp2(l, r):
-#     # (Y/Z)|W X\Y -> (X/Z)|W
-#     if ()
 
 def fxcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or
