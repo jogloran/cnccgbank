@@ -123,7 +123,8 @@ def is_prn(node):
     return node.tag.startswith('PRN') and node[0].tag.startswith('PU')
 
 def tag(kid, tag):
-    # make sure kid is not already tagged
+    '''Attaches a marker _tag_ to the given _kid_ node. If _kid_ is already tagged,
+then no tag is attached.'''
     if len(kid.tag) >= 2 and kid.tag[-2] == ':': return
 
     kid.tag += (':' + tag)
@@ -149,6 +150,7 @@ def is_right_absorption(node):
     return node.count() == 2 and base_tag(node.tag) == base_tag(node[0].tag) and node[1].tag == 'PU'
     
 def is_repeated_unary_projection(tag, node):
+    '''True if _node_ has _tag_, and the unary child of _node_ also has _tag_.'''
     return node.tag.startswith(tag) and node.count() == 1 and base_tag(node[0].tag) == tag and not node[0].is_leaf()
     
 def leaf_kids(node):
@@ -229,14 +231,15 @@ def preprocess(root):
                 node[0].tag = 'VV'
             elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
                 node.kids = node[0].kids
-                
-        # Fix wrongly attached DEC (5:26(6))
-        result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
-        if result:
-            _, ctx = result
-            top, p, dec = ctx['TOP'], ctx['P'], ctx['DEC']
-            top.kids.append(dec)
-            p.kids.remove(dec)
+
+        else:
+            # Fix wrongly attached DEC (5:26(6))
+            result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
+            if result:
+                _, ctx = result
+                top, p, dec = ctx['TOP'], ctx['P'], ctx['DEC']
+                top.kids.append(dec)
+                p.kids.remove(dec)
             
     return root
 
