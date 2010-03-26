@@ -224,8 +224,8 @@ class FixExtraction(Fix):
     @staticmethod
     def is_relativiser(cat):
         return (cat.is_complex() 
-            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left)) 
-            and (is_rooted_in(Sdcl, cat.right) or is_rooted_in(QP, cat.right)))
+            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left) or is_rooted_in(QP, cat.right))
+            and is_rooted_in(Sdcl, cat.right))
 
     def fix_categories_starting_from(self, node, until):
 #        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
