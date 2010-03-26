@@ -12,7 +12,7 @@ from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
-from apps.cn.fix_utils import inherit_tag
+from apps.cn.fix_utils import inherit_tag, replace_kid
 from apps.util.echo import echo
 from apps.cn.output import OutputDerivation
 from apps.util.config import config
@@ -240,6 +240,13 @@ def preprocess(root):
                 top, p, dec = ctx['TOP'], ctx['P'], ctx['DEC']
                 top.kids.append(dec)
                 p.kids.remove(dec)
+                
+            result = get_first(node, r'*=PP < { /IP-TPC/=P <1 { /NP/=T < ^/\*PRO\*/ } <2 /VP/=S }', nonrecursive=True, with_context=True)
+            if result:
+                _, ctx = result
+                pp, p, s = ctx.pp, ctx.p, ctx.s
+                inherit_tag(s, p)
+                replace_kid(pp, p, s)
             
     return root
     

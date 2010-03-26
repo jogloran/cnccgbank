@@ -83,9 +83,11 @@ def try_binary_rules(l, r, cur):
             if   l == NP:   return 'np_np_apposition' # NP   NP -> NP
             elif l == S:    return 's_np_apposition'  # S    NP -> NP
             elif l == SbNP: return 'vp_np_apposition' # S\NP NP -> NP
+            elif l == QP:   return 'qp_np_apposition' # QP   NP -> NP (20 instances)
     
         elif cur == NfN:
             if l == NP:     return 'np_np_apposition' # NP   NP -> N/N
+            
     
     if r.equal_respecting_features(QP):
         if cur == NP: return 'np_qp_apposition'
