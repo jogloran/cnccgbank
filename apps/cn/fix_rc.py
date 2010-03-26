@@ -215,7 +215,6 @@ class FixExtraction(Fix):
                 and cat.left == cat.right.left
                 and cat.direction == FORWARD and cat.right.direction == FORWARD)
 
-    @echo
     def fix_categories_starting_from(self, node, until):
 #        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
 
