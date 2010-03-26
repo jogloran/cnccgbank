@@ -72,7 +72,7 @@ label="%s"
 labelloc="t"
 labeljust="r"
 fontname="Helvetica"
-fontsize=16
+fontsize=24
 %s}''' % (label, make_derivation(deriv)))
 
 def write_graph(deriv, fn, label=""):
