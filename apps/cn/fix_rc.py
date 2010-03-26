@@ -233,7 +233,10 @@ class FixExtraction(Fix):
     @staticmethod
     def is_relativiser(cat):
         return (cat.is_complex() 
-            and (is_rooted_in(N, cat.left) or is_rooted_in(NP, cat.left) or is_rooted_in(QP, cat.left) or is_rooted_in(S, cat.left))
+            and (is_rooted_in(N, cat.left) 
+              or is_rooted_in(NP, cat.left) 
+              or is_rooted_in(QP, cat.left) 
+              or is_rooted_in(S, cat.left, respecting_features=True)) # for (S/S)/(S[dcl]|NP) and ((S/S)/(S/S))/(S[dcl]|NP)
             and is_rooted_in(Sdcl, cat.right, respecting_features=True))
 
     def fix_categories_starting_from(self, node, until):
