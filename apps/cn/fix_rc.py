@@ -84,7 +84,7 @@ class FixExtraction(Fix):
 
             # Removes wayward WHNP traces without a coindex (e.g. 0:86(5), 11:9(9))
             (r'* < { * < /WHNP(?!-)/ }', self.remove_null_element),
-            # try: Undischarged topicalisation traces
+            # Removes undischarged topicalisation traces
             (r'*=PP < { *=P < { /-TPC/a=T << ^/\*T\*/ $ *=S } }', self.remove_tpc_trace),
         ))
 

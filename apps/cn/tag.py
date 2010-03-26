@@ -4,6 +4,9 @@ import os, re
 
 from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
+from munge.util.tgrep_utils import get_first
+from munge.penn.nodes import Node
+
 from munge.util.dict_utils import sorted_by_value_desc
 from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.util.func_utils import satisfies_all
@@ -11,10 +14,7 @@ from munge.util.func_utils import satisfies_all
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.cn.fix_utils import inherit_tag
 from apps.util.echo import echo
-
-from apps.identify_pos import is_verb_compound
 from apps.cn.output import OutputDerivation
-
 from apps.util.config import config
 
 PredicationRegex = re.compile(r'''
@@ -243,8 +243,6 @@ def preprocess(root):
             
     return root
 
-from munge.util.tgrep_utils import get_first
-from munge.penn.nodes import Node
 def label(root):
     root = preprocess(root)
     
