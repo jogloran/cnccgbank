@@ -34,7 +34,7 @@ class WriteDOT(OutputDerivations):
         OutputDerivations.__init__(self, output_dir, 'dot')
 
     def process(self, bundle, filename):
-        write_graph(bundle.derivation, filename)
+        write_graph(bundle.derivation, filename, label=bundle.label())
 
     opt = "w"
     long_opt = "write-graph"
@@ -46,7 +46,7 @@ class WritePNG(OutputDerivations):
         OutputDerivations.__init__(self, output_dir, 'png')
 
     def process(self, bundle, filename):
-        write_png(bundle.derivation, filename)
+        write_png(bundle.derivation, filename, label=bundle.label())
 
     opt = "W"
     long_opt = "write-png"
@@ -58,7 +58,7 @@ class WritePDF(OutputDerivations):
         OutputDerivations.__init__(self, output_dir, 'pdf')
 
     def process(self, bundle, filename):
-        write_pdf(bundle.derivation, filename)
+        write_pdf(bundle.derivation, filename, label=bundle.label())
 
     opt = "D"
     long_opt = "write-pdf"

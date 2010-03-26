@@ -62,26 +62,33 @@ def make_derivation(deriv, assigned_id=None):
 
         return ''.join(ret)
 
-def make_graph(deriv):
+def make_graph(deriv, label=""):
     '''Generates the DOT representation.'''
     # TODO: Need to get rid of the font change at some point
-    return '''digraph G {\nnode [fontname=Hei]\n%s}''' % make_derivation(deriv)
+    return (
+'''digraph G {
+node [fontname=Hei]
+label="%s"
+labelloc="t"
+labeljust="r"
+fontname="Helvetica"
+fontsize=16
+%s}''' % (label, make_derivation(deriv)))
 
-def write_graph(deriv, fn):
+def write_graph(deriv, fn, label=""):
     '''Writes the DOT representation to a file.'''
     with open(fn, 'w') as f:
-        t = unicode(make_graph(deriv), 'utf-8')
-#        u = t.decode('utf-8')
+        t = unicode(make_graph(deriv, label=label), 'utf-8')
         f.write(t.encode('utf-8'))
 
-def write_png(deriv, fn):
-    return write_dot_format(deriv, fn, "png")
+def write_png(deriv, fn, label=""):
+    return write_dot_format(deriv, fn, "png", label=label)
 
-def write_pdf(deriv, fn):
-    return write_dot_format(deriv, fn, "pdf")
+def write_pdf(deriv, fn, label=""):
+    return write_dot_format(deriv, fn, "pdf", label=label)
 
 dot_path = None
-def write_dot_format(deriv, fn, format):
+def write_dot_format(deriv, fn, format, label=""):
     cin = cout = None
     try:
         global dot_path
@@ -95,7 +102,7 @@ def write_dot_format(deriv, fn, format):
         pipes = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, close_fds=True)
         
         cin, cout = pipes.stdin, pipes.stdout
-        cin.write(make_graph(deriv)); cin.close()
+        cin.write(make_graph(deriv, label=label)); cin.close()
         
         pipes.wait()
         if pipes.returncode is not None and pipes.returncode != 0:
