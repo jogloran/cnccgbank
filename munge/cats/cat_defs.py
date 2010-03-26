@@ -18,8 +18,8 @@ RightAbsorbedPunctuationCats = ", . '' : ; LRB RRB".split()
 ConjPunctuationCats = ", ; :".split()
 
 if config.cn_puncts:
-    LeftAbsorbedPunctuationCats += "LCM LPA LQU RQU LSQ LTL RTL LCD RCD LCS RCS DSH SLS ? !".split()
-    RightAbsorbedPunctuationCats += "LCM RPA LQU RQU RSQ LTL RTL LCD RCD LCS RCS DSH SLS ? !".split()
+    LeftAbsorbedPunctuationCats +=  "LCM LPA RPA LQU RQU LSQ RSQ LTL RTL LCD RCD LCS RCS DSH SLS ? !".split()
+    RightAbsorbedPunctuationCats += "LCM LPA RPA LQU RQU LSQ RSQ LTL RTL LCD RCD LCS RCS DSH SLS ? !".split()
     ConjPunctuationCats.append("LCM")
 
 SbNP, SfNP, NPbNP, NPfNP, NbN, NfN, SbNPbSbNP, \
