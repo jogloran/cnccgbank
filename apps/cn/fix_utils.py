@@ -56,7 +56,6 @@ def fcomp(l, r):
 
     return fake_unify(l, r, l.left / r.right)
     
-@echo
 def bcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or
         l.left != r.right or
