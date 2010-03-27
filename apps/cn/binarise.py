@@ -287,6 +287,8 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
                  or node[0].tag.startswith('NN') # bad tagging 25:40(5)
             ) ) or
             (any(node.tag.startswith(mod_tag) for mod_tag in ('NP-MNR', 'NP-PRP')) and has_noun_tag(node[0])) or
+            # 8:1(5)
+            (node.tag == 'NP-PN:a' and node[0].tag == 'NR') or 
             (node.tag.startswith("ADVP") and node[0].tag in ("AD", "CS", "NN")) or
             (node.tag.startswith("CLP") and node[0].tag == "M") or  
             (node.tag.startswith("LCP") and node[0].tag == "LC") or  
