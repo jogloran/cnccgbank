@@ -92,7 +92,7 @@ def try_binary_rules(l, r, cur):
             elif l == QP:   return 'qp_np_apposition' # QP   NP -> N/N
     
     if r.equal_respecting_features(QP):
-        if cur == NP: return 'np_qp_apposition'
+        if cur == QP and l == NP: return 'np_qp_apposition'
             
     # Likewise, lhs and rhs must both be feature-less to prevent VP VP[conj] from
     # being interpreted as VCD
