@@ -34,6 +34,25 @@ def satisfies_all(*fs):
     
     return _f
     
+def result_of(f):
+    class _result(object):
+        def __init__(self, func):
+            self.func = func
+        def __call__(self, *args, **kwargs):
+            self.value = self.func(*args, **kwargs)
+            return self.value
+    return _result(f)
+    
+def deferred(f):
+    class _deferred(object):
+        def __init__(self, func):
+            self.func = func
+            self.value = None
+        def __call__(self, *args, **kwargs):
+            if not self.value:
+                self.value = self.func(*args, **kwargs)
+            return self.value
+    
 if __name__ == '__main__':
     even = lambda n: n % 2 == 0
     odd = lambda n: not even(n)
