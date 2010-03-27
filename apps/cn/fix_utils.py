@@ -30,7 +30,6 @@ def shrink_left(node, parent):
     else: # is root
         return node[1]
      
-from apps.util.echo import echo   
 def inherit_index(node, other):
     matches = re.search(r'(-\d+)', other.tag)
     if matches:

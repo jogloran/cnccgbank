@@ -187,7 +187,10 @@ def preprocess(root):
             vp, v, sbj, pred = ctx.vp, ctx.v, ctx.sbj, ctx.pred
             
             del vp.kids
-            vp.kids = [v, sbj, pred]
+            if get_first(sbj, r'* < ^/\*PRO\*/'):
+                vp.kids = [v, pred]
+            else:
+                vp.kids = [v, sbj, pred]
 
         # Reshape LB (long bei)
         # ---------------------
