@@ -179,6 +179,22 @@ def preprocess(root):
                 if last_nonpunct_kid:
                     quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
                     node.kids.insert(lqu, quoted_node)
+                    
+        # Reshape LB (long bei)
+        # ---------------------
+        if first_kid and first_kid.tag == "LB":
+            expr = r'''* < { /LB/=LB 
+                       [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
+                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
+            _, ctx = get_first(node, expr, with_context=True)
+
+            lb = ctx['LB']
+            sbj, pred = ctx['SBJ'], ctx['PRED']
+
+            del node.kids
+            node.kids = [lb, sbj, pred]
+
+        # ---------------------
         
         # CPTB/Chinese-specific fixes
         # ---------------------------
@@ -268,22 +284,6 @@ def label(root):
         
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
-        
-        # Reshape LB (long bei)
-        # ---------------------
-        if first_kid and first_kid.tag == "LB":
-            expr = r'''* < { /LB/=LB 
-                       [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
-                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
-            _, ctx = get_first(node, expr, with_context=True)
-            
-            lb = ctx['LB']
-            sbj, pred = ctx['SBJ'], ctx['PRED']
-            
-            del node.kids
-            node.kids = [lb, sbj, pred]
-            
-        # ---------------------
         
         for kid in node:
             if has_modification_tag(kid):
