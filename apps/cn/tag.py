@@ -180,6 +180,15 @@ def preprocess(root):
                     quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
                     node.kids.insert(lqu, quoted_node)
                     
+        expr = r'''/VP/=VP <1 /VV/=V <2 { /IP-OBJ/ <1 /NP-SBJ/=SBJ <2 /VP/=PRED }'''
+        result = get_first(node, expr, with_context=True)
+        if result:
+            _, ctx = result
+            vp, v, sbj, pred = ctx.vp, ctx.v, ctx.sbj, ctx.pred
+            
+            del vp.kids
+            vp.kids = [v, sbj, pred]
+
         # Reshape LB (long bei)
         # ---------------------
         if first_kid and first_kid.tag == "LB":

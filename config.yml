@@ -4,7 +4,8 @@ restrictive_absorption: true
 curly_vars: false
 show_vars: false
 #show_vars: true
-debug: false
+#debug: false
+debug: true
 low_key_debug: false
 aug_pprint: true
 #aug_pprint: false
