@@ -63,7 +63,7 @@ def bcomp(l, r, when=True):
         l.left != r.right or
         l.direction != BACKWARD or l.direction != r.direction): return None
         
-    return fake_unify(l, r, r.left | l.right)
+    return fake_unify(r, l, r.left | l.right)
 
 def bxcomp(l, r):
     # Y/Z X\Y -> X/Z
@@ -71,7 +71,17 @@ def bxcomp(l, r):
         l.left != r.right or
         l.direction != FORWARD or l.direction == r.direction): return None
 
-    return fake_unify(l, r, r.left / l.right)
+    return fake_unify(r, l, r.left / l.right)
+    
+def bxcomp2(l, r, when=True):
+    # (Y/Z)/W X\Y -> (X/Z)/W
+    if not when: return None
+    
+    if not (l.is_complex() and r.is_complex() and l.left.is_complex() and
+        l.left.left == r.right and
+        l.direction == l.left.direction and l.direction != r.direction): return None
+        
+    return fake_unify(r, l, (r.left/l.left.right)/l.right)
 
 def fxcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or

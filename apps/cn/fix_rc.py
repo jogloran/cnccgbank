@@ -238,6 +238,8 @@ class FixExtraction(Fix):
               or is_rooted_in(QP, cat.left) 
               or is_rooted_in(S, cat.left, respecting_features=True)) # for (S/S)/(S[dcl]|NP) and ((S/S)/(S/S))/(S[dcl]|NP)
             and is_rooted_in(Sdcl, cat.right, respecting_features=True))
+            
+    is_verbal_category = staticmethod(lambda cat: is_rooted_in(Sdcl, cat, respecting_features=True))
 
     def fix_categories_starting_from(self, node, until):
 #        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
@@ -318,6 +320,8 @@ class FixExtraction(Fix):
                         debug("New category: %s", new_category)
 
                 else:
+                    new_parent_category = None
+                    
                     # try typeraising fix
                     # T/(T/X) (T\A)/X -> T can be fixed:
                     # (T\A)/((T\A)/X) (T\A)/X -> T\A
@@ -329,8 +333,20 @@ class FixExtraction(Fix):
 
                         l.category = T_A/(T_A/X)
                         new_parent_category = T_A
+                        
+                    elif self.is_verbal_category(L) and L.is_complex() and L.left.is_complex():
+                        T = L.left.right
+                        new_category = typeraise(R, T, TR_BACKWARD)
+                        debug('Trying out %s', new_category)
+                        
+                        if bxcomp(L, new_category):
+                            node.parent[1] = Node(new_category, r.tag, [r])
+                            new_parent_category = bxcomp(L, new_category)
+                            
                     else:
-                        new_parent_category = fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) or bxcomp(L, R) or fxcomp(L, R)
+                        new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
+                                            or bxcomp(L, R) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
+                                            or fxcomp(L, R))
 
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)
