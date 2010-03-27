@@ -140,6 +140,7 @@ Map = {
     'CP-Q': Sq,
     
     'ADVP': SbNPfSbNP,
+    'AD': SbNPfSbNP,
     
     'VP': SdclbNP, 'VA': SdclbNP, 'VV': SdclbNP,
     # not really intended for use. FLR < VE (see the "Addendum to the Bracketing Guidelines for the ACE Chinese Broadcast News Data")

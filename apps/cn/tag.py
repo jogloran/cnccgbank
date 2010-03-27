@@ -12,6 +12,7 @@ from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
+from apps.identify_pos import VerbalCategories
 from apps.cn.fix_utils import inherit_tag, replace_kid
 from apps.util.echo import echo
 from apps.cn.output import OutputDerivation
@@ -445,9 +446,10 @@ def label(root):
                         tag(kid, 'l')
             else:
                 for kid in node[0:-1]:
-                    if (is_postverbal_adjunct_tag(kid.tag) or
-                        # exception added to account for direct modification of V{V,A} with ADVP (0:47(9))
-                        kid.tag.startswith('ADVP')):
+                    if (last_kid.tag in VerbalCategories and (
+                            is_postverbal_adjunct_tag(kid.tag) or
+                            # exception added to account for direct modification of V{V,A} with ADVP (0:47(9))
+                            kid.tag.startswith('ADVP'))):
                         tag(kid, 'a') # treat aspect particles as adjuncts
                     elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
                         tag(kid, 'l')

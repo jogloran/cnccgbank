@@ -85,14 +85,14 @@ class FixExtraction(Fix):
                                     <2 /(QP|VP)/ } } ] } }''', self.clusterfix),
 
             # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
-            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_subject_extraction),
-            (r'^/\*T\*/ > { /NP-SBJ/ >>                               { /CP/ > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
+            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_subject_extraction),
+            (r'^/\*T\*/ > { /NP-SBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
             
-            (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/ > *=N } } }', self.fix_object_extraction),
-            (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/ > *=N } }', self.fix_reduced(self.fix_object_extraction)),
+            (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_object_extraction),
+            (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_object_extraction)),
 
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
-            (r'^/\*T\*/ > { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?(?!-\d+)/=K >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/ > *=N } } } }', self.fix_nongap_extraction),
+            (r'^/\*T\*/ > { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?(?!-\d+)/=K >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }', self.fix_nongap_extraction),
 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
@@ -358,7 +358,7 @@ class FixExtraction(Fix):
             debug('')
 
     #@echo
-    def fix_subject_extraction(self, _, n, w=None, reduced=False):
+    def fix_subject_extraction(self, _, n, pred, w=None, reduced=False):
         debug("%s", reduced)
         node = n
         debug("Fixing subject extraction: %s", lrp_repr(node))
@@ -378,7 +378,7 @@ class FixExtraction(Fix):
             self.fix_object_gap(pp, p, t, s)
             self.fix_categories_starting_from(s, until=node)
 
-            if not self.relabel_relativiser(node):
+            if not self.relabel_relativiser(pred):
                 # TOP is the shrunk VP
                 # after shrinking, we can get VV or VA here
                 top, context = get_first(node, r'/([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS', with_context=True)
@@ -390,7 +390,7 @@ class FixExtraction(Fix):
         debug(pprint(node))
 
     #@echo
-    def fix_nongap_extraction(self, _, n, k):
+    def fix_nongap_extraction(self, _, n, pred, k):
         node = n
         debug("Fixing nongap extraction: %s", pprint(node))
         debug("k %s", pprint(k))
@@ -409,7 +409,7 @@ class FixExtraction(Fix):
             # replace P with S
             self.fix_object_gap(pp, p, t, s)
 
-            if not self.relabel_relativiser(node):
+            if not self.relabel_relativiser(pred):
                 top, context = get_first(node, r'/[ICV]P/=TOP $ *=SS', with_context=True)
                 ss = context["SS"]
 
@@ -422,7 +422,7 @@ class FixExtraction(Fix):
         new_kid.tag = base_tag(new_kid.tag) # relabel to stop infinite matching
         replace_kid(p, a, Node(s.category/s.category, "NN", [new_kid]))
 
-    def fix_object_extraction(self, _, n, w=None, reduced=False):
+    def fix_object_extraction(self, _, n, pred, w=None, reduced=False):
         node = n
         debug("Fixing object extraction: %s", lrp_repr(node))
         if not reduced:
@@ -443,7 +443,7 @@ class FixExtraction(Fix):
             self.fix_categories_starting_from(s, until=top)
 
             # If we couldn't find the DEC node, this is the null relativiser case
-            if not self.relabel_relativiser(node):
+            if not self.relabel_relativiser(pred):
                 # TOP is the S node
                 # null relativiser category comes from sibling of TOP
                 # if TOP has no sibling, then we're likely inside a NP-PRD < CP reduced relative (cf 1:2(9))
