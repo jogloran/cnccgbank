@@ -343,7 +343,7 @@ class FixExtraction(Fix):
                             node.parent[1] = Node(new_category, r.tag, [r])
                             new_parent_category = bxcomp(L, new_category)
                             
-                    else:
+                    if not new_parent_category:
                         new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
                                             or bxcomp(L, R) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
                                             or fxcomp(L, R))
