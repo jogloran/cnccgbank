@@ -209,7 +209,7 @@ class FixExtraction(Fix):
     def relabel_relativiser(self, node):
         # Relabel the relativiser category (NP/NP)\S to (NP/NP)\(S|NP)
         
-        result = get_first(node, r'*=S $ /(DEC|SP)/=REL', with_context=True, left_to_right=True)
+        result = get_first(node, r'/VP/=S $ /(DEC|SP)/=REL', with_context=True, left_to_right=True)
 
         if result is not None:
             _, context = result
@@ -378,7 +378,7 @@ class FixExtraction(Fix):
             self.fix_object_gap(pp, p, t, s)
             self.fix_categories_starting_from(s, until=node)
 
-            if not self.relabel_relativiser(pred):
+            if not self.relabel_relativiser(node):
                 # TOP is the shrunk VP
                 # after shrinking, we can get VV or VA here
                 top, context = get_first(node, r'/([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS', with_context=True)
@@ -409,7 +409,7 @@ class FixExtraction(Fix):
             # replace P with S
             self.fix_object_gap(pp, p, t, s)
 
-            if not self.relabel_relativiser(pred):
+            if not self.relabel_relativiser(node):
                 top, context = get_first(node, r'/[ICV]P/=TOP $ *=SS', with_context=True)
                 ss = context["SS"]
 
@@ -443,7 +443,7 @@ class FixExtraction(Fix):
             self.fix_categories_starting_from(s, until=top)
 
             # If we couldn't find the DEC node, this is the null relativiser case
-            if not self.relabel_relativiser(pred):
+            if not self.relabel_relativiser(node):
                 # TOP is the S node
                 # null relativiser category comes from sibling of TOP
                 # if TOP has no sibling, then we're likely inside a NP-PRD < CP reduced relative (cf 1:2(9))
