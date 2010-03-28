@@ -60,7 +60,7 @@ def format_arg_value(arg_val, repr_function):
     arg, val = arg_val
     return "%s=%s" % (arg, repr_function(val))
 
-def echo(fn, repr_function=repr, write=sys.stdout.write):
+def echo(fn, repr_function=repr, write=sys.stderr.write):
     """ Echo calls to a function.
 
     Returns a decorated version of the input function which "echoes" calls
@@ -92,7 +92,7 @@ def echo(fn, repr_function=repr, write=sys.stdout.write):
         return fn(*v, **k)
     return wrapped
 
-def echo_instancemethod(klass, method, write=sys.stdout.write):
+def echo_instancemethod(klass, method, write=sys.stderr.write):
     """ Change an instancemethod so that calls to it are echoed.
 
     Replacing a classmethod is a little more tricky.
@@ -107,7 +107,7 @@ def echo_instancemethod(klass, method, write=sys.stdout.write):
     else:
         setattr(klass, mname, echo(method, write))
 
-def echo_class(klass, write=sys.stdout.write):
+def echo_class(klass, write=sys.stderr.write):
     """ Echo calls to class methods and static functions
     """
     for _, method in inspect.getmembers(klass, inspect.ismethod):
@@ -115,7 +115,7 @@ def echo_class(klass, write=sys.stdout.write):
     for _, fn in inspect.getmembers(klass, inspect.isfunction):
         setattr(klass, name(fn), staticmethod(echo(fn, write)))
 
-def echo_module(mod, write=sys.stdout.write):
+def echo_module(mod, write=sys.stderr.write):
     """ Echo calls to functions and methods in a module.
     """
     for fname, fn in inspect.getmembers(mod, inspect.isfunction):
