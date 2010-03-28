@@ -137,10 +137,6 @@ class TgrepCore(Filter):
         
         for match_node, context in self.match_generator(derivation_bundle.derivation, self.expression, with_context=True):
             self.match_callback(match_node, derivation_bundle)
-            # for var, node in context.iteritems():
-            #     print var
-            #     print "-" * 25
-            #     self.match_callback(node, derivation_bundle)
             if not matched: matched = True
             
         if matched:
