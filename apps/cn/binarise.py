@@ -228,13 +228,10 @@ def label_root(node):
         
         if not node.kids: return result # is this reachable?
         
-    debug('final_punctuation_stk: %s', final_punctuation_stk)
-    debug('now going to label: %s', pprint(node))
     if node.count() == 1:
         result = label_node(node[0], do_shrink=False)
     else:
         result = label_node(node, do_shrink=False)
-    debug('result: %s', pprint(result))
     
     tag = result.tag
     
@@ -255,8 +252,11 @@ def has_paired_punctuation(node):
     # if node has fewer than 3 kids, the analysis is the same as the default (right-branching)
     return (node.count() > 3 and node.kids[0].is_leaf() and node.kids[-1].is_leaf() and 
             are_paired_punctuation(node.kids[0].lex, node.kids[-1].lex))
-    
+
 def hoist_punctuation_then(label_func, node):
+    # Do not hoist paired punctuation inside a parenthetical
+    if node.tag.endswith(':p'): return label_func(node)
+        
     initial = node.kids.pop(0)
     final = node.kids.pop()
     
