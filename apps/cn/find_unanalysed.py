@@ -1,3 +1,9 @@
+try:
+    import psyco
+    psyco.full()
+except ImportError:
+    pass
+
 import sys
 from glob import glob
 from munge.ccg.io import CCGbankReader
