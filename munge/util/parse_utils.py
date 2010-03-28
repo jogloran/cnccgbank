@@ -1,29 +1,23 @@
 from munge.util.exceptions import DocParseException
 from munge.util.iter_utils import take
 from itertools import islice
+from functools import partial as curry
 
-# Inspired by Parsec's _parens_ parser combinator.
-# If _func_ recognises the set of strings S, then _with_parens_
-# recognises { ( s ) | s \in S }.
-def with_parens(func, toks):
-    return with_paired_delimiters(func, toks, '()')
-
-def with_angles(func, toks):
-    return with_paired_delimiters(func, toks, '<>')
-
-def with_squares(func, toks):
-    return with_paired_delimiters(func, toks, '[]')
-
-def with_braces(func, toks):
-    return with_paired_delimiters(func, toks, '{}')
-
-def with_paired_delimiters(func, toks, pair):
+def with_paired_delimiters(pair, func, toks):
     assert len(pair) == 2
     
     shift_and_check( pair[0], toks )
     value = func(toks)
     shift_and_check( pair[1], toks )
     return value
+
+# Inspired by Parsec's _parens_ parser combinator.
+# If _func_ recognises the set of strings S, then _with_parens_
+# recognises { ( s ) | s \in S }.
+with_parens = curry(with_paired_delimiters, '()')
+with_angles = curry(with_paired_delimiters, '<>')
+with_squares = curry(with_paired_delimiters, '[]')
+with_braces = curry(with_paired_delimiters, '{}')
 
 def get_context(toks, ntokens=10):
     return ", ".join(take(ntokens, toks))
