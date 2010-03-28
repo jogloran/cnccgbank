@@ -89,7 +89,7 @@ class FixExtraction(Fix):
             (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_subject_extraction),
             (r'^/\*T\*/ > { /NP-SBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
             
-            (r'^/\*T\*/ > { /NP-OBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_object_extraction),
+            (r'^/\*T\*/ > { /NP-(OBJ|EXT)/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_object_extraction),
             (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_object_extraction)),
 
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
@@ -435,7 +435,7 @@ class FixExtraction(Fix):
         else:
             index = ''
             
-        expr = r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T << ^/\*T\*%s/ $ *=S } } }' % index
+        expr = r'/IP/=TOP << { *=PP < { *=P < { /NP-(OBJ|EXT)/=T << ^/\*T\*%s/ $ *=S } } }' % index
 
         for trace_NP, ctx in find_all(node, expr, with_context=True):
             top, pp, p, t, s = ctx.top, ctx.pp, ctx.p, ctx.t, ctx.s
