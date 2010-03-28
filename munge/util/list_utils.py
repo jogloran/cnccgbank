@@ -20,6 +20,7 @@ def is_sublist(smaller, larger):
     return False
     
 def find(pred, l):
+    '''Finds an element of _l_ which satisfies _pred_.'''
     for e in l:
         if pred(e): return e
         
@@ -68,6 +69,7 @@ def list_preview(orig_l, head_elements=7, tail_elements=1):
     return ''.join(bits)
 
 class FixedSizeList(list):
+    '''A list which holds at most a given number of elements. Attempts to add further elements are no-ops.'''
     def __init__(self, maximum_capacity=10):
         self.maximum_capacity = maximum_capacity
     def append(self, v):

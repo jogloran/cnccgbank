@@ -8,6 +8,7 @@ def compose2(f, g):
     return h
 
 def compose(*fs):
+    '''Returns the composition of any number of functions.'''
     fs = list(fs)
     result = fs.pop()
     while fs:

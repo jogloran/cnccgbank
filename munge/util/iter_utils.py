@@ -36,7 +36,9 @@ iterator yielding _e_.'''
         yield e
         
 def single(e):
+    '''Yields an iterator over a single element _e_.'''
     yield e
 
 def get_first(seq):
+    '''Returns the first element of an iterator _seq_.'''
     return take(seq, 1)

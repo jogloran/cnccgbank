@@ -191,6 +191,7 @@ category in a pre-order traversal of the category tree.'''
         return self.label or any(kid.is_labelled() for kid in self)
 
     def slash_count(self):
+        '''Returns the number of slashes in this category.'''
         return 1 + self._left.slash_count() + self._right.slash_count()
 
     def __iter__(self):
