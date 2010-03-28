@@ -36,8 +36,13 @@ import os, atexit
 class HistorySavingDefaultShell(DefaultShell):
     DefaultHistoryLocation = os.path.join(os.environ['HOME'], '.munge_history')
         
-    def __init__(self, history_file=DefaultHistoryLocation):
+    def __init__(self, history_file=DefaultHistoryLocation, clear_history=False):
         DefaultShell.__init__(self)
+        
+        if clear_history:
+            try:
+                os.remove(history_file)
+            except IOError: pass
 
         try:
             readline.read_history_file(history_file)

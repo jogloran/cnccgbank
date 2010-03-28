@@ -31,8 +31,8 @@ in parentheses separated by commas.'''
 
 class Shell(HistorySavingDefaultShell):
     '''A shell interface to trace functionality.'''
-    def __init__(self, pager_path=None, files=None, verbose=True):
-        HistorySavingDefaultShell.__init__(self)
+    def __init__(self, pager_path=None, files=None, verbose=True, clear_history=False):
+        HistorySavingDefaultShell.__init__(self, clear_history=clear_history)
         
         self.tracer = TraceCore(libraries=BuiltInPackages, verbose=verbose, reader_class_name=config.cmd_reader_class)
         self.prompt = "trace> "
@@ -382,9 +382,11 @@ def register_builtin_switches(parser):
     parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
                       action='store_true', dest='verbose', default=False)
     parser.add_option("-b", "--break-on-error", help="Ignore the rest of the document if an error is encountered.",
-                    action='store_true', dest='break_on_exception', default=False)
+                      action='store_true', dest='break_on_exception', default=False)
     parser.add_option('-q', '--quiet', help='Make less output.',
                       action='store_false', dest='verbose')
+    parser.add_option('-H', '--clear-history', help='Clear the history file.',
+                      action='store_true', dest='clear_history')
         
 from optparse import OptionParser
 if __name__ == '__main__':
@@ -394,7 +396,7 @@ if __name__ == '__main__':
     except ImportError: pass
     
     parser = OptionParser(conflict_handler='resolve')
-    parser.set_defaults(verbose=True)
+    parser.set_defaults(verbose=True, clear_history=False)
     register_builtin_switches(parser)
     
     opts, remaining_args = parser.parse_args(sys.argv)
@@ -402,5 +404,5 @@ if __name__ == '__main__':
     
     parser.destroy()
 
-    sh = Shell(pager_path=opts.pager_path, files=argv, verbose=opts.verbose)
+    sh = Shell(pager_path=opts.pager_path, files=argv, verbose=opts.verbose, clear_history=opts.clear_history)
     sh.cmdloop()
