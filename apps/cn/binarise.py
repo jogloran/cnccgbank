@@ -84,7 +84,7 @@ def label_with_final_punctuation_high(f):
         while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
             final_punctuation_stk.append( node.kids.pop() )
         
-            if not node.kids: return result 
+            if not node.kids: return result
         
         result = f(node, *args, **kwargs)
         tag = result.tag
@@ -208,6 +208,7 @@ def label_predication(node, inherit_tag=False):
     
 #@echo
 def label_root(node):
+    debug('originally: %s', pprint(node))
     final_punctuation_stk = []
     
     # These derivations consist of a leaf PU root: 24:73(4), 25:81(4), 28:52(21)
@@ -225,9 +226,16 @@ def label_root(node):
     while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
         final_punctuation_stk.append( node.kids.pop() )
         
-        if not node.kids: return result 
+        if not node.kids: return result # is this reachable?
         
-    result = label_node(node, do_shrink=False)
+    debug('final_punctuation_stk: %s', final_punctuation_stk)
+    debug('now going to label: %s', pprint(node))
+    if node.count() == 1:
+        result = label_node(node[0], do_shrink=False)
+    else:
+        result = label_node(node, do_shrink=False)
+    debug('result: %s', pprint(result))
+    
     tag = result.tag
     
     while final_punctuation_stk:
