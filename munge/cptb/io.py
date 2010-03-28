@@ -1,5 +1,5 @@
 from itertools import izip, count
-from munge.penn.parse import parse_tree, PennParser
+from munge.penn.parse import parse_tree, AugmentedPennParser
 from munge.io.single import SingleReader
 from munge.util.str_utils import nth_occurrence
 import os, re
@@ -69,7 +69,7 @@ class CPTBReader(SingleReader):
                 
             self.contents.feed(text)
     
-        return parse_tree('\n'.join(self.contents['s']), PennParser)
+        return parse_tree('\n'.join(self.contents['s']), AugmentedPennParser)
         
     def determine_sec_and_doc(self):
         ctb_value = self.contents['ctbid']

@@ -1,4 +1,4 @@
-from munge.penn.io import PTBReader
+from munge.penn.io import AugmentedPTBReader
 
 class PTBGuesser(object):
     @staticmethod
@@ -12,4 +12,4 @@ class PTBGuesser(object):
         return False
         
     @staticmethod
-    def reader_class(): return PTBReader
+    def reader_class(): return AugmentedPTBReader

@@ -15,7 +15,10 @@ class Node(N.Node):
                                 ")" if first else "")
                                 
     def label_text(self):
-        return re.escape(repr(self.category))
+        if self.category:
+            return re.escape(repr(self.category))
+        else:
+            return re.escape(self.tag)
         
     def ccgbank_repr(self):
         bits = ["(<T %s 0 %d>" % (self.category, len(self.kids))]
@@ -40,7 +43,10 @@ class Leaf(N.Leaf):
             ")" if first else ''))
             
     def label_text(self):
-        return "%s '%s'" % (re.escape(repr(self.category)), self.lex)
+        if self.category:
+            return "%s '%s'" % (re.escape(repr(self.category)), self.lex)
+        else:
+            return "%s '%s'" % (re.escape(self.tag), self.lex)
         
     @staticmethod
     def detag(tag):
