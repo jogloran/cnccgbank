@@ -8,16 +8,16 @@ def intersperse(l, spacer=", "):
     return l
     
 def default_node_repr(node):
-    if node.is_leaf():
-        return "%s %s" % (node.tag, node.lex)
+    if hasattr(node, 'category') and node.category is not None:
+        if node.is_leaf():
+            return "%s {%s} %s" % (node.tag, node.category, node.lex)
+        else:
+            return "%s {%s}" % (node.tag, node.category)
     else:
-        return "%s" % node.tag
-    
-def aug_node_repr(node):
-    if node.is_leaf():
-        return "%s {%s} %s" % (node.tag, node.category, node.lex)
-    else:
-        return "%s {%s}" % (node.tag, node.category)
+        if node.is_leaf():
+            return "%s %s" % (node.tag, node.lex)
+        else:
+            return "%s" % node.tag
         
 LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
 def pprint_with(node_repr):
@@ -51,10 +51,7 @@ def pprint_with(node_repr):
         
     return base_pprint
 
-if config.aug_pprint:
-    pprint = pprint_with(aug_node_repr)
-else:
-    pprint = pprint_with(default_node_repr)
+pprint = pprint_with(default_node_repr)
 
 if __name__ == '__main__':
     from munge.penn.parse import *
