@@ -39,11 +39,12 @@ def is_rooted_in(subcat, cat, respecting_features=False):
     while not cur.is_leaf() and cur.left:
         cur = cur.left
     return cur.equal_respecting_features(subcat) if respecting_features else cur == subcat
-
+    
+ModifierTags = frozenset(("TPC", "LOC", "EXT", "ADV", "DIR", "IO", "LGS", "MNR", "PN", "PRP", "TMP", "TTL"))
+ModifierTagsRegex = "(?:" + "|".join(ModifierTags) + ")"
 class FixExtraction(Fix):
     def pattern(self):
         return list((
-        # /VP/ < { /VP:c/ < /V[PVEC]|VRD|VSB|VCD/ < /NP/=NP < /QP/=QP } < { /VP:c/ < /NP/ < /QP/ ! < /V[PVEC]|VRD|VSB|VCD/ }
             # must come before object extraction
             (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
             (r'*=TOP                < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
@@ -52,12 +53,12 @@ class FixExtraction(Fix):
             (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
 
             (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_subj_gap), #0:11(4)
-            (r'{ /SB/=BEI $ { /VP/=P << { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S } } } > *=PP', self.fix_short_bei_obj_gap), #1:54(3)
+            (r'{ /SB/=BEI $ { /VP/=P <<    { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S } } } > *=PP', self.fix_short_bei_obj_gap), #1:54(3)
             (r'{ /SB/=BEI $ { /VP/=BEIS << { /VP/=P < { /NP-IO/=T < ^/\*-\d+$/ $ *=S } > *=PP } } }', self.fix_short_bei_io_gap), # 31:2(3)
 
             # TODO: needs to be tested with (!NP)-TPC
-            (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S}', self.fix_topicalisation_with_gap),
-            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
+            (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
+            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
             # and what is expected (eg S/S)
@@ -68,7 +69,7 @@ class FixExtraction(Fix):
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
             (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
-            (r'''/VP/ 
+            (r'''/VP/
                     < { /VP:c/=PP
                         <1 { /V[PVECA]|VRD|VSB|VCD/=P < { /NP/=S $ *=T } } 
                         <2 /(QP|VP)/ } 
@@ -92,7 +93,9 @@ class FixExtraction(Fix):
             (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_object_extraction)),
 
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
-            (r'^/\*T\*/ > { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?(?!-\d+)/=K >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }', self.fix_nongap_extraction),
+            (r'''^/\*T\*/ > { /[NPQ]P(?:-%(tags)s)?(?!-\d+)/=K 
+                         >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }'''
+                         % { 'tags': ModifierTagsRegex }, self.fix_nongap_extraction),
 
             (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
@@ -151,28 +154,28 @@ class FixExtraction(Fix):
         debug("index: %s", index)
         expr = r'*=PP < { *=P < { *=T < ^/\*RNR\*%s/ $ *=S } }' % index
         for node, ctx in find_all(g, expr, with_context=True):
-            inherit_tag(ctx['S'], ctx['P'])
-            self.fix_object_gap(ctx['PP'], ctx['P'], ctx['T'], ctx['S'])
-            self.fix_categories_starting_from(ctx['S'], g)
+            inherit_tag(ctx.s, ctx.p)
+            self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
+            self.fix_categories_starting_from(ctx.s, g)
         
         debug("post deletion: %s", pprint(g))
 
         expr = r'*=PP < { *=P < { /%s/a=T $ *=S } }' % index
         node, ctx = get_first(g, expr, with_context=True)
 
-        argument = ctx['T']
-        self.fix_object_gap(ctx['PP'], ctx['P'], ctx['T'], ctx['S'])
+        argument = ctx.t
+        self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
         
         debug("T(argument): %s", lrp_repr(argument))
         debug("G: %s", lrp_repr(g))
-        debug('PP: %s, P: %s, T: %s, S: %s', *map(lrp_repr, (ctx['PP'],ctx['P'],ctx['T'],ctx['S'])))
+        debug('PP: %s, P: %s, T: %s, S: %s', *map(lrp_repr, (ctx.pp, ctx.p, ctx.t, ctx.s)))
 
         new_g = Node(g.category, g.tag, [g, argument])
 
         replace_kid(g.parent, g, new_g)
         argument.parent = new_g # argument was previously disconnected
 
-        new_g.category = ctx['S'].category.left
+        new_g.category = ctx.s.category.left
 
         self.fix_categories_starting_from(argument, new_g)
 
@@ -201,8 +204,8 @@ class FixExtraction(Fix):
 
     def remove_null_element(self, node):
         # Remove the null element WHNP and its trace -NONE- '*OP*' and shrink tree
-        pp, context = get_first(node, r'*=PP < { *=P < { /WH[NP]P/=T $ *=S } }', with_context=True)
-        p, t, s = context['P'], context['T'], context['S']
+        pp, ctx = get_first(node, r'*=PP < { *=P < { /WH[NP]P/=T $ *=S } }', with_context=True)
+        p, t, s = ctx.p, ctx.t, ctx.s
 
         replace_kid(pp, p, s)
 
@@ -213,7 +216,7 @@ class FixExtraction(Fix):
 
         if result is not None:
             _, context = result
-            s, relativiser = context['S'], context['REL']
+            s, relativiser = context.s, context.rel
 
             relativiser.category = relativiser.category.clone_with(right=s.category)
             debug("New rel category: %s", relativiser.category)
@@ -253,9 +256,7 @@ class FixExtraction(Fix):
 
             applied_rule = analyse(L, R, P)
             debug("[ %s'%s' %s'%s' -> %s'%s' ] %s",
-                L, ''.join(l.text()),
-                R, ''.join(r.text()),
-                P, ''.join(p.text()),
+                L, ''.join(l.text()), R, ''.join(r.text()), P, ''.join(p.text()),
                 applied_rule)
 
             if applied_rule is None:
@@ -273,7 +274,6 @@ class FixExtraction(Fix):
                 #
                 elif R.has_feature('conj'):
                     new_L = L.clone()
-#                    new_L.features = []
 
                     r.category = new_L.clone_adding_feature('conj')
                     p.category = new_L
@@ -372,8 +372,8 @@ class FixExtraction(Fix):
             
         expr = r'*=PP < { *=P < { /NP-SBJ/=T << ^/\*T\*%s/ $ *=S } }' % index
 
-        for trace_NP, context in find_all(node, expr, with_context=True):
-            pp, p, t, s = (context[n] for n in "PP P T S".split())
+        for trace_NP, ctx in find_all(node, expr, with_context=True):
+            pp, p, t, s = ctx.pp, ctx.p, ctx.t, ctx.s
 
             self.fix_object_gap(pp, p, t, s)
             self.fix_categories_starting_from(s, until=node)
@@ -383,7 +383,7 @@ class FixExtraction(Fix):
                 # after shrinking, we can get VV or VA here
                 # left_to_right so that we find the right node (used to match against the CP 已建成的 in 4:45(7))
                 top, context = get_first(node, r'/([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS', with_context=True, left_to_right=True)
-                ss = context["SS"]
+                ss = context.ss
                 
                 debug("Creating null relativiser unary category: %s", ss.category/ss.category)
                 replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
@@ -398,13 +398,14 @@ class FixExtraction(Fix):
         self.remove_null_element(node)
 
         index = get_trace_index_from_tag(k.tag)
-        expr = r'*=PP < { *=P < { /[NPQ]P(?:-(?:TPC|LOC|EXT|ADV|DIR|IO|LGS|MNR|PN|PRP|TMP|TTL))?%s/=T << ^/\*T\*/ $ *=S } }' % index
+        expr = (r'*=PP < { *=P < { /[NPQ]P(?:-%(tags)s)?%(index)s/=T << ^/\*T\*/ $ *=S } }' 
+             % { 'tags': ModifierTagsRegex, 'index': index })
 
         # we use "<<" in the expression, because fix_*_topicalisation comes
         # before fix_nongap_extraction, and this can introduce an extra layer between
         # the phrasal tag and the trace
-        for trace_NP, context in find_all(node, expr, with_context=True):
-            pp, p, t, s = (context[n] for n in "PP P T S".split())
+        for trace_NP, ctx in find_all(node, expr, with_context=True):
+            pp, p, t, s = ctx.pp, ctx.p, ctx.t, ctx.s
 
             # remove T from P
             # replace P with S
@@ -412,7 +413,7 @@ class FixExtraction(Fix):
 
             if not self.relabel_relativiser(pred):
                 top, context = get_first(node, r'/[ICV]P/=TOP $ *=SS', with_context=True)
-                ss = context["SS"]
+                ss = context.ss
 
                 debug("Creating null relativiser unary category: %s", ss.category/ss.category)
                 replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
@@ -436,8 +437,8 @@ class FixExtraction(Fix):
             
         expr = r'/IP/=TOP << { *=PP < { *=P < { /NP-OBJ/=T << ^/\*T\*%s/ $ *=S } } }' % index
 
-        for trace_NP, context in find_all(node, expr, with_context=True):
-            top, pp, p, t, s = (context[n] for n in "TOP PP P T S".split())
+        for trace_NP, ctx in find_all(node, expr, with_context=True):
+            top, pp, p, t, s = ctx.top, ctx.pp, ctx.p, ctx.t, ctx.s
 
             self.fix_object_gap(pp, p, t, s)
 
@@ -450,14 +451,13 @@ class FixExtraction(Fix):
                 # if TOP has no sibling, then we're likely inside a NP-PRD < CP reduced relative (cf 1:2(9))
                 result = get_first(top, r'* $ *=SS', with_context=True, nonrecursive=True)
                 if result:
-                    _, ctx = result; ss = ctx['SS']
+                    _, ctx = result; ss = ctx.ss
                     debug("Creating null relativiser unary category: %s", ss.category/ss.category)
                     replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
 
     def relabel_bei_category(self, top, pred):
-        bei, context = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
-        s = context['S']
-        bei = context['BEI']
+        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
+        s, bei = ctx.s, ctx.bei
 
         bei.category = bei.category.clone_with(right=s.category)
         bei.category.left._right = pred.category
@@ -468,8 +468,8 @@ class FixExtraction(Fix):
         return bei
         
     def relabel_ba_category(self, top, ba):
-        ba, context = get_first(top, r'*=S [ $ /BA/=BA ]', with_context=True)
-        s, ba = context['S'], context['BA']
+        _, ctx = get_first(top, r'*=S [ $ /BA/=BA ]', with_context=True)
+        s, ba = ctx.s, ctx.ba
 
         ba.category = ba.category.clone_with(right=s.category)
         
@@ -502,9 +502,9 @@ class FixExtraction(Fix):
         # FIXME: this matches only once (because it's TOP being matched, not T)
         # \*(?!T) to avoid matching *T* traces
         expr = r'*=PP < { *=P < { /NP-(?:TPC|OBJ)/=T < ^/%s/a $ *=S } }' % index
-        trace_NP, context = get_first(top, expr, with_context=True)
+        trace_NP, ctx = get_first(top, expr, with_context=True)
 
-        pp, p, t, s = (context[n] for n in "PP P T S".split())
+        pp, p, t, s = ctx.pp, ctx.p, ctx.t, ctx.s
         # remove T from P
         # replace P with S
         self.fix_object_gap(pp, p, t, s)
@@ -519,9 +519,9 @@ class FixExtraction(Fix):
     def fix_ba_object_gap(self, node, top, c, ba):
         debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
 
-        for trace_NP, context in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
+        for trace_NP, ctx in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
             debug("Found %s", trace_NP)
-            pp, p, t, s = (context[n] for n in "PP P T S".split())
+            pp, p, t, s = ctx.pp, ctx.p, ctx.t, ctx.s
 
             self.fix_object_gap(pp, p, t, s)
             self.fix_categories_starting_from(s, until=c)
@@ -567,7 +567,7 @@ class FixExtraction(Fix):
         for top, ctx in find_all(s, expr, with_context=True):
             self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
 
-            self.fix_categories_starting_from(ctx['S'], until=top)
+            self.fix_categories_starting_from(ctx.s, until=top)
 
     def fix_topicalisation_without_gap(self, node, p, s, t):
         debug("Fixing topicalisation without gap: %s", pprint(node))
