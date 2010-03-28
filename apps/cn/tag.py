@@ -260,6 +260,8 @@ def preprocess(root):
                 node[0].tag = 'VV'
             elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
                 node.kids = node[0].kids
+            elif node[0].tag == 'NP-PN' and node.tag == 'PRN':
+                node.kids = node[0].kids
 
         else:
             # Fix wrongly attached DEC (5:26(6))
@@ -380,6 +382,8 @@ def label(root):
         elif is_np_internal_structure(node):
             first = True
             for kid in reversed(node.kids):
+                if kid.tag.startswith('PRN'): continue
+                    
                 if kid.tag == 'ETC':
                     tag(kid, '&')
                 elif kid.tag not in ('CC', 'PU'):
