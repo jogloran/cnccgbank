@@ -12,7 +12,7 @@ from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, find_first, find_all
 from munge.penn.aug_nodes import Node
 
-from munge.trees.pprint import pprint, aug_node_repr
+from munge.trees.pprint import pprint
 from munge.util.tgrep_utils import get_first
 from munge.cats.cat_defs import *
 from munge.cats.trace import analyse
