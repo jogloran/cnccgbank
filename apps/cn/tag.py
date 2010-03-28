@@ -382,7 +382,7 @@ def label(root):
         elif is_np_internal_structure(node):
             first = True
             for kid in reversed(node.kids):
-                if kid.tag.startswith('PRN'): continue
+#                if kid.tag.startswith('PRN'): continue
                     
                 if kid.tag == 'ETC':
                     tag(kid, '&')
