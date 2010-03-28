@@ -381,9 +381,10 @@ class FixExtraction(Fix):
             if not self.relabel_relativiser(pred):
                 # TOP is the shrunk VP
                 # after shrinking, we can get VV or VA here
-                top, context = get_first(node, r'/([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS', with_context=True)
+                # left_to_right so that we find the right node (used to match against the CP 已建成的 in 4:45(7))
+                top, context = get_first(node, r'/([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS', with_context=True, left_to_right=True)
                 ss = context["SS"]
-
+                
                 debug("Creating null relativiser unary category: %s", ss.category/ss.category)
                 replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
 
