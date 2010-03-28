@@ -107,7 +107,7 @@ def label_right_adjunction(node):
 
 #@echo
 def label_coordination(node, inside_np=False, ucp=False):
-    node[0].category = node.category
+    node[0].category = ptb_to_cat(node[0]) if ucp else node.category
     node.kids[0] = label(node[0], inside_np)
     
     node[1].category = ptb_to_cat(node[1]) if ucp else node.category
