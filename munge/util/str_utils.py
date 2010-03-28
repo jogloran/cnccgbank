@@ -1,3 +1,5 @@
+from functools import partial as curry
+
 def do_pad_split(splitter, str, sep, maxsplit):
     '''Splits the string, but pads the result tuple to the maximum number of allowable
 sub-strings, as defined by _maxsplit_.'''
@@ -5,8 +7,8 @@ sub-strings, as defined by _maxsplit_.'''
     ret += [None] * (maxsplit+1 - len(ret))
     return ret
     
-padded_split  = lambda *args: do_pad_split(str.split,  *args)
-padded_rsplit = lambda *args: do_pad_split(str.rsplit, *args)
+padded_split  = curry(do_pad_split, str.split)
+padded_rsplit = curry(do_pad_split, str.rsplit)
 
 def nth_occurrence(seq, N, when, until):
     '''Given a sequence _seq_, this returns the _n_th sub-sequence for which

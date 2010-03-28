@@ -88,7 +88,7 @@ def multi_tgrep(deriv, query_callback_map):
                     query_callback_map[query_str](node)
     
 find_all = tgrep
-find_first = lambda *args, **kwargs: take(find_all(*args, **kwargs), 1)
+find_first = lambda *args, **kwargs: take(1, find_all(*args, **kwargs))
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))

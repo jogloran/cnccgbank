@@ -26,7 +26,7 @@ def with_paired_delimiters(func, toks, pair):
     return value
 
 def get_context(toks, ntokens=10):
-    return ", ".join(take(toks, ntokens))
+    return ", ".join(take(ntokens, toks))
 
 def shift_and_check(tok, toks):
     '''Peeks at a lexer token from the stream _toks_, throwing a DocParseException unless
@@ -41,4 +41,4 @@ def ensure_stream_exhausted(toks, caller, context_length=DefaultContextLength):
     '''Raises a DocParseException unless the stream _toks_ is empty. If not empty, displays
 a preview of the first few remaining tokens in the stream.'''
     if toks.peek() is not None:
-        raise DocParseException, "%s: Tokens at end of input. {next tokens: %s}" % (caller, list(take(toks, context_length)))
+        raise DocParseException, "%s: Tokens at end of input. {next tokens: %s}" % (caller, list(take(context_length, toks)))

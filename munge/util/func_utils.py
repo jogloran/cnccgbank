@@ -1,3 +1,5 @@
+from functools import partial as curry
+
 const = lambda v: lambda: v
 const_ = lambda v: lambda self: v
 
@@ -53,6 +55,14 @@ def deferred(f):
             if not self.value:
                 self.value = self.func(*args, **kwargs)
             return self.value
+            
+def n_times(n, f):
+    # n_times(2, f)(1, 2, 3) => [ f(1, 2, 3), f(1, 2, 3) ]
+    def _f(*args, **kwargs):
+        return map(lambda f: f(*args, **kwargs), [f] * n)
+    return _f
+    
+twice = curry(n_times, 2)
     
 if __name__ == '__main__':
     even = lambda n: n % 2 == 0

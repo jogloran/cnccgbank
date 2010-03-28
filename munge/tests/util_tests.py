@@ -83,4 +83,4 @@ class UtilTests(unittest.TestCase):
 
     def testTake(self):
         l = xrange(int(1e9))
-        self.assertEquals(list(take(l, 10)), range(10))
+        self.assertEquals(list(take(10, l)), range(10))

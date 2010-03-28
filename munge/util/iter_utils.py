@@ -1,5 +1,5 @@
 from itertools import izip, islice, tee, takewhile, count, imap
-from copy import copy
+from functools import partial as curry
 
 def each_pair(seq):
     '''Given an iterator (i0, i1, i2, ...), returns an iterator ((i0, i1), (i1, i2), ...).'''
@@ -23,7 +23,7 @@ predicate.'''
     
     return (element for element in seq if not pred(element))
 
-def take(seq, n):
+def take(n, seq):
     '''Returns the first _n_ elements from the given sequence.'''
     return islice(seq, 0, n)
 
@@ -39,6 +39,4 @@ def single(e):
     '''Yields an iterator over a single element _e_.'''
     yield e
 
-def get_first(seq):
-    '''Returns the first element of an iterator _seq_.'''
-    return take(seq, 1)
+get_first = curry(take, 1)
