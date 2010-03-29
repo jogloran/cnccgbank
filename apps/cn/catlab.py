@@ -166,6 +166,7 @@ Map = {
     'CP-PRD': NP,
     'CP-OBJ': Sdcl, # 8:16(9) CP in object position is treated as IP
     'CP-CND': SfS,
+    'CP-ADV': SfS,
 }
 
 PunctuationMap = {
