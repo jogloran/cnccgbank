@@ -383,11 +383,16 @@ class FixExtraction(Fix):
                 # TOP is the shrunk VP
                 # after shrinking, we can get VV or VA here
                 # left_to_right so that we find the right node (used to match against the CP 已建成的 in 4:45(7))
-                top, context = get_first(node, r'/([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS', with_context=True, left_to_right=True)
-                ss = context.ss
+                result = get_first(node, r'{ /([ICV]P|V[VA]|VRD|VSB|VCD)/=TOP $ *=SS } ! > /([ICV]P|V[VA]|VRD|VSB|VCD)/', with_context=True, left_to_right=True)
+                if not result:
+                    debug('Could not find verbal category; did not create null relativiser.')
+                    return
                 
-                debug("Creating null relativiser unary category: %s", ss.category/ss.category)
-                replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+                top, context = result
+                SS = context.ss.category
+                
+                debug("Creating null relativiser unary category: %s", SS/SS)
+                replace_kid(top.parent, top, Node(SS/SS, "NN", [top]))
 
         debug(pprint(node))
 
