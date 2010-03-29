@@ -70,7 +70,7 @@ argument _when_, which acts as a guard on the function call. If _when_
 is not provided, the function call occurs unconditionally.'''
     @wraps(f)
     def _f(*args, **kwargs):
-        when = kwargs.get('when', True)
+        when = kwargs.pop('when', True)
         if not when: return
         return f(*args, **kwargs)
     return _f
