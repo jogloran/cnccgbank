@@ -201,8 +201,7 @@ def preprocess(root):
                        | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
             _, ctx = get_first(node, expr, with_context=True)
 
-            lb = ctx['LB']
-            sbj, pred = ctx['SBJ'], ctx['PRED']
+            lb, sbj, pred = ctx.lb, ctx.sbj, ctx.pred
 
             del node.kids
             node.kids = [lb, sbj, pred]
@@ -268,7 +267,8 @@ def preprocess(root):
             result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
             if result:
                 _, ctx = result
-                top, p, dec = ctx['TOP'], ctx['P'], ctx['DEC']
+                top, p, dec = ctx.top, ctx.p, ctx.dec
+                
                 top.kids.append(dec)
                 p.kids.remove(dec)
                 
