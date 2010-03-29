@@ -351,7 +351,7 @@ def label(root):
             for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                     tag(kid, 'a') # treat aspect particles as adjuncts
-                elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
                     
         elif is_vcd(node) or is_vnv(node):
@@ -368,7 +368,7 @@ def label(root):
             for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                     tag(kid, 'a') # treat aspect particles as adjuncts
-                elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
 
         elif is_coordination(node): # coordination
@@ -426,7 +426,7 @@ def label(root):
             for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
                     tag(kid, 'a') # treat aspect particles as adjuncts
-                elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
 
         # head final complementation
@@ -445,7 +445,7 @@ def label(root):
             if last_kid.tag.startswith('DEC'):
                 for kid in node[0:-1]:
                     if kid.tag.startswith('WHNP') or kid.tag.startswith('WHPP'): tag(kid, 'a')
-                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h') or
+                    elif not (kid.tag.startswith('PU') or
                         kid.tag.startswith('ADVP')): # ADVP as sibling of IP in 11:39(63)
                         tag(kid, 'l')
             else:
@@ -455,7 +455,7 @@ def label(root):
                             # exception added to account for direct modification of V{V,A} with ADVP (0:47(9))
                             kid.tag.startswith('ADVP'))):
                         tag(kid, 'a') # treat aspect particles as adjuncts
-                    elif not (kid.tag.startswith('PU') or kid.tag.endswith(':h')):
+                    elif not kid.tag.startswith('PU'):
                         tag(kid, 'l')
 
         elif is_apposition(node):
@@ -473,14 +473,13 @@ def label(root):
             tag(last_kid, 'h')
 
             for kid in node[0:-1]:
-                if not kid.tag.endswith(':h'):
-                    if has_modification_tag(kid):
-                        tag(kid, 'm')
-                    elif not kid.tag.startswith('PU'):
-                        tag(kid, 'a')
+                if has_modification_tag(kid):
+                    tag(kid, 'm')
+                elif not kid.tag.startswith('PU'):
+                    tag(kid, 'a')
 
-                    else:
-                        tag_if_topicalisation(kid)
+                else:
+                    tag_if_topicalisation(kid)
                         
         elif is_argument_cluster(node):
             for kid in node:
@@ -490,7 +489,7 @@ def label(root):
             tag(last_kid, 'h')
 
             for kid in node[0:-1]:
-                if not (kid.tag.startswith('PU') or kid.tag.startswith('CC') or kid.tag.endswith(':h')):
+                if not (kid.tag.startswith('PU') or kid.tag.startswith('CC')):
                     tag(kid, 'a')
                 else:
                     tag_if_topicalisation(kid)
