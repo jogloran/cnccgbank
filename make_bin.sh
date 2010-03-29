@@ -25,6 +25,6 @@ rm -rf ./tagged/"$TARGET"
 # Binarise derivations
 echo Binarising derivations.
 rm -rf ./binarised/"$TARGET"
-./t -q $break_flag -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET" 2>&1 | tee bin_errors
+./t $break_flag -lapps.cn.binarise -r Binariser binarised -0 tagged/"$TARGET" 2>&1 | tee bin_errors
 # Make graphs
 #./t -q -D binarised_dots binarised/"$TARGET"

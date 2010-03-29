@@ -58,7 +58,7 @@ class FixExtraction(Fix):
 
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
             # TODO: needs to be tested with (!NP)-TPC
-            (r'/(IP|CP-CND|VP)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
+            (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
             (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
@@ -127,7 +127,7 @@ class FixExtraction(Fix):
         for kid in new_node: kid.parent = new_node
         
         # 3. Find and relabel argument clusters
-        for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /(QP|V[PV])/=QP', with_context=True):
+        for node, ctx in find_all(top, r'/VP/=VP <1 /NP/=NP <2 /(QP|V[PV])/=QP', with_context=True):
             vp, np, qp = ctx.vp, ctx.np, ctx.qp
             # Now, VP should have category ((S[dcl]\NP)/QP)/NP
             SbNP = t.category.left.left
