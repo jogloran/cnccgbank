@@ -20,6 +20,7 @@ from munge.cats.nodes import FORWARD, BACKWARD
 from munge.trees.traverse import lrp_repr
 
 from munge.util.err_utils import warn, debug
+from munge.util.dict_utils import update
 
 from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
@@ -246,8 +247,6 @@ class FixExtraction(Fix):
     is_verbal_category = staticmethod(lambda cat: is_rooted_in(Sdcl, cat, respecting_features=True))
 
     def fix_categories_starting_from(self, node, until):
-#        debug("fix from\n%s to\n%s", pprint(node), pprint(until))
-
         while node is not until:
             if (not node.parent) or node.parent.count() < 2: break
 
@@ -485,13 +484,11 @@ class FixExtraction(Fix):
     def fix_reduced_long_bei_gap(self, node, *args, **kwargs):
         debug("Fixing reduced long bei gap: %s", lrp_repr(node))
 
-        kwargs.update(reduced=True)
-        return self.fix_long_bei_gap(node, *args, **kwargs)
+        return self.fix_long_bei_gap(node, *args, **update(kwargs, reduced=True))
         
     def fix_reduced(self, f):
         def _f(node, *args, **kwargs):
-            kwargs.update(reduced=True)
-            return f(node, *args, **kwargs)
+            return f(node, *args, **update(kwargs, reduced=True))
         return _f
 
     def fix_long_bei_gap(self, node, bei, pred, top, n=None, reduced=False):

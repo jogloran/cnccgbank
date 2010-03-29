@@ -198,7 +198,7 @@ PunctuationMap = {
     '/': 'SLS', '//': 'SLS',
 }
 
-Dashes = set("── - --- ---- ━ ━━ — —— ———".split())
+Dashes = frozenset("── - --- ---- ━ ━━ — —— ———".split())
 def is_dashlike(t):
     return t in Dashes
     
