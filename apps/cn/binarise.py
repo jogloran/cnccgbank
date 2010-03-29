@@ -323,13 +323,14 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
         elif ((node.tag.startswith('NP') and node[0].tag == "PN") or
               # 21:2(6)
-              (node.tag.startswith('ADVP') and node[0].tag == 'CC') or
+              (node.tag.startswith('ADVP') and node[0].tag in ('CC', 'PN')) or
               # NN for 25:61(7)
               (node.tag.startswith("QP") and node[0].tag in ("OD", "CD", 'NN')) or
+              (node.tag.startswith('ADJP') and node[0].tag in ('PN', 'DT')) or
               # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
-              (node.tag.startswith('NP') and node[0].tag.startswith('NT')) or
+              (node.tag.startswith('NP') and (node[0].tag.startswith('NT') or node[0].tag.startswith('DT'))) or
               # 28:82(8)
-              (node.tag.startswith('DP') and node[0].tag.startswith('NN')) or
+              (node.tag.startswith('DP') and (node[0].tag.startswith('NN') or node[0].tag.startswith('PN'))) or
               (any(node.tag.startswith(cand) for cand in ('NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 'NP-LOC', 'NP-ADV', 'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
                   and has_noun_tag(node[0]))):
             replacement = node[0]
