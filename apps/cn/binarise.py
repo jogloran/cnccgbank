@@ -208,7 +208,6 @@ def label_predication(node, inherit_tag=False):
     
 #@echo
 def label_root(node):
-    debug('originally: %s', pprint(node))
     final_punctuation_stk = []
     
     # These derivations consist of a leaf PU root: 24:73(4), 25:81(4), 28:52(21)
