@@ -1,4 +1,4 @@
-from functools import update_wrapper
+from functools import update_wrapper, wraps
 
 def cast_to(*types):
     '''A function decorator which takes a tuple of 1-arg constructor functions, modifying the decorated function
@@ -36,7 +36,6 @@ def threshold(f):
     else:
         raise TypeError('Threshold must be in the range [0, 1].')
 
-
 def enum(**map):
     def _enum(f):
         return map.get(f, None)
@@ -64,6 +63,14 @@ class memoised(object):
    def __repr__(self):
       """Return the function's docstring."""
       return self.func.__doc__
+      
+def predicated(f):
+    @wraps(f)
+    def _f(*args, **kwargs):
+        when = kwargs.get('when', True)
+        if not when: return
+        return f(*args, **kwargs)
+    return _f
     
 if __name__ == '__main__':
     @cast_to(int, int)

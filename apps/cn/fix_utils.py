@@ -6,6 +6,7 @@ from munge.trees.traverse import lrp_repr
 from apps.identify_lrhca import base_tag
 from munge.cats.nodes import BACKWARD, FORWARD
 from munge.util.err_utils import debug
+from munge.util.deco_utils import predicated
 
 def replace_kid(node, old, new):
     # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
@@ -49,6 +50,7 @@ def inherit_tag(node, other, strip_marker=False):
     elif other.tag.rfind(':') != -1 and node.tag.rfind(':') == -1:
         node.tag += other.tag[other.tag.rfind(':'):]
 
+@predicated
 def fcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or
         l.right != r.left or
@@ -56,34 +58,33 @@ def fcomp(l, r):
 
     return fake_unify(l, r, l.left / r.right)
 
-def bcomp(l, r, when=True):
-    if not when: return None
+@predicated
+def bcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or
         l.left != r.right or
         l.direction != BACKWARD or l.direction != r.direction): return None
         
     return fake_unify(r, l, r.left | l.right)
 
-def bxcomp(l, r, when=True):
+@predicated
+def bxcomp(l, r):
     # Y/Z X\Y -> X/Z
-    if not when: return None
-    
     if (l.is_leaf() or r.is_leaf() or
         l.left != r.right or
         l.direction != FORWARD or l.direction == r.direction): return None
 
     return fake_unify(r, l, r.left / l.right)
     
-def bxcomp2(l, r, when=True):
+@predicated
+def bxcomp2(l, r):
     # (Y/Z)/W X\Y -> (X/Z)/W
-    if not when: return None
-    
     if not (l.is_complex() and r.is_complex() and l.left.is_complex() and
         l.left.left == r.right and
         l.direction == l.left.direction and l.direction != r.direction): return None
         
     return fake_unify(r, l, (r.left/l.left.right)/l.right)
 
+@predicated
 def fxcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or
         l.right != r.left or
