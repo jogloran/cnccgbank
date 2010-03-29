@@ -65,6 +65,9 @@ class memoised(object):
       return self.func.__doc__
       
 def predicated(f):
+    '''Functions decorated with _predicated_ optionally accept a keyword
+argument _when_, which acts as a guard on the function call. If _when_
+is not provided, the function call occurs unconditionally.'''
     @wraps(f)
     def _f(*args, **kwargs):
         when = kwargs.get('when', True)
