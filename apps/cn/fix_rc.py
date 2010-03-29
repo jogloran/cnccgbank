@@ -346,7 +346,7 @@ class FixExtraction(Fix):
                             
                     if not new_parent_category:
                         new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
-                                            or bxcomp(L, R) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
+                                            or bxcomp(L, R, when=not self.is_relativiser(R)) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
                                             or fxcomp(L, R))
 
                     if new_parent_category:

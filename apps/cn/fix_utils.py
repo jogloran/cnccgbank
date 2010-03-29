@@ -64,8 +64,10 @@ def bcomp(l, r, when=True):
         
     return fake_unify(r, l, r.left | l.right)
 
-def bxcomp(l, r):
+def bxcomp(l, r, when=True):
     # Y/Z X\Y -> X/Z
+    if not when: return None
+    
     if (l.is_leaf() or r.is_leaf() or
         l.left != r.right or
         l.direction != FORWARD or l.direction == r.direction): return None
