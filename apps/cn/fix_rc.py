@@ -56,8 +56,9 @@ class FixExtraction(Fix):
             (r'{ /SB/=BEI $ { /VP/=P <<    { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S } } } > *=PP', self.fix_short_bei_obj_gap), #1:54(3)
             (r'{ /SB/=BEI $ { /VP/=BEIS << { /VP/=P < { /NP-IO/=T < ^/\*-\d+$/ $ *=S } > *=PP } } }', self.fix_short_bei_io_gap), # 31:2(3)
 
+            (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
             # TODO: needs to be tested with (!NP)-TPC
-            (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
+            (r'/(IP|CP-CND|VP)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
             (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
@@ -72,18 +73,18 @@ class FixExtraction(Fix):
             (r'''/VP/
                     < { /VP:c/=PP
                         <1 { /V[PVECA]|VRD|VSB|VCD/=P < { /NP/=S $ *=T } } 
-                        <2 /(QP|VP)/ } 
+                        <2 /(QP|V[PV])/ } 
                     < { /VP/ 
                         < { /(PU|CC)/ 
                       [ $ { /VP:c/ 
                             ! <1 /V[PVECA]|VRD|VSB|VCD/ 
                             <1 /NP/ 
-                            <2 /(QP|VP)/ }
+                            <2 /(QP|V[PV])/ }
                       | $ { /VP/ <
                             { /VP:c/ 
                                     ! <1 /V[PVECA]|VRD|VSB|VCD/ 
                                     <1 /NP/ 
-                                    <2 /(QP|VP)/ } } ] } }''', self.clusterfix),
+                                    <2 /(QP|V[PV])/ } } ] } }''', self.clusterfix),
 
             # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
             (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_subject_extraction),
@@ -126,7 +127,7 @@ class FixExtraction(Fix):
         for kid in new_node: kid.parent = new_node
         
         # 3. Find and relabel argument clusters
-        for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /(QP|VP)/=QP', with_context=True):
+        for node, ctx in find_all(top, r'/VP/=VP < /NP/=NP < /(QP|V[PV])/=QP', with_context=True):
             vp, np, qp = ctx.vp, ctx.np, ctx.qp
             # Now, VP should have category ((S[dcl]\NP)/QP)/NP
             SbNP = t.category.left.left
@@ -533,6 +534,26 @@ class FixExtraction(Fix):
         '''Given a trace _t_, its sibling _s_, its parent _p_ and its grandparent _pp_, replaces _p_ with its sibling.'''
         p.kids.remove(t)
         replace_kid(pp, p, s)
+        
+    def fix_whword_topicalisation(self, node, p, s, t):
+        debug('Fixing wh-word topicalisation: node: %s', lrp_repr(node))
+        # stop this method from matching again (in case there's absorption on the top node, cf 2:22(5))
+        t.tag = base_tag(t.tag, strip_cptb_tag=False)
+        # create topicalised category based on the tag of T
+        typeraise_t_category = ptb_to_cat(t)
+        # insert a node with the topicalised category
+        replace_kid(p, t, Node(
+            typeraise(typeraise_t_category, SbNP, TR_TOPICALISATION),
+            base_tag(t.tag, strip_cptb_tag=False),
+            [t]))
+            
+        index = get_trace_index_from_tag(t.tag)
+        
+        expr = r'*=PP < { /VP/=P < { /NP-(?:SBJ|OBJ)/=T < ^/\*T\*%s/ $ *=S } }' % index
+        
+        for top, ctx in find_all(p, expr, with_context=True):
+            replace_kid(ctx.pp, ctx.p, ctx.s)
+            self.fix_categories_starting_from(ctx.s, until=top)
 
     def fix_topicalisation_with_gap(self, node, p, s, t):
         debug("Fixing topicalisation with gap:\nnode=%s\ns=%s\nt=%s", lrp_repr(node), pprint(s), pprint(t))
@@ -565,8 +586,8 @@ class FixExtraction(Fix):
         expr = r'/IP/=TOP << { *=PP < { *=P < { /[NICQP]P-(?:SBJ|OBJ)/=T < ^/\*T\*%s/ $ *=S } } }' % index
 
         for top, ctx in find_all(s, expr, with_context=True):
-            self.fix_object_gap(*(ctx[n] for n in "PP P T S".split()))
-
+            debug('top: %s', pprint(top))
+            self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
             self.fix_categories_starting_from(ctx.s, until=top)
 
     def fix_topicalisation_without_gap(self, node, p, s, t):

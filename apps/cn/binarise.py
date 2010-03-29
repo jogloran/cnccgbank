@@ -8,6 +8,7 @@ from munge.penn.nodes import Leaf, Node
 from munge.trees.pprint import pprint
 from munge.proc.filter import Filter
 from munge.util.err_utils import debug
+from munge.util.func_utils import twice
 
 from apps.identify_lrhca import *
 from apps.cn.output import OutputDerivation
@@ -29,7 +30,7 @@ def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np
     else:
         kids = node.kids
         
-    last_kid, second_last_kid = kids.pop(), kids.pop()
+    last_kid, second_last_kid = twice(kids.pop)()
 
     cur = Node(kid_tag, [second_last_kid, last_kid])
 
@@ -167,7 +168,7 @@ def label_head_initial(node, inherit_tag=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
     kids = map(label_node, node.kids)[::-1]
-    first_kid, second_kid = kids.pop(), kids.pop()
+    first_kid, second_kid = twice(kids.pop)()
 
     cur = Node(kid_tag, [first_kid, second_kid])
 
@@ -188,9 +189,8 @@ def is_right_punct_absorption(node):
 #@echo
 def label_predication(node, inherit_tag=False):
     kids = map(label_node, node.kids)
-#    last_kid, second_last_kid = kids.pop(), kids.pop()
-    last_kid = get_kid_(kids)
-    second_last_kid = get_kid_(kids)
+
+    last_kid, second_last_kid = twice(get_kid_)(kids)
     
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
 
@@ -325,9 +325,12 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         elif ((node.tag.startswith('NP') and node[0].tag == "PN") or
               # 21:2(6)
               (node.tag.startswith('ADVP') and node[0].tag == 'CC') or
-              (node.tag.startswith("QP") and node[0].tag in ("OD", "CD")) or
+              # NN for 25:61(7)
+              (node.tag.startswith("QP") and node[0].tag in ("OD", "CD", 'NN')) or
               # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
               (node.tag.startswith('NP') and node[0].tag.startswith('NT')) or
+              # 28:82(8)
+              (node.tag.startswith('DP') and node[0].tag.startswith('NN')) or
               (any(node.tag.startswith(cand) for cand in ('NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 'NP-LOC', 'NP-ADV', 'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR'))
                   and has_noun_tag(node[0]))):
             replacement = node[0]
