@@ -22,10 +22,10 @@ def strip_tag_if(cond, tag):
         return tag
 
 #@echo
-def label_adjunction(node, inherit_tag=False, without_labelling=False, inside_np_internal_structure=False):
+def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_internal_structure=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
-    if not without_labelling:
+    if do_labelling:
         kids = map(lambda node: label_node(node, inside_np_internal_structure=inside_np_internal_structure), node.kids)
     else:
         kids = node.kids
@@ -161,7 +161,7 @@ def reshape_for_coordination(node, inside_np_internal_structure):
         cur.tag = node.tag
         return cur
     
-    return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, without_labelling=True)
+    return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, do_labelling=False)
 
 #@echo
 def label_head_initial(node, inherit_tag=False):
