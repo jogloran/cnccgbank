@@ -188,15 +188,12 @@ def is_right_punct_absorption(node):
 
 #@echo
 def label_predication(node, inherit_tag=False):
-    kids = map(label_node, node.kids)
-    
-    last_kid, second_last_kid = twice(get_kid_)(kids)
-    
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
-    initial_tag = kid_tag
+    kids = map(label_node, node.kids)
+    last_kid, second_last_kid = twice(get_kid_)(kids)
     
-    cur = Node(initial_tag, [second_last_kid, last_kid])
+    cur = Node(kid_tag, [second_last_kid, last_kid])
     
     while kids:
         kid = get_kid_(kids)
@@ -245,7 +242,7 @@ PunctuationPairs = frozenset(
     ("“”", "「」", "（）", "()", "‘’", "《》", "『』", "「」")
 )
 def are_paired_punctuation(p1, p2):
-    return (p1 + p2) in PunctuationPairs
+    return p1 + p2 in PunctuationPairs
 
 def has_paired_punctuation(node):
     # if node has fewer than 3 kids, the analysis is the same as the default (right-branching)
