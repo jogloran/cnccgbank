@@ -1,6 +1,7 @@
 from munge.proc.filter import Filter
 from apps.cn.output import *
 from munge.trees.traverse import leaves
+from apps.identify_lrhca import base_tag
 
 class PipeFormat(Filter, OutputDerivation):
     '''Generates the "piped" output format used by C&C.'''
@@ -21,6 +22,7 @@ class PipeFormat(Filter, OutputDerivation):
     def make_format_string_from(format):
         substitutions = {
             "%w": "%(lex)s",
+            "%P": "%(stemmed_pos)s"
             "%p": "%(pos)s",
             "%s": "%(cat)s"
         }
@@ -29,4 +31,4 @@ class PipeFormat(Filter, OutputDerivation):
         return format
         
     def format(self, leaf):
-        return self.format_string % {'lex': leaf.lex, 'pos': leaf.pos1, 'cat': str(leaf.cat)}
+        return self.format_string % {'lex': leaf.lex, 'pos': leaf.pos1, 'cat': str(leaf.cat), 'stemmed_pos': base_tag(leaf.pos1)}
