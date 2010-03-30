@@ -30,7 +30,11 @@ def try_unary_rules(l, r, cur):
         if cur == SfNP and l == SbNPfNP: return "subject_prodrop"
         # [ta] yi qu VP(jiu bu hui lai)
         if cur == SfS and l == C(r'(S/S)\NP'): return "yi_subject_prodrop"
+        # Object prodrops:
+        # ----------------
         if cur == C('(S[dcl]\NP)/(S[dcl]\NP)') and l == C('((S[dcl]\NP)/(S[dcl]\NP))/NP'): return 'vp_vp_object_prodrop'
+        if cur == SbNP and l == SbNPfNP: return 'object_prodrop'
+        # ----------------
         if cur == C('(S\NP)/(S\NP)') and l == C('((S\NP)/(S\NP))\NP'): return 'vp_modifier_subject_prodrop'
         
         # TOPICALISATIONS:
