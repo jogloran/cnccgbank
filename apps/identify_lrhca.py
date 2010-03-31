@@ -5,6 +5,10 @@ from munge.trees.traverse import leaves
 from apps.identify_pos import *
 from apps.util.config import config
 from munge.util.func_utils import satisfies_any
+try:
+    from pressplit import base_tag
+except ImportError:
+    base_tag = _base_tag
 
 def last_nonpunct_kid(node):
     kid, index = get_nonpunct_kid(node)
@@ -24,7 +28,7 @@ def get_nonpunct_kid(node, get_last=True):
     if node.is_leaf(): return None, None
     return get_nonpunct_element(node.kids, get_last=get_last)
 
-def base_tag(tag, strip_cptb_tag=True, strip_tag=True):
+def _base_tag(tag, strip_cptb_tag=True, strip_tag=True):
     '''
     Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
     unmodified.
