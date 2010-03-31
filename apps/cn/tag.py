@@ -167,6 +167,19 @@ def preprocess(root):
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         # ---------------------
+        # Where LPU, RPU are paired punctuation, reshape YP(LPU ... XP RPU YP) into YP(XP(LPU ... XP) YP)
+        if any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
+            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
+            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
+            if rqu != node.count()-1:
+                quoted_kids = node.kids[lqu:rqu+1]
+                del node.kids[lqu:rqu+1]
+
+                last_nonpunct_kid, _ = get_nonpunct_element(quoted_kids, get_last=True)
+                # Bad punctuation in 27:84(4) causes a mis-analysis, just ignore
+                if last_nonpunct_kid:
+                    quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
+                    node.kids.insert(lqu, quoted_node)
         
         # CPTB/Chinese-specific fixes
         # ---------------------------
@@ -234,20 +247,6 @@ def preprocess(root):
 
             del node.kids
             node.kids = [lb, sbj, pred]
-        
-        # Where LPU, RPU are paired punctuation, reshape YP(LPU ... XP RPU YP) into YP(XP(LPU ... XP) YP)
-        elif any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
-            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
-            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
-            if rqu != node.count()-1:
-                quoted_kids = node.kids[lqu:rqu+1]
-                del node.kids[lqu:rqu+1]
-
-                last_nonpunct_kid, _ = get_nonpunct_element(quoted_kids, get_last=True)
-                # Bad punctuation in 27:84(4) causes a mis-analysis, just ignore
-                if last_nonpunct_kid:
-                    quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
-                    node.kids.insert(lqu, quoted_node)
 
         else:
             # Fix wrongly attached DEC (5:26(6))
