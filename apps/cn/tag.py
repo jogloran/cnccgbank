@@ -249,18 +249,6 @@ def preprocess(root):
             node.kids = [lb, sbj, pred]
 
         else:
-            expr = r'''/VP/=VP <1 /VV/=V <2 { /IP-OBJ/ <1 /NP-SBJ/=SBJ <2 /VP/=PRED }'''
-            result = get_first(node, expr, with_context=True)
-            if result:
-                _, ctx = result
-                vp, v, sbj, pred = ctx.vp, ctx.v, ctx.sbj, ctx.pred
-
-                del vp.kids
-                if get_first(sbj, r'* < ^/\*PRO\*/'):
-                    vp.kids = [v, pred]
-                else:
-                    vp.kids = [v, sbj, pred]
-                    
             # Fix wrongly attached DEC (5:26(6))
             result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
             if result:
@@ -276,6 +264,18 @@ def preprocess(root):
                 pp, p, s = ctx.pp, ctx.p, ctx.s
                 inherit_tag(s, p)
                 replace_kid(pp, p, s)
+                
+            expr = r'''/VP/=VP <1 /VV/=V <2 { /IP-OBJ/ <1 /NP-SBJ/=SBJ <2 /VP/=PRED }'''
+            result = get_first(node, expr, with_context=True)
+            if result:
+                _, ctx = result
+                vp, v, sbj, pred = ctx.vp, ctx.v, ctx.sbj, ctx.pred
+
+                del vp.kids
+                if get_first(sbj, r'* < ^/\*PRO\*/'):
+                    vp.kids = [v, pred]
+                else:
+                    vp.kids = [v, sbj, pred]
 
     return root
     
