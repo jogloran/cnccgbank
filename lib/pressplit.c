@@ -1,19 +1,38 @@
 #include "Python.h"
 
 static PyObject* pressplit_base_tag(PyObject* self, PyObject* args, PyObject* kwargs) {
-    const char* tag;
+    const char* orig_tag;
+    size_t tag_len;
     PyObject* strip_cptb_tag = Py_True;
     PyObject* strip_tag = Py_True;
+    char* tag;
     
     static char* kwarg_names[] = { "tag", "strip_cptb_tag", "strip_tag", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|OO", kwarg_names, &tag, &strip_cptb_tag, &strip_tag)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|OO", kwarg_names, &orig_tag, &strip_cptb_tag, &strip_tag)) {
         return NULL;
     }
     
-    printf("here (%s, %x, %x)\n", tag, PyObject_IsTrue(strip_cptb_tag), PyObject_IsTrue(strip_tag));
+    tag = strdup(orig_tag);
     
-    Py_INCREF(Py_None);
-    return Py_None;
+    tag_len = strlen(tag);
+    if (strlen(tag) >= 3 && tag[0] == '-' && tag[tag_len-1] == '-') {
+        return PyString_FromString(tag);
+    }
+    
+    if (PyObject_IsTrue(strip_tag)) {
+        char* tagp = strchr(tag, ':');
+        if (tagp) *tagp = '\0';
+    }
+    
+    if (PyObject_IsTrue(strip_cptb_tag)) {
+        char* tagp = strchr(tag, '-');
+        if (tagp) *tagp = '\0';
+    }
+    
+    PyObject* ret = PyString_FromString(tag);
+    free(tag);
+    
+    return ret;
 }
 
 static PyObject* pressplit_split(PyObject* self, PyObject* args) {
