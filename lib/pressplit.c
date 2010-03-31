@@ -1,5 +1,21 @@
 #include "Python.h"
 
+static PyObject* pressplit_base_tag(PyObject* self, PyObject* args, PyObject* kwargs) {
+    const char* tag;
+    PyObject* strip_cptb_tag = Py_True;
+    PyObject* strip_tag = Py_True;
+    
+    static char* kwarg_names[] = { "tag", "strip_cptb_tag", "strip_tag", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|OO", kwarg_names, &tag, &strip_cptb_tag, &strip_tag)) {
+        return NULL;
+    }
+    
+    printf("here (%s, %x, %x)\n", tag, PyObject_IsTrue(strip_cptb_tag), PyObject_IsTrue(strip_tag));
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject* pressplit_split(PyObject* self, PyObject* args) {
     const char* str;
     const char* split_chars;
@@ -85,6 +101,7 @@ static PyObject* pressplit_split(PyObject* self, PyObject* args) {
 static PyMethodDef pressplit_methods[] = {
     /* name    ptr to function               flags         doc */
     { "split", (PyCFunction)pressplit_split, METH_VARARGS, "" },
+    { "base_tag", (PyCFunctionWithKeywords)pressplit_base_tag, METH_VARARGS | METH_KEYWORDS, "" },
     { NULL, NULL, 0, NULL }
 };
 
