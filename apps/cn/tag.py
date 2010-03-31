@@ -166,46 +166,6 @@ def preprocess(root):
         
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
-        
-        # Where LPU, RPU are paired punctuation, reshape YP(LPU ... XP RPU YP) into YP(XP(LPU ... XP) YP)
-        if any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
-            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
-            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
-            if rqu != node.count()-1:
-                quoted_kids = node.kids[lqu:rqu+1]
-                del node.kids[lqu:rqu+1]
-                
-                last_nonpunct_kid, _ = get_nonpunct_element(quoted_kids, get_last=True)
-                # Bad punctuation in 27:84(4) causes a mis-analysis, just ignore
-                if last_nonpunct_kid:
-                    quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
-                    node.kids.insert(lqu, quoted_node)
-                    
-        expr = r'''/VP/=VP <1 /VV/=V <2 { /IP-OBJ/ <1 /NP-SBJ/=SBJ <2 /VP/=PRED }'''
-        result = get_first(node, expr, with_context=True)
-        if result:
-            _, ctx = result
-            vp, v, sbj, pred = ctx.vp, ctx.v, ctx.sbj, ctx.pred
-            
-            del vp.kids
-            if get_first(sbj, r'* < ^/\*PRO\*/'):
-                vp.kids = [v, pred]
-            else:
-                vp.kids = [v, sbj, pred]
-
-        # Reshape LB (long bei)
-        # ---------------------
-        if first_kid and first_kid.tag == "LB":
-            expr = r'''* < { /LB/=LB 
-                       [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
-                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
-            _, ctx = get_first(node, expr, with_context=True)
-
-            lb, sbj, pred = ctx.lb, ctx.sbj, ctx.pred
-
-            del node.kids
-            node.kids = [lb, sbj, pred]
-
         # ---------------------
         
         # CPTB/Chinese-specific fixes
@@ -261,6 +221,33 @@ def preprocess(root):
                 node.kids = node[0].kids
             elif node[0].tag == 'NP-PN' and node.tag == 'PRN':
                 node.kids = node[0].kids
+                
+        # Reshape LB (long bei)
+        # ---------------------
+        elif first_kid and first_kid.tag == "LB":
+            expr = r'''* < { /LB/=LB 
+                       [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
+                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
+            _, ctx = get_first(node, expr, with_context=True)
+
+            lb, sbj, pred = ctx.lb, ctx.sbj, ctx.pred
+
+            del node.kids
+            node.kids = [lb, sbj, pred]
+        
+        # Where LPU, RPU are paired punctuation, reshape YP(LPU ... XP RPU YP) into YP(XP(LPU ... XP) YP)
+        elif any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
+            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
+            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
+            if rqu != node.count()-1:
+                quoted_kids = node.kids[lqu:rqu+1]
+                del node.kids[lqu:rqu+1]
+
+                last_nonpunct_kid, _ = get_nonpunct_element(quoted_kids, get_last=True)
+                # Bad punctuation in 27:84(4) causes a mis-analysis, just ignore
+                if last_nonpunct_kid:
+                    quoted_node = Node(last_nonpunct_kid.tag, quoted_kids)
+                    node.kids.insert(lqu, quoted_node)
 
         else:
             # Fix wrongly attached DEC (5:26(6))
@@ -278,6 +265,20 @@ def preprocess(root):
                 pp, p, s = ctx.pp, ctx.p, ctx.s
                 inherit_tag(s, p)
                 replace_kid(pp, p, s)
+                
+            expr = r'''/VP/=VP <1 /VV/=V <2 { /IP-OBJ/ <1 /NP-SBJ/=SBJ <2 /VP/=PRED }'''
+            result = get_first(node, expr, with_context=True)
+            if result:
+                _, ctx = result
+                vp, v, sbj, pred = ctx.vp, ctx.v, ctx.sbj, ctx.pred
+
+                del vp.kids
+                if get_first(sbj, r'* < ^/\*PRO\*/'):
+                    vp.kids = [v, pred]
+                else:
+                    vp.kids = [v, sbj, pred]
+                    
+            
             
     return root
     
