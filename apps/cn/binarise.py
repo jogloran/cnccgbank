@@ -11,7 +11,7 @@ from munge.util.err_utils import debug
 from munge.util.func_utils import twice
 
 from apps.identify_lrhca import *
-from apps.cn.output import OutputDerivation
+from apps.cn.output import OutputPrefacedPTBDerivation
 from apps.cn.fix_utils import *
 from apps.util.echo import *
 
@@ -371,10 +371,10 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     else:
         return label_adjunction(node)
 
-class Binariser(Filter, OutputDerivation):
+class Binariser(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputDerivation.__init__(self)
+        OutputPrefacedPTBDerivation.__init__(self)
         self.outdir = outdir
     
     def accept_derivation(self, bundle):

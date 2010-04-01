@@ -3,12 +3,12 @@ from munge.proc.tgrep.tgrep import tgrep, multi_tgrep
 from munge.util.dict_utils import smash_key_case
 from munge.util.err_utils import debug
 
-from apps.cn.output import *
+from apps.cn.output import OutputPrefacedPTBDerivation
 
-class Fix(Filter, OutputDerivation):
+class Fix(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputDerivation.__init__(self)
+        OutputPrefacedPTBDerivation.__init__(self)
         
         self.outdir = outdir
         

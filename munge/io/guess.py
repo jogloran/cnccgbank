@@ -1,14 +1,14 @@
-from munge.io.guess_ptb import PTBGuesser
+from munge.io.guess_ptb import PTBGuesser, PrefacedPTBGuesser
 from munge.io.guess_cptb import CPTBGuesser
 from munge.io.guess_ccgbank import CCGbankGuesser
 
-from munge.util.err_utils import warn
+from munge.util.err_utils import warn, info
 from munge.util.str_utils import padded_rsplit
 
 class GuessReader(object):
     '''A reader which attempts to automatically guess the treebank
 type based on the first bytes of the document (the context).'''
-    def __init__(self, filename, guessers=(CCGbankGuesser, PTBGuesser, CPTBGuesser), default=CCGbankGuesser):
+    def __init__(self, filename, guessers=(PrefacedPTBGuesser, CCGbankGuesser, PTBGuesser, CPTBGuesser), default=CCGbankGuesser):
         '''Initialises a GuessReader with a given set of guessers.'''
         self.guessers = list(guessers)
         self.default = default

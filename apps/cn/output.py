@@ -11,7 +11,27 @@ class OutputDerivation(object):
         output_filename = os.path.join(self.outdir, "chtb_%02d%02d.fid" % (bundle.sec_no, bundle.doc_no))
 
         with file(output_filename, 'a') as f:
-            print >>f, self.transformer(bundle)          
+            print >>f, self.transformer(bundle)
+
+class OutputPrefacedPTBDerivation(OutputDerivation):
+    def __init__(self):
+        def fix_label(label):
+            matches = re.match(r'(\d+):(\d+)\((\d+)\)', label)
+            
+            if matches and len(matches.groups()) == 3:
+                sec, doc, deriv = map(int, matches.groups())
+                return "wsj_%02d%02d.%d" % (sec, doc, deriv)
+            raise Exception, "Invalid label %s" % label
+
+        def make_header(bundle):
+            return 'ID=%s PARSER=GOLD NUMPARSE=1' % fix_label(bundle.label())
+            
+        def printer(bundle):
+            return '\n'.join((
+                make_header(bundle),
+                repr(bundle.derivation)))
+
+        OutputDerivation.__init__(self, printer)
 
 class OutputCCGbankDerivation(OutputDerivation):
     def __init__(self):

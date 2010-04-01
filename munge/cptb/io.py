@@ -16,7 +16,7 @@ class Derivation(object):
         return (self.sec_no, self.doc_no, self.der_no)
         
     def label(self):
-        return "CTB:%d%02d(%d)" % self.spec_tuple()
+        return "%0d:%d(%d)" % self.spec_tuple()
     
 import sys
 from sgmllib import SGMLParser    

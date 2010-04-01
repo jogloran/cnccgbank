@@ -20,7 +20,7 @@ fi
 
 echo Doing category labelling.
 rm -rf ./labelled/"$TARGET";
-./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled -0 -R AugmentedPTBReader binarised/"$TARGET" 2>&1 | tee lab_errors 
+./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled -0 binarised/"$TARGET" 2>&1 | tee lab_errors 
 
 echo Making DOTs.
 #./t -q -D labelled_dots -R AugmentedPTBReader labelled/"$TARGET"

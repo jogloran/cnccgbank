@@ -15,7 +15,7 @@ from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, g
 from apps.identify_pos import VerbalCategories
 from apps.cn.fix_utils import inherit_tag, replace_kid
 from apps.util.echo import echo
-from apps.cn.output import OutputDerivation
+from apps.cn.output import OutputPrefacedPTBDerivation
 from apps.util.config import config
 
 PredicationRegex = re.compile(r'''
@@ -480,10 +480,10 @@ def label(root):
                     
     return root
     
-class TagStructures(Filter, OutputDerivation):
+class TagStructures(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputDerivation.__init__(self)
+        OutputPrefacedPTBDerivation.__init__(self)
         self.outdir = outdir
                 
     def accept_derivation(self, bundle):

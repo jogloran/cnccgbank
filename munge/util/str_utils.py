@@ -18,6 +18,10 @@ the predicate _when_ is true, with _until_ defining the end of each sub-sequence
     recording = False
     
     for element in seq:
+        if until(element):
+            recording = False
+            if n > N: break
+
         if when(element) and not recording:
             n += 1
             recording = True
@@ -25,13 +29,9 @@ the predicate _when_ is true, with _until_ defining the end of each sub-sequence
         if recording and n == N:
             buffer.append(element)
             
-        if until(element):
-            recording = False
-            if n > N: break
             
     return buffer
             
 if __name__ == '__main__':
-    # 0 1 2 3 4 5 6 7 8 9 
-    # -> 7, 8
+    # -> 9, 7, 8
     print nth_occurrence(range(10) + range(7,14), 2, when=lambda n: n>=6, until=lambda n: n>8)

@@ -16,7 +16,7 @@ import apps.util.echo as E
 
 from apps.cn.fix_utils import *
 from apps.identify_lrhca import *
-from apps.cn.output import OutputDerivation
+from apps.cn.output import OutputPrefacedPTBDerivation
 
 def echo(fn, write=sys.stdout.write):
     return E.echo(fn, lrp_repr, write)
@@ -428,10 +428,10 @@ def label_root(root):
         
     return label(root)
 
-class LabelNodes(Filter, OutputDerivation):
+class LabelNodes(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputDerivation.__init__(self)
+        OutputPrefacedPTBDerivation.__init__(self)
         
         self.outdir = outdir
     
