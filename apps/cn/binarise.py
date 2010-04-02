@@ -318,7 +318,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
         # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
-        elif ((node.tag.startswith('NP') and (exactly_matches(node[0], "PN") or matches(node[0], 'NT', 'DT')) or
+        elif ((node.tag.startswith('NP') and (exactly_matches(node[0], "PN") or matches(node[0], 'NT', 'DT'))) or
               # 21:2(6)
               (node.tag.startswith('ADVP') and exactly_matches(node[0], 'CC', 'PN')) or
               # NN for 25:61(7)
