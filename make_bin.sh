@@ -19,7 +19,7 @@ fi
 # Tag derivations
 echo Tagging derivations.
 rm -rf ./tagged/"$TARGET"
-./t $break_flag -lapps.cn.tag -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET" 2>&1 | tee tag_errors 
+./t $break_flag -q -lapps.cn.tag -r TagStructures tagged -0 corpora/cptb/bracketed/"$TARGET" 2>&1 | tee tag_errors 
 #./t -q -D tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
