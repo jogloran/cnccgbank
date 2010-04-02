@@ -289,10 +289,10 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
                  matches(node[0], 'VPT', 'VSB', 'VRD', 'VCD', 'VNV', 'AD', 'PP', 'QP', 'LCP', 'NP')) or
             (node.tag.startswith('ADJP') and matches(node[0], 'JJ', 'AD', 'NN')) # bad tagging 25:40(5)
             ) or
+            (node.tag.startswith('ADVP') and exactly_matches(node[0], 'AD', 'CS', 'NN')) or
             (matches(node, 'NP-MNR', 'NP-PRP') and has_noun_tag(node[0])) or
             # 8:1(5)
             (node.tag == 'NP-PN:a' and exactly_matches(node[0], 'NR')) or
-            (node.tag.startswith('ADVP') and exactly_matches(node[0], 'AD', 'CS', 'NN')) or
             (node.tag.startswith('CLP') and exactly_matches(node[0], 'M')) or
             (node.tag.startswith('LCP') and exactly_matches(node[0], 'LC')) or
             # DT < OD found in 6:25(11)
@@ -317,14 +317,13 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             return label_node(replacement)
         
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
-        elif ((node.tag.startswith('NP') and exactly_matches(node[0], "PN")) or
+        # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
+        elif ((node.tag.startswith('NP') and (exactly_matches(node[0], "PN") or matches(node[0], 'NT', 'DT')) or
               # 21:2(6)
               (node.tag.startswith('ADVP') and exactly_matches(node[0], 'CC', 'PN')) or
               # NN for 25:61(7)
               (node.tag.startswith("QP") and exactly_matches(node[0], "OD", "CD", 'NN')) or
               (node.tag.startswith('ADJP') and exactly_matches(node[0], 'PN', 'DT')) or
-              # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
-              (node.tag.startswith('NP') and matches(node[0], 'NT', 'DT')) or
               # 28:82(8)
               (node.tag.startswith('DP') and matches(node[0], 'NN', 'PN')) or
               (matches(node, 'NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 'NP-LOC', 'NP-ADV',
