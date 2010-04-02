@@ -3,12 +3,13 @@ from munge.proc.filter import Filter
 import os, re
 
 class OutputDerivation(object):
-    def __init__(self, transformer=None):
+    def __init__(self, transformer=None, fn_template=None):
         self.transformer = transformer or (lambda x: x.derivation)
+        self.fn_template = fn_template or "chtb_%02d%02d.fid"
         
     def write_derivation(self, bundle):
         if not os.path.exists(self.outdir): os.makedirs(self.outdir)
-        output_filename = os.path.join(self.outdir, "chtb_%02d%02d.fid" % (bundle.sec_no, bundle.doc_no))
+        output_filename = os.path.join(self.outdir, self.fn_template % (bundle.sec_no, bundle.doc_no))
 
         with file(output_filename, 'a') as f:
             print >>f, self.transformer(bundle)

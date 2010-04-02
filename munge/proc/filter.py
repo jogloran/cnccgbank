@@ -11,9 +11,11 @@ class Filter(object):
     #     '''This is invoked by the framework for every slash of every category at a derivation leaf.'''
     #     pass
     accept_comb_and_slash_index = None
-    def accept_leaf(self, leaf): 
-        '''This is invoked by the framework for every derivation leaf.'''
-        pass
+    # def accept_leaf(self, leaf): 
+    #     '''This is invoked by the framework for every derivation leaf.'''
+    #     pass
+    # IMPORTANT: accept_comb_and_slash_index will not be called unless accept_leaf is defined as well.
+    accept_leaf = None
     def accept_derivation(self, deriv): 
         '''This is invoked by the framework after each derivation is processed.'''
         pass

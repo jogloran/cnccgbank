@@ -128,16 +128,17 @@ class TraceCore(object):
                         for filter in filters:
                             filter.context = derivation_bundle
 
-                        for leaf in leaves(derivation_bundle.derivation):
-                            for filter in filters:
-                                filter.accept_leaf(leaf)
+                        if filter.accept_leaf is not None:
+                            for leaf in leaves(derivation_bundle.derivation):
+                                for filter in filters:
+                                    filter.accept_leaf(leaf)
 
-                                if filter.accept_comb_and_slash_index is not None:
-                                    try:
-                                        for comb, slash_index in izip(applications_per_slash(leaf), count()):
-                                            filter.accept_comb_and_slash_index(leaf, comb, slash_index)
-                                    except AttributeError: # TODO: hacky and inefficient, need this to work for PTB too
-                                        pass
+                                    if filter.accept_comb_and_slash_index is not None:
+                                        try:
+                                            for comb, slash_index in izip(applications_per_slash(leaf), count()):
+                                                filter.accept_comb_and_slash_index(leaf, comb, slash_index)
+                                        except AttributeError: # TODO: hacky and inefficient, need this to work for PTB too
+                                            pass
 
                         for filter in filters:
                             filter.accept_derivation(derivation_bundle)
