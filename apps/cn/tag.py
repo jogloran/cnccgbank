@@ -183,33 +183,8 @@ def preprocess(root):
         
         # CPTB/Chinese-specific fixes
         # ---------------------------
-        # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
-        if node.count() == 1:
-            if node[0].tag == 'JJ':
-                if node.tag.startswith('ADVP'):
-                    node.tag = node.tag.replace('ADVP', 'ADJP')
-                elif node.tag.startswith('NP'):
-                    node.tag = node.tag.replace('NP', 'ADJP')
-            # fix projections NP < QP
-            elif node[0].tag.startswith('QP') and node.tag.startswith('NP'):
-                inherit_tag(node[0], node) # copy PCTB tags from NP to QP
-                node.tag = node[0].tag # copy QP to parent, replacing NP
-                node.kids = node[0].kids
-            elif node[0].tag == 'IP' and node.tag == 'CP-APP':
-                inherit_tag(node[0], node)
-                node.tag = node[0].tag
-                node.kids = node[0].kids
-            # CLP < NN
-            elif node[0].tag == 'NN' and node.tag == 'CLP':
-                node[0].tag = 'M'
-            elif node[0].tag == 'NN' and node.tag.startswith("VP"):
-                node[0].tag = 'VV'
-            elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
-                node.kids = node[0].kids
-            elif node[0].tag == 'NP-PN' and node.tag == 'PRN':
-                node.kids = node[0].kids
         # PP(P CP NP) in derivations like 5:11(3) should be PP(P NP(CP NP))
-        elif first_kid and first_kid.tag == "P" and node.count() > 2:
+        if first_kid and first_kid.tag == "P" and node.count() > 2:
             last_tag = last_kid.tag
             rest = node.kids[1:]
             del node.kids[1:]
@@ -233,6 +208,32 @@ def preprocess(root):
         elif node.tag == 'CP' and node.count() == 2 and node[0].tag == 'IP' and node[1].tag == 'DEG':
             if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
                 node[1].tag = 'DEC'
+            
+        # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
+        elif node.count() == 1:
+            if node[0].tag == 'JJ':
+                if node.tag.startswith('ADVP'):
+                    node.tag = node.tag.replace('ADVP', 'ADJP')
+                elif node.tag.startswith('NP'):
+                    node.tag = node.tag.replace('NP', 'ADJP')
+            # fix projections NP < QP
+            elif node[0].tag.startswith('QP') and node.tag.startswith('NP'):
+                inherit_tag(node[0], node) # copy PCTB tags from NP to QP
+                node.tag = node[0].tag # copy QP to parent, replacing NP
+                node.kids = node[0].kids
+            elif node[0].tag == 'IP' and node.tag == 'CP-APP':
+                inherit_tag(node[0], node)
+                node.tag = node[0].tag
+                node.kids = node[0].kids
+            # CLP < NN
+            elif node[0].tag == 'NN' and node.tag == 'CLP':
+                node[0].tag = 'M'
+            elif node[0].tag == 'NN' and node.tag.startswith("VP"):
+                node[0].tag = 'VV'
+            elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
+                node.kids = node[0].kids
+            elif node[0].tag == 'NP-PN' and node.tag == 'PRN':
+                node.kids = node[0].kids
                 
         # Reshape LB (long bei)
         # ---------------------
