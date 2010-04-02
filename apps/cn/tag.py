@@ -183,8 +183,34 @@ def preprocess(root):
         
         # CPTB/Chinese-specific fixes
         # ---------------------------
+        # PP(P CP NP) in derivations like 5:11(3) should be PP(P NP(CP NP))
+        if first_kid and first_kid.tag == "P" and node.count() > 2:
+            last_tag = last_kid.tag
+            rest = node.kids[1:]
+            del node.kids[1:]
+            node.kids.append(Node(last_tag, rest, node))
+        # 2:12(3). DNP-PRD fixed by adding a layer of NP
+        elif node.tag.startswith('VP') and node.count() == 2 and node[0].tag.startswith('VC') and node[1].tag.startswith('DNP-PRD'):
+            node[1] = Node('NP', [node[1]], node)
+        # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
+        elif node.tag.startswith('VP') and node.count() >= 2 and node[0].tag == 'VV' and node[-1].tag == 'NP':
+            node[-1].tag += "-OBJ"
+        # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
+        elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP', 'CP')):
+            node.kids = node[0].kids
+        # attach the PU preceding a PRN under the PRN
+        elif last_kid and last_kid.tag == 'PRN' and last_kid.count() == 1:
+            maybe_pu = node[last_kid_index-1]
+            if maybe_pu.tag == 'PU':
+                del node.kids[last_kid_index-1]
+                last_kid.kids.insert(0, maybe_pu) # prepend
+        # DEG instead of DEC (29:34(3)). if there's a trace in DEG's sibling and no DEC, then change DEG to DEC.
+        elif node.tag == 'CP' and node.count() == 2 and node[0].tag == 'IP' and node[1].tag == 'DEG':
+            if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
+                node[1].tag = 'DEC'
+            
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
-        if node.count() == 1:
+        elif node.count() == 1:
             if node[0].tag == 'JJ':
                 if node.tag.startswith('ADVP'):
                     node.tag = node.tag.replace('ADVP', 'ADJP')
@@ -209,32 +235,6 @@ def preprocess(root):
             elif node[0].tag == 'NP-PN' and node.tag == 'PRN':
                 node.kids = node[0].kids
                 
-        # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
-        elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP', 'CP')):
-            node.kids = node[0].kids
-        # PP(P CP NP) in derivations like 5:11(3) should be PP(P NP(CP NP))
-        elif first_kid and first_kid.tag == "P" and node.count() > 2:
-            last_tag = last_kid.tag
-            rest = node.kids[1:]
-            del node.kids[1:]
-            node.kids.append(Node(last_tag, rest, node))
-        # 2:12(3). DNP-PRD fixed by adding a layer of NP
-        elif node.tag.startswith('VP') and node.count() == 2 and node[0].tag.startswith('VC') and node[1].tag.startswith('DNP-PRD'):
-            node[1] = Node('NP', [node[1]], node)
-        # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
-        elif node.tag.startswith('VP') and node.count() >= 2 and node[0].tag == 'VV' and node[-1].tag == 'NP':
-            node[-1].tag += "-OBJ"
-        # attach the PU preceding a PRN under the PRN
-        elif last_kid and last_kid.tag == 'PRN' and last_kid.count() == 1:
-            maybe_pu = node[last_kid_index-1]
-            if maybe_pu.tag == 'PU':
-                del node.kids[last_kid_index-1]
-                last_kid.kids.insert(0, maybe_pu) # prepend
-        # DEG instead of DEC (29:34(3)). if there's a trace in DEG's sibling and no DEC, then change DEG to DEC.
-        elif node.tag == 'CP' and node.count() == 2 and node[0].tag == 'IP' and node[1].tag == 'DEG':
-            if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
-                node[1].tag = 'DEC'
-  
         # Reshape LB (long bei)
         # ---------------------
         elif first_kid and first_kid.tag == "LB":
@@ -276,7 +276,9 @@ def preprocess(root):
                     vp.kids = [v, pred]
                 else:
                     vp.kids = [v, sbj, pred]
-
+                    
+            
+            
     return root
     
 def is_argument_cluster(node):
@@ -299,10 +301,12 @@ def label(root):
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         
         for kid in node:
-            if kid.tag == 'MSP':
+            if has_modification_tag(kid):
+                tag(kid, 'm')
+                
+            elif kid.tag in ('MSP',):
                 tag(kid, 'a')
-            # elif has_modification_tag(kid):
-            #     tag(kid, 'm')                
+                
             else:
                 tag_if_topicalisation(kid)
                 
@@ -327,23 +331,7 @@ def label(root):
                     tag(kid, 'h')
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
-                
-        elif is_np_internal_structure(node):
-            first = True
-            for kid in reversed(node.kids):
-#                if kid.tag.startswith('PRN'): continue
-
-                if kid.tag == 'ETC':
-                    tag(kid, '&')
-                elif kid.tag not in ('CC', 'PU'):
-                    if first:
-                        tag(kid, 'N')
-                        first = False
-                    else:
-                        tag(kid, 'n')
-                else:
-                    pass
-
+                    
         elif node.count() == 1 and node.tag.startswith('VP') and is_verb_compound(node[0]):
             pass
                     
@@ -390,6 +378,22 @@ def label(root):
 
                 if kid.tag not in ('CC', 'PU'):
                     tag(kid, 'c')
+                    
+        elif is_np_internal_structure(node):
+            first = True
+            for kid in reversed(node.kids):
+#                if kid.tag.startswith('PRN'): continue
+                    
+                if kid.tag == 'ETC':
+                    tag(kid, '&')
+                elif kid.tag not in ('CC', 'PU'):
+                    if first:
+                        tag(kid, 'N')
+                        first = False
+                    else:
+                        tag(kid, 'n')
+                else:
+                    pass
                     
         # must be above is_coordination (it subsumes UCP)
         elif is_ucp(node):
@@ -464,6 +468,18 @@ def label(root):
                         tag(kid, 'A')
                     else:
                         tag(kid, 'a')
+
+        elif is_modification(node):
+            tag(last_kid, 'h')
+
+            for kid in node[0:-1]:
+                if has_modification_tag(kid):
+                    tag(kid, 'm')
+                elif not kid.tag.startswith('PU'):
+                    tag(kid, 'a')
+
+                else:
+                    tag_if_topicalisation(kid)
                         
         elif is_argument_cluster(node):
             for kid in node:
