@@ -19,5 +19,9 @@ class Config(object):
             return val
         else:
             raise AttributeError("No key %s in config." % attr)
+            
+    def set(self, **kwargs):
+        for attr, v in kwargs.iteritems():
+            self.config[attr] = v
         
 config = Config('config.yml')

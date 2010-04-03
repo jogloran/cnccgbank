@@ -1,15 +1,15 @@
 # coding=utf-8
-
+from apps.util.config import config
+config.set(show_vars=True) # override show_vars. must come before cats.nodes import
+    
 from itertools import izip
 from copy import deepcopy
-
-from apps.util.config import config
 
 from munge.proc.filter import Filter
 from munge.cats.trace import analyse
 from munge.trees.traverse import leaves, pairs_postorder, nodes
 from munge.util.iter_utils import flatten, seqify
-from munge.util.err_utils import debug
+from munge.util.err_utils import debug, warn
 from munge.trees.pprint import pprint
 
 from apps.cn.mkmarked import is_modifier
@@ -128,7 +128,7 @@ def mkdeps(root):
             P.slot = L.slot
             
         if config.debug:
-            debug("> %s" % P)
+            debug("> %s" % p.cat)
             debug('---')
         
 #        print pprint(root)

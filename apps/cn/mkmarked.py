@@ -2,7 +2,10 @@ import sys, copy
 
 from munge.cats.headed.parse import *
 from munge.cats.cat_defs import S, Sdcl, NP, N
+from munge.util.err_utils import *
 from munge.trees.traverse import leaves
+
+from apps.util.echo import echo
 
 def variables():
     return iter('_YZWVUTRQABCDEF')
@@ -22,13 +25,14 @@ Exceptions = (
 
 def get_cached_category_for(cat, lex):
     for frm, to in Exceptions:
-        if cat == frm: 
+        if cat.equal_respecting_features(frm):
             result = copy.deepcopy(to)
             result.slot.head.lex = lex
             return result
     return None
 
 n = 1
+@echo
 def label(cat, vars=None, lex=None):
     global n
     cached = get_cached_category_for(cat, lex)
@@ -68,7 +72,9 @@ def write_markedup(cats, file):
 
 def naive_label_derivation(root):
     for leaf in leaves(root):
+        print "%s ->" % leaf.cat,
         leaf.cat = label(leaf.cat, lex=leaf.lex)
+        print "%s" % leaf.cat
         
     return root
 

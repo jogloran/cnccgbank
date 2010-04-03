@@ -10,8 +10,6 @@ class Node(object):
     def __init__(self, tag, kids, parent=None):
         self.tag = tag
         self.kids = kids
-        for kid in self.kids:
-            kid.parent = self
         
         self.parent = parent
         
