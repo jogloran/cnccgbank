@@ -10,7 +10,6 @@ class AttributeAccessibleDict(dict):
     def __setattr__(self, attr, v):
         self[attr.upper()] = v
 
-# the context simply maps identifier names to tree nodes
 Context = AttributeAccessibleDict
 
 class Node(object):
@@ -31,6 +30,18 @@ class Node(object):
             # XXX: side effects for unevaluated constraints will not be executed (due to short-circuiting)
             return all(constraint.is_satisfied_by(node, context) for constraint in self.constraints)
         return False
+    
+class Reluctant(object):
+    def __init__(self, constraint):
+        self.constraint = constraint
+        
+    def __repr__(self):
+        return "? %s" % repr(self.constraint)
+        
+    def is_satisfied_by(self, node, context):
+        # get side effects
+        self.constraint.is_satisfied_by(node, context)
+        return True
         
 class Constraint(object):
     '''Represents a single constraint, characterised by an operator symbol and an argument node.'''
@@ -197,7 +208,7 @@ class RECat(REValue):
         return self.match_method(str(node.category)) is not None
         
 class RE(REValue):
-    '''Matches tree nodes whose category labels satisfy a regex anchored at the start of the label.'''
+    '''Matches tree nodes whose category labels satisfy a regex.'''
     def __init__(self, source, anchor_at_start=True):
         REValue.__init__(self, source, anchor_at_start)
     def __repr__(self):

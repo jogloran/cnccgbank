@@ -5,6 +5,11 @@ from itertools import islice
 
 def IsParentOf(candidate, node, context):
     if node.is_leaf(): return False
+    if node.count() == 1:
+        return candidate.is_satisfied_by(node[0], context)
+    elif node.count() == 2:
+        return (candidate.is_satisfied_by(node[0], context) or
+                candidate.is_satisfied_by(node[1], context))
     return any(candidate.is_satisfied_by(child, context) for child in node)
 
 # A << B => B is a node under A
@@ -20,7 +25,6 @@ def IsChildOf(candidate, node, context):
 
 def IsDominatedBy(candidate, node, context):
     if node.parent is None: return False
-#    return any(internal_node.is_satisfied_by(candidate, context) for internal_node in nodes(node))
     return any(candidate.is_satisfied_by(ancestor, context) for ancestor in ancestors(node))
     
 def get_root(node):

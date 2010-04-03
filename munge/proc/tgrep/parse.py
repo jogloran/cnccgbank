@@ -12,7 +12,7 @@ from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
 from munge.proc.tgrep.tgrep import TgrepException
 
-tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "REGEX_SPEC", "OP", "UNARY_OP",
+tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "REGEX_SPEC", "OP", "UNARY_OP", "QUESTION",
           "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET", "AT")
 
 precedence = (
@@ -72,6 +72,10 @@ def t_CARET(t):
     r'\^'
     return t
     
+def t_QUESTION(t):
+    r'\?'
+    return t
+    
 def t_AT(t):
     r'@'
     return t
@@ -126,6 +130,7 @@ def p_constraint(stk):
                | unary_op
                | op matcher
                | BANG constraint
+               | QUESTION constraint
                | constraint PIPE constraint
     '''
     if len(stk) == 2:
@@ -133,6 +138,8 @@ def p_constraint(stk):
     elif len(stk) == 3:
         if stk[1] == '!':
             stk[0] = Negation(stk[2])
+        elif stk[1] == '?':
+            stk[0] = Reluctant(stk[2])
         else:
             stk[0] = Constraint(stk[1], stk[2])
             
