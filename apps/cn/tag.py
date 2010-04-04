@@ -189,16 +189,15 @@ def preprocess(root):
             rest = node.kids[1:]
             del node.kids[1:]
             node.kids.append(Node(last_tag, rest, node))
-        elif node.tag.startswith('VP'):
-            # 2:12(3). DNP-PRD fixed by adding a layer of NP
-            if (node.count() == 2 and 
+        # 2:12(3). DNP-PRD fixed by adding a layer of NP
+        elif (node.tag.startswith('VP') and node.count() == 2 and 
                 node[0].tag.startswith('VC') and 
                 node[1].tag.startswith('DNP-PRD')): node[1] = Node('NP', [node[1]], node)
-            # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
-            elif (node.count() >= 2 and
-                  node.tag.startswith('VP') and 
-                  node[0].tag == 'VV' and 
-                  node[-1].tag == 'NP'): node[-1].tag += "-OBJ"
+        # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
+        elif (node.tag.startswith('VP') and node.count() >= 2 and
+              node.tag.startswith('VP') and 
+              node[0].tag == 'VV' and 
+              node[-1].tag == 'NP'): node[-1].tag += "-OBJ"
         # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
         elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP', 'CP')):
             node.kids = node[0].kids
