@@ -1,6 +1,7 @@
 import yaml as Y
     
 class Config(object):
+    '''Reads a YAML file and makes its key-value pairs available through attribute access.'''
     def __init__(self, config_file):
         self.install_config_file(config_file)
         
