@@ -154,13 +154,7 @@ def is_partial_ucp(node):
         base_tag(node.tag) != base_tag(node[1].tag))
 
 def is_ucp(node):
-    return node[0].tag.endswith(':C')# or node[1].tag.endswith(':C')
-    # if node[0].tag.endswith(':C'):
-    #     return base_tag(node[0].tag) != base_tag(node.tag)
-    # elif node[1].tag.endswith(':C'):
-    #     return base_tag(node[1].tag) != base_tag(node.tag)
-    #     
-    # return False
+    return node[0].tag.endswith(':C')
 
 def is_np_internal_structure(node):
     return (node.tag.startswith('NP') and 
@@ -193,7 +187,6 @@ def is_np_structure(node):
         kid.tag.endswith(':p') for kid in node)
     
 def is_apposition(node):
-#    return node[0].tag.endswith(':A')
     return any(kid.tag.endswith(':A') for kid in node)
     
 def is_argument_cluster(node):
