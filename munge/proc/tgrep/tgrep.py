@@ -10,10 +10,14 @@ class TgrepException(Exception): pass
 import munge.proc.tgrep.parse as parse
 from munge.proc.tgrep.nodes import Context
 from munge.trees.traverse import nodes, leaves, nodes_postorder, nodes_reversed, tag_and_lex, tag_and_text_under, lrp_repr
-import munge.trees.pprint as pp
+from munge.trees.pprint import pprint
 from munge.util.iter_utils import take, single
 from munge.util.dict_utils import smash_key_case
 from munge.util.err_utils import debug
+from munge.util.func_utils import compose
+from munge.util.iter_utils import take
+from functools import partial as curry
+from itertools import izip
 
 from munge.proc.filter import Filter
 
@@ -26,7 +30,7 @@ def initialise():
     
     if not _tgrep_initialised:
         lex.lex(module=parse)
-        yacc.yacc(module=parse)#, method='SLR')
+        yacc.yacc(module=parse)
     
         _tgrep_initialised = True
 
@@ -79,7 +83,7 @@ def multi_tgrep(deriv, query_callback_map):
     
     queries = [yacc.parse(expression) for expression in query_callback_map.keys()]
     for node in nodes(deriv):
-        for query_expr, query_str in zip(queries, query_callback_map.keys()):
+        for query_expr, query_str in izip(queries, query_callback_map.keys()):
             context = Context()
             if query_expr.is_satisfied_by(node, context):
                 if context:
@@ -88,7 +92,7 @@ def multi_tgrep(deriv, query_callback_map):
                     query_callback_map[query_str](node)
     
 find_all = tgrep
-find_first = lambda *args, **kwargs: take(1, find_all(*args, **kwargs))
+find_first = compose(curry(take, 1), find_all)
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
@@ -164,7 +168,7 @@ class Tgrep(TgrepCore):
     @staticmethod
     def show_pp_node(match_node, bundle):
         print bundle.label()
-        print pp.pprint(match_node)
+        print pprint(match_node)
 
     @staticmethod
     def show_tree(match_node, bundle):
@@ -173,7 +177,7 @@ class Tgrep(TgrepCore):
     @staticmethod
     def show_pp_tree(match_node, bundle):
         print bundle.label()
-        print pp.pprint(bundle.derivation)
+        print pprint(bundle.derivation)
         
     @staticmethod
     def show_tokens(match_node, bundle):

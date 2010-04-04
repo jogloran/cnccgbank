@@ -5,6 +5,7 @@ import re
 import operator
 
 class AttributeAccessibleDict(dict):
+    '''A dict subclass allowing attribute access to its keys.'''
     def __getattr__(self, attr):
         return self[attr.upper()]
     def __setattr__(self, attr, v):
@@ -32,6 +33,7 @@ class Node(object):
         return False
     
 class Reluctant(object):
+    '''A constraint which always succeeds, but allows side-effects a chance to run.'''
     def __init__(self, constraint):
         self.constraint = constraint
         
@@ -39,7 +41,6 @@ class Reluctant(object):
         return "? %s" % repr(self.constraint)
         
     def is_satisfied_by(self, node, context):
-        # get side effects
         self.constraint.is_satisfied_by(node, context)
         return True
         
