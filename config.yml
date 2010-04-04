@@ -1,11 +1,11 @@
 modification_unary_rules: false
 only_np_topicalisation_valid: false
-restrictive_absorption: true
+restrictive_absorption: false
 curly_vars: false
 show_vars: false
 #show_vars: true
-#debug: false
-debug: true
+debug: false
+#debug: true
 low_key_debug: false
 #aug_pprint: true
 aug_pprint: false
