@@ -9,7 +9,6 @@ do
     esac
 done
 shift $(($OPTIND - 1))
-echo $dir_suffix_arg
 
 if [[ $1 == "all" || $1 == "*" ]]; then
     SECTION=""
@@ -22,6 +21,7 @@ else
 fi
 
 echo Started at: `date`
+# Pass -s through to sub-scripts
 ./make_lab.sh $dir_suffix_arg "$TARGET" \
 && ./make_fix.sh $dir_suffix_arg "$TARGET" \
 && ./make_ccgbank.sh $dir_suffix_arg "$TARGET"  \

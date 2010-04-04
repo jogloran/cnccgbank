@@ -1,16 +1,13 @@
 #! /bin/bash
 
-if [ -f '.trace_break' ]; then
-    break_flag=-b
-else
-    break_flag=
-fi
-
+break_flag=
 dir_suffix=
-while getopts 's:' OPTION
+while getopts 's:f' OPTION
 do
     case $OPTION in
         s) dir_suffix="_$OPTARG"
+        ;;
+        f) break_flag=-b
         ;;
     esac
 done
@@ -27,13 +24,13 @@ else
 fi
 
 # Tag derivations
-echo Tagging derivations.
+echo "[`date +%c`] Tagging derivations... -> tagged$dir_suffix"
 rm -rf ./tagged/"$TARGET"
 ./t -q $break_flag -lapps.cn.tag -r TagStructures tagged$dir_suffix -0 corpora/cptb/bracketed/"$TARGET" 2>&1 | tee tag_errors 
 #./t -q -D tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
-echo Binarising derivations.
+echo "[`date +%c`] Binarising derivations... -> binarised$dir_suffix"
 rm -rf ./binarised/"$TARGET"
 ./t -q $break_flag -lapps.cn.binarise -r Binariser binarised$dir_suffix -0 tagged$dir_suffix/"$TARGET" 2>&1 | tee bin_errors
 # Make graphs

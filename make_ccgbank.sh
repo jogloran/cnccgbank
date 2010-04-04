@@ -21,4 +21,5 @@ else
 fi
 
 rm -rf ./final/${TARGET};
+echo "[`date +%c`] Outputting CCGbank format... -> final$dir_suffix"
 ./t -q -lapps.cn.output -r CCGbankStyleOutput final$dir_suffix -0 -lapps.sanity -r SanityChecks -0 fixed_np$dir_suffix/${TARGET}

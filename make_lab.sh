@@ -1,16 +1,13 @@
 #! /bin/bash
 
-if [ -f '.trace_break' ]; then
-    break_flag=-b
-else
-    break_flag=
-fi
-
+break_flag=
 dir_suffix=
-while getopts 's:' OPTION
+while getopts 's:f' OPTION
 do
     case $OPTION in
-        s) dir_suffix_arg="$OPTARG"; dir_suffix="_$OPTARG"
+        s) dir_suffix_arg="-s $OPTARG"; dir_suffix="_$OPTARG"
+        ;;
+        f) break_flag=-b
         ;;
     esac
 done
@@ -28,7 +25,7 @@ fi
 
 ./make_bin.sh $dir_suffix_arg "$TARGET" && \
 
-echo Doing category labelling.
+echo "[`date +%c`] Doing category labelling... -> labelled$dir_suffix"
 rm -rf ./labelled$dir_suffix/"$TARGET";
 ./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled$dir_suffix -0 binarised$dir_suffix/"$TARGET" 2>&1 | tee lab_errors 
 
