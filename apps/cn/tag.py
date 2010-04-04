@@ -168,9 +168,9 @@ def preprocess(root):
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         # ---------------------
         # Where LPU, RPU are paired punctuation, reshape YP(LPU ... XP RPU YP) into YP(XP(LPU ... XP) YP)
-        if any(kid.lex in ("“", "「") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」") for kid in leaf_kids(node)):
-            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「"), node)
-            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」"), node)
+        if any(kid.lex in ("“", "「", "『", "《", "‘") for kid in leaf_kids(node)) and any(kid.lex in ("”", "」", "』", "》", '’') for kid in leaf_kids(node)):
+            lqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("“", "「", "『", "《", "‘"), node)
+            rqu = first_index_such_that(lambda kid: kid.is_leaf() and kid.lex in ("”", "」", "』", "》", '’'), node)
             if rqu != node.count()-1:
                 quoted_kids = node.kids[lqu:rqu+1]
                 del node.kids[lqu:rqu+1]
