@@ -3,7 +3,11 @@ from munge.proc.filter import Filter
 import os, re
 
 class OutputDerivation(object):
+    '''Writes out a derivation to disk.'''
     def __init__(self, transformer=None, fn_template=None):
+        '''Where _transformer_ is a function which receives each derivation bundle and
+returns the string to write, and _fn_template_ is a format string with two format
+arguments (the section and document #), creates an OutputDerivation.'''
         self.transformer = transformer or (lambda x: x.derivation)
         self.fn_template = fn_template or "chtb_%02d%02d.fid"
         
@@ -15,6 +19,8 @@ class OutputDerivation(object):
             print >>f, self.transformer(bundle)
 
 class OutputPrefacedPTBDerivation(OutputDerivation):
+    '''Writes out PTB nodes one to a line, each preceded by a preface line with that
+node's document ID.'''
     def __init__(self):
         def fix_label(label):
             matches = re.match(r'(\d+):(\d+)\((\d+)\)', label)
@@ -35,6 +41,7 @@ class OutputPrefacedPTBDerivation(OutputDerivation):
         OutputDerivation.__init__(self, printer)
 
 class OutputCCGbankDerivation(OutputDerivation):
+    '''Writes out CCGbank nodes in the CCGbank format.'''
     def __init__(self):
         def fix_label(label):
             matches = re.match(r'(\d+):(\d+)\((\d+)\)', label)

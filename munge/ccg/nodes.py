@@ -1,6 +1,7 @@
 import re
 import copy
 import munge.trees.traverse as traverse
+from munge.util.func_utils import const_
 
 class Node(object):
     '''Representation of a CCGbank internal node.'''
@@ -24,9 +25,10 @@ class Node(object):
 
     def __repr__(self):
         '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
-        return ("(<T %s %s %s> %s %s)" %
-                (self.cat, self.ind1, self.ind2,
-                 self.lch, str(self.rch)+' ' if self.rch else ''))
+        return (" ".join(
+            ("(<T", str(self.cat), self.ind1, self.ind2,
+             str(self.lch), str(self.rch)+' ' if self.rch else '')
+        ) + ")")
 
     def __iter__(self):
         '''Iterates over each child of this node.'''
@@ -60,7 +62,7 @@ class Node(object):
                 
     def __ne__(self, other): return not (self == other)
 
-    def is_leaf(self): return False
+    is_leaf = const_(False)
     def label_text(self): return re.escape(str(self.cat))
     
     def leaf_count(self):
@@ -108,10 +110,8 @@ class Leaf(object):
 
     def __repr__(self):
         '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
-        return "(<L %s %s %s %s %s>)" % \
-                (self.cat, self.pos1, self.pos2, \
-                 self.lex, self.catfix)
-                 
+        return " ".join(("(<L", str(self.cat), self.pos1, self.pos2, self.lex, self.catfix)) + ">)"
+
     def __iter__(self): raise StopIteration
 
     def __eq__(self, other):
@@ -124,14 +124,12 @@ class Leaf(object):
                 self.catfix == other.catfix)
                 
     def __ne__(self, other): return not (self == other)
-               
-    def is_leaf(self): return True
+
+    is_leaf = const_(True)
+    leaf_count = const_(1)
+    count = const_(0)
     
     def label_text(self): return """%s %s""" % (re.escape(str(self.cat)), self.lex)
-    
-    def leaf_count(self): 
-        '''Returns the number of leaves under this node.'''
-        return 1
     
     def clone(self): return copy.copy(self)
     
@@ -142,10 +140,6 @@ class Leaf(object):
     def __getitem__(self, index):
         raise NotImplementedError('Leaf has no children.')
 
-    def count(self):
-        '''Returns the number of children under this node.'''
-        return 0
-        
     @property
     def tag(self):
         return str(self.cat)

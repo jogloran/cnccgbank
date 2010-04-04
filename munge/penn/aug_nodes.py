@@ -2,6 +2,8 @@ import munge.penn.nodes as N
 import re
 
 class Node(N.Node):
+    __slots__ = ["category"]
+    
     def __init__(self, category, tag, kids, parent=None):
         N.Node.__init__(self, tag, kids, parent)
         self.category = category
@@ -31,6 +33,8 @@ class Node(N.Node):
         return ' '.join(bits)
         
 class Leaf(N.Leaf):
+    __slots__ = ["category"]
+    
     def __init__(self, category, tag, lex, parent=None):
         N.Leaf.__init__(self, tag, lex, parent)
         self.category = category

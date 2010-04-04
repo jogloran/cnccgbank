@@ -280,9 +280,7 @@ def preprocess(root):
                     vp.kids = [v, pred]
                 else:
                     vp.kids = [v, sbj, pred]
-                    
-            
-            
+
     return root
     
 def is_argument_cluster(node):
@@ -308,7 +306,7 @@ def label(root):
             if has_modification_tag(kid):
                 tag(kid, 'm')
                 
-            elif kid.tag in ('MSP',):
+            elif kid.tag == 'MSP':
                 tag(kid, 'a')
                 
             else:
