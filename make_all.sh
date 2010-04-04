@@ -1,5 +1,16 @@
 #! /bin/bash
 
+dir_suffix_arg=
+while getopts 's:' OPTION
+do
+    case $OPTION in
+        s) dir_suffix_arg="-s $OPTARG"
+        ;;
+    esac
+done
+shift $(($OPTIND - 1))
+echo $dir_suffix_arg
+
 if [[ $1 == "all" || $1 == "*" ]]; then
     SECTION=""
     TARGET="*"
@@ -11,8 +22,8 @@ else
 fi
 
 echo Started at: `date`
-./make_lab.sh "$TARGET" \
-&& ./make_fix.sh "$TARGET" \
-&& ./make_ccgbank.sh "$TARGET"  \
+./make_lab.sh $dir_suffix_arg "$TARGET" \
+&& ./make_fix.sh $dir_suffix_arg "$TARGET" \
+&& ./make_ccgbank.sh $dir_suffix_arg "$TARGET"  \
 #&& ./t -q -D final_dots final/"$TARGET" 
 echo Finished at: `date`

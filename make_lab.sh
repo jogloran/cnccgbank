@@ -6,6 +6,16 @@ else
     break_flag=
 fi
 
+dir_suffix=
+while getopts 's:' OPTION
+do
+    case $OPTION in
+        s) dir_suffix_arg="$OPTARG"; dir_suffix="_$OPTARG"
+        ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
 if [[ $1 == "all" || $1 == "*" ]]; then
     SECTION=""
     TARGET="*"
@@ -16,11 +26,11 @@ else
     TARGET=`basename $1`
 fi
 
-./make_bin.sh "$TARGET" && \
+./make_bin.sh $dir_suffix_arg "$TARGET" && \
 
 echo Doing category labelling.
-rm -rf ./labelled/"$TARGET";
-./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled -0 binarised/"$TARGET" 2>&1 | tee lab_errors 
+rm -rf ./labelled$dir_suffix/"$TARGET";
+./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled$dir_suffix -0 binarised$dir_suffix/"$TARGET" 2>&1 | tee lab_errors 
 
 echo Making DOTs.
 #./t -q -D labelled_dots -R AugmentedPTBReader labelled/"$TARGET"
