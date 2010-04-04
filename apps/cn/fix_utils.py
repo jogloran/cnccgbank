@@ -32,6 +32,7 @@ def shrink_left(node, parent):
         return node[1]
      
 def inherit_index(node, other):
+    '''Gives _node_ the index that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
     matches = re.search(r'(-\d+)', other.tag)
     if matches:
         if not re.search(r'-\d+', node.tag):

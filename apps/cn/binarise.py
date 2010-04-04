@@ -16,6 +16,7 @@ from apps.cn.fix_utils import *
 from apps.util.echo import *
 
 def strip_tag_if(cond, tag):
+    '''Strips the given _tag_ to its base if _cond_ is True.'''
     if cond:
         return base_tag(tag, strip_cptb_tag=False)
     else:
