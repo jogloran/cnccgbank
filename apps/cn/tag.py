@@ -100,22 +100,22 @@ def is_postverbal_adjunct_tag(tag):
     return tag.startswith('AS') or tag.startswith('DER')
 
 def is_vpt(node):
-    return node.tag.startswith('VPT')
+    return node.tag[0:3] == 'VPT'
 
 def is_vnv(node):
-    return node.tag.startswith('VNV')
+    return node.tag[0:3] == 'VNV'
 
 def is_vcd(node):
-    return node.tag.startswith('VCD')
+    return node.tag[0:3] == 'VCD'
 
 def is_vrd(node):
-    return node.tag.startswith('VRD')
+    return node.tag[0:3] == 'VRD'
 
 def is_vcp(node):
-    return node.tag.startswith('VCP')
+    return node.tag[0:3] == 'VCP'
 
 def is_vsb(node):
-    return node.tag.startswith('VSB')
+    return node.tag[0:3] == 'VSB'
     
 def is_verb_compound(node):
     return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
