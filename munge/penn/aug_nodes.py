@@ -1,17 +1,21 @@
 import munge.penn.nodes as N
 import re
+import munge.cats.nodes as C
 
 class Node(N.Node):
-    __slots__ = ["category"]
+    __slots__ = ["category", "head_index"]
     
-    def __init__(self, category, tag, kids, parent=None):
+    def __init__(self, tag, kids, category=None, parent=None, head_index=None):
         N.Node.__init__(self, tag, kids, parent)
         self.category = category
+        self.head_index = head_index
         
     def __repr__(self, first=True, suppress_lex=False):
         cat_string = "{%s} " % self.category if self.category else ''
-        return "%s(%s %s%s)%s" % ("(" if first else "",                      
+        head_index_string = '' if (self.head_index is None) else '<%d> ' % self.head_index
+        return "%s(%s %s%s%s)%s" % ("(" if first else "",
                                 self.tag,
+                                head_index_string,
                                 cat_string, 
                                 ' '.join(kid.__repr__(False, suppress_lex) for kid in self.kids), 
                                 ")" if first else "")
@@ -23,7 +27,7 @@ class Node(N.Node):
             return re.escape(self.tag)
         
     def ccgbank_repr(self):
-        bits = ["(<T %s 0 %d>" % (self.category, len(self.kids))]
+        bits = ["(<T %s %s %d>" % (self.category, (self.head_index is not None) and str(self.head_index) or '_', len(self.kids))]
         
         for kid in self.kids:
             bits.append(kid.ccgbank_repr())
@@ -35,7 +39,7 @@ class Node(N.Node):
 class Leaf(N.Leaf):
     __slots__ = ["category"]
     
-    def __init__(self, category, tag, lex, parent=None):
+    def __init__(self, tag, lex, category=None, parent=None):
         N.Leaf.__init__(self, tag, lex, parent)
         self.category = category
         

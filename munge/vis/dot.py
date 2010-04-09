@@ -38,7 +38,7 @@ def make_derivation(deriv, assigned_id=None):
         ret = []
         root_id = assigned_id or get_id()
 
-        for child in deriv:
+        for i, child in enumerate(deriv):
             child_id = get_id()
 
             if isinstance(deriv, (ccg.Leaf, ccg.Node)):
@@ -52,7 +52,12 @@ def make_derivation(deriv, assigned_id=None):
                     label_text = deriv.label_text()
                     
                 ret.append('''%s [shape="%s",height=0.1,label="%s"]\n''' % (root_id, shape_type, label_text))
-                ret.append("%s:o -> %s:o\n" % (root_id, child_id))
+
+                if config.highlight_head_arrows and i == int(deriv.head_index):
+                    ret.append("%s:o -> %s:o [color=red]\n" % (root_id, child_id))
+                else:
+                    ret.append("%s:o -> %s:o\n" % (root_id, child_id))
+                    
                 ret.append(make_derivation(child, child_id))
                 
             else:

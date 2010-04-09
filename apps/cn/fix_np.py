@@ -22,9 +22,9 @@ node with category _new_P_cat_.'''
         pp = p.parent
 
         if pp:
-            replace_kid(pp, p, A.Node(new_P_cat, p.tag, [new_N]))
+            replace_kid(pp, p, A.Node(p.tag, [new_N], new_P_cat, head_index=0))
         else:
-            return A.Node(new_P_cat, p.tag, [new_N])
+            return A.Node(p.tag, [new_N], new_P_cat, head_index=0)
             
     return _fix
 

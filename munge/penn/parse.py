@@ -54,6 +54,12 @@ class AugmentedPennParser(PennParser):
             # HACK
             tag = toks.next()
             
+            head_index = None
+            if toks.peek() == '<':
+                toks.next()
+                head_index = int(toks.next())
+                shift_and_check( '>', toks )
+            
             category = None
             if toks.peek() == '{':        
                 toks.next()
@@ -70,9 +76,9 @@ class AugmentedPennParser(PennParser):
                     lex = toks.next()
 
             if (not kids) and lex:
-                return A.Leaf(category, tag, lex, parent)
+                return A.Leaf(tag, lex, category, parent)
             else:
-                ret = A.Node(category, tag, kids, parent)
+                ret = A.Node(tag, kids, category, parent, head_index)
                 for kid in ret: kid.parent = ret
                 return ret
                 
@@ -81,7 +87,7 @@ class AugmentedPennParser(PennParser):
 def parse_tree(tree_string, parser_class):
     penn_parser = parser_class()
 
-    toks = preserving_split(tree_string, "(){}", suppressors="{}")
+    toks = preserving_split(tree_string, "(){}<>", suppressors="{}")
 
     docs = penn_parser.read_docs(toks)
     ensure_stream_exhausted(toks, 'penn.parse_tree')

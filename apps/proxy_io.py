@@ -111,9 +111,9 @@ class CCGbankNodeProxy(object):
     @property
     def catfix(self): return self.node.catfix
     @property
-    def ind1(self): return self.node.ind1
+    def head_index(self): return self.node.head_index
     @property
-    def ind2(self): return self.node.ind2
+    def child_count(self): return self.node.child_count
                 
     @property
     def kids(self):

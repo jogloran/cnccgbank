@@ -66,8 +66,8 @@ class CCGParser(object):
     def read_internal_node(self, toks, parent):
         shift_and_check( 'T', toks )
 
-        cat_string, ind1, ind2 = \
+        cat_string, head_index, child_count = \
                 toks.next(), toks.next(), toks.next()
         cat = parse_category(cat_string)
 
-        return self.node_factory.node_class(cat, ind1, ind2, parent)
+        return self.node_factory.node_class(cat, head_index, child_count, parent)

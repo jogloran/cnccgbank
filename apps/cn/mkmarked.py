@@ -32,11 +32,13 @@ def get_cached_category_for(cat, lex):
     return None
 
 n = 1
-@echo
 def label(cat, vars=None, lex=None):
     global n
     cached = get_cached_category_for(cat, lex)
-    if cached: return cached
+    if cached: 
+        cp = copy.deepcopy(cached)
+        cp.slot.head.lex = cat.slot.head.lex
+        return cp
         
     available = vars or variables()
 
@@ -50,16 +52,16 @@ def label(cat, vars=None, lex=None):
             c = c.left
 
         if is_modifier(cat):
-            label(cat.left, available)
+            cat._left = label(cat.left, available)
             cat._right = cat._left
 
         elif is_np_n(cat):
-            label(cat.left, available)
+            cat._left = label(cat.left, available)
             cat._right.slot.var = cat._left.slot.var
 
         else:
-            label(cat.left, available)
-            label(cat.right, available)
+            cat._left = label(cat.left, available)
+            cat._right = label(cat.right, available)
 
     n += 1
     return cat

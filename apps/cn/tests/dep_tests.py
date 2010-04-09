@@ -38,8 +38,9 @@ class DepTests(unittest.TestCase):
                         raise
         
     def testBasic(self):
-        self.check('apps/cn/tests/test1.ccg', 'apps/cn/tests/test1.gs')
+#        self.check('apps/cn/tests/test1.ccg', 'apps/cn/tests/test1.gs')
         self.check('apps/cn/tests/test2.ccg', 'apps/cn/tests/test2.gs')
+#        self.check('apps/cn/tests/test3.ccg', 'apps/cn/tests/test3.gs')
 #        self.check('final/chtb_9992.fid', 'apps/cn/tests/blah.gs')
                     
 if __name__ == '__main__':

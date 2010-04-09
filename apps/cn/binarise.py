@@ -4,7 +4,7 @@ import sys, re, os
 
 from munge.trees.traverse import nodes
 from munge.penn.io import parse_tree
-from munge.penn.nodes import Leaf, Node
+from munge.penn.aug_nodes import Leaf, Node
 from munge.trees.pprint import pprint
 from munge.proc.filter import Filter
 from munge.util.err_utils import debug
@@ -33,11 +33,11 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
     
     last_kid, second_last_kid = twice(kids.pop)()
     
-    cur = Node(kid_tag, [second_last_kid, last_kid])
+    cur = Node(kid_tag, [second_last_kid, last_kid], head_index=1)
     
     while kids:
         kid = kids.pop()
-        cur = Node(kid_tag, [kid, cur])
+        cur = Node(kid_tag, [kid, cur], head_index=1)
     
     cur.tag = node.tag
     return cur
@@ -52,7 +52,7 @@ def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False
         first = label_node(node[0], inside_np_internal_structure=inside_np_internal_structure)
         node.kids.pop(0)
         
-        return Node(kid_tag, [first, label_node(node)])
+        return Node(kid_tag, [first, label_node(node)], head_index=0)
     return label_adjunction(node, inherit_tag=inherit_tag)
 
 #@echo
@@ -67,7 +67,7 @@ def label_np_internal_structure(node, inherit_tag=False):
         old_tag = node.tag
         node.tag = kid_tag
         
-        return Node(old_tag, [ label_np_internal_structure(node), etc ])
+        return Node(old_tag, [ label_np_internal_structure(node), etc ], head_index=1)
     else:
         return label_adjunction(node, inside_np_internal_structure=True)
 
@@ -92,7 +92,7 @@ def label_with_final_punctuation_high(f):
         tag = result.tag
         
         while final_punctuation_stk:
-            result = Node(tag, [result, final_punctuation_stk.pop()])
+            result = Node(tag, [result, final_punctuation_stk.pop()], head_index=0)
         
         return result
     return _label
@@ -109,7 +109,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
         old_tag = node.tag
         node.tag = kid_tag
         
-        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ])
+        return Node(old_tag, [ label_coordination(node, inside_np_internal_structure), etc ], head_index=1)
     else:
         def label_nonconjunctions(kid):
             if kid.tag not in ('CC', 'PU'):
@@ -117,7 +117,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
             else: return kid
         
         kids = map(label_nonconjunctions, node.kids)
-        return reshape_for_coordination(Node(node.tag, kids), inside_np_internal_structure=inside_np_internal_structure)
+        return reshape_for_coordination(Node(node.tag, kids, head_index=0), inside_np_internal_structure=inside_np_internal_structure)
 
 label_coordination = label_with_final_punctuation_high(_label_coordination)
 
@@ -126,7 +126,7 @@ def get_kid(kids, seen_cc):
     
     if seen_cc and pu.tag == 'PU' and len(kids) > 0:
         xp = kids.pop()
-        xp_ = Node(xp.tag, [xp, pu])
+        xp_ = Node(xp.tag, [xp, pu], head_index=0)
         
         return xp_, False
     else:
@@ -153,11 +153,11 @@ def reshape_for_coordination(node, inside_np_internal_structure):
         last_kid, seen_cc = get_kid(kids, seen_cc)
         second_last_kid, seen_cc = get_kid(kids, seen_cc)
         
-        cur = Node(kid_tag, [second_last_kid, last_kid])
+        cur = Node(kid_tag, [second_last_kid, last_kid], head_index=1)
         
         while kids:
             kid, seen_cc = get_kid(kids, seen_cc)
-            cur = Node(kid_tag, [kid, cur])
+            cur = Node(kid_tag, [kid, cur], head_index=1)
         
         cur.tag = node.tag
         return cur
@@ -171,11 +171,11 @@ def label_head_initial(node, inherit_tag=False):
     kids = map(label_node, node.kids)[::-1]
     first_kid, second_kid = twice(kids.pop)()
     
-    cur = Node(kid_tag, [first_kid, second_kid])
+    cur = Node(kid_tag, [first_kid, second_kid], head_index=0)
     
     while kids:
         kid = kids.pop()
-        cur = Node(kid_tag, [cur, kid])
+        cur = Node(kid_tag, [cur, kid], head_index=0)
     
     cur.tag = node.tag
     return cur
@@ -194,11 +194,11 @@ def label_predication(node, inherit_tag=False):
     kids = map(label_node, node.kids)
     last_kid, second_last_kid = twice(get_kid_)(kids)
     
-    cur = Node(kid_tag, [second_last_kid, last_kid])
+    cur = Node(kid_tag, [second_last_kid, last_kid], head_index=1)
     
     while kids:
         kid = get_kid_(kids)
-        cur = Node(kid_tag, [kid, cur])
+        cur = Node(kid_tag, [kid, cur], head_index=1)
     
     cur.tag = node.tag # restore the full tag at the topmost level
     
@@ -226,6 +226,7 @@ def label_root(node):
         if not node.kids: return result # is this reachable?
     
     if node.count() == 1:
+        node.head_index = 0
         result = label_node(node[0], do_shrink=False)
     else:
         result = label_node(node, do_shrink=False)
@@ -233,7 +234,7 @@ def label_root(node):
     tag = result.tag
     
     while final_punctuation_stk:
-        result = Node(tag, [result, final_punctuation_stk.pop()])
+        result = Node(tag, [result, final_punctuation_stk.pop()], head_index=0)
     
     return result
 
@@ -257,9 +258,10 @@ def hoist_punctuation_then(label_func, node):
     initial = node.kids.pop(0)
     final = node.kids.pop()
     
-    return Node(node.tag, [initial, Node(node.tag, [ label_func(node), final ])])
+    return Node(node.tag, [initial, Node(node.tag, [ label_func(node), final ], head_index=0)], head_index=0)
 
 def label_node(node, *args, **kwargs):
+    if node.count() == 1: node.head_index = 0
     if node.is_leaf() or node.count() == 1: return _label_node(node, *args, **kwargs)
     
     if has_paired_punctuation(node):
@@ -277,6 +279,8 @@ def exactly_matches(node, *matches):
 def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     if node.is_leaf(): return node
     elif node.count() == 1:
+        node.head_index = 0
+
         # shrinkage rules (NP < NN shrinks to NN)
         if (do_shrink and
             

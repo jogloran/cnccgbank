@@ -4,8 +4,6 @@ from itertools import islice
 from functools import partial as curry
 
 def with_paired_delimiters(pair, func, toks):
-    assert len(pair) == 2
-    
     shift_and_check( pair[0], toks )
     value = func(toks)
     shift_and_check( pair[1], toks )

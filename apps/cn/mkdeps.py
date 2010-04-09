@@ -6,6 +6,7 @@ from itertools import izip
 from copy import deepcopy
 
 from munge.proc.filter import Filter
+from munge.cats.headed.parse import parse_category
 from munge.cats.trace import analyse
 from munge.trees.traverse import leaves, pairs_postorder, nodes
 from munge.util.iter_utils import flatten, seqify
@@ -24,9 +25,22 @@ def update_with_fresh_var(node, replacement):
     for sub in node.cat.nested_compound_categories():
         if sub.slot.var == to_replace:
             sub.slot = replacement
+            
+def no_unassigned_variables(cat):
+    for subcat in cat.nested_compound_categories():
+        if subcat.slot.var == '?': return False
+    return True
+    
+fresh_var_id = 1
+def fresh_var(prefix='F'):
+    global fresh_var_id
+    ret = prefix + str(fresh_var_id)
+    fresh_var_id += 1
+    return ret
 
+unanalysed = set()
 def mkdeps(root):
-    unanalysed = set()
+    global unanalysed
 
     for l, r, p in pairs_postorder(root):
         L, R, P = map(lambda x: x and x.cat, (l, r, p))
@@ -46,14 +60,14 @@ def mkdeps(root):
             p.cat = R.left
 
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
-            P.slot = L.slot # lexical head comes from L (X/Y)
+            P.slot = L.slot # lexical head comes from R (Y/Z)
 
             unifier = unify(L.right, R.left, copy_to=RIGHT)
             p.cat._left = L.left
             p.cat._right = R.right
             
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
-            P.slot = R.slot # lexical head comes from R (X\Y)
+            P.slot = R.slot # lexical head comes from L (Y\Z)
             
             unifier = unify(R.right, L.left)
             p.cat._left = R.left
@@ -65,7 +79,6 @@ def mkdeps(root):
             P.slot = deepcopy(P.slot)
             update_with_fresh_var(p, P.slot)
             P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
-            debug('HERE: %s', P.slot.head.lex)
             
             unifier = unify(L, R, ignore=True, copy_to=RIGHT, copy_vars=False) # unify variables only in the two conjuncts
             for (dest, src) in unifier:
@@ -82,26 +95,50 @@ def mkdeps(root):
         elif comb in ('conj_absorb', 'conj_comma_absorb', 'funny_conj'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
             unify(P, R, copy_to=RIGHT) # R.slot.head = P.slot.head
+        
+        elif comb == 'nongap_topicalisation': # {N, NP, S[dcl], QP}x -> [Sy/Sy]x
+            P.slot = L.slot
+            P.right.slot.var = fresh_var()
+            P.left.slot = P.right.slot
+            
+        elif comb in ('np_gap_topicalisation', 's_gap_topicalisation', 'qp_gap_topicalisation'): # NPx -> [ Sy/(Sy/NPx)y ]y
+            P.right.right.slot = L.slot
+            P.slot.var = fresh_var()
+            P.left.slot = P.right.left.slot = P.right.slot = P.slot
+            
+        elif comb == 'subject_prodrop': # (S[dcl]y\NPx)y -> S[dcl]y | [(S[dcl]y\NPx)y/NPz]y -> (S[dcl]y/NPz)y
+            if P == parse_category(r'S[dcl]'):
+                P.slot = L.slot
+            elif P == parse_category(r'S[dcl]/NP'):
+                P.slot = P.left.slot = L.slot
+                P.right.slot = L.right.slot
+            else:
+                warn("Invalid parent category %s for subject prodrop.", P)
             
         elif comb == 'fwd_xcomp': # X/Y Y\Z -> X/Z
+            P.slot = R.slot
+            
             unifier = unify(L.right, R.left)
             p.cat._left = L.left
             p.cat._right = R.right
 
         elif comb == 'bwd_xcomp': # Y/Z X\Y -> X/Z
+            P.slot = L.slot
+            
             unifier = unify(L.left, R.right, copy_to=LEFT)
             p.cat._left = R.left
             p.cat._right = L.right
         elif comb == 'bwd_r1xcomp': # (Y/Z)/W X\Y -> (X\Z)/W
+            # TODO: where should P's lexical head come from? L or R?
+            
             unifier = unify(L.left.left, R.right)
             p.cat._left._left = R.left
             p.cat._left._right = L.left.right
             p.cat._right = L.right
 
-        elif comb in ('fwd_raise', 'bwd_raise'):
-            P.slot.var = "F"
+        elif comb in ('fwd_raise', 'bwd_raise'): # Xx -> [ Tf|(Tf|Xx)f ]f
+            P.slot.var = fresh_var()
 
-            # TR category is Xx -> [ Ty|(Ty|Xx)y ]y
             P.right.left.slot = P.left.slot = P.right.slot = P.slot
             P.right.right.slot = L.slot
 
@@ -110,6 +147,20 @@ def mkdeps(root):
         elif comb == 'np_typechange':
             P.slot = L.slot # = copy_vars
             unifier = unify(P, L)
+        
+        elif comb == 'null_relativiser_typechange': # Xy -> (Nf/Nf)y
+            P.slot = L.slot
+            
+            if P == parse_category(r'N/N'):
+                P.left.slot.var = fresh_var()
+                
+                P.right.slot = P.left.slot
+            elif P == parse_category(r'(N/N)/(N/N)'):
+                P.left.slot.var = fresh_var()
+                P.left.left.slot.var = fresh_var(prefix="G")
+                
+                P.left.right.slot = P.left.left.slot
+                P.right.slot = P.left.slot
             
         elif comb == 'l_punct_absorb':
             p.cat = R
@@ -130,6 +181,8 @@ def mkdeps(root):
         if config.debug:
             debug("> %s" % p.cat)
             debug('---')
+            
+            assert no_unassigned_variables(p.cat), "Unassigned variables in %s" % p.cat
         
 #        print pprint(root)
 
@@ -212,6 +265,11 @@ class MakeDependencies(Filter):
     arg_names = 'OUTDIR'
 
 if __name__ == '__main__':
+    try:
+        import psyco
+        psyco.full()
+    except ImportError: pass
+    
     from munge.ccg.parse import *
     from apps.cn.mkmarked import *
 
@@ -233,6 +291,11 @@ if __name__ == '__main__':
     print "-------"
     for leaf in leaves(t):
         print leaf.lex, leaf.cat
+        
+    print "unhandled combs:"
+    print "----------------"
+    for comb in unanalysed:
+        print comb
         
     print "finished:"
     print pprint(t)

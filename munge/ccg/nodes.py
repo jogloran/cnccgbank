@@ -6,14 +6,14 @@ from munge.util.func_utils import const_
 class Node(object):
     '''Representation of a CCGbank internal node.'''
     
-    __slots__ = ["cat", "ind1", "ind2", "parent", "_lch", "_rch"]
+    __slots__ = ["cat", "head_index", "child_count", "parent", "_lch", "_rch"]
     
     # We allow lch to be None to make easier the incremental construction of Node structures in
     # the parser. Conventionally, lch can never be None.
-    def __init__(self, cat, ind1, ind2, parent, lch=None, rch=None):
+    def __init__(self, cat, head_index, child_count, parent, lch=None, rch=None):
         '''Creates a new internal node.'''
         self.cat = cat
-        self.ind1, self.ind2 = ind1, ind2
+        self.head_index, self.child_count = head_index, child_count
         self.parent = parent
 
         self._lch, self._rch = lch, rch
@@ -26,7 +26,7 @@ class Node(object):
     def __repr__(self):
         '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
         return (" ".join(
-            ("(<T", str(self.cat), self.ind1, self.ind2,
+            ("(<T", str(self.cat), self.head_index, self.child_count,
              str(self.lch), str(self.rch)+' ' if self.rch else '')
         ) + ")")
 
@@ -57,8 +57,8 @@ class Node(object):
         return (self.cat == other.cat and
                 self.lch == other.lch and
                 self.rch == other.rch and
-                self.ind1 == other.ind1 and
-                self.ind2 == other.ind2)
+                self.head_index == other.head_index and
+                self.child_count == other.child_count)
                 
     def __ne__(self, other): return not (self == other)
 

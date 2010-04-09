@@ -122,7 +122,7 @@ class FixExtraction(Fix):
         # 1. Shrink the verb (node T)
         self.fix_object_gap(pp, p, t, s)
         # 2. Reattach the verb above the TOP node
-        new_node = Node(top.category, 'TAG', top.kids)
+        new_node = Node('TAG', top.kids, top.category, head_index=0)
         top.kids = [t, new_node]
         # (Reattaching parent pointers)
         for kid in new_node: kid.parent = new_node
@@ -139,8 +139,8 @@ class FixExtraction(Fix):
             new_qp_category = (SbNP)|((SbNP)/QP)
 
             # insert unary nodes
-            new_np_node = Node(new_np_category, np.tag, [np]); np.parent = new_np_node
-            new_qp_node = Node(new_qp_category, qp.tag, [qp]); qp.parent = new_qp_node
+            new_np_node = Node(np.tag, [np], new_np_category, head_index=0); np.parent = new_np_node
+            new_qp_node = Node(qp.tag, [qp], new_qp_category, head_index=0); qp.parent = new_qp_node
 
             replace_kid(vp, np, new_np_node)
             replace_kid(vp, qp, new_qp_node)
@@ -172,7 +172,7 @@ class FixExtraction(Fix):
         debug("G: %s", lrp_repr(g))
         debug('PP: %s, P: %s, T: %s, S: %s', *map(lrp_repr, (ctx.pp, ctx.p, ctx.t, ctx.s)))
 
-        new_g = Node(g.category, g.tag, [g, argument])
+        new_g = Node(g.tag, [g, argument], g.category, head_index=0)
 
         replace_kid(g.parent, g, new_g)
         argument.parent = new_g # argument was previously disconnected
@@ -293,7 +293,7 @@ class FixExtraction(Fix):
                     elif R.is_complex() and R.left.is_complex() and L == R.left.right:
                         T = R.left.left
                         new_category = typeraise(L, T, TR_FORWARD)#T/(T|L)
-                        node.parent[0] = Node(new_category, l.tag, [l])
+                        node.parent[0] = Node(l.tag, [l], new_category, head_index=0)
 
                         new_parent_category = fcomp(new_category, R)
                         if new_parent_category:
@@ -310,7 +310,7 @@ class FixExtraction(Fix):
                     elif L.is_complex() and L.left.is_complex() and R == L.left.right:
                         T = L.left.left
                         new_category = typeraise(R, T, TR_BACKWARD)#T|(T/R)
-                        node.parent[1] = Node(new_category, r.tag, [r])
+                        node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
 
                         new_parent_category = bxcomp(L, new_category)
                         if new_parent_category:
@@ -340,7 +340,7 @@ class FixExtraction(Fix):
                         debug('Trying out %s', new_category)
                         
                         if bxcomp(L, new_category):
-                            node.parent[1] = Node(new_category, r.tag, [r])
+                            node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
                             new_parent_category = bxcomp(L, new_category)
                             
                     if not new_parent_category:
@@ -391,7 +391,7 @@ class FixExtraction(Fix):
                 SS = context.ss.category
                 
                 debug("Creating null relativiser unary category: %s", SS/SS)
-                replace_kid(top.parent, top, Node(SS/SS, "NN", [top]))
+                replace_kid(top.parent, top, Node("NN", [top], SS/SS, head_index=0))
 
         debug(pprint(node))
 
@@ -421,13 +421,13 @@ class FixExtraction(Fix):
                 ss = context.ss
 
                 debug("Creating null relativiser unary category: %s", ss.category/ss.category)
-                replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+                replace_kid(top.parent, top, Node("NN", [top], ss.category/ss.category, head_index=0))
 
     def fix_ip_app(self, p, a, s):
         debug("Fixing IP-APP NX: %s", lrp_repr(p))
         new_kid = copy(a)
         new_kid.tag = base_tag(new_kid.tag) # relabel to stop infinite matching
-        replace_kid(p, a, Node(s.category/s.category, "NN", [new_kid]))
+        replace_kid(p, a, Node("NN", [new_kid], s.category/s.category, head_index=0))
 
     def fix_object_extraction(self, _, n, pred, w=None, reduced=False):
         node = n
@@ -458,7 +458,7 @@ class FixExtraction(Fix):
                 if result:
                     _, ctx = result; ss = ctx.ss
                     debug("Creating null relativiser unary category: %s", ss.category/ss.category)
-                    replace_kid(top.parent, top, Node(ss.category/ss.category, "NN", [top]))
+                    replace_kid(top.parent, top, Node("NN", [top], ss.category/ss.category, head_index=0))
 
     def relabel_bei_category(self, top, pred):
         bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
@@ -545,9 +545,10 @@ class FixExtraction(Fix):
         typeraise_t_category = ptb_to_cat(t)
         # insert a node with the topicalised category
         replace_kid(p, t, Node(
-            typeraise(typeraise_t_category, SbNP, TR_TOPICALISATION),
             base_tag(t.tag, strip_cptb_tag=False),
-            [t]))
+            [t],
+            typeraise(typeraise_t_category, SbNP, TR_TOPICALISATION,
+            head_index=0)))
             
         index = get_trace_index_from_tag(t.tag)
         
@@ -566,9 +567,10 @@ class FixExtraction(Fix):
         typeraise_t_category = ptb_to_cat(t)
         # insert a node with the topicalised category
         replace_kid(p, t, Node(
-            typeraise(typeraise_t_category, S, TR_TOPICALISATION),
             base_tag(t.tag, strip_cptb_tag=False),
-            [t]))
+            [t],
+            typeraise(typeraise_t_category, S, TR_TOPICALISATION),
+            head_index=0))
 
         index = get_trace_index_from_tag(t.tag)
 
@@ -599,7 +601,7 @@ class FixExtraction(Fix):
         new_kid.tag = base_tag(new_kid.tag, strip_cptb_tag=False)
 
         new_category = featureless(p.category)/featureless(s.category)
-        replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
+        replace_kid(p, t, Node(t.tag, [new_kid], new_category, head_index=0))
 
     def fix_prodrop(self, node, pp, p):
         #      X=PP
@@ -634,5 +636,5 @@ class FixExtraction(Fix):
 
         new_category = featureless(P) / featureless(S)
         debug("Creating category %s", new_category)
-        replace_kid(p, t, Node(new_category, t.tag, [new_kid]))
+        replace_kid(p, t, Node(t.tag, [new_kid], new_category, head_index=0))
 
