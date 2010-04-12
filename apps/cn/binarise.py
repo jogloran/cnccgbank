@@ -332,7 +332,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
               # 28:82(8)
               (node.tag.startswith('DP') and matches(node[0], 'NN', 'PN')) or
               (matches(node, 'NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 'NP-LOC', 'NP-ADV',
-                                'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR')
+                             'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR')
                   and has_noun_tag(node[0]))):
                   
             replacement = node[0]

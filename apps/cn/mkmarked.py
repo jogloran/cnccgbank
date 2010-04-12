@@ -8,12 +8,16 @@ from munge.trees.traverse import leaves
 from apps.util.echo import echo
 
 def variables():
+    '''Returns an iterator over variable names. The first variable name returned is _,
+for the outermost variable.'''
     return iter('_YZWVUTRQABCDEF')
 
 def is_modifier(cat):
+    '''Returns whether _cat_ is of the form X/X.'''
     return cat.left == cat.right
 
 def is_np_n(cat):
+    '''Returns whether _cat_ is the category NP/N.'''
     return cat.left == NP and cat.right == N
     
 C = parse_category
@@ -24,6 +28,8 @@ Exceptions = (
 )
 
 def get_cached_category_for(cat, lex):
+    '''If _cat_ matches one of the mappings defined in Exceptions, returns a copy of
+the cached category, filling in its outermost variable's lex with _lex_.'''
     for frm, to in Exceptions:
         if cat.equal_respecting_features(frm):
             result = copy.deepcopy(to)
@@ -33,6 +39,8 @@ def get_cached_category_for(cat, lex):
 
 n = 1
 def label(cat, vars=None, lex=None):
+    '''Labels the category _cat_ using the markedup labelling algorithm, with
+available variable labels _vars_ and lexical item _lex_.'''
     global n
     cached = get_cached_category_for(cat, lex)
     if cached: 
@@ -73,6 +81,7 @@ def write_markedup(cats, file):
         print >>file
 
 def naive_label_derivation(root):
+    '''Applies the markedup labelling algorithm to each leaf under _root_.'''
     for leaf in leaves(root):
 #        print "%s ->" % leaf.cat,
         leaf.cat = label(leaf.cat, lex=leaf.lex)

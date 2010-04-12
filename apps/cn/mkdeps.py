@@ -18,10 +18,14 @@ from munge.trees.pprint import pprint
 from apps.cn.mkmarked import is_modifier
 
 def copy_vars(frm, to):
+    '''Given two categories _frm_ and _to_, assumed to be the same modulo slots, overwrites the
+slots of _to_ with those of _frm_.'''
     for (frms, tos) in izip(frm.nested_compound_categories(), to.nested_compound_categories()):
         tos.slot = frms.slot
 
 def update_with_fresh_var(node, replacement):
+    '''Where _node_ is a node, and C is its category, replaces all variables in sub-categories of C
+with the same name as C's outermost variable with the slot _replacement_.'''
     # change all occurrences of vars with the same var name as c to the same fresh var
     to_replace = node.cat.slot.var
     for sub in node.cat.nested_compound_categories():
@@ -29,12 +33,14 @@ def update_with_fresh_var(node, replacement):
             sub.slot = replacement
             
 def no_unassigned_variables(cat):
+    '''Yields whether any sub-category inside category _cat_ has a slot without a variable.'''
     for subcat in cat.nested_compound_categories():
         if subcat.slot.var == '?': return False
     return True
     
 fresh_var_id = 1
 def fresh_var(prefix='F'):
+    '''Returns a unique variable name with a given _prefix_.'''
     global fresh_var_id
     ret = prefix + str(fresh_var_id)
     fresh_var_id += 1
@@ -60,24 +66,31 @@ def mkdeps(root):
         unifier = []
         
         if config.debug:
-            debug("%s %s %s", L, R, P)
-            debug(str(comb))
+            debug("%s %s %s (%s)", L, R, P, str(comb))
 
-        if comb == 'fwd_appl': # X/Y Y
-            unifier = unify(L.right, R, copy_to=RIGHT)
+        if comb == 'fwd_appl': # [Xx/Yy]l Yy -> Xx
+            unifier = unify(L.right, R)
             p.cat = L.left
 
-        elif comb == 'bwd_appl': # Y X\Y
-            unifier = unify(L, R.right, copy_to=LEFT)
+        elif comb == 'bwd_appl': # Yy [Xx\Yy]r -> Xx
+            unifier = unify(L, R.right)
             p.cat = R.left
+                
+        # Pro-drops which drop their outer argument
+        # [(S_\NPy)_/NPx]_ -> [S_\NPy]_
+        elif comb in ('object_prodrop', 'vp_vp_object_prodrop', 
+            'yi_subject_prodrop', 'vp_modifier_subject_prodrop'):
+            p.cat = L.left
 
+        # [Xx/Yy]l [Yy/Zz]r -> [Xx/Zz]r
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
             P.slot = R.slot # lexical head comes from R (Y/Z)
 
-            unifier = unify(L.right, R.left, copy_to=RIGHT)
+            unifier = unify(L.right, R.left)
             p.cat._left = L.left
             p.cat._right = R.right
             
+        # [Yy\Zz]l [Xx\Yy]r -> [Xx\Zz]l
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
             P.slot = L.slot # lexical head comes from L (Y\Z)
             
@@ -92,7 +105,7 @@ def mkdeps(root):
             update_with_fresh_var(p, P.slot)
             P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
             
-            unifier = unify(L, R, ignore=True, copy_to=RIGHT, copy_vars=False) # unify variables only in the two conjuncts
+            unifier = unify(L, R, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
             for (dest, src) in unifier:
                 old_head = src.slot.head
                 
@@ -102,11 +115,11 @@ def mkdeps(root):
                         if subcat.slot.head is old_head:
                             subcat.slot.head = dest.slot.head
 
-            unify(P, R, ignore=True, copy_to=RIGHT) # unify variables only in the two conjuncts
+            unify(P, R, ignore=True) # unify variables only in the two conjuncts
 
         elif comb in ('conj_absorb', 'conj_comma_absorb', 'funny_conj'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
-            unify(P, R, copy_to=RIGHT) # R.slot.head = P.slot.head
+            unify(P, R) # R.slot.head = P.slot.head
         
         elif comb == 'nongap_topicalisation': # {N, NP, S[dcl], QP}x -> [Sy/Sy]x
             P.slot = L.slot
@@ -127,20 +140,21 @@ def mkdeps(root):
             else:
                 warn("Invalid parent category %s for subject prodrop.", P)
             
-        elif comb == 'fwd_xcomp': # X/Y Y\Z -> X/Z
+        elif comb == 'fwd_xcomp': # [Xx/Yy]l [Yy\Zz]r -> [Xx/Zz]r
             P.slot = R.slot
             
             unifier = unify(L.right, R.left)
             p.cat._left = L.left
             p.cat._right = R.right
 
-        elif comb == 'bwd_xcomp': # Y/Z X\Y -> X/Z
+        elif comb == 'bwd_xcomp': # [Yy/Zz]l [Xx\Yy]r -> [Xx/Zz]l
             P.slot = L.slot
             
-            unifier = unify(L.left, R.right, copy_to=LEFT)
+            unifier = unify(L.left, R.right)
             p.cat._left = R.left
             p.cat._right = L.right
-        elif comb == 'bwd_r1xcomp': # (Y/Z)/W X\Y -> (X\Z)/W
+            
+        elif comb == 'bwd_r1xcomp': # [(Yy/Zz)k/Ww]l [Xx\Yy]r -> [(Xx\Zz)k/Ww]l
             # TODO: where should P's lexical head come from? L or R?
             
             unifier = unify(L.left.left, R.right)
@@ -173,6 +187,17 @@ def mkdeps(root):
                 
                 P.left.right.slot = P.left.left.slot
                 P.right.slot = P.left.slot
+            
+        # [NP/NP]y -> NPy
+        elif comb == 'de_nominalisation':
+            P.slot = L.slot
+            
+        # {M, QP}y -> (Nf/Nf)y
+        elif comb == 'measure_word_number_elision':
+            P.slot = L.slot
+            
+            P.left.slot.var = fresh_var()
+            P.right.slot = P.left.slot
             
         elif comb == 'l_punct_absorb':
             p.cat = R
@@ -207,7 +232,6 @@ def mkdeps(root):
             
             if config.fail_on_unassigned_variables:
                 assert no_unassigned_variables(p.cat), "Unassigned variables in %s" % p.cat
-        
     # Collect deps from arguments
     deps = []
     for l in leaves(root):
@@ -231,7 +255,7 @@ def mkdeps(root):
 
 LEFT, RIGHT = 1, 2
 class UnificationException(Exception): pass
-def unify(L, R, ignore=False, copy_to=LEFT, copy_vars=True):
+def unify(L, R, ignore=False, copy_vars=True):
     assgs = []
     
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
@@ -252,23 +276,9 @@ def unify(L, R, ignore=False, copy_to=LEFT, copy_vars=True):
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
-            # print "vars Ls: %s Rs: %s" % (Ls, Rs)
-            # print "vars L: %s R: %s" % (L, R)
-            #Rs.slot.head = Ls.slot.head # Direction matters, unification is asymmetric
-#            if copy_to == LEFT:
-            # we should be copying from modifiers to heads
-#                if copy_vars: Ls.slot.head = Rs.slot.head
-#                print "Lh done L head(%s) = R head(%s)" % (Ls.slot, Rs.slot)
-                
-#                assgs.append( (Ls, Rs) )
-#            else: #elif L.is_modifier():
-#            else:
-#                if copy_vars: Rs.slot.head = Ls.slot.head
-#                print "Rh done R head(%s) = L head(%s)" % (Rs.slot, Ls.slot)
-                
-#                assgs.append( (Rs, Ls) )
             if copy_vars: Rs.slot.head = Ls.slot.head
             assgs.append( (Rs, Ls) )
+            
     return assgs
 
 class MakeDependencies(Filter):

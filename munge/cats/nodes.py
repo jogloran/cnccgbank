@@ -1,5 +1,6 @@
 from copy import copy, deepcopy
 from munge.util.exceptions import CatParseException
+from munge.util.func_utils import const_
 from apps.util.config import config
 
 import re
@@ -74,14 +75,14 @@ class AtomicCategory(Featured):
     postorder_labelled = labelled
     def is_labelled(self): return False
 
-    def slash_count(self): return 0
+    slash_count = const_(0)
     
     def nested_compound_categories(self): yield self
 
-    def is_leaf(self): return True
     def label_text(self): return re.escape(self.cat)
 
-    def is_complex(self): return not self.is_leaf()
+    is_leaf = const_(True)
+    is_complex = const_(False)
     
     def __iter__(self):
         yield self
@@ -223,10 +224,10 @@ and its labelled index.'''
         for cat in self._left.nested_compound_categories(): yield cat
         for cat in self._right.nested_compound_categories(): yield cat
 
-    def is_leaf(self): return False
     def label_text(self): return re.escape(self.slash)
 
-    def is_complex(self): return not self.is_leaf()
+    is_leaf = const_(False)
+    is_complex = const_(True)
     
     def __or__(self, right):
         '''Constructs the complex category (self \ right).'''

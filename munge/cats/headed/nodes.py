@@ -2,6 +2,7 @@ import munge.cats.nodes as B
 from apps.util.config import config
 
 class Head(object):
+    '''A Head represents an assigned lexical item.'''
     def __init__(self, lex=None, filler=None, slash=None):
         self.lex = lex
         self.filler = None
@@ -10,6 +11,7 @@ class Head(object):
     __repr__ = lambda self: str(self.lex) or "?"
 
 class Slot(object):
+    '''A Slot is a mapping from a variable name to a Head.'''
     def __init__(self, var, head_lex=None):
         self.var = var        
         self._head = Head(head_lex)
@@ -36,6 +38,7 @@ class Slot(object):
             return self.var.lower() + (("=" + head) if head else '')
         
 class AtomicCategory(B.AtomicCategory):
+    '''An AtomicCategory augmented with a Slot field.'''
     def __init__(self, *args, **kwargs):
         var, value = kwargs.pop('var', '?'), kwargs.pop('value', None)
         
@@ -58,6 +61,7 @@ else:
         return "[" + s + "]"
     
 class ComplexCategory(B.ComplexCategory):
+    '''A ComplexCategory augmented with a Slot field.'''
     def __init__(self, *args, **kwargs):
         var, value = kwargs.pop('var', '?'), kwargs.pop('value', None)
         

@@ -57,6 +57,8 @@ def deferred(f):
             return self.value
             
 def n_times(n, f):
+    '''Returns a function returning a list of the results of _n_
+applications of _f_.'''
     # n_times(2, f)(1, 2, 3) => [ f(1, 2, 3), f(1, 2, 3) ]
     def _f(*args, **kwargs):
         return map(lambda f: f(*args, **kwargs), [f] * n)
