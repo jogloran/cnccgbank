@@ -71,6 +71,7 @@ class AtomicCategory(Featured):
     def __ne__(self, other): return not (self == other)
 
     def labelled(self, index=0): return index
+    postorder_labelled = labelled
     def is_labelled(self): return False
 
     def slash_count(self): return 0
@@ -184,6 +185,13 @@ category in a pre-order traversal of the category tree.'''
         index += 1 # the current node gets the label _index_
         index = self._left.labelled(index)
         index = self._right.labelled(index)
+        return index
+        
+    def postorder_labelled(self, index=0):
+        index = self._left.labelled(index)
+        index = self._right.labelled(index)
+        self.label = index
+        index += 1
         return index
 
     def is_labelled(self):

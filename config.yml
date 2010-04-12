@@ -16,3 +16,4 @@ cn_rules: true
 use_modes: false
 headed_cats: true
 highlight_head_arrows: true
+fail_on_unassigned_variables: false

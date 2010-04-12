@@ -609,6 +609,7 @@ class FixExtraction(Fix):
         #      NP=P
         #      |
         #    -NONE- '*pro*'
+        pp.head_index = 0
         pp.kids.remove(p)
 
         # this step happens after fix_rc, and object extraction with subject pro-drop can
@@ -623,6 +624,7 @@ class FixExtraction(Fix):
         # In this case, we want to remove the whole structure
         if (not pp.kids) and pp.parent:
             ppp = pp.parent
+            ppp.head_index = 0
             ppp.kids.remove(pp)
 
     def fix_modification(self, node, p, s, t):

@@ -258,7 +258,7 @@ def hoist_punctuation_then(label_func, node):
     initial = node.kids.pop(0)
     final = node.kids.pop()
     
-    return Node(node.tag, [initial, Node(node.tag, [ label_func(node), final ], head_index=0)], head_index=0)
+    return Node(node.tag, [initial, Node(node.tag, [ label_func(node), final ], head_index=0)], head_index=1)
 
 def label_node(node, *args, **kwargs):
     if node.count() == 1: node.head_index = 0

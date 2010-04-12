@@ -5,6 +5,7 @@ import re, os
 from subprocess import Popen, PIPE
 import munge.ccg.nodes as ccg
 from munge.cats.trace import analyse
+from apps.util.config import config
 
 id = 0
 def get_id():

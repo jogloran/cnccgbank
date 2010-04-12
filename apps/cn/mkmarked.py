@@ -74,9 +74,9 @@ def write_markedup(cats, file):
 
 def naive_label_derivation(root):
     for leaf in leaves(root):
-        print "%s ->" % leaf.cat,
+#        print "%s ->" % leaf.cat,
         leaf.cat = label(leaf.cat, lex=leaf.lex)
-        print "%s" % leaf.cat
+#        print "%s" % leaf.cat
         
     return root
 

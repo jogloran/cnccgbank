@@ -2,11 +2,12 @@ import munge.cats.nodes as B
 from apps.util.config import config
 
 class Head(object):
-    def __init__(self, lex=None, filler=None):
+    def __init__(self, lex=None, filler=None, slash=None):
         self.lex = lex
         self.filler = None
+        self.slash = None
     
-    __repr__ = lambda self: self.lex or "?"
+    __repr__ = lambda self: str(self.lex) or "?"
 
 class Slot(object):
     def __init__(self, var, head_lex=None):

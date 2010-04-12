@@ -18,6 +18,8 @@ class DepTests(unittest.TestCase):
                     _, deriv = file.pop(0), file.pop(0)
                     gsdeps_line = gsdeps_file.pop(0)
                     
+                    if deriv.startswith('#'): continue
+                    
                     t = naive_label_derivation(parse_tree(deriv))
                     deps = mkdeps(t)
                     gsdeps = parse_gsdeps(gsdeps_line)
@@ -38,9 +40,9 @@ class DepTests(unittest.TestCase):
                         raise
         
     def testBasic(self):
-#        self.check('apps/cn/tests/test1.ccg', 'apps/cn/tests/test1.gs')
+        self.check('apps/cn/tests/test1.ccg', 'apps/cn/tests/test1.gs')
         self.check('apps/cn/tests/test2.ccg', 'apps/cn/tests/test2.gs')
-#        self.check('apps/cn/tests/test3.ccg', 'apps/cn/tests/test3.gs')
+        self.check('apps/cn/tests/test3.ccg', 'apps/cn/tests/test3.gs')
 #        self.check('final/chtb_9992.fid', 'apps/cn/tests/blah.gs')
                     
 if __name__ == '__main__':

@@ -5,7 +5,9 @@ config.set(show_vars=True) # override show_vars. must come before cats.nodes imp
 from itertools import izip
 from copy import deepcopy
 
+from apps.cn.mkmarked import naive_label_derivation
 from munge.proc.filter import Filter
+from munge.cats.headed.nodes import Head
 from munge.cats.headed.parse import parse_category
 from munge.cats.trace import analyse
 from munge.trees.traverse import leaves, pairs_postorder, nodes
@@ -37,15 +39,25 @@ def fresh_var(prefix='F'):
     ret = prefix + str(fresh_var_id)
     fresh_var_id += 1
     return ret
+    
+def strip_index(s):
+    return s.split('*')[0]
 
 unanalysed = set()
 def mkdeps(root):
+    for i, leaf in enumerate(leaves(root)):
+        leaf.lex += "*%d" % i
+        leaf.cat.postorder_labelled()
+        leaf.cat.slot.head.lex = leaf.lex
+    
     global unanalysed
 
     for l, r, p in pairs_postorder(root):
         L, R, P = map(lambda x: x and x.cat, (l, r, p))
         comb = analyse(L, R, P)
         if not comb: debug("Unrecognised rule %s %s -> %s", L, R, P)
+        
+        unifier = []
         
         if config.debug:
             debug("%s %s %s", L, R, P)
@@ -60,14 +72,14 @@ def mkdeps(root):
             p.cat = R.left
 
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
-            P.slot = L.slot # lexical head comes from R (Y/Z)
+            P.slot = R.slot # lexical head comes from R (Y/Z)
 
             unifier = unify(L.right, R.left, copy_to=RIGHT)
             p.cat._left = L.left
             p.cat._right = R.right
             
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
-            P.slot = R.slot # lexical head comes from L (Y\Z)
+            P.slot = L.slot # lexical head comes from L (Y\Z)
             
             unifier = unify(R.right, L.left)
             p.cat._left = R.left
@@ -84,7 +96,7 @@ def mkdeps(root):
             for (dest, src) in unifier:
                 old_head = src.slot.head
                 
-                # look under L and transform all references to 'Z' to references to the 'Z' inside R                
+                # look under L and transform all references to 'Z' to references to the 'Z' inside R
                 for node in nodes(l):
                     for subcat in node.cat.nested_compound_categories():
                         if subcat.slot.head is old_head:
@@ -178,14 +190,24 @@ def mkdeps(root):
             
             P.slot = L.slot
             
+        # Fake bidirectional unification:
+        # -------------------------------
+        # If variable X has been unified with value v,
+        # rewrite all mentions of v in the output category to point to variable X
+        for (dest, src) in unifier:
+            if not isinstance(src, basestring): continue
+            
+            for subcat in p.cat.nested_compound_categories():
+                if subcat.slot.head.lex == src:
+                    subcat.slot = dest.slot
+            
         if config.debug:
             debug("> %s" % p.cat)
             debug('---')
             
-            assert no_unassigned_variables(p.cat), "Unassigned variables in %s" % p.cat
+            if config.fail_on_unassigned_variables:
+                assert no_unassigned_variables(p.cat), "Unassigned variables in %s" % p.cat
         
-#        print pprint(root)
-
     # Collect deps from arguments
     deps = []
     for l in leaves(root):
@@ -194,6 +216,7 @@ def mkdeps(root):
         while not C.is_leaf():
             arg = C.right
             if arg.slot.head.filler:
+                print "%s %s %s %s" % (C.slot.head.lex, arg.slot.head.lex, arg, arg.slot.head.slash)
                 deps.append( (C.slot.head.lex, arg.slot.head.lex) )
             C = C.left
 
@@ -202,7 +225,7 @@ def mkdeps(root):
     for depl, depr in deps:
         for sdepl in set(seqify(depl)):
             for sdepr in set(seqify(depr)):
-                result.add( (sdepl, sdepr) )
+                result.add( (strip_index(sdepl), strip_index(sdepr)) )
                 
     return result
 
@@ -219,10 +242,14 @@ def unify(L, R, ignore=False, copy_to=LEFT, copy_vars=True):
         elif Ls.slot.is_filled():
             Rs.slot.head.lex = Ls.slot.head.lex
             Rs.slot.head.filler = L
+            Rs.slot.head.slash = Ls.label
+            assgs.append( (Rs, Ls.slot.head.lex) )
 
         elif Rs.slot.is_filled():
             Ls.slot.head.lex = Rs.slot.head.lex
             Ls.slot.head.filler = R
+            Ls.slot.head.slash = Rs.label
+            assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
             # print "vars Ls: %s Rs: %s" % (Ls, Rs)
@@ -250,14 +277,16 @@ class MakeDependencies(Filter):
         self.outdir = outdir
 
     def accept_derivation(self, bundle):
-        deps = mkdeps(bundle.derivation)
-        self.write_deps(deps)
+        deps = mkdeps(naive_label_derivation(bundle.derivation))
+        self.write_deps(bundle, deps)
 
     def output(self):
         pass
 
-    def write_deps(self, deps):
-        pass
+    def write_deps(self, bundle, deps):
+        print "ID=%s" % bundle.label()
+        for l, r in deps:
+            print "\t".join((l, r))
 
     opt = '9'
     long_opt = 'mkdeps'
@@ -271,7 +300,6 @@ if __name__ == '__main__':
     except ImportError: pass
     
     from munge.ccg.parse import *
-    from apps.cn.mkmarked import *
 
 #    t=naive_label_derivation(parse_tree(open('final/chtb_0119.fid').readlines()[13]))
 #    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test1.ccg').readlines()[1]))
