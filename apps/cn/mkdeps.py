@@ -249,6 +249,10 @@ def mkdeps(root):
     for depl, depr in deps:
         for sdepl in set(seqify(depl)):
             for sdepr in set(seqify(depr)):
+                if not (sdepl and sdepr):
+                    warn("Dependency with None: %s %s", sdepl, sdepr)
+                    continue
+                    
                 result.add( (strip_index(sdepl), strip_index(sdepr)) )
                 
     return result

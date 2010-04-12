@@ -24,7 +24,16 @@ C = parse_category
 Exceptions = (
     (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{Z}/N{Z}){_}\(S[dcl]{Y}\NP{Z}){Y}){_}')),
     (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{Z}/N{Z}){_}\(S[dcl]{Y}/NP{Z}){Y}){_}')),
-    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}'))
+    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}')),
+    # gapped long bei
+    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{X}){Z}/NP{Y}){Z})/NP{X}){_}')),
+    # non-gapped long bei
+    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/NP'), C(r'(((S[dcl]{_}\NP{W}){_}/(S[dcl]{Z}\NP{Y}){Z})/NP{Y}){_}')),
+    # gapped short bei
+    (C(r'(S[dcl]\NP)/((S[dcl]\NP)/NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/((S[dcl]{W}\NP{Z}){W}/NP{Y}){W}){_}')),
+    # non-gapped short bei
+    # TODO: coincides with the above control/raising category
+#    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP){_}/(S[dcl]\NP)){_}')),
 )
 
 def get_cached_category_for(cat, lex):
