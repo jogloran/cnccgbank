@@ -11,17 +11,40 @@ from munge.cats.trace import analyse
 from munge.trees.traverse import leaves, pairs_postorder, nodes
 from munge.util.iter_utils import flatten, seqify
 from munge.util.err_utils import debug, warn
+from munge.util.func_utils import identity
+from munge.util.iter_utils import each_pair
 from munge.trees.pprint import pprint
+from munge.cats.labels import label_result
+from munge.cats.paths import category_path_to_root
+from munge.cats.trace import analyse
 
 from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
 
 unanalysed = set()
-def mkdeps(root):
+def mkdeps(root, postprocessor=strip_index):
     for i, leaf in enumerate(leaves(root)):
         leaf.lex += "*%d" % i
         leaf.cat.postorder_labelled()
         leaf.cat.slot.head.lex = leaf.lex
+    
+    for leaf in leaves(root):
+        path = category_path_to_root(leaf)
+        
+        first = True
+        for (prev_l, prev_r, prev_was_flipped), (l, r, was_flipped) in each_pair(path):
+            if first:
+                if prev_was_flipped and prev_r:
+                    prev_r.labelled()
+                elif not prev_was_flipped:
+                    prev_l.labelled()
+                first = False
+            
+            cur      = r      if was_flipped      else l
+            prev_cur = prev_r if prev_was_flipped else prev_l
+            rule = analyse(prev_l, prev_r, cur)
+            
+            label_result(cur, prev_cur, rule, prev_was_flipped)
     
     global unanalysed
 
@@ -220,7 +243,7 @@ def mkdeps(root):
                     warn("Dependency with None: %s %s", sdepl, sdepr)
                     continue
                     
-                result.add( (strip_index(sdepl), strip_index(sdepr)) )
+                result.add( (postprocessor(sdepl), postprocessor(sdepr)) )
                 
     return result
     
@@ -230,7 +253,7 @@ class MakeDependencies(Filter):
         self.outdir = outdir
 
     def accept_derivation(self, bundle):
-        deps = mkdeps(naive_label_derivation(bundle.derivation))
+        deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
         self.write_deps(bundle, deps)
 
     def output(self):

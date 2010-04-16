@@ -5,10 +5,9 @@ curly_vars: false
 show_vars: false
 debug_vars: false
 #show_vars: true
-#debug: false
-debug: true
+debug: false
+#debug: true
 low_key_debug: false
-#aug_pprint: true
 aug_pprint: false
 #cmd_reader_class: AugmentedPTBReader
 cmd_reader_class: GuessReader
