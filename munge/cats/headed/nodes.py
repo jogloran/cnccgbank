@@ -48,6 +48,7 @@ class AtomicCategory(B.AtomicCategory):
     if config.show_vars:
         def __repr__(self, *args, **kwargs):
             r = B.AtomicCategory.__repr__(self, *args, **kwargs)
+            if kwargs.get('suppress_vars', False): return r
                 
             if self.slot:
                 r += repr(self.slot)
@@ -71,7 +72,8 @@ class ComplexCategory(B.ComplexCategory):
     if config.show_vars:
         def __repr__(self, *args, **kwargs):
             r = B.ComplexCategory.__repr__(self, *args, **kwargs)
-        
+            if kwargs.get('suppress_vars', False): return r
+                    
             if self.slot.var:
                 if kwargs.get('first', True):
                     r = bracket_category(r)

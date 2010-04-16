@@ -3,6 +3,7 @@ only_np_topicalisation_valid: false
 restrictive_absorption: false
 curly_vars: false
 show_vars: false
+debug_vars: false
 #show_vars: true
 #debug: false
 debug: true

@@ -4,7 +4,6 @@ config.set(show_vars=True) # override show_vars. must come before cats.nodes imp
 
 from copy import deepcopy
 
-from apps.cn.mkmarked import naive_label_derivation
 from munge.proc.filter import Filter
 from munge.cats.headed.nodes import Head
 from munge.cats.headed.parse import parse_category
@@ -14,7 +13,7 @@ from munge.util.iter_utils import flatten, seqify
 from munge.util.err_utils import debug, warn
 from munge.trees.pprint import pprint
 
-from apps.cn.mkmarked import is_modifier
+from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
 
 unanalysed = set()

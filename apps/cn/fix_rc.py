@@ -71,6 +71,7 @@ class FixExtraction(Fix):
             # IP for the null relativiser construction.
             # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
             (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
+            # an argument cluster is defined as a VP, one conjunct of which has a verb, and one which does not
             (r'''/VP/
                     < { /VP:c/=PP
                         <1 { /V[PVECA]|VRD|VSB|VCD/=P < { /NP/=S $ *=T } } 

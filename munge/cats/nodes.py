@@ -135,10 +135,10 @@ class ComplexCategory(Featured):
         
         bits = []
         if not first: bits.append('(')
-        bits.append(self._left.__repr__(first=False, show_modes=show_modes))
+        bits.append(self._left.__repr__(first=False, show_modes=show_modes, **kwargs))
         bits.append(self.slash)
         if show_modes: bits.append(ComplexCategory.get_mode_symbol(self.mode))
-        bits.append(self._right.__repr__(first=False, show_modes=show_modes))
+        bits.append(self._right.__repr__(first=False, show_modes=show_modes, **kwargs))
         if not first: bits.append(')')
         bits.append(self.feature_repr())
         

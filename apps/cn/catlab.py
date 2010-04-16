@@ -177,8 +177,8 @@ PunctuationMap = {
     '，': ',', # Clausal comma (逗号)
     ',': ',', # Roman comma
     
-    '？': '?', '?': '?', # Chinese question mark
-    '！': '!', '!': '!', # Chinese exclamation mark
+    '？': '.', '?': '.', # Chinese question mark
+    '！': '.', '!': '.', # Chinese exclamation mark
     
     '：': ':', ':': ':', # Chinese colon
     '；': ';', ';': ';', # Chinese semicolon
@@ -187,15 +187,15 @@ PunctuationMap = {
     '）': 'RPA', ')': 'RPA', # Chinese closing paren
     
     '“': 'LQU', '”': 'RQU', # Roman double quote
-    '‘': 'LSQ', '’': 'RSQ', # Roman single quote
+    '‘': 'LQU', '’': 'RQU', # Roman single quote
     
-    '—': 'DSH', # Chinese dash
+    '—': '.', # Chinese dash
     
-    '《': 'LTL', '》': 'RTL', # Chinese title bracket
-    '『': 'LCD', '』': 'RCD', # Chinese double corner bracket
-    '「': 'LCS', '」': 'RCS', # Chinese left corner bracket
+    '《': 'LPA', '》': 'RPA', # Chinese title bracket
+    '『': 'LPA', '』': 'RPA', # Chinese double corner bracket
+    '「': 'LPA', '」': 'RPA', # Chinese left corner bracket
     
-    '/': 'SLS', '//': 'SLS',
+    '/': '.', '//': '.',
 }
 
 Dashes = frozenset("── - --- ---- ━ ━━ — —— ———".split())
