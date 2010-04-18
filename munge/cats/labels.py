@@ -3,6 +3,7 @@ from munge.cats.trace import analyse
 def _label_result(l, r, p):
     L, R, P = l.cat, r.cat if r else None, p.cat
     app = analyse(L, R, P)
+    if not app: return
     
 #    print '> %s %s %s %s' % (app, L, R, p.cat)
     if app == 'fwd_appl': # X/Y Y

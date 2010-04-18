@@ -4,16 +4,19 @@ import os, re
 
 class OutputDerivation(object):
     '''Writes out a derivation to disk.'''
-    def __init__(self, transformer=None, fn_template=None):
+    def __init__(self, transformer=None, fn_template=None, outdir_template=None):
         '''Where _transformer_ is a function which receives each derivation bundle and
 returns the string to write, and _fn_template_ is a format string with two format
 arguments (the section and document #), creates an OutputDerivation.'''
         self.transformer = transformer or (lambda x: x.derivation)
-        self.fn_template = fn_template or "chtb_%02d%02d.fid"
+        self.outdir_template = outdir_template or (lambda outdir, _: outdir)
+        self.fn_template = fn_template or (lambda bundle: "chtb_%02d%02d.fid" % (bundle.sec_no, bundle.doc_no))
         
     def write_derivation(self, bundle):
-        if not os.path.exists(self.outdir): os.makedirs(self.outdir)
-        output_filename = os.path.join(self.outdir, self.fn_template % (bundle.sec_no, bundle.doc_no))
+        outdir_path = self.outdir_template(self.outdir, bundle)
+
+        if not os.path.exists(outdir_path): os.makedirs(outdir_path)
+        output_filename = os.path.join(outdir_path, self.fn_template(bundle))
 
         with file(output_filename, 'a') as f:
             print >>f, self.transformer(bundle)
@@ -59,7 +62,7 @@ class OutputCCGbankDerivation(OutputDerivation):
                 make_header(bundle), 
                 bundle.derivation.ccgbank_repr()))
 
-        OutputDerivation.__init__(self, printer)
+        OutputDerivation.__init__(self, printer, outdir_template=lambda dir, bundle: "%s/%02d" % (dir, bundle.sec_no))
         
 class CCGbankStyleOutput(Filter, OutputCCGbankDerivation):
     def __init__(self, outdir):
