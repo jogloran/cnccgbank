@@ -25,14 +25,11 @@ unanalysed = set()
 def mkdeps(root, postprocessor=strip_index):
     for i, leaf in enumerate(leaves(root)):
         leaf.lex += "*%d" % i
-        leaf.cat.inorder_labelled()
+        leaf.cat.parg_labelled()
         leaf.cat.slot.head.lex = leaf.lex
     
-    print root
     for (l, r, p) in pairs_postorder(root):
-        print l.cat, r and r.cat, p.cat
         _label_result(l, r, p)
-    print root
             
     global unanalysed
 
@@ -210,6 +207,7 @@ def mkdeps(root, postprocessor=strip_index):
             
             if config.fail_on_unassigned_variables:
                 assert no_unassigned_variables(p.cat), "Unassigned variables in %s" % p.cat
+                
     # Collect deps from arguments
     deps = []
     for l in leaves(root):
@@ -218,20 +216,20 @@ def mkdeps(root, postprocessor=strip_index):
         while not C.is_leaf():
             arg = C.right
             if arg.slot.head.filler:
-                print "%s %s %s %s %s %s" % (C.slot.head.lex, C, arg.slot.head.lex, arg, l.cat, C.label)
-                deps.append( (C.slot.head.lex, arg.slot.head.lex) )
+#                print "%s %s %s %s %s %s" % (C.slot.head.lex, C, arg.slot.head.lex, arg, l.cat, C.label)
+                deps.append( (C.slot.head.lex, arg.slot.head.lex, l.cat, C.label) )
             C = C.left
 
     # Produce dep pairs
     result = set()
-    for depl, depr in deps:
+    for depl, depr, head_cat, head_label in deps:
         for sdepl in set(seqify(depl)):
             for sdepr in set(seqify(depr)):
                 if not (sdepl and sdepr):
                     warn("Dependency with None: %s %s", sdepl, sdepr)
                     continue
                     
-                result.add( (postprocessor(sdepl), postprocessor(sdepr)) )
+                result.add( (postprocessor(sdepl), postprocessor(sdepr), head_cat, head_label) )
                 
     return result
     
@@ -246,11 +244,18 @@ class MakeDependencies(Filter):
 
     def output(self):
         pass
+        
+    @staticmethod
+    def split_indexed_lex(s):
+        return s.split('*')
 
     def write_deps(self, bundle, deps):
-        print "ID=%s" % bundle.label()
-        for l, r in deps:
-            print "\t".join((l, r))
+        print '<s id="%s"> %d' % (bundle.label(), len(list(leaves(bundle.derivation))))
+        for l, r, head_cat, head_label in deps:
+            l, li = self.split_indexed_lex(l)
+            r, ri = self.split_indexed_lex(r)
+            print ("%-15s " * 6) % tuple(map(str, [li, ri, head_cat, head_label, l, r]))
+        print '<\s>'
 
     opt = '9'
     long_opt = 'mkdeps'

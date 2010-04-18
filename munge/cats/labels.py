@@ -4,7 +4,7 @@ def _label_result(l, r, p):
     L, R, P = l.cat, r.cat if r else None, p.cat
     app = analyse(L, R, P)
     
-    print '> %s %s %s %s' % (app, L, R, p.cat)
+#    print '> %s %s %s %s' % (app, L, R, p.cat)
     if app == 'fwd_appl': # X/Y Y
         if L.left.label is not None:
             P.labelled(L.left.label)
@@ -15,7 +15,7 @@ def _label_result(l, r, p):
           app.endswith('gap_topicalisation')): # X -> T|(T|X)
         if L.label is not None:
             P.right.right.labelled(P.label)
-    print '< %s %s %s %s' % (app, L, R, p.cat)
+#    print '< %s %s %s %s' % (app, L, R, p.cat)
 
 def label_result(cur, prev, app, flipped):
     '''This labels the slashes of the results of combinatory rule applications in a way that 

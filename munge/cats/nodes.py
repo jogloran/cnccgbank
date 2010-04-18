@@ -72,7 +72,8 @@ class AtomicCategory(Featured):
     def __ne__(self, other): return not (self == other)
 
     def labelled(self, index=0): return index
-    inorder_labelled = postorder_labelled = labelled
+    postorder_labelled = labelled
+    def parg_labelled(self, index=1): return index
     def is_labelled(self): return False
 
     slash_count = const_(0)
@@ -137,7 +138,7 @@ class ComplexCategory(Featured):
         if not first: bits.append('(')
         bits.append(self._left.__repr__(first=False, show_modes=show_modes, **kwargs))
         bits.append(self.slash)
-        if self.label is not None: bits.append(str(self.label))
+#        if self.label is not None: bits.append(str(self.label))
         if show_modes: bits.append(ComplexCategory.get_mode_symbol(self.mode))
         bits.append(self._right.__repr__(first=False, show_modes=show_modes, **kwargs))
         if not first: bits.append(')')
@@ -191,16 +192,16 @@ category in a pre-order traversal of the category tree.'''
         
     def postorder_labelled(self, index=0):
         index = self._left.postorder_labelled(index)
-        index = self._right.postorder_labelled(index)
         self.label = index
         index += 1
+        index = self._right.postorder_labelled(index)
         return index
         
-    def inorder_labelled(self, index=0):
-        index = self._left.inorder_labelled(index)
+    def parg_labelled(self, index=1):
+        index = self._left.parg_labelled(index)
         self.label = index
         index += 1
-        index = self._right.inorder_labelled(index)
+        index = self._right.parg_labelled(index)
         return index
 
     def is_labelled(self):
