@@ -33,7 +33,7 @@ def strip_index(s):
     return s.split('*')[0]
     
 class UnificationException(Exception): pass
-def unify(L, R, ignore=False, copy_vars=True):
+def unify(L, R, ignore=False, copy_vars=True, head=None):
     assgs = []
 
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
@@ -42,15 +42,15 @@ def unify(L, R, ignore=False, copy_vars=True):
                 raise UnificationException('%s and %s both filled' % (Ls, Rs))
 
         elif Ls.slot.is_filled():
+            print 'Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head)
             Rs.slot.head.lex = Ls.slot.head.lex
             Rs.slot.head.filler = L
-            Rs.slot.head.slash = Ls.label
             assgs.append( (Rs, Ls.slot.head.lex) )
 
         elif Rs.slot.is_filled():
+            print 'Ls %s L %s <- Rs %s R %s head %s' % (Ls, L, Rs, R, head)
             Ls.slot.head.lex = Rs.slot.head.lex
             Ls.slot.head.filler = R
-            Ls.slot.head.slash = Rs.label
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables

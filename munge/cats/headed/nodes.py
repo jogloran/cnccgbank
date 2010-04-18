@@ -3,10 +3,9 @@ from apps.util.config import config
 
 class Head(object):
     '''A Head represents an assigned lexical item.'''
-    def __init__(self, lex=None, filler=None, slash=None):
+    def __init__(self, lex=None, filler=None):
         self.lex = lex
         self.filler = None
-        self.slash = None
     
     __repr__ = lambda self: str(self.lex) or "?"
 

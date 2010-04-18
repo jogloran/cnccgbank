@@ -1,3 +1,22 @@
+from munge.cats.trace import analyse
+
+def _label_result(l, r, p):
+    L, R, P = l.cat, r.cat if r else None, p.cat
+    app = analyse(L, R, P)
+    
+    print '> %s %s %s %s' % (app, L, R, p.cat)
+    if app == 'fwd_appl': # X/Y Y
+        if L.left.label is not None:
+            P.labelled(L.left.label)
+    elif app == 'bwd_appl': # Y X\Y
+        if R.left.label is not None:
+            P.labelled(R.left.label)
+    elif (app in ('fwd_raise', 'bwd_raise') or 
+          app.endswith('gap_topicalisation')): # X -> T|(T|X)
+        if L.label is not None:
+            P.right.right.labelled(P.label)
+    print '< %s %s %s %s' % (app, L, R, p.cat)
+
 def label_result(cur, prev, app, flipped):
     '''This labels the slashes of the results of combinatory rule applications in a way that 
     preserves the indices attached to the slashes of its arguments.

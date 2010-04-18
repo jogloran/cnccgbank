@@ -8,14 +8,14 @@ from munge.proc.filter import Filter
 from munge.cats.headed.nodes import Head
 from munge.cats.headed.parse import parse_category
 from munge.cats.trace import analyse
-from munge.trees.traverse import leaves, pairs_postorder, nodes
+from munge.trees.traverse import leaves, pairs_postorder, nodes, nodes_postorder
 from munge.util.iter_utils import flatten, seqify
 from munge.util.err_utils import debug, warn
 from munge.util.func_utils import identity
 from munge.util.iter_utils import each_pair
 from munge.trees.pprint import pprint
-from munge.cats.labels import label_result
-from munge.cats.paths import category_path_to_root
+from munge.cats.labels import label_result, _label_result
+from munge.cats.paths import category_path_to_root, path_to_root
 from munge.cats.trace import analyse
 
 from apps.cn.mkmarked import naive_label_derivation, is_modifier
@@ -25,27 +25,15 @@ unanalysed = set()
 def mkdeps(root, postprocessor=strip_index):
     for i, leaf in enumerate(leaves(root)):
         leaf.lex += "*%d" % i
-        leaf.cat.postorder_labelled()
+        leaf.cat.inorder_labelled()
         leaf.cat.slot.head.lex = leaf.lex
     
-    for leaf in leaves(root):
-        path = category_path_to_root(leaf)
-        
-        first = True
-        for (prev_l, prev_r, prev_was_flipped), (l, r, was_flipped) in each_pair(path):
-            if first:
-                if prev_was_flipped and prev_r:
-                    prev_r.labelled()
-                elif not prev_was_flipped:
-                    prev_l.labelled()
-                first = False
+    print root
+    for (l, r, p) in pairs_postorder(root):
+        print l.cat, r and r.cat, p.cat
+        _label_result(l, r, p)
+    print root
             
-            cur      = r      if was_flipped      else l
-            prev_cur = prev_r if prev_was_flipped else prev_l
-            rule = analyse(prev_l, prev_r, cur)
-            
-            label_result(cur, prev_cur, rule, prev_was_flipped)
-    
     global unanalysed
 
     for l, r, p in pairs_postorder(root):
@@ -59,11 +47,11 @@ def mkdeps(root, postprocessor=strip_index):
             debug("%s %s %s (%s)", L, R, P, str(comb))
 
         if comb == 'fwd_appl': # [Xx/Yy]l Yy -> Xx
-            unifier = unify(L.right, R)
+            unifier = unify(L.right, R, head=L)
             p.cat = L.left
 
         elif comb == 'bwd_appl': # Yy [Xx\Yy]r -> Xx
-            unifier = unify(L, R.right)
+            unifier = unify(L, R.right, head=R)
             p.cat = R.left
                 
         # Pro-drops which drop their outer argument
@@ -76,7 +64,7 @@ def mkdeps(root, postprocessor=strip_index):
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
             P.slot = R.slot # lexical head comes from R (Y/Z)
 
-            unifier = unify(L.right, R.left)
+            unifier = unify(L.right, R.left, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
             
@@ -84,7 +72,7 @@ def mkdeps(root, postprocessor=strip_index):
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
             P.slot = L.slot # lexical head comes from L (Y\Z)
             
-            unifier = unify(R.right, L.left)
+            unifier = unify(R.right, L.left, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
 
@@ -133,14 +121,14 @@ def mkdeps(root, postprocessor=strip_index):
         elif comb == 'fwd_xcomp': # [Xx/Yy]l [Yy\Zz]r -> [Xx/Zz]r
             P.slot = R.slot
             
-            unifier = unify(L.right, R.left)
+            unifier = unify(L.right, R.left, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
 
         elif comb == 'bwd_xcomp': # [Yy/Zz]l [Xx\Yy]r -> [Xx/Zz]l
             P.slot = L.slot
             
-            unifier = unify(L.left, R.right)
+            unifier = unify(L.left, R.right, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
             
@@ -196,7 +184,7 @@ def mkdeps(root, postprocessor=strip_index):
             p.cat = L
 
         elif R and L == R: # VCD (stopgap)
-            unify(P, R) # assume VCD is right headed
+            unify(P, R, head=R) # assume VCD is right headed
             p.cat = R
 
         else:
@@ -230,7 +218,7 @@ def mkdeps(root, postprocessor=strip_index):
         while not C.is_leaf():
             arg = C.right
             if arg.slot.head.filler:
-                print "%s %s %s %s" % (C.slot.head.lex, arg.slot.head.lex, arg, arg.slot.head.slash)
+                print "%s %s %s %s %s %s" % (C.slot.head.lex, C, arg.slot.head.lex, arg, l.cat, C.label)
                 deps.append( (C.slot.head.lex, arg.slot.head.lex) )
             C = C.left
 

@@ -76,7 +76,7 @@ available variable labels _vars_ and lexical item _lex_.'''
 
         if is_modifier(cat):
             cat._left = label(cat.left, available)
-            cat._right = cat._left
+            cat._right = copy.copy(cat._left)
 
         elif is_np_n(cat):
             cat._left = label(cat.left, available)
