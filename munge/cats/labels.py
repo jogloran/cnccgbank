@@ -15,6 +15,13 @@ def _label_result(l, r, p):
           app.endswith('gap_topicalisation')): # X -> T|(T|X)
         if L.label is not None:
             P.right.right.labelled(P.label)
+    elif app in ('fwd_comp', 'fwd_xcomp'): # assume left headed
+        if L.left.label is not None:
+            P.left.labelled(L.left.label)
+    elif app in ('bwd_comp', 'bwd_xcomp'):
+        if R.left.label is not None:
+            P.left.labelled(R.left.label)
+    
 #    print '< %s %s %s %s' % (app, L, R, p.cat)
 
 def label_result(cur, prev, app, flipped):

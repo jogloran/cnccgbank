@@ -1,5 +1,6 @@
 import unittest
 
+from itertools import imap
 from apps.cn.mkdeps import mkdeps, UnificationException
 from apps.cn.mkmarked import naive_label_derivation
 from munge.ccg.parse import parse_tree
@@ -21,7 +22,7 @@ class DepTests(unittest.TestCase):
                     if deriv.startswith('#'): continue
                     
                     t = naive_label_derivation(parse_tree(deriv))
-                    deps = mkdeps(t)
+                    deps = set(imap(lambda v: v[0:2], mkdeps(t)))
                     gsdeps = parse_gsdeps(gsdeps_line)
                     
                     try:

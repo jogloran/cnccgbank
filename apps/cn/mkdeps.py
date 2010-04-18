@@ -17,6 +17,7 @@ from munge.trees.pprint import pprint
 from munge.cats.labels import label_result, _label_result
 from munge.cats.paths import category_path_to_root, path_to_root
 from munge.cats.trace import analyse
+from apps.cn.output import OutputDerivation
 
 from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
@@ -232,30 +233,34 @@ def mkdeps(root, postprocessor=strip_index):
                 result.add( (postprocessor(sdepl), postprocessor(sdepr), head_cat, head_label) )
                 
     return result
+
+def split_indexed_lex(s):
+    return s.split('*')
+
+Template = "%-4s %-4s %-25s %-4s %-15s %s"
+def write_deps(bundle, deps):
+    bits = ['<s id="%s"> %d' % (bundle.label(), len(list(leaves(bundle.derivation))))]
+    for l, r, head_cat, head_label in sorted(deps, key=lambda v: int(split_indexed_lex(v[0])[1])):
+        l, li = split_indexed_lex(l)
+        r, ri = split_indexed_lex(r)
+        bits.append(Template % tuple(map(str, [li, ri, head_cat, head_label, l, r])))
+    bits.append('<\s>')
     
-class MakeDependencies(Filter):
+    return '\n'.join(bits)
+    
+class MakeDependencies(Filter, OutputDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
+        OutputDerivation.__init__(self, transformer=self.process)
         self.outdir = outdir
-
-    def accept_derivation(self, bundle):
-        deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
-        self.write_deps(bundle, deps)
-
-    def output(self):
-        pass
         
-    @staticmethod
-    def split_indexed_lex(s):
-        return s.split('*')
+    def accept_derivation(self, bundle):
+        self.write_derivation(bundle)
 
-    def write_deps(self, bundle, deps):
-        print '<s id="%s"> %d' % (bundle.label(), len(list(leaves(bundle.derivation))))
-        for l, r, head_cat, head_label in deps:
-            l, li = self.split_indexed_lex(l)
-            r, ri = self.split_indexed_lex(r)
-            print ("%-15s " * 6) % tuple(map(str, [li, ri, head_cat, head_label, l, r]))
-        print '<\s>'
+    @staticmethod
+    def process(bundle):
+        deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
+        return write_deps(bundle, deps)
 
     opt = '9'
     long_opt = 'mkdeps'
