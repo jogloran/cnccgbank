@@ -31,6 +31,9 @@ in parentheses separated by commas.'''
 
 class Shell(HistorySavingDefaultShell):
     '''A shell interface to trace functionality.'''
+    PagerFilename = 'pager'
+    StdoutFilename = 'stdout'
+    
     def __init__(self, pager_path=None, files=None, verbose=True, clear_history=False):
         HistorySavingDefaultShell.__init__(self, clear_history=clear_history)
         
@@ -45,7 +48,7 @@ class Shell(HistorySavingDefaultShell):
         
         if pager_path:
             self.pager_path = pager_path
-            self.output_file = 'pager'
+            self.output_file = PagerFilename
         else:
             self.pager_path = self.output_file = None
         
@@ -121,7 +124,7 @@ class Shell(HistorySavingDefaultShell):
                 if filter.opt == switch_name[1:]:
                     return filter.__name__
 
-        warn("No filter with switch %s found.", switch_name)
+        err("No filter with switch %s found.", switch_name)
         return None
         
     def do_run(self, args):
@@ -184,11 +187,11 @@ class Shell(HistorySavingDefaultShell):
             
     def do_into(self, args):
         '''Sets or displays the destination for filter output. The special filename 
-'stdout' will redirect filter output to the console.'''
+StdoutFilename will redirect filter output to the console.'''
         def print_output_destination():
             if self.output_file is None:
                 msg("Filter output will be sent to the console.")
-            elif self.output_file == 'pager':
+            elif self.output_file == PagerFilename:
                 msg("Filter output will be paged with %s.", self.pager_path)
             else:
                 msg("Filter output will be redirected to: %s", self.output_file)
@@ -197,9 +200,9 @@ class Shell(HistorySavingDefaultShell):
         output_file = args[0]
         
         if output_file:
-            if output_file == 'stdout':
+            if output_file == StdoutFilename:
                 self.output_file = None
-            else: # we will treat the value 'pager' specially
+            else: # we will treat the value PagerFilename specially
                 self.output_file = output_file
                 
         print_output_destination() # report on output destination in any case
@@ -212,7 +215,7 @@ a pager program.'''
             
             pipe = None
             
-            if self.output_file == 'pager':
+            if self.output_file == PagerFilename:
                 pipe = self.create_pager_pipe()
                 sys.stdout = pipe.stdin
             elif self.output_file:
@@ -220,7 +223,7 @@ a pager program.'''
                 
             action()
             
-            if self.output_file == 'pager': 
+            if self.output_file == PagerFilename: 
                 if pipe:
                     sys.stdout.close() # Signal EOF
                     pipe.wait()
@@ -377,7 +380,7 @@ def register_builtin_switches(parser):
     parser.add_option('-c', '--config', help="Set config file.", type='string', nargs=1,
                       action='callback', callback=set_config_file)
     parser.add_option('-p', '--pager', help='Feeds filter output through the specified pager (default: $PAGER or %s).'% DefaultPager,
-                      type='string', nargs=1, default=(os.getenv('PAGER') or DefaultPager), dest='pager_path')
+                      type='string', nargs=1, default=(os.getenv(PagerFilename) or DefaultPager), dest='pager_path')
     parser.add_option('--no-pager', help='Filter output is redirected to stdout and not a pager.', action='store_const', dest='pager_path', const=None)
     parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
                       action='store_true', dest='verbose', default=False)
