@@ -223,7 +223,7 @@ consulted first.'''
         if node.lex in PunctuationMap:
             return make_atomic_category(PunctuationMap[node.lex])
         elif is_dashlike(node.lex):
-            return make_atomic_category('DSH')
+            return make_atomic_category('.')
         else:
             return make_atomic_category(',')
             
