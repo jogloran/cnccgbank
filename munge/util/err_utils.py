@@ -35,8 +35,8 @@ def msg(msg, *fmts):
 if config.low_key_debug:
     def debug(msg, *fmts):
         '''Issues a debug _msg_, prefaced by the name of the calling function.'''
-        global muzzled
-        if muzzled: return
+        # global muzzled
+        # if muzzled: return
     
         try:    caller_name = sys._getframe(1).f_code.co_name
         except: caller_name = "?"
@@ -45,8 +45,8 @@ if config.low_key_debug:
 else:
     def debug(msg, *fmts):
         '''Issues a debug _msg_, prefaced by the name of the calling function.'''
-        global muzzled
-        if muzzled: return
+        # global muzzled
+        # if muzzled: return
     
         try:    caller_name = sys._getframe(1).f_code.co_name
         except: caller_name = "?"

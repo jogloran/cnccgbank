@@ -5,9 +5,11 @@ import os, re
 class OutputDerivation(object):
     '''Writes out a derivation to disk.'''
     def __init__(self, transformer=None, fn_template=None, outdir_template=None):
-        '''Where _transformer_ is a function which receives each derivation bundle and
-returns the string to write, and _fn_template_ is a format string with two format
-arguments (the section and document #), creates an OutputDerivation.'''
+        '''_transformer_ is a function which receives each derivation bundle and
+returns the string to write, _fn_template_ is a function accepting the bundle and returning
+the filename of that derivation, and _outdir_template_ is a function accepting the output directory
+name and the bundle, and returning the directory name for that derivation.'''
+
         self.transformer = transformer or (lambda x: x.derivation)
         self.outdir_template = outdir_template or (lambda outdir, _: outdir)
         self.fn_template = fn_template or (lambda bundle: "chtb_%02d%02d.fid" % (bundle.sec_no, bundle.doc_no))
@@ -44,7 +46,8 @@ node's document ID.'''
         OutputDerivation.__init__(self, printer)
 
 class OutputCCGbankDerivation(OutputDerivation):
-    '''Writes out CCGbank nodes in the CCGbank format.'''
+    '''Writes out CCGbank nodes in the CCGbank format, placing each document section in its own
+subdirectory.'''
     def __init__(self):
         def fix_label(label):
             matches = re.match(r'(\d+):(\d+)\((\d+)\)', label)

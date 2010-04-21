@@ -102,7 +102,7 @@ class TraceCore(object):
                     
                 filters.append(filter_class(*args))
             except KeyError:
-                warn("No filter with name `%s' found.", filter_name)
+                err("No filter with name `%s' found.", filter_name)
 
         self.run_filters(filters, files)
 

@@ -31,6 +31,7 @@ def mkdeps(root, postprocessor=strip_index):
     
     for (l, r, p) in pairs_postorder(root):
         _label_result(l, r, p)
+#    print pprint(root)
             
     global unanalysed
 
@@ -73,6 +74,10 @@ def mkdeps(root, postprocessor=strip_index):
             unifier = unify(R.right, L.left, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
+            
+        elif comb in ('s_np_apposition', 'vp_np_apposition'): # { S[dcl], S[dcl]\NP } NPy -> NPy
+            P.slot = R.slot # = copy_vars
+            unifier = unify(P, R)
 
         elif comb == 'conjoin': # X X[conj] -> X
             copy_vars(frm=R, to=P)
