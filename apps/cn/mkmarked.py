@@ -1,9 +1,7 @@
 import sys, copy
 
 from apps.util.config import config
-config.set(show_vars=True)
-config.set(curly_vars=True)
-config.set(debug_vars=False)
+config.set(show_vars=True, curly_vars=True, debug_vars=False)
 
 from munge.cats.headed.parse import *
 from munge.cats.cat_defs import S, Sdcl, NP, N
