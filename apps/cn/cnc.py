@@ -22,7 +22,7 @@ class PipeFormat(Filter, OutputDerivation):
     def make_format_string_from(format):
         substitutions = {
             "%w": "%(lex)s",
-            "%P": "%(stemmed_pos)s"
+            "%P": "%(stemmed_pos)s",
             "%p": "%(pos)s",
             "%s": "%(cat)s"
         }
