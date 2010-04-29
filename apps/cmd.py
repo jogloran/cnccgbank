@@ -29,11 +29,10 @@ def filter_run_name(filter_name, filter_args):
 in parentheses separated by commas.'''
     return "%s(%s)" % (filter_name, ', '.join(filter_args) if filter_args else '')
 
+PagerFilename = 'pager'
+StdoutFilename = 'stdout'
 class Shell(HistorySavingDefaultShell):
     '''A shell interface to trace functionality.'''
-    PagerFilename = 'pager'
-    StdoutFilename = 'stdout'
-
     def __init__(self, pager_path=None, files=None, verbose=True, clear_history=False):
         HistorySavingDefaultShell.__init__(self, clear_history=clear_history)
 
@@ -380,7 +379,7 @@ def register_builtin_switches(parser):
     parser.add_option('-c', '--config', help="Set config file.", type='string', nargs=1,
                       action='callback', callback=set_config_file)
     parser.add_option('-p', '--pager', help='Feeds filter output through the specified pager (default: $PAGER or %s).'% DefaultPager,
-                      type='string', nargs=1, default=(os.getenv(PagerFilename) or DefaultPager), dest='pager_path')
+                      type='string', nargs=1, default=(os.getenv('PAGER') or DefaultPager), dest='pager_path')
     parser.add_option('--no-pager', help='Filter output is redirected to stdout and not a pager.', action='store_const', dest='pager_path', const=None)
     parser.add_option('-v', '--verbose', help='Print diagnostic messages.',
                       action='store_true', dest='verbose', default=False)

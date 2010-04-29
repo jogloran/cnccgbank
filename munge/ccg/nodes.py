@@ -26,7 +26,7 @@ class Node(object):
     def __repr__(self):
         '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
         return (" ".join(
-            ("(<T", str(self.cat), self.head_index, self.child_count,
+            ("(<T", str(self.cat), self.head_index, str(self.child_count) + ">",
              str(self.lch), str(self.rch)+' ' if self.rch else '')
         ) + ")")
 
