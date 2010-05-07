@@ -248,7 +248,7 @@ def write_deps(bundle, deps):
     for l, r, head_cat, head_label in sorted(deps, key=lambda v: int(split_indexed_lex(v[0])[1])):
         l, li = split_indexed_lex(l)
         r, ri = split_indexed_lex(r)
-        bits.append(Template % tuple(map(str, [li, ri, head_cat, head_label, l, r])))
+        bits.append(Template % tuple(map(str, [ri, li, head_cat, head_label, r, l])))
     bits.append('<\s>')
     
     return '\n'.join(bits)
