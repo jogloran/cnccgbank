@@ -12,6 +12,9 @@ class CountRuleFrequencyBySlash(Filter):
     def accept_comb_and_slash_index(self, leaf, comb, slash_index):
         self.freqs[ (str(leaf.cat), comb, slash_index) ] += 1
         
+    # need to define dummy accept_leaf for accept_comb_and_slash_index to work
+    def accept_leaf(self, leaf): pass
+        
 class CountWordFrequencyByCategory(Filter):
     '''Abstract filter which counts the number of times each lexical item occurs for each category.'''
     def __init__(self):

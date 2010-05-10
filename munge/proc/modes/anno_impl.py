@@ -52,6 +52,9 @@ and composition mode candidates (determined manually).'''
                 
         return result
         
+    # need to define dummy accept_leaf for accept_comb_and_slash_index to work
+    def accept_leaf(self, leaf): pass
+        
     def accept_comb_and_slash_index(self, leaf, comb, slash_index):
         for filter in (self.appl_only_filter, self.null_only_filter):
             filter.accept_comb_and_slash_index(leaf, comb, slash_index)
