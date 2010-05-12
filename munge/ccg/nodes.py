@@ -2,6 +2,7 @@ import re
 import copy
 import munge.trees.traverse as traverse
 from munge.util.func_utils import const_
+from weakref import ref
 
 class Node(object):
     '''Representation of a CCGbank internal node.'''
@@ -14,7 +15,7 @@ class Node(object):
         '''Creates a new internal node.'''
         self.cat = cat
         self.head_index, self.child_count = head_index, child_count
-        self.parent = parent
+        self.parent = ref(parent)
 
         self._lch, self._rch = lch, rch
         
@@ -106,7 +107,7 @@ class Leaf(object):
         self.pos1, self.pos2 = pos1, pos2
         self.lex = lex
         self.catfix = catfix
-        self.parent = parent
+        self.parent = ref(parent)
 
     def __repr__(self):
         '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''
