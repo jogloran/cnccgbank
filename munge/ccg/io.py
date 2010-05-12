@@ -63,14 +63,19 @@ class CCGbankReader(SingleReader):
                           
     def __iter__(self):
         '''Yields an iterator over this document.'''
+        deriv = None
+        
         while True:
+            del deriv
+            
             try:
                 header, deriv_string = self.derivs.next(), self.derivs.next()
             except StopIteration:
                 self.file.close()
                 raise
                 
-            yield Derivation.from_header_and_derivation(header, deriv_string)
+            deriv = Derivation.from_header_and_derivation(header, deriv_string)
+            yield deriv
             
     def __str__(self):
         raise NotImplementedError, "CCGbankReader cannot generate a string representation of its backing without consuming it."
