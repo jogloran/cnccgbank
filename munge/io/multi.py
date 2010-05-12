@@ -26,6 +26,7 @@ modification of derivations, nor corpus output.'''
                 reader = self.reader(doc_path)
                 for deriv_bundle in reader:
                     yield deriv_bundle
+                del reader
 
     def no_getitem_setitem(self, *args):
         raise NotImplementedError("get and setitem unavailable with PTBCorpusReader.")
