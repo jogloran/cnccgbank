@@ -157,6 +157,11 @@ class TraceCore(object):
                 for bundle, exception in self.last_exceptions:
                     err("Processing failed on derivation %s of file %s:", bundle.label(), file)
                     sys.excepthook(*exception)
+            
+            finally:
+                for bundle, exc_info in self.last_exceptions:
+                    del bundle
+                    del exc_info
 
         for filter in filters:
             filter.output()
