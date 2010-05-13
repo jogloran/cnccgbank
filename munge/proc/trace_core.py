@@ -71,12 +71,12 @@ class TraceCore(object):
             'long-opt': lambda (name, filter): filter.long_opt
         }.get(filter_sort_key, sort_by_name)
 
-        print "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 
+        print >>sys.stderr, "%d packages loaded (%s), %d filters available:" % (len(self.loaded_modules), 
                                                                   ", ".join(mod.__name__ for mod in self.loaded_modules),
                                                                   len(self.available_filters_dict))
                                                                   
         for (filter_name, filter) in sorted(self.available_filters_dict.iteritems(), key=sort_key_function):
-            print template_function(filter_name, filter)
+            print >>sys.stderr, template_function(filter_name, filter)
 
     def add_modules(self, module_names):
         '''Attempts to load new filters, as specified by a list of module names.'''
@@ -157,12 +157,7 @@ class TraceCore(object):
                 for bundle, exception in self.last_exceptions:
                     err("Processing failed on derivation %s of file %s:", bundle.label(), file)
                     sys.excepthook(*exception)
-            
-            finally:
-                for bundle, exc_info in self.last_exceptions:
-                    del bundle
-                    del exc_info
 
         for filter in filters:
             filter.output()
-            print "---"
+            print >>sys.stderr, "---"
