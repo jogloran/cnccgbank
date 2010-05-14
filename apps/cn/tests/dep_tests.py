@@ -22,6 +22,7 @@ class DepTests(unittest.TestCase):
                     if deriv.startswith('#'): continue
                     
                     t = naive_label_derivation(parse_tree(deriv))
+                    # only take the first two elements (filler lex, arg lex)
                     deps = set(imap(lambda v: v[0:2], mkdeps(t)))
                     gsdeps = parse_gsdeps(gsdeps_line)
                     

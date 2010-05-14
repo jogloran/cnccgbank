@@ -88,6 +88,8 @@ def mkdeps(root, postprocessor=strip_index):
             
             unifier = unify(L, R, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
             for (dest, src) in unifier:
+                if isinstance(src, basestring): continue
+                
                 old_head = src.slot.head
                 
                 # look under L and transform all references to 'Z' to references to the 'Z' inside R
@@ -256,10 +258,9 @@ def write_deps(bundle, deps):
 class MakeDependencies(Filter, OutputDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputDerivation.__init__(self, transformer=self.process, 
+        OutputDerivation.__init__(self, outdir, transformer=self.process, 
             fn_template=lambda bundle: "chtb_%02d%02d.parg" % (bundle.sec_no, bundle.doc_no),
             outdir_template=lambda outdir, bundle: "%s/%02d" % (outdir, bundle.sec_no))
-        self.outdir = outdir
         
     def accept_derivation(self, bundle):
         self.write_derivation(bundle)

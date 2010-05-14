@@ -7,7 +7,7 @@ from weakref import ref
 class Node(object):
     '''Representation of a CCGbank internal node.'''
     
-    __slots__ = ["cat", "head_index", "child_count", "parent", "_lch", "_rch"]
+    #__slots__ = ["cat", "head_index", "child_count", "parent", "_lch", "_rch"]
     
     # We allow lch to be None to make easier the incremental construction of Node structures in
     # the parser. Conventionally, lch can never be None.
@@ -97,7 +97,7 @@ class Node(object):
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
     
-    __slots__ = ["cat", "pos1", "pos2", "lex", "catfix", "parent"]
+    #__slots__ = ["cat", "pos1", "pos2", "lex", "catfix", "parent"]
     
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
         '''Creates a new leaf node.'''

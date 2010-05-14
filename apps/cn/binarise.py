@@ -377,8 +377,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
 class Binariser(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputPrefacedPTBDerivation.__init__(self)
-        self.outdir = outdir
+        OutputPrefacedPTBDerivation.__init__(self, outdir)
     
     def accept_derivation(self, bundle):
         bundle.derivation = label_root(bundle.derivation)

@@ -45,7 +45,7 @@ the cached category, filling in its outermost variable's lex with _lex_.'''
     for frm, to in Exceptions:
         if cat.equal_respecting_features(frm):
             result = copy.deepcopy(to)
-            result.slot.head.lex = lex
+#            result.slot.head.lex = lex
             return result
     return None
 
@@ -57,7 +57,7 @@ available variable labels _vars_ and lexical item _lex_.'''
     cached = get_cached_category_for(cat, lex)
     if cached: 
         cp = copy.deepcopy(cached)
-        cp.slot.head.lex = cat.slot.head.lex
+#        cp.slot.head.lex = cat.slot.head.lex
         return cp
         
     available = vars or variables()
@@ -102,6 +102,7 @@ def naive_label_derivation(root):
     for leaf in leaves(root):
 #        print "%s ->" % leaf.cat,
         leaf.cat = label(leaf.cat, lex=leaf.lex)
+        leaf.cat.slot.head.lex = leaf.lex
 #        print "%s" % leaf.cat
         
     return root

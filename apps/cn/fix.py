@@ -8,9 +8,7 @@ from apps.cn.output import OutputPrefacedPTBDerivation
 class Fix(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputPrefacedPTBDerivation.__init__(self)
-        
-        self.outdir = outdir
+        OutputPrefacedPTBDerivation.__init__(self, outdir)
         
     def pattern(self):
         '''

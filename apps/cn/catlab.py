@@ -183,17 +183,17 @@ PunctuationMap = {
     '：': ':', ':': ':', # Chinese colon
     '；': ';', ';': ';', # Chinese semicolon
     
-    '（': 'LPA', '(': 'LPA', # Chinese opening paren
-    '）': 'RPA', ')': 'RPA', # Chinese closing paren
+    '（': 'LRB', '(': 'LRB', # Chinese opening paren
+    '）': 'RRB', ')': 'RRB', # Chinese closing paren
     
     '“': 'LQU', '”': 'RQU', # Roman double quote
     '‘': 'LQU', '’': 'RQU', # Roman single quote
     
     '—': '.', # Chinese dash
     
-    '《': 'LPA', '》': 'RPA', # Chinese title bracket
-    '『': 'LPA', '』': 'RPA', # Chinese double corner bracket
-    '「': 'LPA', '」': 'RPA', # Chinese left corner bracket
+    '《': 'LRB', '》': 'RRB', # Chinese title bracket
+    '『': 'LRB', '』': 'RRB', # Chinese double corner bracket
+    '「': 'LRB', '」': 'RRB', # Chinese left corner bracket
     
     '/': '.', '//': '.',
 }
@@ -431,9 +431,7 @@ def label_root(root):
 class LabelNodes(Filter, OutputPrefacedPTBDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
-        OutputPrefacedPTBDerivation.__init__(self)
-        
-        self.outdir = outdir
+        OutputPrefacedPTBDerivation.__init__(self, outdir)
     
     def accept_derivation(self, bundle):
         bundle.derivation = label_root(bundle.derivation)
