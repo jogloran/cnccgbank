@@ -1,5 +1,5 @@
 SECS=$@
-TARGET=`echo $SECS | ruby -ne 'puts "{%s}" % ( $_.split.map {|e| "chtb_%02d*" % e} ).join(",")'`
+TARGET=`echo $SECS | ruby -ne 'puts "{%s}" % ( $_.split.map {|e| "chtb_%02d*" % e.to_i} ).join(",")'`
 
 eval ./t -q $break_flag -lapps.cn.tag -r TagStructures tagged -0 corpora/cptb/bracketed/$TARGET 2>&1 | tee tag_errors 
 eval ./t -q $break_flag -lapps.cn.binarise -r Binariser binarised -0 tagged/$TARGET 2>&1 | tee bin_errors

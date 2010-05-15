@@ -11,4 +11,4 @@ def at_a_time(seq, n):
 
 each = int(math.ceil(len(sections)/float(MACHINES)))
 for (i, portion) in enumerate(at_a_time(sections, each)):
-    print ("ssh -f dtse6695@nlp%d.it.usyd.edu.au \"cd /u2/daniel/tools && ./make_base.sh %s\"" % (i, ' '.join(portion)))
+    os.system("ssh -f dtse6695@nlp%d.it.usyd.edu.au \"cd /n/nlp0/u2/daniel/tools && ./make_base.sh %s\"" % (i, ' '.join(portion)))

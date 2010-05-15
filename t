@@ -1,2 +1,2 @@
 #! /bin/sh
-python -m'munge.proc.trace' $*
+/u2/daniel/bin/python -m'munge.proc.trace' $*
