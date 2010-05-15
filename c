@@ -1,2 +1,2 @@
 #! /bin/sh
-/u2/daniel/bin/python -m'apps.cmd' $*
+python -m'apps.cmd' $*
