@@ -155,7 +155,7 @@ def is_partial_ucp(node):
         base_tag(node.tag) != base_tag(node[1].tag))
 
 def is_ucp(node):
-    return node[0].tag.endswith(':C')
+    return node[0].tag.endswith(':C') and node[1].tag != 'PU'
 
 def is_np_internal_structure(node):
     return (node.tag.startswith('NP') and 

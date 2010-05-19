@@ -7,13 +7,7 @@ class Filter(object):
         # This will be set to the bundle object this filter is operating on.
         self.context = None
     
-    # def accept_comb_and_slash_index(self, leaf, comb, slash_index, info=None):
-    #     '''This is invoked by the framework for every slash of every category at a derivation leaf.'''
-    #     pass
     accept_comb_and_slash_index = None
-    # def accept_leaf(self, leaf): 
-    #     '''This is invoked by the framework for every derivation leaf.'''
-    #     pass
     # IMPORTANT: accept_comb_and_slash_index will not be called unless accept_leaf is defined as well.
     accept_leaf = None
     def accept_derivation(self, deriv): 
