@@ -155,6 +155,8 @@ def is_partial_ucp(node):
         base_tag(node.tag) != base_tag(node[1].tag))
 
 def is_ucp(node):
+    # TODO: The test for node[1].tag != PU is to prevent a rare mis-analysis of punctuation in a UCP being
+    # identified as a conjunct. Need to investigate further
     return node[0].tag.endswith(':C') and node[1].tag != 'PU'
 
 def is_np_internal_structure(node):
