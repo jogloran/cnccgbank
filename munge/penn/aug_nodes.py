@@ -1,6 +1,7 @@
 import munge.penn.nodes as N
 import re
 import munge.cats.nodes as C
+from apps.identify_lrhca import base_tag
 
 class Node(N.Node):
     __slots__ = ["category", "head_index"]
@@ -65,8 +66,9 @@ class Leaf(N.Leaf):
             return tag
         
     def ccgbank_repr(self):
-        return "(<L %(cat)s %(tag)s %(tag)s %(lex)s %(cat)s>)" % {
+        return "(<L %(cat)s %(basetag)s %(basetag)s %(lex)s %(cat)s>)" % {
             'cat': self.category,
+            'basetag': base_tag(self.tag),
             'tag': self.detag(self.tag),
             'lex': self.lex
         }
