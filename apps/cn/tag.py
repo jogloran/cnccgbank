@@ -211,6 +211,13 @@ def preprocess(root):
         elif node.tag == 'CP' and node.count() == 2 and node[0].tag == 'IP' and node[1].tag == 'DEG':
             if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
                 node[1].tag = 'DEC'
+                
+        # IP < NP-SBJ ADVP VP rather than IP < NP-SBJ VP(ADVP VP) (25:59(12), 6:92(19))
+        elif node.tag == 'IP' and node.count() == 3 and node[0].tag == 'NP-SBJ' and node[1].tag == 'ADVP' and node[2].tag == 'VP':
+            advp = node.kids.pop(1)
+            # VP is the new node[1]
+            # now replace node[1] with Node(node[1])
+            node[1] = Node(node[1].tag, [advp, node[1]], node)
             
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.count() == 1:
