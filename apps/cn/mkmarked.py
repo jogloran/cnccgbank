@@ -37,6 +37,21 @@ Exceptions = (
     # non-gapped short bei
     # TODO: coincides with the above control/raising category
 #    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP){_}/(S[dcl]\NP)){_}')),
+
+    # hacks
+    # not a modifier category:
+    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/((S[dcl]\NP)/(S[dcl]\NP))'),
+     C(r'(((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){W}){_}')),
+     
+    (C(r'((S[dcl]\NP)/NP)/((S[dcl]\NP)/NP)'),
+     C(r'(((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}){_}')),
+     
+    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'),
+     C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
+     
+    (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/NP{Y}){_}')),
+     
+     
 )
 
 def get_cached_category_for(cat, lex):
