@@ -51,7 +51,9 @@ Exceptions = (
      
     (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/NP{Y}){_}')),
     (C(r'(S\S)\(S\S)'), C(r'((S{Y}\S{Z}){Y}\(S{Y}\S{Z}){Y}){_}')),
-    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/S[dcl]{Y}){_}'))
+    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/S[dcl]{Y}){_}')),
+    
+    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{Y}\S{Z}){Y}/(S{W}\NP{V}){W})/NP{Y}){_}')),
 )
 
 def get_cached_category_for(cat, lex):
