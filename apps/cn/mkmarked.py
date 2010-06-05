@@ -1,7 +1,7 @@
 import sys, copy
 
 from apps.util.config import config
-config.set(show_vars=True, curly_vars=True, debug_vars=False)
+config.set(show_vars=True, curly_vars=True, debug_vars=True)
 
 from munge.cats.headed.parse import *
 from munge.cats.cat_defs import S, Sdcl, NP, N
@@ -51,7 +51,7 @@ Exceptions = (
      
     (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/NP{Y}){_}')),
     (C(r'(S\S)\(S\S)'), C(r'((S{Y}\S{Z}){Y}\(S{Y}\S{Z}){Y}){_}'))
-     
+    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{Z}{_})/S[dcl]{Y}){_}'))
 )
 
 def get_cached_category_for(cat, lex):
