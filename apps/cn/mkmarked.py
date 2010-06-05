@@ -50,7 +50,7 @@ Exceptions = (
      C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
      
     (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/NP{Y}){_}')),
-     
+    (C(r'(S\S)\(S\S)'), C(r'((S{Y}\S{Z}){Y}\(S{Y}\S{Z}){Y}){_}'))
      
 )
 
