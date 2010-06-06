@@ -220,7 +220,10 @@ returned if the mapping yields no category; otherwise, an atomic category
 is returned with the base CPTB tag. If _is_root_, a special mapping is
 consulted first.'''
     if node.tag == 'PU' and node.is_leaf():
-        if node.lex == '、': # map dunhao to category conj
+        # map dunhao to category conj only when it's the left child
+        # (some noise cases or mis-annotations like 10:43(25))
+        # TODO: find a better way to do the lch test
+        if node.lex == '、' and (node.parent and node.parent[0] == node): 
             return conj
         if node.lex in PunctuationMap:
             return make_atomic_category(PunctuationMap[node.lex])
