@@ -86,7 +86,7 @@ def label_adjunction(node):
 
 #@echo
 def label_np_structure(node):
-    node[0].category = node.category / node.category
+    node[0].category = featureless(node.category) / featureless(node.category)
     node.kids[0] = label(node[0])
     if node.count() > 1:
         node[1].category = node.category
