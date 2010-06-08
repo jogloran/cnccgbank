@@ -226,6 +226,11 @@ def preprocess(root):
                     node.tag = node.tag.replace('ADVP', 'ADJP')
                 elif node.tag.startswith('NP'):
                     node.tag = node.tag.replace('NP', 'ADJP')
+            
+            # fix NP < VV
+            elif node.tag == 'NP' and node[0].tag == 'VV':
+                node.tag = node.tag.replace('NP', 'VP')            
+                
             # fix projections NP < QP
             elif node[0].tag.startswith('QP') and node.tag.startswith('NP'):
                 inherit_tag(node[0], node) # copy PCTB tags from NP to QP
@@ -257,6 +262,9 @@ def preprocess(root):
 
             del node.kids
             node.kids = [lb, sbj, pred]
+            
+        # single mistagging CP-SBJ for CP in 24:58(1)
+        elif node.tag == 'CP-SBJ': node.tag = 'CP'
 
         else:
             # Fix wrongly attached DEC (5:26(6))
