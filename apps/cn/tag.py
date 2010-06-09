@@ -121,7 +121,7 @@ def is_verb_compound(node):
     return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
     
 def is_prn(node):
-    return node.tag.startswith('PRN') and node[0].tag.startswith('PU')
+    return node.tag.startswith('PRN') #and node[0].tag.startswith('PU')
 
 def tag(kid, tag):
     '''Attaches a marker _tag_ to the given _kid_ node. If _kid_ is already tagged,
@@ -247,7 +247,7 @@ def preprocess(root):
                 node[0].tag = 'VV'
             elif node[0].tag == 'CP' and node.tag == 'NP-PRD':
                 node.kids = node[0].kids
-            elif node[0].tag == 'NP-PN' and node.tag == 'PRN':
+            elif node[0].tag in ('NP', 'NP-PN', 'VP', 'IP') and node.tag == 'PRN':
                 node.kids = node[0].kids
                 
         # Reshape LB (long bei)
