@@ -3,6 +3,7 @@ from apps.util.config import config
 config.set(show_vars=True) # override show_vars. must come before cats.nodes import
 
 from copy import deepcopy
+from itertools import chain
 import traceback
 
 from munge.proc.filter import Filter
@@ -23,6 +24,15 @@ from apps.cn.output import OutputDerivation
 from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
 
+def register_unary(unaries, node):
+    '''
+    If _node_ represents the result (RHS) of a unary rule, this records that a new
+dependency must be created between it and its filler, adding it to _unaries_, a list
+of such dependencies created in a given derivation.
+    '''
+    node.cat.parg_labelled()
+    unaries.append(node)
+
 unanalysed = set()
 def mkdeps(root, postprocessor=identity):
     for i, leaf in enumerate(leaves(root)):
@@ -34,6 +44,8 @@ def mkdeps(root, postprocessor=identity):
         _label_result(l, r, p)
             
     global unanalysed
+    
+    unaries = []
 
     for l, r, p in pairs_postorder(root):
         L, R, P = map(lambda x: x and x.cat, (l, r, p))
@@ -111,6 +123,8 @@ def mkdeps(root, postprocessor=identity):
             P.right.slot.var = fresh_var()
             P.left.slot = P.right.slot
             
+            register_unary(unaries, p)
+            
         elif comb in ('np_gap_topicalisation', 's_gap_topicalisation', 'qp_gap_topicalisation'): # NPx -> [ Sy/(Sy/NPx)y ]y
             P.right.right.slot = L.slot
             P.slot.var = fresh_var()
@@ -168,12 +182,19 @@ def mkdeps(root, postprocessor=identity):
                 P.left.slot.var = fresh_var()
                 
                 P.right.slot = P.left.slot
+                
+                register_unary(unaries, p)
+                
             elif P == parse_category(r'(N/N)/(N/N)'):
                 P.left.slot.var = fresh_var()
                 P.left.left.slot.var = fresh_var(prefix="G")
                 
                 P.left.right.slot = P.left.left.slot
                 P.right.slot = P.left.slot
+                
+                register_unary(unaries, p)
+            else:
+                warn("Unhandled null relativiser typechange: %s -> %s", L, P)
             
         # [NP/NP]y -> NPy
         elif comb == 'de_nominalisation':
@@ -185,6 +206,8 @@ def mkdeps(root, postprocessor=identity):
             
             P.left.slot.var = fresh_var()
             P.right.slot = P.left.slot
+            
+            register_unary(unaries, p)
             
         elif comb == 'l_punct_absorb':
             p.cat = R
@@ -206,6 +229,7 @@ def mkdeps(root, postprocessor=identity):
         # -------------------------------
         # If variable X has been unified with value v,
         # rewrite all mentions of v in the output category to point to variable X
+        # (v is uniquified by concatenating it with an ID, so this should hold)
         for (dest, src) in unifier:
             if not isinstance(src, (basestring, list)): continue
             
@@ -222,8 +246,9 @@ def mkdeps(root, postprocessor=identity):
                 
     # Collect deps from arguments
     deps = []
-    for l in leaves(root):
+    for l in chain( leaves(root), unaries ):
         if config.debug: debug("%s %s", l.lex, l.cat)
+        
         C = l.cat
         while not C.is_leaf():
             arg = C.right
@@ -242,7 +267,7 @@ def mkdeps(root, postprocessor=identity):
         for sdepl in set(seqify(depl)):
             for sdepr in set(seqify(depr)):
                 if not (sdepl and sdepr):
-                    warn("Dependency with None: %s %s", sdepl, sdepr)
+                    debug("Dependency with None: %s %s", sdepl, sdepr)
                     continue
                     
                 result.add( (postprocessor(sdepl), postprocessor(sdepr), head_cat, head_label) )
@@ -258,7 +283,7 @@ def write_deps(bundle, deps):
     for l, r, head_cat, head_label in sorted(deps, key=lambda v: int(split_indexed_lex(v[0])[1])):
         l, li = split_indexed_lex(l)
         r, ri = split_indexed_lex(r)
-        bits.append(Template % tuple(map(str, [ri, li, head_cat, head_label, r, l])))
+        bits.append(Template % tuple(str(e) for e in (ri, li, head_cat, head_label, r, l)))
     bits.append('<\s>')
     
     return '\n'.join(bits)
@@ -297,8 +322,6 @@ if __name__ == '__main__':
     
     from munge.ccg.parse import *
 
-#    t=naive_label_derivation(parse_tree(open('final/chtb_0119.fid').readlines()[13]))
-#    t=naive_label_derivation(parse_tree(open('apps/cn/tests/test1.ccg').readlines()[1]))
     file = "final/%s" % sys.argv[1]
     t=naive_label_derivation(parse_tree(open(file).readlines()[2*int(sys.argv[2])+1]))
     print t
