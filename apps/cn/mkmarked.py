@@ -1,7 +1,7 @@
 import sys, copy
 
 from apps.util.config import config
-config.set(show_vars=True, curly_vars=True, debug_vars=True)
+config.set(show_vars=True, curly_vars=True)
 
 from munge.cats.headed.parse import *
 from munge.cats.cat_defs import S, Sdcl, NP, N
@@ -17,7 +17,7 @@ for the outermost variable.'''
 
 def is_modifier(cat):
     '''Returns whether _cat_ is of the form X/X.'''
-    return cat.left == cat.right
+    return cat.left.equal_respecting_features(cat.right)
 
 def is_np_n(cat):
     '''Returns whether _cat_ is the category NP/N.'''
@@ -29,7 +29,7 @@ Exceptions = (
     (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{Z}/N{Z}){_}\(S[dcl]{Y}/NP{Z}){Y}){_}')),
     (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}')),
     # gapped long bei
-    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{X}){Z}/NP{Y}){Z}){_}/NP{X}){_}')),
+    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
     # non-gapped long bei
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/NP'), C(r'(((S[dcl]{_}\NP{W}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}/NP{Y}){_}')),
     # gapped short bei
@@ -46,14 +46,41 @@ Exceptions = (
     (C(r'((S[dcl]\NP)/NP)/((S[dcl]\NP)/NP)'),
      C(r'(((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}){_}')),
      
-    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'),
-     C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
+    #(C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'),
+    # C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
      
     (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/NP{Y}){_}')),
     (C(r'(S\S)\(S\S)'), C(r'((S{Y}\S{Z}){Y}\(S{Y}\S{Z}){Y}){_}')),
     (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/S[dcl]{Y}){_}')),
     
-    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{Y}\S{Z}){Y}/(S{W}\NP{V}){W})/NP{Y}){_}')),
+    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{Y}\S{Z}){Y}/(S{W}\NP{V}){W}){_}/NP{Y}){_}')),
+
+    (C(r'S[q]\S[dcl]'), C(r'(S[q]{Y}\S[dcl]{Y}){_}')),
+
+    # short bei for bei VPdcl/VPdcl (wo bei qiangzhi)
+    (C(r'(S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/(((S[dcl]{Z}\NP{Y}){Z}/(S[dcl]{W}\NP{Y}){W}){Z}/NP{Y}){Z}){_}')),
+
+    # long bei for bei NP VPdcl/VPdcl (wo bei ta qiangzhi)
+    (C(r'((S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP))/NP'),
+     C(r'(((S[dcl]{_}\NP{Y}){_}/(((S[dcl]{V}\NP{Z}){V}/(S[dcl]{W}\NP{Y}){W}){V}/NP{Y}){V}){_}/NP{Z}){_}')),
+      #C(r'(((S[dcl]{_}\NP{Y}){_}/(((S[dcl]{W}\NP{Z}){W}/(S[dcl]{V}\NP{Y}){V}){W}/NP{Y}){W}){_}/NP{Z}){_}')),
+    
+    # VPdcl/VPdcl modifier category fix
+    (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), 
+     C(r'((((S[dcl]{Z}\NP{Y}){Z}/(S[dcl]{W}\NP{Y}){W}){Z}/NP{Y}){V}/(((S[dcl]{Z}\NP{Y}){Z}/(S[dcl]{W}\NP{Y}){W}){Z}/NP{Y}){V}){_}')),
+    
+    # gei category fix (NP gei NP NP VP e.g. tamen gei haizi jihui xuanze)
+    (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/NP'),
+     C(r'((((S[dcl]{_}\NP{W}){_}/(S[dcl]{W}\NP{Y}){W}){_}/NP{Z}){_}/NP{Y}){_}')),
+
+    # this category is probably not correct
+    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/S[dcl]'),
+     C(r'(((S[dcl]{_}\NP{V}){_}/(S[dcl]{W}\NP{Z}){W}){_}/S[dcl]{Y}){_}')),
+    
+    # nor this (20:31(7))
+    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/PP'),
+     C(r'(((S[dcl]{_}\NP{Y}){_}/(S[dcl]{W}\NP{Z}){W}){_}/PP{V}){_}')),
+
 )
 
 def get_cached_category_for(cat, lex):
@@ -90,16 +117,16 @@ available variable labels _vars_ and lexical item _lex_.'''
             c = c.left
 
         if is_modifier(cat):
-            cat._left = label(cat.left, available)
+            cat._left = label(cat.left, available, lex)
             cat._right = copy.copy(cat._left)
 
         elif is_np_n(cat):
-            cat._left = label(cat.left, available)
+            cat._left = label(cat.left, available, lex)
             cat._right.slot.var = cat._left.slot.var
 
         else:
-            cat._left = label(cat.left, available)
-            cat._right = label(cat.right, available)
+            cat._left = label(cat.left, available, lex)
+            cat._right = label(cat.right, available, lex)
 
     n += 1
     return cat

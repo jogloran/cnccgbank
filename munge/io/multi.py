@@ -57,14 +57,14 @@ class DirFileGuessReader(object):
             
         if os.path.isdir(path):
             reader = MultiGuessReader(path, verbose=self.verbose, **reader_arg)
-        elif os.path.isfile(path):
+        else:
             if self.reader_class:
                 reader = self.reader_class(self.path)
             else:
                 reader = GuessReader(self.path)
-        else:
-            err("%s is neither a file nor a directory, so skipping.", path)
-            return
+        #else:
+        #    err("%s is neither a file nor a directory, so skipping.", path)
+        #    return
 
         for deriv_bundle in reader:
             yield deriv_bundle

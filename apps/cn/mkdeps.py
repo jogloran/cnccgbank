@@ -3,6 +3,7 @@ from apps.util.config import config
 config.set(show_vars=True) # override show_vars. must come before cats.nodes import
 
 from copy import deepcopy
+import traceback
 
 from munge.proc.filter import Filter
 from munge.cats.headed.nodes import Head
@@ -23,15 +24,14 @@ from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
 
 unanalysed = set()
-def mkdeps(root, postprocessor=strip_index):
+def mkdeps(root, postprocessor=identity):
     for i, leaf in enumerate(leaves(root)):
         leaf.lex += "*%d" % i
         leaf.cat.parg_labelled()
         leaf.cat.slot.head.lex = leaf.lex
-    
+
     for (l, r, p) in pairs_postorder(root):
         _label_result(l, r, p)
-#    print pprint(root)
             
     global unanalysed
 
@@ -61,7 +61,8 @@ def mkdeps(root, postprocessor=strip_index):
 
         # [Xx/Yy]l [Yy/Zz]r -> [Xx/Zz]r
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
-            P.slot = R.slot # lexical head comes from R (Y/Z)
+            #P.slot = R.slot # lexical head comes from R (Y/Z)
+            P.slot.var = fresh_var(prefix='K')
 
             unifier = unify(L.right, R.left, head=R)
             p.cat._left = L.left
@@ -69,7 +70,8 @@ def mkdeps(root, postprocessor=strip_index):
             
         # [Yy\Zz]l [Xx\Yy]r -> [Xx\Zz]l
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
-            P.slot = L.slot # lexical head comes from L (Y\Z)
+            #P.slot = L.slot # lexical head comes from L (Y\Z)
+            P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(R.right, L.left, head=L)
             p.cat._left = R.left
@@ -88,7 +90,7 @@ def mkdeps(root, postprocessor=strip_index):
             
             unifier = unify(L, R, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
             for (dest, src) in unifier:
-                if isinstance(src, basestring): continue
+                if isinstance(src, (basestring, list)): continue
                 
                 old_head = src.slot.head
                 
@@ -124,14 +126,16 @@ def mkdeps(root, postprocessor=strip_index):
                 warn("Invalid parent category %s for subject prodrop.", P)
             
         elif comb == 'fwd_xcomp': # [Xx/Yy]l [Yy\Zz]r -> [Xx/Zz]r
-            P.slot = R.slot
+            #P.slot = R.slot
+            P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(L.right, R.left, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
 
         elif comb == 'bwd_xcomp': # [Yy/Zz]l [Xx\Yy]r -> [Xx/Zz]l
-            P.slot = L.slot
+            #P.slot = L.slot
+            P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(L.left, R.right, head=L)
             p.cat._left = R.left
@@ -196,14 +200,14 @@ def mkdeps(root, postprocessor=strip_index):
             debug('Unhandled combinator %s (%s %s -> %s)', comb, L, R, P)
             unanalysed.add(comb)
             
-            P.slot = L.slot
+            P.slot = R.slot if R else L.slot
             
         # Fake bidirectional unification:
         # -------------------------------
         # If variable X has been unified with value v,
         # rewrite all mentions of v in the output category to point to variable X
         for (dest, src) in unifier:
-            if not isinstance(src, basestring): continue
+            if not isinstance(src, (basestring, list)): continue
             
             for subcat in p.cat.nested_compound_categories():
                 if subcat.slot.head.lex == src:
@@ -224,8 +228,12 @@ def mkdeps(root, postprocessor=strip_index):
         while not C.is_leaf():
             arg = C.right
             if arg.slot.head.filler:
-#                print "%s %s %s %s %s %s" % (C.slot.head.lex, C, arg.slot.head.lex, arg, l.cat, C.label)
+                #and not l.cat.left.slot == l.cat.right.slot):
+        #        print "%s %s %s %s %s %s" % (C.slot.head.lex, C, arg.slot.head.lex, arg, l.cat, C.label)
+                if C.label is None:
+                    warn("Dependency generated on slash without label: %s %s", C, arg)
                 deps.append( (C.slot.head.lex, arg.slot.head.lex, l.cat, C.label) )
+            if is_modifier(C): break
             C = C.left
 
     # Produce dep pairs
@@ -267,7 +275,13 @@ class MakeDependencies(Filter, OutputDerivation):
 
     @staticmethod
     def process(bundle):
-        deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
+        try:
+            deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
+        # Squelch! We need an empty PARG entry even if the process fails, otherwise AUTO and PARG are out of sync
+        except Exception, e: 
+            traceback.print_exc()
+            deps = []
+
         return write_deps(bundle, deps)
 
     opt = '9'

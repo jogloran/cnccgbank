@@ -39,7 +39,7 @@ def unify(L, R, ignore=False, copy_vars=True, head=None):
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
         if Ls.slot.is_filled() and Rs.slot.is_filled():
             if (not ignore) and Ls.slot.head.lex != Rs.slot.head.lex:
-                raise UnificationException('%s and %s both filled' % (Ls, Rs))
+                raise UnificationException('%s (%s) and %s (%s) both filled' % (Ls, Ls.slot, Rs, Rs.slot))
 
         elif Ls.slot.is_filled():
 #            print 'Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head)

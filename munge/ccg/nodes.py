@@ -7,15 +7,13 @@ from weakref import ref
 class Node(object):
     '''Representation of a CCGbank internal node.'''
     
-    #__slots__ = ["cat", "head_index", "child_count", "parent", "_lch", "_rch"]
-    
     # We allow lch to be None to make easier the incremental construction of Node structures in
     # the parser. Conventionally, lch can never be None.
     def __init__(self, cat, head_index, child_count, parent, lch=None, rch=None):
         '''Creates a new internal node.'''
         self.cat = cat
         self.head_index, self.child_count = head_index, child_count
-        self.parent = ref(parent) if parent else None
+        self._parent = ref(parent) if parent else None
 
         self._lch, self._rch = lch, rch
         
@@ -35,6 +33,12 @@ class Node(object):
         '''Iterates over each child of this node.'''
         yield self.lch
         if self.rch: yield self.rch
+
+    @property
+    def parent(self): return self._parent
+    @parent.setter
+    def parent(self, new_parent):
+        self._parent = ref(new_parent) if new_parent else None
 
     @property
     def lch(self): return self._lch
@@ -97,8 +101,6 @@ class Node(object):
 class Leaf(object):
     '''Representation of a CCGbank leaf.'''
     
-    #__slots__ = ["cat", "pos1", "pos2", "lex", "catfix", "parent"]
-    
     def __init__(self, cat, pos1, pos2, lex, catfix, parent=None):
         '''Creates a new leaf node.'''
         self.cat = cat
@@ -107,7 +109,13 @@ class Leaf(object):
         self.pos1, self.pos2 = pos1, pos2
         self.lex = lex
         self.catfix = catfix
-        self.parent = ref(parent) if parent else None
+        self._parent = ref(parent) if parent else None
+
+    @property
+    def parent(self): return self._parent
+    @parent.setter
+    def parent(self, new_parent):
+        self._parent = ref(new_parent) if new_parent else None
 
     def __repr__(self):
         '''Returns a (non-evaluable) string representation, a CCGbank bracketing.'''

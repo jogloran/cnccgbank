@@ -1,11 +1,31 @@
 import munge.cats.nodes as B
 from apps.util.config import config
 
+from traceback import extract_stack as tb_extract_stack
+def caller(up=0):
+    try: # just get a few frames
+        f = tb_extract_stack(limit=up+2)
+        if f:
+            return f[0][0] + ':' + str(f[0][1])
+    except:
+        pass
+    # running with psyco?
+    return ''#('', 0, '', None)
+
 class Head(object):
     '''A Head represents an assigned lexical item.'''
     def __init__(self, lex=None, filler=None):
-        self.lex = lex
+        self._lex = lex
         self.filler = None
+
+    @property
+    def lex(self): 
+#        print "%s < %s: lex %s" % (caller(), caller(1), self._lex)
+        return self._lex
+    @lex.setter
+    def lex(self, lex):
+        #print "%s < %s: lex <- %s" % (caller(), caller(1), lex)
+        self._lex = lex
     
     __repr__ = lambda self: str(self.lex) or "?"
 

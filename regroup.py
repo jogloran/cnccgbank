@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import sys, re, os
 from itertools import groupby
 

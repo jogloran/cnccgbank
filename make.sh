@@ -20,13 +20,28 @@ started=`date +%c`
 ./make_clean.sh
 time ./make_all.sh $dir_suffix_arg all && ./do_filter.sh && (python -m'apps.cn.find_unanalysed' '../terry/CCG/output/cn/filtered_corpus.txt' > unanalysed)
 
-rm -rf data/{AUTO,PARG}
-./t -lapps.cn.output -r CCGbankStyleOutput data/AUTO -0 ../terry/CCG/output/cn/filtered_corpus.txt
-./t -lapps.cn.mkdeps -9 data/PARG ../terry/CCG/output/cn/filtered_corpus.txt
+# Filter out derivations with [conj] leaves
+perl -0777 -p -i.orig -e 's/.*\n.*<L [^ ]+\[conj\].*\n//g' ../terry/CCG/output/cn/filtered_corpus.txt
 
+rm -rf data/{AUTO,PARG,train.piped}
+
+# Kill known bad sentences
+./filter.py ../terry/CCG/output/cn/filtered_corpus.txt > filtered
+
+# Regroup filtered_corpus into section directories
+./regroup.py filtered data/AUTO
+
+# Create PARGs
+./t -q -lapps.cn.mkdeps -9 data/PARG filtered
+
+# Rebracket [conj] as expected by C&C: (X|Y)[conj] becomes X|Y[conj]
 perl -pi -e 's/\(([^\s]+)\)\[conj\]/$1\[conj\]/g' data/AUTO/*/*
 perl -pi -e 's/\(([^\s]+)\)\[conj\]/$1\[conj\]/g' data/PARG/*/*
 
+# Create supertagger training data in piped format
+rm -rf piped
+./t -q -lapps.cn.cnc -r PipeFormat piped "%w|%P|%s" -0 data/AUTO/{0[1-9],1*,2[0-8]}/*
+cat piped/* > data/train.piped
 ended=`date +%c`
 
 echo "Run started: $started"

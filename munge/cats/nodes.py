@@ -129,18 +129,18 @@ class ComplexCategory(Featured):
     def right(self):
         return self._right
 
-    def __repr__(self, first=True, show_modes=ShowModes, **kwargs):
+    def __repr__(self, first=True, show_modes=ShowModes, show_label=False, **kwargs):
         '''A (non-evaluable) representation of this category.'''
         # ensure that we display (X/Y)[f] and not X/Y[f]
         if self.features: first = False
         
         bits = []
         if not first: bits.append('(')
-        bits.append(self._left.__repr__(first=False, show_modes=show_modes, **kwargs))
+        bits.append(self._left.__repr__(first=False, show_modes=show_modes, show_label=show_label, **kwargs))
         bits.append(self.slash)
-#        if self.label is not None: bits.append(str(self.label))
+        if show_label and self.label is not None: bits.append(str(self.label))
         if show_modes: bits.append(ComplexCategory.get_mode_symbol(self.mode))
-        bits.append(self._right.__repr__(first=False, show_modes=show_modes, **kwargs))
+        bits.append(self._right.__repr__(first=False, show_modes=show_modes, show_label=show_label, **kwargs))
         if not first: bits.append(')')
         bits.append(self.feature_repr())
         
@@ -201,7 +201,6 @@ category in a pre-order traversal of the category tree.'''
         index = self._left.parg_labelled(index)
         self.label = index
         index += 1
-        index = self._right.parg_labelled(index)
         return index
 
     def is_labelled(self):
@@ -245,3 +244,16 @@ and its labelled index.'''
     def __div__(self, right):
         '''Constructs the complex category (self / right).'''
         return ComplexCategory(self, FORWARD, right)
+
+if __name__ == '__main__':
+    from munge.cats.parse import parse_category
+    for cat, lab in {
+            '(A/B)/C': '(A/1B)/2C',
+            '(A/(B/D))/C': '(A/1(B/D))/2C',
+            '((A/B)/D)/C': '((A/1B)/2D)/3C',
+            'A/(B/C)': 'A/1(B/C)'
+    }.iteritems():
+        c = parse_category(cat)
+        c.parg_labelled()
+        print c.__repr__(show_label=True)
+        assert c.__repr__(show_label=True) == lab

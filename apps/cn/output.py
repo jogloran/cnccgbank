@@ -65,7 +65,7 @@ subdirectory.'''
         def printer(bundle):
             return '\n'.join((
                 make_header(bundle), 
-                bundle.derivation.__repr__()))
+                bundle.derivation.ccgbank_repr()))
 
         OutputDerivation.__init__(self, outdir=outdir, transformer=printer, outdir_template=lambda dir, bundle: "%s/%02d" % (dir, bundle.sec_no))
         

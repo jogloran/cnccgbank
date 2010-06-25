@@ -7,9 +7,8 @@ class PipeFormat(Filter, OutputDerivation):
     '''Generates the "piped" output format used by C&C.'''
     def __init__(self, outdir, format):
         Filter.__init__(self)
-        OutputDerivation.__init__(self, transformer=self.transformer)
+        OutputDerivation.__init__(self, transformer=self.transformer, outdir=outdir)
         
-        self.outdir = outdir
         self.format_string = self.make_format_string_from(format)
         
     def accept_derivation(self, bundle):
