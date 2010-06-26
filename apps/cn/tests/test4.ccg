@@ -1,0 +1,8 @@
+ID=wsj_9990.1 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 1 2> (<T S/S 0 1> (<T NP 0 1> (<L N NN NN dogs N>) ) ) (<T S[dcl] 1 2> (<L NP NP NP I NP>) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD not (S\NP)/(S\NP)>) (<L S[dcl]\NP VV VV like S[dcl]\NP>) ) ) )
+ID=wsj_9990.2 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 1 2> (<L NP NP NP I NP>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV have (S[dcl]\NP)/NP>) (<T NP 0 1> (<T N 1 2> (<T N/N 0 1> (<L M M M ge M>) ) (<L N NN NN apple N>) ) ) ) )
+ID=wsj_9990.3 PARSER=GOLD NUMPARSE=1 from 0:1(8)
+(<T NP 0 1> (<T N 1 2> (<T N/N 0 1> (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV repair (S[dcl]\NP)/NP>) (<T NP 0 1> (<L N NN NN buildings N>) ) ) ) (<L N NN NN way N>) ) )
+ID=wsj_9990.4 PARSER=GOLD NUMPARSE=1 from 0:1(8)
+(<T NP 0 1> (<T N 1 2> (<T N/N 0 2> (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV repair (S[dcl]\NP)/NP>) (<T NP 0 1> (<L N NN NN buildings N>) ) ) (<L (N/N)\(S[dcl]\NP) DEC DEC de (N/N)\(S[dcl]\NP)>) ) (<L N NN NN way N>) ) )

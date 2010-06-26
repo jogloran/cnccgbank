@@ -23,7 +23,7 @@ class DepTests(unittest.TestCase):
                     
                     t = naive_label_derivation(parse_tree(deriv))
                     # only take the first two elements (filler lex, arg lex)
-                    deps = set(imap(lambda v: v[0:2], mkdeps(t)))
+                    deps = set(imap(lambda v: tuple(e.split('*')[0] for e in v[0:2]), mkdeps(t)))
                     gsdeps = parse_gsdeps(gsdeps_line)
                     
                     try:
@@ -45,6 +45,7 @@ class DepTests(unittest.TestCase):
         self.check('apps/cn/tests/test1.ccg', 'apps/cn/tests/test1.gs')
         self.check('apps/cn/tests/test2.ccg', 'apps/cn/tests/test2.gs')
         self.check('apps/cn/tests/test3.ccg', 'apps/cn/tests/test3.gs')
+        self.check('apps/cn/tests/test4.ccg', 'apps/cn/tests/test4.gs')
 #        self.check('final/chtb_9992.fid', 'apps/cn/tests/blah.gs')
                     
 if __name__ == '__main__':
