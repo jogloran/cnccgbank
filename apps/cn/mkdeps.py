@@ -1,6 +1,6 @@
 # coding=utf-8
 from apps.util.config import config
-config.set(show_vars=True) # override show_vars. must come before cats.nodes import
+config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
 
 from copy import deepcopy
 from itertools import chain
@@ -24,13 +24,15 @@ from apps.cn.output import OutputDerivation
 from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
 
-def register_unary(unaries, node):
+def register_unary(unaries, node, filler):
     '''
     If _node_ represents the result (RHS) of a unary rule, this records that a new
 dependency must be created between it and its filler, adding it to _unaries_, a list
 of such dependencies created in a given derivation.
     '''
     node.cat.parg_labelled()
+    node.cat.slot.head.lex = filler
+    debug("%s head lex <- %s", node, filler)
     unaries.append(node)
 
 unanalysed = set()
@@ -73,7 +75,7 @@ def mkdeps(root, postprocessor=identity):
 
         # [Xx/Yy]l [Yy/Zz]r -> [Xx/Zz]r
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
-            #P.slot = R.slot # lexical head comes from R (Y/Z)
+            P.slot = R.slot # lexical head comes from R (Y/Z)
             P.slot.var = fresh_var(prefix='K')
 
             unifier = unify(L.right, R.left, head=R)
@@ -82,7 +84,7 @@ def mkdeps(root, postprocessor=identity):
             
         # [Yy\Zz]l [Xx\Yy]r -> [Xx\Zz]l
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
-            #P.slot = L.slot # lexical head comes from L (Y\Z)
+            P.slot = L.slot # lexical head comes from L (Y\Z)
             P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(R.right, L.left, head=L)
@@ -123,7 +125,7 @@ def mkdeps(root, postprocessor=identity):
             P.right.slot.var = fresh_var()
             P.left.slot = P.right.slot
             
-            register_unary(unaries, p)
+            register_unary(unaries, p, L.slot.head.lex)
             
         elif comb in ('np_gap_topicalisation', 's_gap_topicalisation', 'qp_gap_topicalisation'): # NPx -> [ Sy/(Sy/NPx)y ]y
             P.right.right.slot = L.slot
@@ -140,7 +142,7 @@ def mkdeps(root, postprocessor=identity):
                 warn("Invalid parent category %s for subject prodrop.", P)
             
         elif comb == 'fwd_xcomp': # [Xx/Yy]l [Yy\Zz]r -> [Xx/Zz]r
-            #P.slot = R.slot
+            P.slot = R.slot
             P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(L.right, R.left, head=R)
@@ -148,7 +150,7 @@ def mkdeps(root, postprocessor=identity):
             p.cat._right = R.right
 
         elif comb == 'bwd_xcomp': # [Yy/Zz]l [Xx\Yy]r -> [Xx/Zz]l
-            #P.slot = L.slot
+            P.slot = L.slot
             P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(L.left, R.right, head=L)
@@ -183,7 +185,9 @@ def mkdeps(root, postprocessor=identity):
                 
                 P.right.slot = P.left.slot
                 
-                register_unary(unaries, p)
+                if L.slot.head.lex is None:
+                    debug("P: %s, L: %s", P, L)
+                register_unary(unaries, p, L.slot.head.lex)
                 
             elif P == parse_category(r'(N/N)/(N/N)'):
                 P.left.slot.var = fresh_var()
@@ -192,7 +196,7 @@ def mkdeps(root, postprocessor=identity):
                 P.left.right.slot = P.left.left.slot
                 P.right.slot = P.left.slot
                 
-                register_unary(unaries, p)
+                register_unary(unaries, p, L.slot.head.lex)
             else:
                 warn("Unhandled null relativiser typechange: %s -> %s", L, P)
             
@@ -207,7 +211,7 @@ def mkdeps(root, postprocessor=identity):
             P.left.slot.var = fresh_var()
             P.right.slot = P.left.slot
             
-            register_unary(unaries, p)
+            register_unary(unaries, p, L.slot.head.lex)
             
         elif comb == 'l_punct_absorb':
             p.cat = R
@@ -247,7 +251,7 @@ def mkdeps(root, postprocessor=identity):
     # Collect deps from arguments
     deps = []
     for l in chain( leaves(root), unaries ):
-        if config.debug: debug("%s %s", l.lex, l.cat)
+        if config.debug: debug("%s %s", l, l.cat)
         
         C = l.cat
         while not C.is_leaf():

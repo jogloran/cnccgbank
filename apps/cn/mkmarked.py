@@ -17,7 +17,7 @@ for the outermost variable.'''
 
 def is_modifier(cat):
     '''Returns whether _cat_ is of the form X/X.'''
-    return cat.left.equal_respecting_features(cat.right)
+    return cat.left.equal_respecting_features(cat.right) and cat.left.slot.var is cat.right.slot.var
 
 def is_np_n(cat):
     '''Returns whether _cat_ is the category NP/N.'''
