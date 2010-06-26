@@ -99,6 +99,8 @@ def register_builtin_switches(parser):
                       action='store_true', dest='verbose')
     group.add_option("-c", "--config", help="Set config file.", type='string', nargs=1,
                       action='callback', callback=set_config_file)
+    group.add_option("-d", "--debug", help="Print debug messages.",
+                      action='store_true', dest='debug')
                       
     errors_group = OptionGroup(parser, title='Error handling')
                       
@@ -148,6 +150,9 @@ def main(argv):
     opts, remaining_args = parser.parse_args(argv)
     # Done with parser
     parser.destroy()
+    
+    if opts.debug:
+        config.set(debug=True)
             
     # Set verbose switch if given on command line
     tracer.verbose = opts.verbose
