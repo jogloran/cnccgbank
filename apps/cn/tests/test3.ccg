@@ -1,0 +1,12 @@
+ID=wsj_9999.1 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 2> (<T S[dcl] 0 2> (<T S/S 0 2> (<T S/S 0 2> (<L (S/S)/NP P P 据 (S/S)/NP>) (<T NP 0 1> (<L N NN NN 介绍 N>) ) ) (<L , PU PU ， ,>) ) (<T S[dcl] 0 2> (<T S/S 0 1> (<T NP 0 1> (<T N 0 2> (<T N/N 0 2> (<T NP 0 1> (<T N 0 2> (<T N/N 0 2> (<L (N/N)/QP DT DT 这 (N/N)/QP>) (<T QP 0 2> (<L QP/M CD CD 十四 QP/M>) (<L M M M 个 M>) ) ) (<L N NN NN 城市 N>) ) ) (<L (N/N)\NP DEG DEG 的 (N/N)\NP>) ) (<T N 0 2> (<L N/N NN NN 城市 N/N>) (<T N 0 2> (<L N/N NN NN 建设 N/N>) (<T N 0 2> (<L conj CC CC 和 conj>) (<T N 0 2> (<L N/N NN NN 合作区 N/N>) (<T N 0 2> (<L N/N NN NN 开发 N/N>) (<L N NN NN 建设 N>) ) ) ) ) ) ) ) ) (<T S[dcl] 0 2> (<T NP 0 1> (<L N NN NN 步伐 N>) ) (<L S[dcl]\NP VV VV 加快 S[dcl]\NP>) ) ) ) (<L . PU PU 。 .>) )
+ID=wsj_9999.2 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 2> (<T S/(S/NP) 0 1> (<T NP 0 1> (<L N NN NN 牛肉 N>) ) ) (<T S[dcl]/NP 0 2> (<T S/(S\NP) 0 1> (<L NP NP-SBJ NP-SBJ 我 NP>) ) (<T (S[dcl]\NP)/NP 0 2> (<L (S\NP)/(S\NP) AD AD 不 (S\NP)/(S\NP)>) (<L (S[dcl]\NP)/NP VV VV 吃 (S[dcl]\NP)/NP>) ) ) )
+ID=wsj_9999.3 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 0 1> (<T S[dcl]\NP 0 2> (<T (S[dcl]\NP)/NP 0 2> (<L (S[dcl]\NP)/NP VV VV 吃 (S[dcl]\NP)/NP>) (<L (S\NP)\(S\NP) AS AS 了 (S\NP)\(S\NP)>) ) (<T NP 0 1> (<L N NN NN 晚饭 N>) ) ) )
+ID=wsj_9990.4 PARSER=GOLD NUMPARSE=1
+(<T NP 0 1> (<T N 1 2> (<T N/N 1 2> (<T S[dcl]/NP 1 2> (<T S/S 1 2> (<L (S/S)/(S/S) NT NT 一九九五年 (S/S)/(S/S)>) (<L S/S NT NT 九月 S/S>) ) (<T S[dcl]/NP 1 2> (<T S/(S\NP) 0 1> (<T NP 1 2> (<L NP NN NN 建设部 NP>) (<T NP[conj] 1 2> (<L conj CC CC 和 conj>) (<L NP NN NN 外经贸部 NP>) ) ) ) (<L (S[dcl]\NP)/NP VV VV 发布 (S[dcl]\NP)/NP>) ) ) (<L (N/N)\(S[dcl]/NP) DEC DEC 的 (N/N)\(S[dcl]/NP)>) ) (<L N NN NN 规定 N>) ) )
+ID=wsj_9990.5 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 1 2> (<L NP NP-SBJ NP-SBJ 他 NP>) (<T S[dcl]\NP 0 2> (<T (S[dcl]\NP)/((S[dcl]\NP)/NP) 0 2> (<L ((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP LB LB 被 ((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP>) (<L NP NP-SBJ NP-SBJ 我 NP>) ) (<T (S[dcl]\NP)/NP 0 2> (<L (S[dcl]\NP)/NP VV VV 骗 (S[dcl]\NP)/NP>) (<L (S\NP)\(S\NP) AS AS 了 (S\NP)\(S\NP)>) ) ) )
+ID=wsj_9990.6 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 1 2> (<T S/S 0 1> (<T NP 0 1> (<L N NN NN dogs N>) ) ) (<T S[dcl] 1 2> (<L NP NP NP I NP>) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD not (S\NP)/(S\NP)>) (<L S[dcl]\NP VV VV like S[dcl]\NP>) ) ) )
