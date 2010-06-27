@@ -71,12 +71,12 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             # depender variables and rewrite any variable pointing to the head of
             # X to instead point to Y.
             for depender in dependers:
-                if depender.slot.head is Rs.slot.head:
-                    depender.slot.head = Ls.slot.head
+                if depender.head.lex == Rs.slot.head.lex:
+                    depender.head = Ls.slot.head
             
             if copy_vars: Rs.slot.head = Ls.slot.head
             assgs.append( (Rs, Ls) )
             
-            dependers.add(Rs)
+            dependers.add(Rs.slot)
 
     return assgs
