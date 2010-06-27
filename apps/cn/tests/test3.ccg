@@ -10,3 +10,5 @@ ID=wsj_9990.5 PARSER=GOLD NUMPARSE=1
 (<T S[dcl] 1 2> (<L NP NP-SBJ NP-SBJ 他 NP>) (<T S[dcl]\NP 0 2> (<T (S[dcl]\NP)/((S[dcl]\NP)/NP) 0 2> (<L ((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP LB LB 被 ((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP>) (<L NP NP-SBJ NP-SBJ 我 NP>) ) (<T (S[dcl]\NP)/NP 0 2> (<L (S[dcl]\NP)/NP VV VV 骗 (S[dcl]\NP)/NP>) (<L (S\NP)\(S\NP) AS AS 了 (S\NP)\(S\NP)>) ) ) )
 ID=wsj_9990.6 PARSER=GOLD NUMPARSE=1
 (<T S[dcl] 1 2> (<T S/S 0 1> (<T NP 0 1> (<L N NN NN dogs N>) ) ) (<T S[dcl] 1 2> (<L NP NP NP I NP>) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD not (S\NP)/(S\NP)>) (<L S[dcl]\NP VV VV like S[dcl]\NP>) ) ) )
+ID=wsj_9990.7 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 1 2> (<T NP 0 1> (<L N NN NN 格局 N>) ) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD 已 (S\NP)/(S\NP)>) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD 基本 (S\NP)/(S\NP)>) (<L S[dcl]\NP VV VV 形成 S[dcl]\NP>) ) ) )
