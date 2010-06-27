@@ -33,7 +33,7 @@ def strip_index(s):
     return s.split('*')[0]
     
 class UnificationException(Exception): pass
-def unify(L, R, ignore=False, copy_vars=True, head=None):
+def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
     assgs = []
 
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
@@ -43,18 +43,40 @@ def unify(L, R, ignore=False, copy_vars=True, head=None):
 
         elif Ls.slot.is_filled():
 #            print 'Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head)
+            if Ls.slot.head.lex is None:
+                debug("the head lex of %s is None", Ls)
             Rs.slot.head.lex = Ls.slot.head.lex
             Rs.slot.head.filler = L
             assgs.append( (Rs, Ls.slot.head.lex) )
 
         elif Rs.slot.is_filled():
 #            print 'Ls %s L %s <- Rs %s R %s head %s' % (Ls, L, Rs, R, head)
+            if Rs.slot.head.lex is None:
+                debug("the head lex of %s is None", Rs)
             Ls.slot.head.lex = Rs.slot.head.lex
             Ls.slot.head.filler = R
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
+            print "Rs %s <- Ls %s" % (Rs, Ls)
+            
+            # Fake bidirectional unification for vars:
+            # ----------------------------------------
+            # If variable X has been unified with variable Y,
+            # then things which used to point to the head of X should now point to 
+            # the head of Y.
+            # If a derivation has unifiers (A, B), (B, C), (C, v), then we need to
+            # keep track of the depender variables [A, B].
+            # When a variable unification (X, Y) happens, we go through the list of 
+            # depender variables and rewrite any variable pointing to the head of
+            # X to instead point to Y.
+            for depender in dependers:
+                if depender.slot.head is Rs.slot.head:
+                    depender.slot.head = Ls.slot.head
+            
             if copy_vars: Rs.slot.head = Ls.slot.head
             assgs.append( (Rs, Ls) )
+            
+            dependers.add(Rs)
 
     return assgs

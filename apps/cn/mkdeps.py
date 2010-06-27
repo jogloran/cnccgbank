@@ -48,6 +48,7 @@ def mkdeps(root, postprocessor=identity):
     global unanalysed
     
     unaries = []
+    dependers = set()
 
     for l, r, p in pairs_postorder(root):
         L, R, P = map(lambda x: x and x.cat, (l, r, p))
@@ -60,11 +61,11 @@ def mkdeps(root, postprocessor=identity):
             debug("%s %s %s (%s)", L, R, P, str(comb))
 
         if comb == 'fwd_appl': # [Xx/Yy]l Yy -> Xx
-            unifier = unify(L.right, R, head=L)
+            unifier = unify(L.right, R, dependers, head=L)
             p.cat = L.left
 
         elif comb == 'bwd_appl': # Yy [Xx\Yy]r -> Xx
-            unifier = unify(L, R.right, head=R)
+            unifier = unify(L, R.right, dependers, head=R)
             p.cat = R.left
                 
         # Pro-drops which drop their outer argument
@@ -78,7 +79,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot # lexical head comes from R (Y/Z)
             P.slot.var = fresh_var(prefix='K')
 
-            unifier = unify(L.right, R.left, head=R)
+            unifier = unify(L.right, R.left, dependers, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
             
@@ -87,13 +88,13 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot # lexical head comes from L (Y\Z)
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(R.right, L.left, head=L)
+            unifier = unify(R.right, L.left, dependers, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
             
         elif comb in ('s_np_apposition', 'vp_np_apposition'): # { S[dcl], S[dcl]\NP } NPy -> NPy
             P.slot = R.slot # = copy_vars
-            unifier = unify(P, R)
+            unifier = unify(P, R, dependers)
 
         elif comb == 'conjoin': # X X[conj] -> X
             copy_vars(frm=R, to=P)
@@ -102,7 +103,7 @@ def mkdeps(root, postprocessor=identity):
             update_with_fresh_var(p, P.slot)
             P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
             
-            unifier = unify(L, R, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
+            unifier = unify(L, R, dependers, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
             for (dest, src) in unifier:
                 if isinstance(src, (basestring, list)): continue
                 
@@ -114,11 +115,11 @@ def mkdeps(root, postprocessor=identity):
                         if subcat.slot.head is old_head:
                             subcat.slot.head = dest.slot.head
 
-            unify(P, R, ignore=True) # unify variables only in the two conjuncts
+            unify(P, R, dependers, ignore=True) # unify variables only in the two conjuncts
 
         elif comb in ('conj_absorb', 'conj_comma_absorb', 'funny_conj'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
-            unify(P, R) # R.slot.head = P.slot.head
+            unify(P, R, dependers) # R.slot.head = P.slot.head
         
         elif comb == 'nongap_topicalisation': # {N, NP, S[dcl], QP}x -> [Sy/Sy]x
             P.slot = L.slot
@@ -145,7 +146,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(L.right, R.left, head=R)
+            unifier = unify(L.right, R.left, dependers, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
 
@@ -153,14 +154,14 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(L.left, R.right, head=L)
+            unifier = unify(L.left, R.right, dependers, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
             
         elif comb == 'bwd_r1xcomp': # [(Yy/Zz)k/Ww]l [Xx\Yy]r -> [(Xx\Zz)k/Ww]l
             # TODO: where should P's lexical head come from? L or R?
             
-            unifier = unify(L.left.left, R.right)
+            unifier = unify(L.left.left, R.right, dependers)
             p.cat._left._left = R.left
             p.cat._left._right = L.left.right
             p.cat._right = L.right
@@ -171,11 +172,11 @@ def mkdeps(root, postprocessor=identity):
             P.right.left.slot = P.left.slot = P.right.slot = P.slot
             P.right.right.slot = L.slot
 
-            unifier = unify(L, P.right.right)
+            unifier = unify(L, P.right.right, dependers)
 
         elif comb == 'np_typechange':
             P.slot = L.slot # = copy_vars
-            unifier = unify(P, L)
+            unifier = unify(P, L, dependers)
         
         elif comb == 'null_relativiser_typechange': # Xy -> (Nf/Nf)y
             P.slot = L.slot
@@ -220,7 +221,7 @@ def mkdeps(root, postprocessor=identity):
             p.cat = L
 
         elif R and L == R: # VCD (stopgap)
-            unify(P, R, head=R) # assume VCD is right headed
+            unify(P, R, dependers, head=R) # assume VCD is right headed
             p.cat = R
 
         else:
@@ -229,17 +230,16 @@ def mkdeps(root, postprocessor=identity):
             
             P.slot = R.slot if R else L.slot
             
-        # Fake bidirectional unification:
-        # -------------------------------
-        # If variable X has been unified with value v,
-        # rewrite all mentions of v in the output category to point to variable X
-        # (v is uniquified by concatenating it with an ID, so this should hold)
         for (dest, src) in unifier:
-            if not isinstance(src, (basestring, list)): continue
-            
-            for subcat in p.cat.nested_compound_categories():
-                if subcat.slot.head.lex == src:
-                    subcat.slot = dest.slot
+            if isinstance(src, (basestring, list)):
+                # Fake bidirectional unification:
+                # -------------------------------
+                # If variable X has been unified with value v,
+                # rewrite all mentions of v in the output category to point to variable X
+                # (v is uniquified by concatenating it with an ID, so this should hold)            
+                for subcat in p.cat.nested_compound_categories():
+                    if subcat.slot.head.lex == src:
+                        subcat.slot = dest.slot
             
         if config.debug:
             debug("> %s" % p.cat)
