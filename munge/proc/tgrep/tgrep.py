@@ -93,7 +93,12 @@ def multi_tgrep(deriv, query_callback_map):
     
 find_all = tgrep
 find_first = compose(curry(take, 1), find_all)
-find_small = curry(ifilter, lambda node: node.leaf_count() <= 6)
+def find_small(*args, **kwargs):
+    matches = tgrep(*args, **kwargs)
+    for match in matches:
+        if len(match) == 2: match, context = match
+        if match.leaf_count() <= 10:
+            yield match
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
