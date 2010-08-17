@@ -17,7 +17,7 @@ from munge.util.err_utils import debug
 from munge.util.func_utils import compose
 from munge.util.iter_utils import take
 from functools import partial as curry
-from itertools import izip
+from itertools import izip, ifilter
 
 from munge.proc.filter import Filter
 
