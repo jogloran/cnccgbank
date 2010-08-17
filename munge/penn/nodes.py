@@ -25,6 +25,9 @@ class Node(object):
 
     def __iter__(self):
         return self.kids.__iter__()
+        
+    def leaf_count(self):
+        return 1 + sum(kid.leaf_count() for kid in self)
 
     def count(self):
         return len(self.kids)
@@ -92,6 +95,8 @@ class Leaf(object):
     __len__ = count
     __nonzero__ = const_(True)
     is_leaf = const_(True)
+    
+    def leaf_count(self): return 1
 
     def label_text(self): return "%s '%s'" % (re.escape(self.tag), self.lex)
     
