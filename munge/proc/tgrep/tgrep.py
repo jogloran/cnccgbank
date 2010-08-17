@@ -93,6 +93,7 @@ def multi_tgrep(deriv, query_callback_map):
     
 find_all = tgrep
 find_first = compose(curry(take, 1), find_all)
+find_small = ifilter(lambda node: node.leaf_count() <= 6)
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
@@ -226,10 +227,11 @@ class Tgrep(TgrepCore):
             else:
                 print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
 
-    FIND_FIRST, FIND_ALL = range(2)
+    FIND_FIRST, FIND_ALL, FIND_SMALL = range(2)
     find_functions = {
         FIND_FIRST: find_first,
-        FIND_ALL:   find_all
+        FIND_ALL:   find_all,
+        FIND_SMALL: find_small
     }
     
     def get_show_function(self, callback_key):

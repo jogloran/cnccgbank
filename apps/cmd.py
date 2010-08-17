@@ -278,6 +278,8 @@ a pager program.'''
 
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
                            dest='find_mode', action='store_const', const='all', default='all'),
+               make_option('-2', '--find-small', help='Find all small matches (6 or fewer leaves).',
+                           dest='find_mode', action='store_Const', const='small')
                make_option('-1', '--find-first', help='Match only one node where possible.',
                            dest='find_mode', action='store_const', const='first') ])
     def do_tgrep(self, args, opts):
@@ -299,7 +301,8 @@ a pager program.'''
         }[opts.show_mode]
         find_mode = {
             'all':        Tgrep.FIND_ALL,
-            'first':      Tgrep.FIND_FIRST
+            'first':      Tgrep.FIND_FIRST,
+            'small':      Tgrep.FIND_SMALL,
         }[opts.find_mode]
 
         def action():
