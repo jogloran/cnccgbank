@@ -71,7 +71,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             # depender variables and rewrite any variable pointing to the head of
             # X to instead point to Y.
             for depender in dependers:
-                if depender.head.lex == Rs.slot.head.lex:
+                if depender.head.lex is not None and (depender.head.lex == Rs.slot.head.lex):
                     depender.head = Ls.slot.head
             
             if copy_vars: Rs.slot.head = Ls.slot.head

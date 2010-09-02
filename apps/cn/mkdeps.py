@@ -59,6 +59,7 @@ def mkdeps(root, postprocessor=identity):
         
         if config.debug:
             debug("%s %s %s (%s)", L, R, P, str(comb))
+            debug("dependers: %s", dependers)
 
         if comb == 'fwd_appl': # [Xx/Yy]l Yy -> Xx
             unifier = unify(L.right, R, dependers, head=L)
@@ -217,7 +218,6 @@ def mkdeps(root, postprocessor=identity):
         elif comb == 'l_punct_absorb': # , X -> X[conj]
             # need to put conj feature back on parent
             p.cat = R.clone_adding_feature('conj')
-            #p.cat.features.append('conj')
             
         elif comb == 'r_punct_absorb':
             p.cat = L
@@ -245,6 +245,7 @@ def mkdeps(root, postprocessor=identity):
             
         if config.debug:
             debug("> %s" % p.cat)
+            debug("> dependers: %s", dependers)
             debug('---')
             
             if config.fail_on_unassigned_variables:
