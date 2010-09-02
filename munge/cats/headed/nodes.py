@@ -72,6 +72,12 @@ class AtomicCategory(B.AtomicCategory):
             if self.slot:
                 r += repr(self.slot)
             return r
+
+    def clone_with(self, features=None, slot=None):
+        ret = AtomicCategory(self.cat, 
+                             features if features else copy(self.features))
+        ret.slot = slot or self.slot
+        return ret
         
 if config.curly_vars:
     def bracket_category(s):
@@ -100,4 +106,20 @@ class ComplexCategory(B.ComplexCategory):
             r += repr(self.slot)
         
             return r
-        
+
+    def clone_with(self, left=None, direction=None, right=None, features=None, slot=None):
+        ret = ComplexCategory(left if left else self._left.clone(),
+                              direction if direction else self.direction,
+                              right if right else self._right.clone(),
+                              self.mode, 
+                              features if features else copy(self.features))
+        ret.slot = slot or self.slot
+        return ret
+
+    def clone(self):
+        ret = ComplexCategory(self._left.clone(),
+                               self.direction, 
+                               self._right and self._right.clone(),
+                               self.mode, copy(self.features))
+        ret.slot = self.slot
+        return ret

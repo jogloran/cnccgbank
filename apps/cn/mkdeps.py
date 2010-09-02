@@ -2,7 +2,7 @@
 from apps.util.config import config
 config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
 
-from copy import deepcopy
+from copy import deepcopy, copy
 from itertools import chain
 import traceback
 
@@ -214,8 +214,10 @@ def mkdeps(root, postprocessor=identity):
             
             register_unary(unaries, p, L.slot.head.lex)
             
-        elif comb == 'l_punct_absorb':
-            p.cat = R
+        elif comb == 'l_punct_absorb': # , X -> X[conj]
+            # need to put conj feature back on parent
+            p.cat = R.clone_adding_feature('conj')
+            #p.cat.features.append('conj')
             
         elif comb == 'r_punct_absorb':
             p.cat = L

@@ -1,4 +1,5 @@
 from itertools import izip
+from munge.util.err_utils import debug
 
 def copy_vars(frm, to):
     '''Given two categories _frm_ and _to_, assumed to be the same modulo slots, overwrites the
@@ -42,7 +43,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
                 raise UnificationException('%s (%s) and %s (%s) both filled' % (Ls, Ls.slot, Rs, Rs.slot))
 
         elif Ls.slot.is_filled():
-#            print 'Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head)
+            #debug('Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head))
             if Ls.slot.head.lex is None:
                 debug("the head lex of %s is None", Ls)
             Rs.slot.head.lex = Ls.slot.head.lex
@@ -50,7 +51,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             assgs.append( (Rs, Ls.slot.head.lex) )
 
         elif Rs.slot.is_filled():
-#            print 'Ls %s L %s <- Rs %s R %s head %s' % (Ls, L, Rs, R, head)
+            #debug('Ls %s L %s <- Rs %s R %s head %s' % (Ls, L, Rs, R, head))
             if Rs.slot.head.lex is None:
                 debug("the head lex of %s is None", Rs)
             Ls.slot.head.lex = Rs.slot.head.lex
@@ -58,7 +59,6 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
-            print "Rs %s <- Ls %s" % (Rs, Ls)
             
             # Fake bidirectional unification for vars:
             # ----------------------------------------
