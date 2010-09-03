@@ -158,7 +158,8 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(L.left, R.right, dependers, head=L)
+#            unifier = unify(L.left, R.right, dependers, head=L)
+            unifier = unify(R.right, L.left, dependers, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
             
