@@ -32,23 +32,21 @@ def msg(msg, *fmts):
     '''Issues a _msg_ to stderr except in the muzzled state.'''
     stream_report(sys.stderr, "msg", msg, *fmts)
     
-if config.low_key_debug:
+def _make_debug(preface_maker):
     def debug(msg, *fmts):
         '''Issues a debug _msg_, prefaced by the name of the calling function.'''
-        # global muzzled
-        # if muzzled: return
-    
+        
         try:    caller_name = sys._getframe(1).f_code.co_name
         except: caller_name = "?"
-    
-        stream_report(sys.stderr, caller_name[0], msg, *fmts)
+
+        stream_report(sys.stderr, preface_maker(caller_name), msg, *fmts)
+    return debug
+
+if config.debug:
+    if config.low_key_debug:
+        debug = _make_debug(lambda caller: caller[0])
+    else:
+        debug = _make_debug(lambda caller: '[%s]' % caller)
 else:
-    def debug(msg, *fmts):
-        '''Issues a debug _msg_, prefaced by the name of the calling function.'''
-        # global muzzled
-        # if muzzled: return
-    
-        try:    caller_name = sys._getframe(1).f_code.co_name
-        except: caller_name = "?"
-    
-        stream_report(sys.stderr, "[" + caller_name + "]", msg, *fmts)
+    from munge.util.func_utils import noop
+    debug = noop
