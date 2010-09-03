@@ -4,6 +4,7 @@ const = lambda v: lambda: v
 const_ = lambda v: lambda self: v
 
 identity = lambda v: v
+noop = lambda *args, **kwargs: None
 
 def compose2(f, g):
     '''Returns the composition of the two functions given.'''
