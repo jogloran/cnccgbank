@@ -28,7 +28,7 @@ class Head(object):
         #print "%s < %s: lex <- %s" % (caller(), caller(1), lex)
         self._lex = lex
     
-    __repr__ = lambda self: str(self.lex) or "?"
+    __repr__ = lambda self: "<|%s|>" % (str(self.lex) or "?")
 
 class Slot(object):
     '''A Slot is a mapping from a variable name to a Head.'''

@@ -43,23 +43,44 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
                 raise UnificationException('%s (%s) and %s (%s) both filled' % (Ls, Ls.slot, Rs, Rs.slot))
 
         elif Ls.slot.is_filled():
+            debug('R %s <- L %s', Rs.slot, Ls.slot)
             #debug('Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head))
             if Ls.slot.head.lex is None:
                 debug("the head lex of %s is None", Ls)
+            
             Rs.slot.head.lex = Ls.slot.head.lex
             Rs.slot.head.filler = L
+            for depender in dependers:
+                debug('Comparing depender %s and Rs %s', depender, Rs)
+                debug('%s ==? %s: %s', depender.head, Rs.slot.head, depender.head.lex==Rs.slot.head.lex)
+                if depender.head.lex is not None and (depender.head == Rs.slot.head):
+                    debug("here, Ls %s", Ls.slot)
+                    debug("setting head of %s to %s", depender, Ls.slot)
+                    depender.head = Ls.slot.head
+                    depender.head.filler = Ls
             assgs.append( (Rs, Ls.slot.head.lex) )
 
         elif Rs.slot.is_filled():
+            debug('L %s <- R %s', Ls.slot, Rs.slot)
             #debug('Ls %s L %s <- Rs %s R %s head %s' % (Ls, L, Rs, R, head))
             if Rs.slot.head.lex is None:
                 debug("the head lex of %s is None", Rs)
+            debug("Ls lex %s is the same as Rs %s", Ls.slot.head.lex, Rs.slot.head.lex)
             Ls.slot.head.lex = Rs.slot.head.lex
+            debug('Ls lex is now %s', Ls.slot)
             Ls.slot.head.filler = R
+            for depender in dependers:
+                debug('Comparing depender %s and Rs %s', depender, Rs)
+                debug('%s ==? %s: %s', depender.head, Rs.slot.head, depender.head.lex==Rs.slot.head.lex)
+                if depender.head.lex is not None and (depender.head == Ls.slot.head):
+                    debug("here, Ls %s", Ls.slot)
+                    debug("setting head of %s to %s", depender, Rs.slot)
+                    depender.head = Rs.slot.head
+                    depender.head.filler = Rs
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
-            
+            debug('%s <-> %s (copy_vars=%s)', Ls.slot, Rs.slot, copy_vars)
             # Fake bidirectional unification for vars:
             # ----------------------------------------
             # If variable X has been unified with variable Y,
@@ -71,10 +92,14 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             # depender variables and rewrite any variable pointing to the head of
             # X to instead point to Y.
             for depender in dependers:
-                if depender.head.lex is not None and (depender.head.lex == Rs.slot.head.lex):
+                debug('Comparing depender %s and Rs %s', depender, Rs)
+                debug('%s ==? %s', depender.head, Rs.slot.head)
+                if depender.head is not None and (depender.head == Rs.slot.head):
                     depender.head = Ls.slot.head
             
-            if copy_vars: Rs.slot.head = Ls.slot.head
+            if copy_vars: 
+                debug('copy_vars=True; Rs.slot.head %s %s <- Ls.slot.head %s', Rs.slot.head, Rs.slot.head.lex is None,Ls.slot.head)
+                Rs.slot.head = Ls.slot.head
             assgs.append( (Rs, Ls) )
             
             dependers.add(Rs.slot)
