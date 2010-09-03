@@ -1,6 +1,6 @@
 # coding=utf-8
 from apps.util.config import config
-config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
+#config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
 
 from copy import deepcopy, copy
 from itertools import chain
@@ -118,9 +118,12 @@ def mkdeps(root, postprocessor=identity):
 
             unify(P, R, dependers, ignore=True) # unify variables only in the two conjuncts
 
-        elif comb in ('conj_absorb', 'conj_comma_absorb', 'funny_conj'): # conj X -> X[conj]
+        elif comb in ('conj_absorb', 'conj_comma_absorb'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
             unify(P, R, dependers) # R.slot.head = P.slot.head
+            
+        elif comb == 'funny_conj': # conj X -> X
+            p.cat = R
         
         elif comb == 'nongap_topicalisation': # {N, NP, S[dcl], QP}x -> [Sy/Sy]x
             P.slot = L.slot
