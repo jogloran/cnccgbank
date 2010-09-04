@@ -97,7 +97,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot # = copy_vars
             unifier = unify(P, R, dependers)
 
-        elif comb == 'conjoin': # X X[conj] -> X
+        elif comb in ('conjoin', 'np_np_apposition'): # X X[conj] -> X
             copy_vars(frm=R, to=P)
 
             P.slot = deepcopy(P.slot)
@@ -283,21 +283,29 @@ def mkdeps(root, postprocessor=identity):
                     
                 result.add( (postprocessor(sdepl), postprocessor(sdepr), head_cat, head_label) )
                 
+    if config.debug:
+        for line in write_deps(result):
+            debug(line)
     return result
 
 def split_indexed_lex(s):
     return s.split('*')
 
 Template = "%-4s %-4s %-25s %-4s %-15s %s"
-def write_deps(bundle, deps):
+def write_parg(bundle, deps):
     bits = ['<s id="%s"> %d' % (bundle.label(), len(list(leaves(bundle.derivation))))]
+    bits += write_deps(deps)
+    bits.append('<\s>')
+    
+    return '\n'.join(bits)
+
+def write_deps(deps):
+    bits = []
     for l, r, head_cat, head_label in sorted(deps, key=lambda v: int(split_indexed_lex(v[0])[1])):
         l, li = split_indexed_lex(l)
         r, ri = split_indexed_lex(r)
         bits.append(Template % tuple(str(e) for e in (ri, li, head_cat, head_label, r, l)))
-    bits.append('<\s>')
-    
-    return '\n'.join(bits)
+    return bits
     
 class MakeDependencies(Filter, OutputDerivation):
     def __init__(self, outdir):
@@ -318,7 +326,7 @@ class MakeDependencies(Filter, OutputDerivation):
             traceback.print_exc()
             deps = []
 
-        return write_deps(bundle, deps)
+        return write_parg(bundle, deps)
 
     opt = '9'
     long_opt = 'mkdeps'
