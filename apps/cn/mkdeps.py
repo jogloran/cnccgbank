@@ -255,6 +255,9 @@ def mkdeps(root, postprocessor=identity):
             if config.fail_on_unassigned_variables:
                 assert no_unassigned_variables(p.cat), "Unassigned variables in %s" % p.cat
                 
+    if config.debug:
+        debug('unaries: %s', unaries)
+        
     # Collect deps from arguments
     deps = []
     for l in chain( leaves(root), unaries ):

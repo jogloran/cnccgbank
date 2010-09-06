@@ -122,7 +122,7 @@ available variable labels _vars_ and lexical item _lex_.'''
 
         elif is_np_n(cat):
             cat._left = label(cat.left, available, lex)
-            cat._right.slot.var = cat._left.slot.var
+            cat._right.slot = cat._left.slot
 
         else:
             cat._left = label(cat.left, available, lex)
