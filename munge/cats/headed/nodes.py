@@ -2,16 +2,16 @@ import munge.cats.nodes as B
 from apps.util.config import config
 from copy import copy, deepcopy
 
-from traceback import extract_stack as tb_extract_stack
-def caller(up=0):
-    try: # just get a few frames
-        f = tb_extract_stack(limit=up+2)
-        if f:
-            return f[0][0] + ':' + str(f[0][1])
-    except:
-        pass
-    # running with psyco?
-    return ''#('', 0, '', None)
+# from traceback import extract_stack as tb_extract_stack
+# def caller(up=0):
+#     try: # just get a few frames
+#         f = tb_extract_stack(limit=up+2)
+#         if f:
+#             return f[0][0] + ':' + str(f[0][1])
+#     except:
+#         pass
+#     # running with psyco?
+#     return ''#('', 0, '', None)
 
 class Head(object):
     '''A Head represents an assigned lexical item.'''
@@ -27,6 +27,11 @@ class Head(object):
     def lex(self, lex):
         #print "%s < %s: lex <- %s" % (caller(), caller(1), lex)
         self._lex = lex
+        
+    def __hash__(self):
+        return hash(self._lex)
+    def __eq__(self, other):
+        return self._lex == other._lex
     
     __repr__ = lambda self: "<|%s|>" % (str(self.lex) or "?")
 
@@ -43,6 +48,9 @@ class Slot(object):
         
     def is_filled(self):
         return self.head.lex is not None
+        
+    def __hash__(self):
+        return hash(self.var) ^ hash(self._head)
         
     if config.curly_vars:
         def __repr__(self):
@@ -73,6 +81,9 @@ class AtomicCategory(B.AtomicCategory):
             if self.slot:
                 r += repr(self.slot)
             return r
+            
+    def __hash__(self):
+        return B.AtomicCategory.__hash__(self) ^ hash(self.slot)
 
     def clone_with(self, features=None, slot=None):
         ret = AtomicCategory(self.cat, 
@@ -124,3 +135,6 @@ class ComplexCategory(B.ComplexCategory):
                                self.mode, copy(self.features))
         ret.slot = self.slot
         return ret
+
+    def __hash__(self):
+        return B.ComplexCategory.__hash__(self) ^ hash(self.slot)
