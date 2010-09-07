@@ -29,9 +29,10 @@ class Head(object):
         self._lex = lex
         
     def __hash__(self):
-        return hash(self._lex)
+        if isinstance(self._lex, list): return hash(frozenset(self._lex))
+        else: return hash(self._lex)
     def __eq__(self, other):
-        return self._lex == other._lex
+        return self._lex == other._lex and self.filler
     
     __repr__ = lambda self: "<|%s|>" % (str(self.lex) or "?")
 

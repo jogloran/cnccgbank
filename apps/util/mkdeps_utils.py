@@ -94,7 +94,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             for depender in dependers:
                 debug('Comparing depender %s and Rs %s', depender, Rs)
                 debug('%s ==? %s', depender.head, Rs.slot.head)
-                if depender.head is not None and (depender.head == Rs.slot.head):
+                if depender.head is not None and (depender.head is Rs.slot.head):
                     depender.head = Ls.slot.head
             
             if copy_vars: 
