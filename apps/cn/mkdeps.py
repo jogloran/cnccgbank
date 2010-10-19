@@ -34,6 +34,29 @@ of such dependencies created in a given derivation.
     node.cat.slot.head.lex = filler
     debug("%s head lex <- %s", node, filler)
     unaries.append(node)
+    
+def make_set_head_from(l, r, p, dependers):
+    L, R, P = l.cat, r.cat, p.cat
+    
+    copy_vars(frm=R, to=P)
+
+    P.slot = deepcopy(P.slot)
+    update_with_fresh_var(p, P.slot)
+    P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
+    
+    unifier = unify(L, R, dependers, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
+    for (dest, src) in unifier:
+        if isinstance(src, (basestring, list)): continue
+        
+        old_head = src.slot.head
+        
+        # look under L and transform all references to 'Z' to references to the 'Z' inside R
+        for node in nodes(l):
+            for subcat in node.cat.nested_compound_categories():
+                if subcat.slot.head is old_head:
+                    subcat.slot.head = dest.slot.head
+
+    unify(P, R, dependers, ignore=True) # unify variables only in the two conjuncts
 
 unanalysed = set()
 def mkdeps(root, postprocessor=identity):
@@ -96,27 +119,18 @@ def mkdeps(root, postprocessor=identity):
         elif comb in ('s_np_apposition', 'vp_np_apposition'): # { S[dcl], S[dcl]\NP } NPy -> NPy
             P.slot = R.slot # = copy_vars
             unifier = unify(P, R, dependers)
+            
+        # NP NP -> N/N
+        elif comb == 'np_np_to_nfn_apposition':
+            # do the same as NP NP -> NP, except fill in the vars Ny/Ny
+            P.right.slot.var = fresh_var(prefix='N')
+            P.left.slot = P.right.slot
+
+            register_unary(unaries, p, L.slot.head.lex)
+            make_set_head_from(l, r, p, dependers)
 
         elif comb in ('conjoin', 'np_np_apposition'): # X X[conj] -> X
-            copy_vars(frm=R, to=P)
-
-            P.slot = deepcopy(P.slot)
-            update_with_fresh_var(p, P.slot)
-            P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
-            
-            unifier = unify(L, R, dependers, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
-            for (dest, src) in unifier:
-                if isinstance(src, (basestring, list)): continue
-                
-                old_head = src.slot.head
-                
-                # look under L and transform all references to 'Z' to references to the 'Z' inside R
-                for node in nodes(l):
-                    for subcat in node.cat.nested_compound_categories():
-                        if subcat.slot.head is old_head:
-                            subcat.slot.head = dest.slot.head
-
-            unify(P, R, dependers, ignore=True) # unify variables only in the two conjuncts
+            make_set_head_from(l, r, p, dependers)
 
         elif comb in ('conj_absorb', 'conj_comma_absorb'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
