@@ -37,7 +37,7 @@ class AtomicCategory(Featured):
         self.cat = cat
         
     def __hash__(self):
-        return hash(repr(self))
+        return hash(self.cat)
 
     def __repr__(self, first=True, show_modes=ShowModes, **kwargs):
         '''A (non-evaluable) representation of this category. Ignores both its arguments
@@ -110,9 +110,6 @@ class ComplexCategory(Featured):
         except (IndexError, TypeError):
             raise CatParseException('Invalid mode index %s.' % mode_index)
             
-    def __hash__(self):
-        return hash(repr(self))
-
     def __init__(self, left, direction, right, mode=None, features=None, label=None):
         Featured.__init__(self, features)
         
@@ -180,6 +177,9 @@ class ComplexCategory(Featured):
                 self._right == other.right)
                 
     def __ne__(self, other): return not (self == other)
+    
+    def __hash__(self):
+        return hash(self.direction) ^ hash(self._left) ^ hash(self._right)
 
     def labelled(self, index=0):
         '''Labels this category in-place. Labelling attaches indices to each slash of this

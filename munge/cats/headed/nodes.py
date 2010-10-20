@@ -2,17 +2,6 @@ import munge.cats.nodes as B
 from apps.util.config import config
 from copy import copy, deepcopy
 
-# from traceback import extract_stack as tb_extract_stack
-# def caller(up=0):
-#     try: # just get a few frames
-#         f = tb_extract_stack(limit=up+2)
-#         if f:
-#             return f[0][0] + ':' + str(f[0][1])
-#     except:
-#         pass
-#     # running with psyco?
-#     return ''#('', 0, '', None)
-
 class Head(object):
     '''A Head represents an assigned lexical item.'''
     def __init__(self, lex=None, filler=None):
@@ -52,6 +41,8 @@ class Slot(object):
         
     def __hash__(self):
         return hash(self.var) ^ hash(self._head)
+    def __eq__(self, other):
+        return self.var == other.var and self._head == other._head
         
     if config.curly_vars:
         def __repr__(self):
