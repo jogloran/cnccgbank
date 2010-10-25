@@ -39,10 +39,14 @@ class Slot(object):
     def is_filled(self):
         return self.head.lex is not None
         
+    # problem: sometimes two slots have the same var name and same head, but are distinct slots
+    # the problem goes away when var names are uniquified
     def __hash__(self):
-        return hash(self.var) ^ hash(self._head)
+        return hash(id(self))
+#        return hash(self.var) ^ hash(self._head)
     def __eq__(self, other):
-        return self.var == other.var and self._head == other._head
+        return self is other
+#        return self.var == other.var and self._head == other._head
         
     if config.curly_vars:
         def __repr__(self):

@@ -224,6 +224,8 @@ def mkdeps(root, postprocessor=identity):
         elif comb == 'de_nominalisation':
             P.slot = L.slot
             
+            register_unary(unaries, p, L.slot.head.lex)
+            
         # {M, QP}y -> (Nf/Nf)y
         elif comb == 'measure_word_number_elision':
             P.slot = L.slot
