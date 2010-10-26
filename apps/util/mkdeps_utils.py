@@ -54,7 +54,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             for depender in dependers:
                 debug('R<-L Comparing depender %s and Rs %s', depender, Rs)
                 debug('%s ==? %s: %s', depender.head, Rs.slot.head, depender.head.lex==Rs.slot.head.lex)
-                if (depender.head == Rs.slot.head):
+                if (depender.head is Rs.slot.head):
                     debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
 
                     depender.head = Ls.slot.head
@@ -75,7 +75,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             for depender in dependers:
                 debug('L<-R Comparing depender %s and Ls %s', depender, Ls)
                 debug('%s ==? %s: %s', depender.head, Ls.slot.head, depender.head.lex==Ls.slot.head.lex)
-                if (depender.head == Ls.slot.head):
+                if (depender.head is Ls.slot.head):
                     debug('Updating depender.head %s <- Rs.slot.head %s' % (depender.head, Rs.slot.head) )
                     
                     depender.head = Rs.slot.head
@@ -96,19 +96,34 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             # When a variable unification (X, Y) happens, we go through the list of 
             # depender variables and rewrite any variable pointing to the head of
             # X to instead point to Y.
+            #
+            # Example:
+            #    Head Head Head                 Head Head Head
+            #     |    |    |                    x  / |    |
+            #     |    |    |    A.head=B.head     /  |    |  
+            #     A    B    C                    A    B    C
+            #                    
+            #                                   Head Head Head
+            #                    B.head=C.head   x  / x /  |
+            #       [need to update A.head         /   /   |  
+            #        to point to C.head too]     A    B    C
+            
             for depender in dependers:
                 debug('Comparing depender %s and Rs %s', depender, Rs)
-                debug('%s is? %s: %s | ==?: %s', depender.head, Rs.slot.head, str(depender.head is Rs.slot.head), str(depender.head==Rs.slot.head))
-                if (depender.head == Rs.slot.head):
-                    debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
+                debug('depender %s.head is? Rs.slot %s.head: %s | ==?: %s', depender, Rs.slot, str(depender.head is Rs.slot.head), str(depender.head==Rs.slot.head))
+                
+                if (depender.head is Rs.slot.head):
+#                    debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
+                    debug('Updating %s.head <- %s.head' % (depender, Ls.slot))
                     depender.head = Ls.slot.head
             
             if copy_vars: 
                 #debug('copy_vars=True; Rs.slot.head %s %s <- Ls.slot.head %s', Rs.slot.head, Rs.slot.head.lex is None,Ls.slot.head)
+                debug('%s.head <- %s.head' % (Rs.slot, Ls.slot))
                 Rs.slot.head = Ls.slot.head
             assgs.append( (Rs, Ls) )
             
-            dependers.add(Ls.slot)
+#            dependers.add(Ls.slot)
             dependers.add(Rs.slot)
 
     return assgs

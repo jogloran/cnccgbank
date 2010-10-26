@@ -21,7 +21,7 @@ class Head(object):
         if isinstance(self._lex, list): return hash(frozenset(self._lex))
         else: return hash(self._lex)
     def __eq__(self, other):
-        return self._lex == other._lex# and (self.filler is None)
+        return (self._lex == other._lex) and (self.filler is not None)
     
     __repr__ = lambda self: "<|%s|>" % (str(self.lex) or "?")
 
