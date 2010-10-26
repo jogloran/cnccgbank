@@ -44,7 +44,7 @@ def make_set_head_from(l, r, p, dependers):
     update_with_fresh_var(p, P.slot)
     P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
     
-    unifier = unify(L, R, dependers, ignore=True, copy_vars=False) # unify variables only in the two conjuncts
+    unifier = unify(L, R, dependers, ignore=True, copy_vars=True) # unify variables only in the two conjuncts
     for (dest, src) in unifier:
         if isinstance(src, (basestring, list)): continue
         

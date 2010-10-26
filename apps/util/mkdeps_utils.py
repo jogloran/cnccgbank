@@ -108,19 +108,25 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             #       [need to update A.head         /   /   |  
             #        to point to C.head too]     A    B    C
             
+            new_dependers = set()
             for depender in dependers:
                 debug('Comparing depender %s and Rs %s', depender, Rs)
                 debug('depender %s.head is? Rs.slot %s.head: %s | ==?: %s', depender, Rs.slot, str(depender.head is Rs.slot.head), str(depender.head==Rs.slot.head))
                 
                 if (depender.head is Rs.slot.head):
 #                    debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
-                    debug('Updating %s.head <- %s.head' % (depender, Ls.slot))
+                    debug('d %s.head <- %s.head' % (depender, Ls.slot))
                     depender.head = Ls.slot.head
+                    
+                    new_dependers.add(Ls.slot)
+            
+            dependers |= new_dependers
             
             if copy_vars: 
                 #debug('copy_vars=True; Rs.slot.head %s %s <- Ls.slot.head %s', Rs.slot.head, Rs.slot.head.lex is None,Ls.slot.head)
-                debug('%s.head <- %s.head' % (Rs.slot, Ls.slot))
+                debug('v %s.head <- %s.head' % (Rs.slot, Ls.slot))
                 Rs.slot.head = Ls.slot.head
+
             assgs.append( (Rs, Ls) )
             
 #            dependers.add(Ls.slot)
