@@ -83,7 +83,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
-            if Ls.slot.var == Rs.slot.var: continue
+            if Ls.slot == Rs.slot: continue
 
             debug('%s <-> %s (copy_vars=%s)', Ls.slot, Rs.slot, copy_vars)
             # Fake bidirectional unification for vars:
