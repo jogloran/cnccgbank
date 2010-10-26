@@ -394,19 +394,7 @@ def label(root):
 
                 if kid.tag not in ('CC', 'PU'):
                     tag(kid, 'c')
-
-
-        elif is_apposition(node):
-            tag(last_kid, 'r') # HACK: assume apposition is right-headed
-
-            for kid in node:
-                if not kid.tag.startswith('PU'):
-                    # exclude CP-APP (see is_apposition() above)
-                    if kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
-                        tag(kid, 'A')
-                    else:
-                        tag(kid, 'a')
-                                                        
+                                      
         elif is_np_internal_structure(node):
             first = True
             for kid in reversed(node.kids):
@@ -486,6 +474,16 @@ def label(root):
                     elif not kid.tag.startswith('PU'):
                         tag(kid, 'l')
 
+        elif is_apposition(node):
+            tag(last_kid, 'r') # HACK: assume apposition is right-headed
+
+            for kid in node:
+                if not kid.tag.startswith('PU'):
+                    # exclude CP-APP (see is_apposition() above)
+                    if kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
+                        tag(kid, 'A')
+                    else:
+                        tag(kid, 'a')
 
         elif is_modification(node):
             tag(last_kid, 'h')
