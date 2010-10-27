@@ -34,7 +34,7 @@ def strip_index(s):
     return s.split('*')[0]
     
 class UnificationException(Exception): pass
-def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
+def unify(L, R, ignore=False, copy_vars=True, head=None):
     assgs = []
 
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
@@ -47,14 +47,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             
             Rs.slot.head.lex = Ls.slot.head.lex
             Rs.slot.head.filler = L
-            for depender in dependers:
-                debug('R<-L Comparing depender %s and Rs %s', depender, Rs)
-                debug('%s is? %s: %s', depender.head, Rs.slot.head, depender.head is Rs.slot.head)
-                if (depender.head is Rs.slot.head):
-                    debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
-
-                    depender.head = Ls.slot.head
-                    depender.head.filler = Ls
+                    
             assgs.append( (Rs, Ls.slot.head.lex) )
 
         elif Rs.slot.is_filled():
@@ -62,14 +55,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
                 
             Ls.slot.head.lex = Rs.slot.head.lex
             Ls.slot.head.filler = R
-            for depender in dependers:
-                debug('L<-R Comparing depender %s and Ls %s', depender, Ls)
-                debug('%s is? %s: %s', depender.head, Ls.slot.head, depender.head is Ls.slot.head)
-                if (depender.head is Ls.slot.head):
-                    debug('Updating depender.head %s <- Rs.slot.head %s' % (depender.head, Rs.slot.head) )
-                    
-                    depender.head = Rs.slot.head
-                    depender.head.filler = Rs
+                
             assgs.append( (Ls, Rs.slot.head.lex) )
 
         else: # both slots are variables, need to unify variables
@@ -98,28 +84,10 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             #       [need to update A.head         /   /   |  
             #        to point to C.head too]     A    B    C
             
-            new_dependers = set()
-            for depender in dependers:
-                debug('Comparing depender %s and Rs %s', depender, Rs)
-                debug('depender %s.head is? Rs.slot %s.head: %s', depender, Rs.slot, str(depender.head is Rs.slot.head))
-                
-                if (depender.head is Rs.slot.head):
-#                    debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
-                    debug('d %s.head <- %s.head' % (depender, Ls.slot))
-                    depender.head = Ls.slot.head
-                    
-                    new_dependers.add(Ls.slot)
-            
-            dependers |= new_dependers
-            
             if copy_vars: 
-                #debug('copy_vars=True; Rs.slot.head %s %s <- Ls.slot.head %s', Rs.slot.head, Rs.slot.head.lex is None,Ls.slot.head)
-                debug('v %s.head <- %s.head' % (Rs.slot, Ls.slot))
-                Rs.slot.head = Ls.slot.head
+#                Rs.slot.head = Ls.slot.head
+                Rs.slot.unify_heads(Ls.slot)
 
             assgs.append( (Rs, Ls) )
-            
-#            dependers.add(Ls.slot)
-            dependers.add(Rs.slot)
 
     return assgs

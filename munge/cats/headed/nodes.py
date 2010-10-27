@@ -31,10 +31,22 @@ class Slot(object):
         self.var = var        
         self._head = Head(head_lex)
         
+        self.dependers = set()
+        self.dependers.add( self )
+        
     @property
-    def head(self): return self._head
-    @head.setter
-    def head(self, v): self._head = v
+    def head(self): 
+        return self._head
+        
+    def unify_heads(self, other):
+        assert isinstance(other, Slot), "unify_heads is an operation between two Slots."
+#        print 'self.d', self.dependers
+#        print 'other.d', other.dependers
+        self.dependers |= other.dependers
+        
+        for dep in self.dependers:
+            dep._head = other._head
+            dep.dependers = self.dependers
         
     def is_filled(self):
         return self.head.lex is not None

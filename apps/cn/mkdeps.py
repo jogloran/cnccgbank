@@ -35,7 +35,7 @@ of such dependencies created in a given derivation.
     debug("%s head lex <- %s", node, filler)
     unaries.append(node)
     
-def make_set_head_from(l, r, p, dependers):
+def make_set_head_from(l, r, p):
     L, R, P = l.cat, r.cat, p.cat
     
     copy_vars(frm=R, to=P)
@@ -44,7 +44,7 @@ def make_set_head_from(l, r, p, dependers):
     update_with_fresh_var(p, P.slot)
     P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
     
-    unifier = unify(L, R, dependers, ignore=True, copy_vars=True) # unify variables only in the two conjuncts
+    unifier = unify(L, R, ignore=True, copy_vars=True) # unify variables only in the two conjuncts
     for (dest, src) in unifier:
         if isinstance(src, (basestring, list)): continue
         
@@ -53,10 +53,11 @@ def make_set_head_from(l, r, p, dependers):
         # look under L and transform all references to 'Z' to references to the 'Z' inside R
         for node in nodes(l):
             for subcat in node.cat.nested_compound_categories():
-                if subcat.slot.head is old_head:
-                    subcat.slot.head = dest.slot.head
+                if subcat.slot.head is old_head:                    
+#                    subcat.slot.head = dest.slot.head
+                    subcat.slot.unify_heads(dest.slot)
 
-    unify(P, R, dependers, ignore=True) # unify variables only in the two conjuncts
+    unify(P, R, ignore=True) # unify variables only in the two conjuncts
 
 unanalysed = set()
 def mkdeps(root, postprocessor=identity):
@@ -71,7 +72,6 @@ def mkdeps(root, postprocessor=identity):
     global unanalysed
     
     unaries = []
-    dependers = set()
 
     for l, r, p in pairs_postorder(root):
         L, R, P = map(lambda x: x and x.cat, (l, r, p))
@@ -82,14 +82,13 @@ def mkdeps(root, postprocessor=identity):
         
         if config.debug:
             debug("%s %s %s (%s)", L, R, P, str(comb))
-            debug("dependers: %s", dependers)
 
         if comb == 'fwd_appl': # [Xx/Yy]l Yy -> Xx
-            unifier = unify(L.right, R, dependers, head=L)
+            unifier = unify(L.right, R, head=L)
             p.cat = L.left
 
         elif comb == 'bwd_appl': # Yy [Xx\Yy]r -> Xx
-            unifier = unify(L, R.right, dependers, head=R)
+            unifier = unify(L, R.right, head=R)
             p.cat = R.left
                 
         # Pro-drops which drop their outer argument
@@ -103,7 +102,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot # lexical head comes from R (Y/Z)
             P.slot.var = fresh_var(prefix='K')
 
-            unifier = unify(L.right, R.left, dependers, head=R)
+            unifier = unify(L.right, R.left, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
             
@@ -112,13 +111,13 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot # lexical head comes from L (Y\Z)
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(R.right, L.left, dependers, head=L)
+            unifier = unify(R.right, L.left, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
             
         elif comb in ('s_np_apposition', 'vp_np_apposition'): # { S[dcl], S[dcl]\NP } NPy -> NPy
             P.slot = R.slot # = copy_vars
-            unifier = unify(P, R, dependers)
+            unifier = unify(P, R)
             
         # NP NP -> N/N
         elif comb == 'np_np_to_nfn_apposition':
@@ -127,14 +126,14 @@ def mkdeps(root, postprocessor=identity):
             P.left.slot = P.right.slot
 
             register_unary(unaries, p, L.slot.head.lex)
-            make_set_head_from(l, r, p, dependers)
+            make_set_head_from(l, r, p)
 
         elif comb in ('conjoin', 'np_np_apposition'): # X X[conj] -> X
-            make_set_head_from(l, r, p, dependers)
+            make_set_head_from(l, r, p)
 
         elif comb in ('conj_absorb', 'conj_comma_absorb'): # conj X -> X[conj]
             copy_vars(frm=R, to=P)
-            unify(P, R, dependers) # R.slot.head = P.slot.head
+            unify(P, R) # R.slot.head = P.slot.head
             
         elif comb == 'funny_conj': # conj X -> X
             p.cat = R
@@ -164,7 +163,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(L.right, R.left, dependers, head=R)
+            unifier = unify(L.right, R.left, head=R)
             p.cat._left = L.left
             p.cat._right = R.right
 
@@ -172,15 +171,14 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot
             P.slot.var = fresh_var(prefix='K')
             
-#            unifier = unify(L.left, R.right, dependers, head=L)
-            unifier = unify(R.right, L.left, dependers, head=L)
+            unifier = unify(R.right, L.left, head=L)
             p.cat._left = R.left
             p.cat._right = L.right
             
         elif comb == 'bwd_r1xcomp': # [(Yy/Zz)k/Ww]l [Xx\Yy]r -> [(Xx\Zz)k/Ww]l
             # TODO: where should P's lexical head come from? L or R?
             
-            unifier = unify(L.left.left, R.right, dependers)
+            unifier = unify(L.left.left, R.right)
             p.cat._left._left = R.left
             p.cat._left._right = L.left.right
             p.cat._right = L.right
@@ -191,11 +189,11 @@ def mkdeps(root, postprocessor=identity):
             P.right.left.slot = P.left.slot = P.right.slot = P.slot
             P.right.right.slot = L.slot
 
-            unifier = unify(L, P.right.right, dependers)
+            unifier = unify(L, P.right.right)
 
         elif comb == 'np_typechange':
             P.slot = L.slot # = copy_vars
-            unifier = unify(P, L, dependers)
+            unifier = unify(P, L)
         
         elif comb == 'null_relativiser_typechange': # Xy -> (Nf/Nf)y
             P.slot = L.slot
@@ -205,8 +203,6 @@ def mkdeps(root, postprocessor=identity):
                 
                 P.right.slot = P.left.slot
                 
-                if L.slot.head.lex is None:
-                    debug("P: %s, L: %s", P, L)
                 register_unary(unaries, p, L.slot.head.lex)
                 
             elif P == parse_category(r'(N/N)/(N/N)'):
@@ -243,7 +239,7 @@ def mkdeps(root, postprocessor=identity):
             p.cat = L
 
         elif R and L == R: # VCD (stopgap)
-            unify(P, R, dependers, head=R) # assume VCD is right headed
+            unify(P, R, head=R) # assume VCD is right headed
             p.cat = R
 
         else:
@@ -265,7 +261,6 @@ def mkdeps(root, postprocessor=identity):
             
         if config.debug:
             debug("> %s" % p.cat)
-            debug("> dependers: %s", dependers)
             debug('---')
             
             if config.fail_on_unassigned_variables:
