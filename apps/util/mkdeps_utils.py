@@ -44,16 +44,12 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
 
         elif Ls.slot.is_filled():
             debug('R %s <- L %s', Rs.slot, Ls.slot)
-            ##debug('Rs %s R %s <- Ls %s L %s head %s' % (Rs, R, Ls, R, head))
-            if Ls.slot.head.lex is None:
-                #debug("the head lex of %s is None", Ls)
-                pass
             
             Rs.slot.head.lex = Ls.slot.head.lex
             Rs.slot.head.filler = L
             for depender in dependers:
                 debug('R<-L Comparing depender %s and Rs %s', depender, Rs)
-                debug('%s ==? %s: %s', depender.head, Rs.slot.head, depender.head.lex==Rs.slot.head.lex)
+                debug('%s is? %s: %s', depender.head, Rs.slot.head, depender.head is Rs.slot.head)
                 if (depender.head is Rs.slot.head):
                     debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
 
@@ -63,18 +59,12 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
 
         elif Rs.slot.is_filled():
             debug('L %s <- R %s', Ls.slot, Rs.slot)
-            ##debug('Ls %s L %s <- Rs %s R %s head %s' % (Ls, L, Rs, R, head))
-            if Rs.slot.head.lex is None:
-                #debug("the head lex of %s is None", Rs)
-                pass
                 
-            #debug("Ls lex %s is the same as Rs %s", Ls.slot.head.lex, Rs.slot.head.lex)
             Ls.slot.head.lex = Rs.slot.head.lex
-            #debug('Ls lex is now %s', Ls.slot)
             Ls.slot.head.filler = R
             for depender in dependers:
                 debug('L<-R Comparing depender %s and Ls %s', depender, Ls)
-                debug('%s ==? %s: %s', depender.head, Ls.slot.head, depender.head.lex==Ls.slot.head.lex)
+                debug('%s is? %s: %s', depender.head, Ls.slot.head, depender.head is Ls.slot.head)
                 if (depender.head is Ls.slot.head):
                     debug('Updating depender.head %s <- Rs.slot.head %s' % (depender.head, Rs.slot.head) )
                     
@@ -111,7 +101,7 @@ def unify(L, R, dependers, ignore=False, copy_vars=True, head=None):
             new_dependers = set()
             for depender in dependers:
                 debug('Comparing depender %s and Rs %s', depender, Rs)
-                debug('depender %s.head is? Rs.slot %s.head: %s | ==?: %s', depender, Rs.slot, str(depender.head is Rs.slot.head), str(depender.head==Rs.slot.head))
+                debug('depender %s.head is? Rs.slot %s.head: %s', depender, Rs.slot, str(depender.head is Rs.slot.head))
                 
                 if (depender.head is Rs.slot.head):
 #                    debug('Updating depender.head %s <- Ls.slot.head %s' % (depender.head, Ls.slot.head) )
