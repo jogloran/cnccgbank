@@ -253,8 +253,6 @@ def preprocess(root):
                     # (i.e. 比 报告 的 早 一点) so that it's headed by the 的
                     expr = r'''/CP/ < { /CP/ < /DEC/ }'''
                     if get_first(node[0], expr):
-                        print node.kids
-                        print node[0].kids
                         node.kids = node[0].kids
                         
             elif node[0].tag in ('NP', 'NP-PN', 'VP', 'IP') and node.tag == 'PRN':
