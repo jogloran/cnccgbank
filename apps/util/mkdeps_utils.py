@@ -62,30 +62,7 @@ def unify(L, R, ignore=False, copy_vars=True, head=None):
             if Ls.slot == Rs.slot: continue
 
             debug('%s <-> %s (copy_vars=%s)', Ls.slot, Rs.slot, copy_vars)
-            # Fake bidirectional unification for vars:
-            # ----------------------------------------
-            # If variable X has been unified with variable Y,
-            # then things which used to point to the head of X should now point to 
-            # the head of Y.
-            # If a derivation has unifiers (A, B), (B, C), (C, v), then we need to
-            # keep track of the depender variables [A, B].
-            # When a variable unification (X, Y) happens, we go through the list of 
-            # depender variables and rewrite any variable pointing to the head of
-            # X to instead point to Y.
-            #
-            # Example:
-            #    Head Head Head                 Head Head Head
-            #     |    |    |                    x  / |    |
-            #     |    |    |    A.head=B.head     /  |    |  
-            #     A    B    C                    A    B    C
-            #                    
-            #                                   Head Head Head
-            #                    B.head=C.head   x  / x /  |
-            #       [need to update A.head         /   /   |  
-            #        to point to C.head too]     A    B    C
-            
-            if copy_vars: 
-#                Rs.slot.head = Ls.slot.head
+            if copy_vars:
                 Rs.slot.unify_heads(Ls.slot)
 
             assgs.append( (Rs, Ls) )

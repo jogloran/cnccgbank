@@ -9,13 +9,9 @@ class Head(object):
         self.filler = None
 
     @property
-    def lex(self): 
-#        print "%s < %s: lex %s" % (caller(), caller(1), self._lex)
-        return self._lex
+    def lex(self): return self._lex
     @lex.setter
-    def lex(self, lex):
-        #print "%s < %s: lex <- %s" % (caller(), caller(1), lex)
-        self._lex = lex
+    def lex(self, lex): self._lex = lex
         
     def __hash__(self):
         if isinstance(self._lex, list): return hash(frozenset(self._lex))
@@ -40,8 +36,6 @@ class Slot(object):
         
     def unify_heads(self, other):
         assert isinstance(other, Slot), "unify_heads is an operation between two Slots."
-#        print 'self.d', self.dependers
-#        print 'other.d', other.dependers
         self.dependers |= other.dependers
         
         for dep in self.dependers:

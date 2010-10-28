@@ -53,8 +53,7 @@ def make_set_head_from(l, r, p):
         # look under L and transform all references to 'Z' to references to the 'Z' inside R
         for node in nodes(l):
             for subcat in node.cat.nested_compound_categories():
-                if subcat.slot.head is old_head:                    
-#                    subcat.slot.head = dest.slot.head
+                if subcat.slot.head is old_head:
                     subcat.slot.unify_heads(dest.slot)
 
     unify(P, R, ignore=True) # unify variables only in the two conjuncts

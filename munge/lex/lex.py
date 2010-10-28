@@ -135,6 +135,8 @@ def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lex
     The returned iterator supports an additional _peek_ method which returns the same
     value as _next_ without consuming a value from the stream.'''
 
+#    result = lexer_class(str, split_chars, skip_chars, suppressors)
+#    print ' '.join(iter(result))
     return lexer_class(str, split_chars, skip_chars, suppressors)
 
 try:
