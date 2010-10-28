@@ -89,10 +89,11 @@ class FixExtraction(Fix):
                                     <2 /(QP|V[PV])/ } } ] } }''', self.clusterfix),
 
             # A few derivations annotate the structure of 他是去年开始的 as VP(VC NP-PRD(CP))
-            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_subject_extraction),
+            # Also, we permit NP to appear in PRED to get an analysis of NP(VP 的) as headed by the 的 (see the preprocessing case in tag.py)
+            (r'^/\*T\*/ > { /NP-SBJ/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP|NP-PRD)/=PRED > *=N } } }', self.fix_subject_extraction),
             (r'^/\*T\*/ > { /NP-SBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_subject_extraction)),
             
-            (r'^/\*T\*/ > { /NP-(OBJ|EXT)/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP-PRD)/=PRED > *=N } } }', self.fix_object_extraction),
+            (r'^/\*T\*/ > { /NP-(OBJ|EXT)/ >> { /[CI]P/ $ /WHNP(-\d+)?/=W > { /(CP|NP|NP-PRD)/=PRED > *=N } } }', self.fix_object_extraction),
             (r'^/\*T\*/ > { /NP-OBJ/ >>                               { /CP/=PRED > *=N } }', self.fix_reduced(self.fix_object_extraction)),
 
             # [ICV]P is in the expression because, if a *PRO* subject gap exists and is removed by catlab, we will not find a full IP in that position but a VP
