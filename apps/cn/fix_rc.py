@@ -364,8 +364,19 @@ class FixExtraction(Fix):
         debug("%s", reduced)
         node = n
         debug("Fixing subject extraction: %s", lrp_repr(node))
-        if not reduced:
-            self.remove_null_element(node)
+
+        if pred.tag.startswith('NP'):
+            # Fix for the NP(VP de) case:
+            # ---------------------------
+            #         NP                 NP
+            #        /  \                |  
+            #      WHNP  CP     -->      CP              
+            #            / \            /  \           
+            #          IP  DEC         IP   DEC          
+            n[0].kids.pop(0)
+        else:
+            if not reduced:
+                self.remove_null_element(node)
 
         if w:
             index = get_trace_index_from_tag(w.tag)
@@ -434,8 +445,19 @@ class FixExtraction(Fix):
     def fix_object_extraction(self, _, n, pred, w=None, reduced=False):
         node = n
         debug("Fixing object extraction: %s", lrp_repr(node))
-        if not reduced:
-            self.remove_null_element(node)
+        
+        if pred.tag.startswith('NP'):
+            # Fix for the NP(VP de) case:
+            # ---------------------------
+            #         NP                 NP
+            #        /  \                |  
+            #      WHNP  CP     -->      CP              
+            #            / \            /  \           
+            #          IP  DEC         IP   DEC          
+            n[0].kids.pop(0)
+        else:    
+            if not reduced:
+                self.remove_null_element(node)
         
         if w:
             index = get_trace_index_from_tag(w.tag)
