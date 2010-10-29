@@ -372,8 +372,10 @@ class FixExtraction(Fix):
             #        /  \                |  
             #      WHNP  CP     -->      CP              
             #            / \            /  \           
-            #          IP  DEC         IP   DEC          
-            n[0].kids.pop(0)
+            #          IP  DEC         IP   DEC
+            if not n[0].is_leaf():
+                n[0].kids.pop(0)
+                n[0].head_index = 0
         else:
             if not reduced:
                 self.remove_null_element(node)
@@ -454,8 +456,10 @@ class FixExtraction(Fix):
             #      WHNP  CP     -->      CP              
             #            / \            /  \           
             #          IP  DEC         IP   DEC          
-            n[0].kids.pop(0)
-        else:    
+            if not n[0].is_leaf():
+                n[0].kids.pop(0)
+                n[0].head_index = 0
+        else:
             if not reduced:
                 self.remove_null_element(node)
         
@@ -526,8 +530,6 @@ class FixExtraction(Fix):
         else:
             index = r'\*'
 
-        # FIXME: this matches only once (because it's TOP being matched, not T)
-        # \*(?!T) to avoid matching *T* traces
         expr = r'*=PP < { *=P < { /NP-(?:TPC|OBJ)/=T < ^/%s/a $ *=S } }' % index
         trace_NP, ctx = get_first(top, expr, with_context=True)
 
