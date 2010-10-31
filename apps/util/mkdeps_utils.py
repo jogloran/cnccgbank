@@ -34,7 +34,7 @@ def strip_index(s):
     return s.split('*')[0]
     
 class UnificationException(Exception): pass
-def unify(L, R, ignore=False, copy_vars=True, head=None):
+def unify(L, R, ignore=False, copy_vars=True):
     assgs = []
 
     for (Ls, Rs) in izip(L.nested_compound_categories(), R.nested_compound_categories()):
