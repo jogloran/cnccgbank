@@ -23,6 +23,7 @@ from apps.cn.output import OutputDerivation
 
 from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
+from apps.cn.fix_rc import is_rooted_in
 
 def register_unary(unaries, node, filler):
     '''
@@ -61,8 +62,12 @@ def make_set_head_from(l, r, p):
 unanalysed = set()
 def mkdeps(root, postprocessor=identity):
     for i, leaf in enumerate(leaves(root)):
+        # Uniquify each leaf with an index
         leaf.lex += "*%d" % i
+        # Apply the left to right slash labelling 
+        # (we abuse this to refer to slots, not slashes)
         leaf.cat.parg_labelled()
+        # Populate the outermost (_) variable of each leaf
         leaf.cat.slot.head.lex = leaf.lex
 
     for (l, r, p) in pairs_postorder(root):
@@ -83,11 +88,11 @@ def mkdeps(root, postprocessor=identity):
             debug("%s %s %s (%s)", L, R, P, str(comb))
 
         if comb == 'fwd_appl': # [Xx/Yy]l Yy -> Xx
-            unifier = unify(L.right, R, head=L)
+            unifier = unify(L.right, R)
             p.cat = L.left
 
         elif comb == 'bwd_appl': # Yy [Xx\Yy]r -> Xx
-            unifier = unify(L, R.right, head=R)
+            unifier = unify(L, R.right)
             p.cat = R.left
                 
         # Pro-drops which drop their outer argument
@@ -101,7 +106,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot # lexical head comes from R (Y/Z)
             P.slot.var = fresh_var(prefix='K')
 
-            unifier = unify(L.right, R.left, head=R)
+            unifier = unify(L.right, R.left)
             p.cat._left = L.left
             p.cat._right = R.right
             
@@ -110,7 +115,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot # lexical head comes from L (Y\Z)
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(R.right, L.left, head=L)
+            unifier = unify(R.right, L.left)
             p.cat._left = R.left
             p.cat._right = L.right
             
@@ -162,7 +167,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = R.slot
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(L.right, R.left, head=R)
+            unifier = unify(L.right, R.left)
             p.cat._left = L.left
             p.cat._right = R.right
 
@@ -170,7 +175,7 @@ def mkdeps(root, postprocessor=identity):
             P.slot = L.slot
             P.slot.var = fresh_var(prefix='K')
             
-            unifier = unify(R.right, L.left, head=L)
+            unifier = unify(R.right, L.left)
             p.cat._left = R.left
             p.cat._right = L.right
             
@@ -237,9 +242,8 @@ def mkdeps(root, postprocessor=identity):
         elif comb == 'r_punct_absorb':
             p.cat = L
 
-        elif R and L == R: # VCD (stopgap)
-            unify(P, R, head=R) # assume VCD is right headed
-            p.cat = R
+        elif R and L == R and is_rooted_in(parse_category('S'), L): # VCD (stopgap)
+            make_set_head_from(l, r, p)
 
         else:
             debug('Unhandled combinator %s (%s %s -> %s)', comb, L, R, P)
