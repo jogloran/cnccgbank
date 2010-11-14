@@ -132,8 +132,9 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
 Map = {
     'NP': NP, 'PN': NP,
     'DT': NP,
+    'NT': NP,
     
-    'NN': N, 'NR': N, 'NT': N,
+    'NN': N, 'NR': N,
     
     'FRAG': Sfrg,
     'IP': Sdcl,
@@ -151,7 +152,7 @@ Map = {
     'VSB': SdclbNP, 'VRD': SdclbNP, 'VCD': SdclbNP, 'VNV': SdclbNP, 'VPT': SdclbNP,
     'CC': conj,
     
-    'CD': Nnum,
+    'CD': QP,
     # to account for noise in 25:43(4)
     'OD': NfN, 
     
@@ -238,8 +239,8 @@ consulted first.'''
     
     original_tag = base_tag(node.tag, strip_cptb_tag=False)
     stemmed_tag = base_tag(node.tag)
+    debug("base_tag(%s) = %s" % (node.tag,stemmed_tag))
     
-    ret = Map.get(original_tag, None)
     return copy((is_root and (RootMap.get(original_tag, None) or RootMap.get(stemmed_tag, None)))
              or Map.get(original_tag, None)
              or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag)))
@@ -271,7 +272,9 @@ def label(node, inside_np=False):
         
         # if this matches the IP root with a *PRO* trace under it, then
         # we shouldn't map IP -> S, but rather IP -> S\NP
-        if has_noun_tag(node):
+        if node.tag.startswith('NT'): # map NT -> NP, not N
+            node.category = NP
+        elif has_noun_tag(node):
             node.category = N
         else:
             node.category = ptb_to_cat(node)

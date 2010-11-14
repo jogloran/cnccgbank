@@ -332,7 +332,8 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
               (node.tag.startswith('ADJP') and exactly_matches(node[0], 'PN', 'DT')) or
               # 28:82(8)
               (node.tag.startswith('DP') and matches(node[0], 'NN', 'PN')) or
-              (matches(node, 'NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 'NP-LOC', 'NP-ADV',
+              (matches(node, #'NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 
+                             'NP-LOC', 'NP-ADV',
                              'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR')
                   and has_noun_tag(node[0]))):
                   
