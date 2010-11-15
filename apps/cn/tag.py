@@ -302,7 +302,21 @@ def preprocess(root):
                     vp.kids = [v, pred]
                 else:
                     vp.kids = [v, sbj, pred]
-
+                    
+            expr = r'''/QP/=P <1 /CD/ <2 /CC/ <3 /CD/'''
+            result = get_first(node, expr, with_context=True)
+            if result:
+                _, ctx = result
+                p = ctx.p
+                
+                if p.count() <= 3: break
+                
+                cd_cc_cd, rest = p.kids[0:3], p.kids[3:]
+                del p.kids[0:3]
+                
+                new_node = Node('QP', cd_cc_cd)
+                p.kids.insert(0, new_node)
+                
     return root
     
 def is_argument_cluster(node):
@@ -348,8 +362,12 @@ def label(root):
 
         elif is_predication(node):
             for kid in node:
-                # TODO: we can get IP < NP-PN VP (0:40(5)). is this correct?
-                if kid.tag.rfind('-SBJ') != -1 or kid.tag.rfind('-PN') != -1 or kid.tag == "NP":
+                if (kid.tag.rfind('-SBJ') != -1 or 
+                    # TODO: we can get IP < NP-PN VP (0:40(5)). is this correct?
+                    # exclude NP-PN-LOC (10:62(25))
+                    (kid.tag.rfind('-PN') != -1 and kid.tag.rfind('-PN-LOC') == -1) or 
+                    kid.tag == "NP"):
+                    
                     tag(kid, 'l') # TODO: is subject always left of predicate?
                 elif kid.tag == 'VP':
                     tag(kid, 'h')

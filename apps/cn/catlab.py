@@ -154,7 +154,7 @@ Map = {
     
     'CD': QP,
     # to account for noise in 25:43(4)
-    'OD': NfN, 
+    'OD': QP,
     
     'ADJP': NfN,
     'JJ': NfN,

@@ -320,6 +320,16 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             inherit_tag(replacement, node, strip_marker=True)
             replace_kid(node.parent, node, node[0])
             return label_node(replacement)
+            
+        # NN for 25:61(7)
+        elif (node.tag.startswith("QP") and exactly_matches(node[0], "OD", "CD", 'NN')):
+            
+            replacement = node[0]
+            inherit_tag(replacement, node)
+            replace_kid(node.parent, node, node[0])
+            replacement.tag = node.tag
+            
+            return label_node(replacement)
         
         # promotion rules (NP < PN shrinks to NP (with PN's lexical item and pos tag))
         # shrink NP-TMP < NT so that the NT lexical item gets the adjunct category
@@ -327,8 +337,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         elif ((node.tag.startswith('NP') and (exactly_matches(node[0], "PN") or matches(node[0], 'NT', 'DT'))) or
               # 21:2(6)
               (node.tag.startswith('ADVP') and exactly_matches(node[0], 'CC', 'PN')) or
-              # NN for 25:61(7)
-              (node.tag.startswith("QP") and exactly_matches(node[0], "OD", "CD", 'NN')) or
+
               (node.tag.startswith('ADJP') and exactly_matches(node[0], 'PN', 'DT')) or
               # 28:82(8)
               (node.tag.startswith('DP') and matches(node[0], 'NN', 'PN')) or
