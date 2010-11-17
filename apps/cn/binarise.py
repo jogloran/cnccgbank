@@ -327,7 +327,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             replacement = node[0]
             inherit_tag(replacement, node)
             replace_kid(node.parent, node, node[0])
-            replacement.tag = node.tag
+            #replacement.tag = node.tag
             
             return label_node(replacement)
         
