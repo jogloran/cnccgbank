@@ -107,13 +107,15 @@ def label_right_adjunction(node):
 
 #@echo
 def label_coordination(node, inside_np=False, ucp=False):
-    node[0].category = node.category
+    top_level_category = N if node.category == NP else node.category    
+
+    node[0].category = top_level_category#node.category
     node.kids[0] = label(node[0], inside_np)
     
-    node[1].category = ptb_to_cat(node[1]) if ucp else node.category
+    node[1].category = ptb_to_cat(node[1]) if ucp else top_level_category # node.category
     # Label then apply [conj], so that kid categories don't inherit the feature
     node.kids[1] = label(node[1])
-    node[1].category = node.category.clone_adding_feature('conj')
+    node[1].category = top_level_category.clone_adding_feature('conj')#node.category.clone_adding_feature('conj')
     
     return node
 
@@ -122,6 +124,7 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
     node[0].category = ptb_to_cat(node[0])
     node.kids[0] = label(node[0], inside_np)
     
+    debug('label_partial_coordination node.category: %s, %s', node.category, node)
     node[1].category = ptb_to_cat(node[1]) if ucp else node.category 
     node.kids[1] = label(node[1], inside_np)
     
@@ -359,11 +362,6 @@ def label(node, inside_np=False):
     elif is_ucp(node):
         return label_coordination(node, ucp=True)
     
-    elif is_left_absorption(node):
-        return label_left_absorption(node)
-    elif is_right_absorption(node):
-        return label_right_absorption(node)
-    
     elif is_predication(node):
         return label_predication(node)
     elif is_right_adjunction(node): # (:h :a), for aspect particles
@@ -373,6 +371,11 @@ def label(node, inside_np=False):
         return label_partial_coordination(node)
     elif is_coordination(node):
         return label_coordination(node)
+        
+    elif is_left_absorption(node):
+        return label_left_absorption(node)
+    elif is_right_absorption(node):
+        return label_right_absorption(node)
     
     elif is_np_structure(node):
         return rename_category_while_labelling_with(
