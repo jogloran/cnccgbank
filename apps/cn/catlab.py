@@ -364,13 +364,14 @@ def label(node, inside_np=False):
     
     elif is_predication(node):
         return label_predication(node)
-    elif is_right_adjunction(node): # (:h :a), for aspect particles
-        return label_right_adjunction(node)
 
     elif is_left_absorption(node):
         return label_left_absorption(node)
     elif is_right_absorption(node):
         return label_right_absorption(node)
+        
+    elif is_right_adjunction(node): # (:h :a), for aspect particles
+        return label_right_adjunction(node)
         
     elif is_partial_coordination(node):
         return label_partial_coordination(node)
