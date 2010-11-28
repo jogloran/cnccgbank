@@ -573,8 +573,8 @@ class FixExtraction(Fix):
         replace_kid(p, t, Node(
             base_tag(t.tag, strip_cptb_tag=False),
             [t],
-            typeraise(typeraise_t_category, SbNP, TR_TOPICALISATION,
-            head_index=0)))
+            typeraise(typeraise_t_category, SbNP, TR_TOPICALISATION),
+            head_index=0))
             
         index = get_trace_index_from_tag(t.tag)
         
