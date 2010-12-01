@@ -1,4 +1,5 @@
 from itertools import izip, count
+import random
 
 def first_index_such_that(pred, l):
     '''Finds the first index satisfying the given predicate, or None if no index does.'''
@@ -75,3 +76,18 @@ class FixedSizeList(list):
     def append(self, v):
         if len(self) < self.maximum_capacity:
             list.append(self, v)
+            
+class FixedSizeRandomList(list):
+    def __init__(self, maximum_capacity=10):
+        self.maximum_capacity = maximum_capacity
+        self.n = 0
+    def append(self, v):
+        if len(self) < self.maximum_capacity:
+            list.append(self, v)
+        else:
+            j = random.randint(0, self.n-1)
+            if j < self.maximum_capacity:
+                self[j] = v
+                
+        self.n += 1
+    
