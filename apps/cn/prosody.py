@@ -54,7 +54,7 @@ def make(filter_expression, node_filter_function=lambda _: True):
            
 from munge.cats.trace import analyse     
 def filter_fn(node):
-    comb = analyse(node[0].cat, node[1].cat, node.cat)
+    comb = analyse(node[0].category, node[1].category, node.category)
     return comb not in ('l_punct_absorb', 'r_punct_absorb', 'funny_conj')
     
 NP = make('@N <1 { *=L ! < * } <2 { *=R ! < * }', filter_fn)
