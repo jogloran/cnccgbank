@@ -37,7 +37,7 @@ def make(filter_expression):
         
         def accept_derivation(self, bundle):
             root = bundle.derivation
-            length = bin_lengths
+            length = lambda s: bin_lengths(len(s))
         
             for node, ctx in find_all(root, filter_expression, with_context=True):
                 L, R = ctx['L'].lex.decode('u8'), ctx['R'].lex.decode('u8')
