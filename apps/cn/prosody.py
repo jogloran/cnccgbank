@@ -41,7 +41,7 @@ def make(filter_expression):
             for node, ctx in find_all(root, filter_expression, with_context=True):
                 L, R = ctx['L'].lex.decode('u8'), ctx['R'].lex.decode('u8')
                 self.sigs[ (len(L), len(R)) ][0] += 1
-                self.sigs[ (len(L), len(R)) ][1].append( ' '.join((L, R)) )
+                self.sigs[ (len(L), len(R)) ][1].append( ' '.join((L, R)).encode('u8') )
             
         def output(self):
             for k, (freq, examples) in sorted(self.sigs.iteritems(), key=lambda e: e[1], reverse=True):
