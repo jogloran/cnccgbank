@@ -30,7 +30,7 @@ def bin_lengths(l):
     if l <= 2: return l
     else: return 2
 
-def make(filter_expression):
+def make(filter_expression, node_filter_function=lambda _: True):
     class _(Filter):
         def __init__(self):
             self.sigs = defaultdict(lambda: [0, FixedSizeRandomList(20)])
@@ -40,9 +40,10 @@ def make(filter_expression):
             length = lambda s: bin_lengths(len(s))
         
             for node, ctx in find_all(root, filter_expression, with_context=True):
-                L, R = ctx['L'].lex.decode('u8'), ctx['R'].lex.decode('u8')
-                self.sigs[ (length(L), length(R)) ][0] += 1
-                self.sigs[ (length(L), length(R)) ][1].append( ' '.join((L, R)).encode('u8') )
+                if node_filter_function(node):
+                    L, R = ctx['L'].lex.decode('u8'), ctx['R'].lex.decode('u8')
+                    self.sigs[ (length(L), length(R)) ][0] += 1
+                    self.sigs[ (length(L), length(R)) ][1].append( ' '.join((L, R)).encode('u8') )
             
         def output(self):
             for k, (freq, examples) in sorted(self.sigs.iteritems(), key=lambda e: e[1], reverse=True):
@@ -50,6 +51,11 @@ def make(filter_expression):
                 print '%s | %s' % (' ' * 15, '; '.join(examples))
                 
     return _
-                
-NP = make('@N <1 { *=L ! < * } <2 { *=R ! < * }')
+           
+from munge.cats.trace import analyse     
+def filter_fn(node):
+    comb = analyse(node[0], node[1], node)
+    return comb not in ('l_punct_absorb', 'r_punct_absorb', 'funny_conj')
+    
+NP = make('@N <1 { *=L ! < * } <2 { *=R ! < * }', filter_fn)
 #VO = make('VP < /VV/ < /NP/')
