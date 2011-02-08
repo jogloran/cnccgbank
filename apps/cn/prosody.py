@@ -33,15 +33,16 @@ def bin_lengths(l):
 def make(filter_expression):
     class _(Filter):
         def __init__(self):
-            self.sigs = defaultdict(lambda: [0, FixedSizeRandomList()])
+            self.sigs = defaultdict(lambda: [0, FixedSizeRandomList(20)])
         
         def accept_derivation(self, bundle):
             root = bundle.derivation
+            length = bin_lengths
         
             for node, ctx in find_all(root, filter_expression, with_context=True):
                 L, R = ctx['L'].lex.decode('u8'), ctx['R'].lex.decode('u8')
-                self.sigs[ (len(L), len(R)) ][0] += 1
-                self.sigs[ (len(L), len(R)) ][1].append( ' '.join((L, R)).encode('u8') )
+                self.sigs[ (length(L), length(R)) ][0] += 1
+                self.sigs[ (length(L), length(R)) ][1].append( ' '.join((L, R)).encode('u8') )
             
         def output(self):
             for k, (freq, examples) in sorted(self.sigs.iteritems(), key=lambda e: e[1], reverse=True):
