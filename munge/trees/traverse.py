@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import re
 from itertools import izip, count
 
@@ -79,15 +81,16 @@ def is_ignored(node, ignoring_quotes=True):
     return (re.match(r'-?NONE-?', node.tag) or
             (ignoring_quotes and
                ((re.match(r'^``?$', node.lex) or
-                (node.tag not in ("POS", ":") and re.match(r"^''?$", node.lex))))))
+                (node.tag not in ("POS", ":") and re.match(r"^''?$", node.lex)))) or
+                (node.lex in ("“", "”"))))
     
-def text_without_quotes_or_traces(deriv):
+def text_without_quotes_or_traces(deriv, pred=lambda e: True):
     '''Returns a list of the text under this node, ignoring quote symbols or traces.'''
-    return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=True))
+    return text(deriv, lambda e: pred(e) and not is_ignored(e, ignoring_quotes=True))
     
-def text_without_traces(deriv):
+def text_without_traces(deriv, pred=lambda e: True):
     '''Returns a list of the text under this node, ignoring traces.'''
-    return text(deriv, lambda e: not is_ignored(e, ignoring_quotes=False))
+    return text(deriv, lambda e: pred(e) and not is_ignored(e, ignoring_quotes=False))
     
 def text_in_span(deriv, begin, end):
     '''Returns a subset of the text under this node, as specified by a pair of indices
