@@ -10,12 +10,12 @@ def intersperse(l, spacer=", "):
 def default_node_repr(node):
     if hasattr(node, 'category') and node.category is not None:
         if node.is_leaf():
-            return "%s {%s} %s" % (node.tag, node.category, node.lex)
+            return "%s {%s} %s" % (node.tag, node.category, node.lex.encode('u8'))
         else:
             return "%s {%s}" % (node.tag, node.category)
     else:
         if node.is_leaf():
-            return "%s %s" % (node.tag, node.lex)
+            return "%s %s" % (node.tag, node.lex.encode('u8'))
         else:
             return "%s" % node.tag
         

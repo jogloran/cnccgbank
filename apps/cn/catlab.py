@@ -242,7 +242,6 @@ consulted first.'''
     
     original_tag = base_tag(node.tag, strip_cptb_tag=False)
     stemmed_tag = base_tag(node.tag)
-    debug("base_tag(%s) = %s" % (node.tag,stemmed_tag))
     
     return copy((is_root and (RootMap.get(original_tag, None) or RootMap.get(stemmed_tag, None)))
              or Map.get(original_tag, None)
