@@ -91,3 +91,12 @@ class AugmentedPTBReader(PTBReader):
     @staticmethod
     def parse_file(text):
         return parse_tree(text, AugmentedPennParser)
+
+from munge.penn.parse import CategoryPennParser
+class CategoryPTBReader(PTBReader):
+    def __init__(self, *args):
+        PTBReader.__init__(self, *args)
+
+    @staticmethod
+    def parse_file(text):
+        return parse_tree(text, CategoryPennParser, "()", "")

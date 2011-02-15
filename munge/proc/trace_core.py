@@ -4,7 +4,7 @@ from itertools import izip, count
 
 from munge.io.guess import GuessReader
 from munge.io.multi import DirFileGuessReader
-from munge.penn.io import AugmentedPTBReader
+from munge.penn.io import AugmentedPTBReader, CategoryPTBReader
 
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
