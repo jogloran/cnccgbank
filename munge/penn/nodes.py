@@ -75,7 +75,7 @@ class Leaf(object):
 
     def __init__(self, tag, lex, parent):
         self.tag = tag
-        self.lex = lex.decode('u8')
+        self.lex = lex
         
         self.parent = parent
         

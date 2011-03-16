@@ -343,6 +343,9 @@ def label(node, inside_np=False):
     elif is_etc(node):
         return label_head_final(node)
         
+    elif is_S_NP_apposition(node):
+        return label_head_final(node)
+        
     elif (node.count() == 1
        or is_topicalisation(node)
        or is_topicalisation_without_gap(node)
@@ -360,7 +363,7 @@ def label(node, inside_np=False):
         return label_partial_coordination(node, ucp=True)
     elif is_ucp(node):
         return label_coordination(node, ucp=True)
-    
+        
     elif is_predication(node):
         return label_predication(node)
 
@@ -377,7 +380,7 @@ def label(node, inside_np=False):
     elif is_coordination(node):
         return label_coordination(node)
     
-    elif is_np_structure(node):
+    elif is_np_structure(node):# and not node[0].tag.startswith('IP-APP'):
         return rename_category_while_labelling_with(
             label_np_structure,
             node, N,

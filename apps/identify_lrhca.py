@@ -168,9 +168,16 @@ def is_np_internal_structure(node):
              or kid.tag.startswith('JJ')
              or kid.tag.endswith(':&') for kid in leaves(node)))
     
+def is_S_NP_apposition(node):
+    return node.tag.startswith('NP') and 
+    # IP-APP < *pro* VP may be reduced to VP-APP by binarise
+        (node[0].tag.startswith('IP-APP') or node[0].tag.startswith('VP-APP')) and (
+        node[1].tag.startswith('NP') or has_noun_tag(node[1]))
+    
 def is_np_structure(node):
     # These tags are attested NP modifiers
-    return node.tag.startswith('NP') and all(
+    # rule out NP-PRD as NP structure (0:88(15))
+    return node.tag.startswith('NP') and all( #and not node.tag.startswith('NP-PRD')) and all(
         (any(kid.tag.startswith(cat) for cat in NominalCategories)) or 
         kid.tag.startswith('ADJP') or 
         kid.tag.startswith('QP') or
@@ -187,6 +194,7 @@ def is_np_structure(node):
         kid.tag.startswith('NP') or
         kid.tag.startswith('WHNP') or # 9:30(13)
         kid.tag.startswith('FLR') or # ignore FLR
+        kid.tag.startswith('SP') or # ignore SP
         kid.tag.endswith(':p') for kid in node)
     
 def is_apposition(node):

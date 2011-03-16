@@ -501,12 +501,17 @@ def label(root):
                         tag(kid, 'l')
 
         elif is_apposition(node):
-            tag(last_kid, 'r') # HACK: assume apposition is right-headed
+            if False:#any(kid.tag == 'IP-APP' for kid in node):
+                tag(last_kid, 'h')
+            else:
+                tag(last_kid, 'r') # HACK: assume apposition is right-headed
 
             for kid in node:
                 if not kid.tag.startswith('PU'):
                     # exclude CP-APP (see is_apposition() above)
-                    if kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
+                    if False:#kid.tag == 'IP-APP':
+                        tag(kid, 'l')
+                    elif kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
                         tag(kid, 'A')
                     else:
                         tag(kid, 'a')

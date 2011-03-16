@@ -163,9 +163,13 @@ def try_composition(l, r, cur, examine_modes=False):
     #      |       |__________|   |
     #      | _____________________|
     if l.left.is_complex() and cur.left.is_complex() and \
-       l.left.left == r.right and l.right == cur.right and \
-       r.left == cur.left.left and l.right == cur.right:
-        return "bwd_r1xcomp"
+       r.left == cur.left.left and \
+       l.left.left == r.right and \
+       l.right == cur.right:
+        if l.left.direction == r.direction:
+          return "bwd_r1comp"
+        else:
+          return "bwd_r1xcomp"
 
     return None
 

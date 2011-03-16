@@ -61,8 +61,6 @@ def tgrep(deriv, expression, with_context=False, nonrecursive=False, left_to_rig
                         nodes  if left_to_right else 
                         nodes_reversed)
     for node in traversal_method(deriv):
-#        debug("evaluating %s against %s", expression, node)
-            
         context = Context()
         if query.is_satisfied_by(node, context):
             if _tgrep_debug: debug("%s matched %s", lrp_repr(node), query)

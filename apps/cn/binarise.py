@@ -357,6 +357,11 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             node.kids[0] = label_node(node.kids[0])
             return node
     
+    elif is_S_NP_apposition(node):
+        inherit_tag(node[1][0], node[1])
+        node.kids[1] = node[1][0]
+        return label_head_final(node)
+    
     elif is_predication(node):
         return label_predication(node)
     elif is_prn(node):
@@ -364,7 +369,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         return label_adjunction(node, inside_np_internal_structure=True)
     elif is_apposition(node):
         return label_apposition(node, inside_np_internal_structure=True)
-    elif is_np_structure(node):
+    elif is_np_structure(node):# and not node[0].tag.startswith('IP-APP'):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)

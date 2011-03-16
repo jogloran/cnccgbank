@@ -101,7 +101,7 @@ class FixExtraction(Fix):
                          >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }'''
                          % { 'tags': ModifierTagsRegex }, self.fix_nongap_extraction),
 
-            (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
+           # (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
             # ba-construction object gap
             (r'*=TOP < { /BA/=BA $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
