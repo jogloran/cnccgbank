@@ -31,12 +31,14 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
     else:
         kids = node.kids
     
-    last_kid, second_last_kid = twice(kids.pop)()
+#    last_kid, second_last_kid = twice(kids.pop)()
+    last_kid, second_last_kid = twice(get_kid_)(kids)
     
     cur = Node(kid_tag, [second_last_kid, last_kid], head_index=1)
     
     while kids:
-        kid = kids.pop()
+    #    kid = kids.pop()
+        kid = get_kid_(kids)
         cur = Node(kid_tag, [kid, cur], head_index=1)
     
     cur.tag = node.tag
