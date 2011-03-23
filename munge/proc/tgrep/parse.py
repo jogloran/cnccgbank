@@ -53,6 +53,8 @@ def t_REGEX(t):
     r'/([^/\s]|\/)+/'
     return t
     
+# TODO: There's a bug with REGEX_SPEC; if the input is "a" then it gets lexed as REGEX_SPEC
+#       Need to make REGEX_SPEC part of the definition of the REGEX token
 def t_REGEX_SPEC(t):
     r'[a]'
     return t
