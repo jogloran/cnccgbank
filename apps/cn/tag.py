@@ -324,7 +324,7 @@ def preprocess(root):
             #     /  \
             # NP-APP NP
             # we rewrite X's tag to be NP-APP to avoid the spurious rules like NP N -> N
-            expr = r'''/NP/ <1 { /NP/=P <1 /NP(-.+)?-APP/ }'''
+            expr = r'''/NP/ <1 { /NP/=P <1 /NP(-.+)?-APP/ } <2 /NP/'''
             result = get_first(node, expr, with_context=True)
             if result:
                 _, ctx = result
