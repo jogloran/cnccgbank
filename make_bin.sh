@@ -35,6 +35,6 @@ rm -rf ./tagged$dir_suffix/"$TARGET"
 # Binarise derivations
 echo "[`date +%c`] Binarising derivations... -> binarised$dir_suffix"
 rm -rf ./binarised$dir_suffix/"$TARGET"
-./t  $break_flag -lapps.cn.binarise -r Binariser binarised$dir_suffix -0 tagged$dir_suffix/"$TARGET" 2>&1 | tee bin_errors
+./t -q $break_flag -lapps.cn.binarise -r Binariser binarised$dir_suffix -0 tagged$dir_suffix/"$TARGET" 2>&1 | tee bin_errors
 # Make graphs
 #./t -q -D binarised_dots binarised/"$TARGET"
