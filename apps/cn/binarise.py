@@ -373,7 +373,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         # although we want a head-initial analysis, we want a right-branching structure
         return label_adjunction(node, inside_np_internal_structure=True)
     elif is_apposition(node):
-        return label_apposition(node, inside_np_internal_structure=True)
+        return label_apposition(node, inside_np_internal_structure=True, inherit_tag=True)
     elif is_np_structure(node):# and not node[0].tag.startswith('IP-APP'):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
