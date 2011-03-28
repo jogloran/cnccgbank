@@ -29,7 +29,7 @@ fi
 # Tag derivations
 echo "[`date +%c`] Tagging derivations... -> tagged$dir_suffix"
 rm -rf ./tagged$dir_suffix/"$TARGET"
-./t  $break_flag -lapps.cn.tag -r TagStructures tagged$dir_suffix -0 "$corpus_dir/$TARGET" 2>&1 | tee tag_errors 
+./t -q $break_flag -lapps.cn.tag -r TagStructures tagged$dir_suffix -0 "$corpus_dir/$TARGET" 2>&1 | tee tag_errors 
 #./t -q -D tagged_dots tagged/"$TARGET"
 
 # Binarise derivations
