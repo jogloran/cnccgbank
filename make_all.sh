@@ -1,11 +1,11 @@
 #! /bin/bash
 
 dir_suffix_arg=
-while getopts 's:' OPTION
+while getopts 'c:s:' OPTION
 do
     case $OPTION in
-        s) dir_suffix_arg="-s $OPTARG"
-        ;;
+        c) corpus_dir_arg="-c $OPTARG" ;;
+        s) dir_suffix_arg="-s $OPTARG" ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -22,7 +22,7 @@ fi
 
 echo Started at: `date`
 # Pass -s through to sub-scripts
-./make_lab.sh $dir_suffix_arg "$TARGET" \
+./make_lab.sh $corpus_dir_arg $dir_suffix_arg "$TARGET" \
 && ./make_fix.sh $dir_suffix_arg "$TARGET" \
 && ./make_ccgbank.sh $dir_suffix_arg "$TARGET"  \
 #&& ./t -q -D final_dots final/"$TARGET" 

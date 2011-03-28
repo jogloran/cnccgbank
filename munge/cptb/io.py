@@ -80,7 +80,7 @@ class CPTBReader(SingleReader):
         else:
             # ctbid element seems to have disappeared between versions 2 and 6
             # try to discover it from the filename
-            matches = re.match(r'chtb_(\d{4}).fid', os.path.basename(self.filename))
+            matches = re.match(r'chtb_(\d{4})\..+', os.path.basename(self.filename))
             file_id = matches.group(1)
             return int(file_id[:2]), int(file_id[2:])
         

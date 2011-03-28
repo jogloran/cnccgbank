@@ -1,10 +1,13 @@
 #! /bin/bash
 
+corpus_dir_arg=
 break_flag=
 dir_suffix=
-while getopts 's:f' OPTION
+while getopts 'c:s:f' OPTION
 do
     case $OPTION in
+        c) corpus_dir_arg="-c $OPTARG" 
+        ;;
         s) dir_suffix_arg="-s $OPTARG"; dir_suffix="_$OPTARG"
         ;;
         f) break_flag=-b
@@ -23,10 +26,10 @@ else
     TARGET=`basename $1`
 fi
 
-./make_bin.sh $dir_suffix_arg "$TARGET" && \
+./make_bin.sh $corpus_dir_arg $dir_suffix_arg "$TARGET" && \
 
 echo "[`date +%c`] Doing category labelling... -> labelled$dir_suffix"
-rm -rf ./labelled$dir_suffix/"$TARGET";
+rm -rf ./labelled$dir_suffix/"$TARGET"
 ./t -q $break_flag -lapps.cn.catlab -r LabelNodes labelled$dir_suffix -0 binarised$dir_suffix/"$TARGET" 2>&1 | tee lab_errors 
 
 #echo Making DOTs.
