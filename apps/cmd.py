@@ -278,7 +278,9 @@ a pager program.'''
 
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
                            dest='find_mode', action='store_const', const='all', default='all'),
-               make_option('-2', '--find-small', help='Find all small matches (6 or fewer leaves).',
+               make_option('-3', '--find-small-sents', help='Find only matches in small sentences (20 or fewer words)',
+                           dest='find_mode', action='store_const', const='small_sents'),
+               make_option('-2', '--find-small', help='Find all small matches (10 or fewer leaves).',
                            dest='find_mode', action='store_const', const='small'),
                make_option('-1', '--find-first', help='Match only one node where possible.',
                            dest='find_mode', action='store_const', const='first') ])
@@ -303,6 +305,7 @@ a pager program.'''
             'all':        Tgrep.FIND_ALL,
             'first':      Tgrep.FIND_FIRST,
             'small':      Tgrep.FIND_SMALL,
+            'small_sents':Tgrep.FIND_SMALL_SENTS,
         }[opts.find_mode]
 
         def action():

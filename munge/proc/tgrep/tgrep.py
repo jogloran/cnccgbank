@@ -97,6 +97,12 @@ def find_small(*args, **kwargs):
         if len(match) == 2: match, context = match
         if match.leaf_count() <= 10:
             yield match
+            
+def find_small_sents(*args, **kwargs):
+    deriv = args[0]
+    if deriv.counts() > 20: continue
+    
+    return tgrep(*args, **kwargs)
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
@@ -230,11 +236,12 @@ class Tgrep(TgrepCore):
             else:
                 print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
 
-    FIND_FIRST, FIND_ALL, FIND_SMALL = range(3)
+    FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS = range(3)
     find_functions = {
         FIND_FIRST: find_first,
         FIND_ALL:   find_all,
-        FIND_SMALL: find_small
+        FIND_SMALL: find_small,
+        FIND_SMALL_SENTS: find_small_sents
     }
     
     def get_show_function(self, callback_key):
