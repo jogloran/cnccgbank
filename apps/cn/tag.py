@@ -189,10 +189,14 @@ def preprocess(root):
             rest = node.kids[1:]
             del node.kids[1:]
             node.kids.append(Node(last_tag, rest, node))
-        # 2:12(3). DNP-PRD fixed by adding a layer of NP
+
+        # rewrites VP < VC DNP-PRD as VP < VC NP-PRD (0:30(4))
         elif (node.tag.startswith('VP') and node.count() == 2 and 
                 node[0].tag.startswith('VC') and 
-                node[1].tag.startswith('DNP-PRD')): node[1] = Node('NP', [node[1]], node)
+                node[1].tag.startswith('DNP-PRD')): 
+            # This treats the NP as head-final:
+            node[1].tag = node[1].tag.replace('DNP','NP')
+        
         # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
         elif (node.tag.startswith('VP') and node.count() >= 2 and
               node.tag.startswith('VP') and 
@@ -254,6 +258,10 @@ def preprocess(root):
                     expr = r'''/CP/ < { /CP/ < /DEC/ }'''
                     if get_first(node[0], expr):
                         node.kids = node[0].kids
+            
+            elif node[0].tag.startswith('DNP') and node.tag.startswith('NP'):
+                inherit_tag(node[0], node)
+                node.kids = node[0].kids
                         
             elif node[0].tag in ('NP', 'NP-PN', 'VP', 'IP') and node.tag == 'PRN':
                 node.kids = node[0].kids
@@ -324,11 +332,11 @@ def preprocess(root):
             #     /  \
             # NP-APP NP
             # we rewrite X's tag to be NP-APP to avoid the spurious rules like NP N -> N
-            expr = r'''/NP/ <1 { /NP/=P <1 /NP(-.+)?-APP/ } <2 /NP/'''
+            expr = r'''/NP/=P < /NP(-.+)?-APP/'''
             result = get_first(node, expr, with_context=True)
             if result:
                 _, ctx = result
-                if not ctx.p.tag.endswith('-APP'):
+                if ctx.p.tag.find('-APP') == -1:
                     ctx.p.tag += '-APP'
                 
     return root
