@@ -100,7 +100,7 @@ def find_small(*args, **kwargs):
             
 def find_small_sents(*args, **kwargs):
     deriv = args[0]
-    if deriv.counts() > 20: continue
+    if deriv.count() > 20: return
     
     return tgrep(*args, **kwargs)
 
@@ -236,7 +236,7 @@ class Tgrep(TgrepCore):
             else:
                 print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
 
-    FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS = range(3)
+    FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS = range(4)
     find_functions = {
         FIND_FIRST: find_first,
         FIND_ALL:   find_all,
