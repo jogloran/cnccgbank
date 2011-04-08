@@ -47,7 +47,9 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
     return cur
 
 def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
-    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+#    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+    node.tag = strip_tag_if(True, node.tag)
+    kid_tag = node.tag
     
     if node.count() > 2:
         # Label the first kid before removing it from the node: if we did this the
