@@ -1,11 +1,13 @@
 #! /bin/bash
 
 dir_suffix_arg=
-while getopts 'c:s:' OPTION
+while getopts 'c:s:h' OPTION
 do
     case $OPTION in
         c) corpus_dir_arg="-c $OPTARG" ;;
         s) dir_suffix_arg="-s $OPTARG" ;;
+        h) echo "$0 [-c corpus_dir] [-s work_dir_suffix] [SEC|all]"
+           exit 1 ;;
     esac
 done
 shift $(($OPTIND - 1))
