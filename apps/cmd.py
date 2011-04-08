@@ -240,6 +240,8 @@ a pager program.'''
                 pipe.wait()
 
             msg("Filter run %s halted by framework:", filter_run_name(filter_name, filter_args))
+            # TODO: Exception no longer has a message field in Python 3.0, produces a DeprecationWarning
+            # under Python 2.7
             msg("\t%s (%s)", e.message, e.__class__.__name__)
 
             self.last_exception = sys.exc_info()
