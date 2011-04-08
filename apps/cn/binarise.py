@@ -127,10 +127,13 @@ def _label_coordination(node, inside_np_internal_structure=False):
 
 label_coordination = label_with_final_punctuation_high(_label_coordination)
 
+def is_pu(node):
+    return node.tag == 'PU' and node.lex != '、'
+
 def get_kid(kids, seen_cc):
     pu = kids.pop()
     
-    if seen_cc and pu.tag == 'PU' and len(kids) > 0:
+    if seen_cc and is_pu(pu) and len(kids) > 0:
         xp = kids.pop()
         xp_ = Node(xp.tag, [xp, pu], head_index=0)
         
