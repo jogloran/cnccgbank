@@ -55,8 +55,11 @@ perl -pi -e 's/\(([^\s]+)\)\[conj\]/$1\[conj\]/g' ${final_dir}/PARG/*/*
 
 msg "Creating supertagger data..."
 # Create supertagger training data in piped format
+rm -rf piped
+./t -q -lapps.cn.cnc -r PipeFormat piped "%w|%P|%s" -0 ${final_dir}/AUTO/*/*
 rm -rf ${final_dir}/piped
-./t -q -lapps.cn.cnc -r PipeFormat ${final_dir}/piped "%w|%P|%s" -0 ${final_dir}/AUTO/*/*
+./regroup_piped.sh ${final_dir}/piped piped/*
+
 ended=`date +%c`
 
 echo "Run started: $started"
