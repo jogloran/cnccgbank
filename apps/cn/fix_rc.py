@@ -60,7 +60,7 @@ class FixExtraction(Fix):
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
             # TODO: needs to be tested with (!NP)-TPC
             (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
-            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
+
 
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
             # and what is expected (eg S/S)
@@ -100,6 +100,8 @@ class FixExtraction(Fix):
             (r'''^/\*T\*/ > { /[NPQ]P(?:-%(tags)s)?(?!-\d+)/=K 
                          >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }'''
                          % { 'tags': ModifierTagsRegex }, self.fix_nongap_extraction),
+                         
+            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
            # (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
@@ -382,7 +384,7 @@ CCG analysis.'''
         if pred.tag.startswith('NP'):
             # Fix for the NP(VP de) case:
             # ---------------------------
-            #         NP                 NP
+            #         NP=n               NP
             #        /  \                |  
             #      WHNP  CP     -->      CP              
             #            / \            /  \           
@@ -390,6 +392,8 @@ CCG analysis.'''
             if not n[0].is_leaf():
                 n[0].kids.pop(0)
                 n[0].head_index = 0
+            elif n.tag.startswith('PP'):
+                self.remove_null_element(n)
         else:
             if not reduced:
                 self.remove_null_element(node)
@@ -503,7 +507,7 @@ CCG analysis.'''
 
     def relabel_bei_category(self, top, pred):
         # particle 'you' is tagged as a preposition but acts as the BEI marker
-        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
+        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI | $ ^"经"=BEI | $ ^"经过"=BEI | $ ^"随"=BEI | $ ^"为"=BEI | $ ^"以"=BEI | $ ^"经由"=BEI ]', with_context=True)
         s, bei = ctx.s, ctx.bei
 
         bei.category = bei.category.clone_with(right=s.category)
