@@ -31,19 +31,26 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
     else:
         kids = node.kids
     
-    last_kid, second_last_kid = twice(kids.pop)()
-    
-    cur = Node(kid_tag, [second_last_kid, last_kid], head_index=1)
-    
+#    last_kid, second_last_kid = twice(kids.pop)()
+    last_kid = get_kid_(kids)
+    if kids:
+        second_last_kid = get_kid_(kids)
+        cur = Node(kid_tag, [second_last_kid, last_kid], head_index=1)    
+    else:
+        cur = last_kid
+
     while kids:
-        kid = kids.pop()
+        kid = get_kid_(kids)
         cur = Node(kid_tag, [kid, cur], head_index=1)
     
     cur.tag = node.tag
     return cur
 
 def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
-    kid_tag = strip_tag_if(not inherit_tag, node.tag)
+    # check 0:14(5) and 0:39(7): removing the below check causes spurious rules like NP NP -> NP\NP
+    if not (node.tag.endswith(':A') or node.tag.endswith(':c')):
+       node.tag = strip_tag_if(True, node.tag)
+    kid_tag = node.tag
     
     if node.count() > 2:
         # Label the first kid before removing it from the node: if we did this the
@@ -121,10 +128,13 @@ def _label_coordination(node, inside_np_internal_structure=False):
 
 label_coordination = label_with_final_punctuation_high(_label_coordination)
 
+def is_pu(node):
+    return node.tag == 'PU' and node.lex != '、'
+
 def get_kid(kids, seen_cc):
     pu = kids.pop()
     
-    if seen_cc and pu.tag == 'PU' and len(kids) > 0:
+    if seen_cc and is_pu(pu) and len(kids) > 0:
         xp = kids.pop()
         xp_ = Node(xp.tag, [xp, pu], head_index=0)
         
@@ -132,6 +142,7 @@ def get_kid(kids, seen_cc):
     else:
         return pu, pu.tag == 'CC'
 
+#@echo
 def get_kid_(kids):
     return get_kid(kids, True)[0]
 
@@ -368,7 +379,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         # although we want a head-initial analysis, we want a right-branching structure
         return label_adjunction(node, inside_np_internal_structure=True)
     elif is_apposition(node):
-        return label_apposition(node, inside_np_internal_structure=True)
+        return label_apposition(node, inside_np_internal_structure=True, inherit_tag=True)
     elif is_np_structure(node):# and not node[0].tag.startswith('IP-APP'):
         return label_adjunction(node, inside_np_internal_structure=True) # TODO: misnomer
     elif is_np_internal_structure(node):
