@@ -48,7 +48,8 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
 
 def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
 #    kid_tag = strip_tag_if(not inherit_tag, node.tag)
-#    node.tag = strip_tag_if(True, node.tag)
+    if not node.tag.endswith(':A'):
+       node.tag = strip_tag_if(True, node.tag)
     kid_tag = node.tag
     
     if node.count() > 2:
