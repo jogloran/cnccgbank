@@ -68,12 +68,6 @@ def list_preview(orig_l, head_elements=7, tail_elements=1):
     bits.append(" }")
 
     return ''.join(bits)
-    
-def intersperse(l, spacer=", "):
-    '''Given a list _l_, intersperses the given _spacer_ between each pair of elements.'''
-    for i in xrange(len(l)-1, 0, -1):
-        l.insert(i, spacer)
-    return l
 
 class FixedSizeList(list):
     '''A list which holds at most a given number of elements. Attempts to add further elements are no-ops.'''

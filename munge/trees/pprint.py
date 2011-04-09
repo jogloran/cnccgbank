@@ -1,6 +1,11 @@
 from itertools import izip, count
 from apps.util.config import config
-from munge.util.list_utils import intersperse
+
+def intersperse(l, spacer=", "):
+    '''Given a list _l_, intersperses the given _spacer_ between each pair of elements.'''
+    for i in xrange(len(l)-1, 0, -1):
+        l.insert(i, spacer)
+    return l
     
 def default_node_repr(node):
     if hasattr(node, 'category') and node.category is not None:
