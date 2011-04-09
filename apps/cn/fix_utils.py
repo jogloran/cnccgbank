@@ -10,13 +10,13 @@ from munge.util.deco_utils import predicated
 
 def replace_kid(node, old, new):
     # make sure you go through Node#__setitem__, not by modifying Node.kids directly,
-    # otherwise parent pointers won't get updated
+    # otherwise parent pointers won't get updated 
     try:
         i = node.kids.index(old)
         node[i] = new
     except ValueError:
         raise Exception("Tried to replace:\n\t%s\nwith:\t%s\nactual kids:\n\t%s" % (lrp_repr(old), lrp_repr(new), '\n\t'.join((lrp_repr(kid) for kid in node.kids))))
-
+    
 #      P                   P
 #     / \       ->        / \
 #     L  R                L  r
@@ -30,7 +30,7 @@ def shrink_left(node, parent):
         return kid
     else: # is root
         return node[1]
-
+     
 def inherit_index(node, other):
     '''Gives _node_ the index that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
     matches = re.search(r'(-\d+)', other.tag)
@@ -39,13 +39,13 @@ def inherit_index(node, other):
             till_tag, after_tag = node.tag.split(':')
             index_to_inherit = matches.group(1)
             node.tag = till_tag + index_to_inherit + ":" + after_tag
-
+    
 def inherit_tag(node, other, strip_marker=False):
     # node = IP:h other = CP-APP:a
     # node = IP:h-APP:a
     '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
     if strip_marker: node.tag = base_tag(node.tag, strip_cptb_tag=False)
-
+    
     if other.tag.rfind('-') != -1 and node.tag.rfind(':') == -1:
         node.tag += other.tag[other.tag.rfind('-'):]
     elif other.tag.rfind(':') != -1 and node.tag.rfind(':') == -1:
@@ -64,7 +64,7 @@ def bcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or
         l.left != r.right or
         l.direction != BACKWARD or l.direction != r.direction): return None
-
+        
     return fake_unify(r, l, r.left | l.right)
 
 @predicated
@@ -75,14 +75,14 @@ def bxcomp(l, r):
         l.direction != FORWARD or l.direction == r.direction): return None
 
     return fake_unify(r, l, r.left / l.right)
-
+    
 @predicated
 def bxcomp2(l, r):
     # (Y/Z)/W X\Y -> (X/Z)/W
     if not (l.is_complex() and r.is_complex() and l.left.is_complex() and
         l.left.left == r.right and
         l.direction == l.left.direction and l.direction != r.direction): return None
-
+        
     return fake_unify(r, l, (r.left/l.left.right)/l.right)
 
 @predicated
@@ -92,7 +92,7 @@ def fxcomp(l, r):
         l.direction != FORWARD or r.direction == l.direction): return None
 
     return fake_unify(l, r, l.left | r.right)
-
+    
 def fake_unify(l, r, result):
     # Fake unification onto result category
     # 1. get inner-most result category from R
@@ -110,7 +110,7 @@ def fake_unify(l, r, result):
     res.features = copy(cur.features)
 
     return result
-
+    
 TR_FORWARD, TR_BACKWARD, TR_TOPICALISATION = 1, 2, 3
 def typeraise(x, t, dir):
     '''

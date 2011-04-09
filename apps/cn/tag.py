@@ -189,14 +189,10 @@ def preprocess(root):
             rest = node.kids[1:]
             del node.kids[1:]
             node.kids.append(Node(last_tag, rest, node))
-
-        # rewrites VP < VC DNP-PRD as VP < VC NP-PRD (0:30(4))
+        # 2:12(3). DNP-PRD fixed by adding a layer of NP
         elif (node.tag.startswith('VP') and node.count() == 2 and 
                 node[0].tag.startswith('VC') and 
-                node[1].tag.startswith('DNP-PRD')): 
-            # This treats the NP as head-final:
-            node[1].tag = node[1].tag.replace('DNP','NP')
-        
+                node[1].tag.startswith('DNP-PRD')): node[1] = Node('NP', [node[1]], node)
         # fix missing -OBJ tag from VP object complements (c.f. 31:18(4))
         elif (node.tag.startswith('VP') and node.count() >= 2 and
               node.tag.startswith('VP') and 
@@ -258,10 +254,6 @@ def preprocess(root):
                     expr = r'''/CP/ < { /CP/ < /DEC/ }'''
                     if get_first(node[0], expr):
                         node.kids = node[0].kids
-            
-            elif node[0].tag.startswith('DNP') and node.tag.startswith('NP'):
-                inherit_tag(node[0], node)
-                node.kids = node[0].kids
                         
             elif node[0].tag in ('NP', 'NP-PN', 'VP', 'IP') and node.tag == 'PRN':
                 node.kids = node[0].kids
@@ -324,20 +316,6 @@ def preprocess(root):
                 
                 new_node = Node('QP', cd_cc_cd)
                 p.kids.insert(0, new_node)
-                
-            # when an NP apposition modifies another N, the treebank has:
-            #         NP
-            #        /  \
-            #     X=NP  NP -- NN
-            #     /  \
-            # NP-APP NP
-            # we rewrite X's tag to be NP-APP to avoid the spurious rules like NP N -> N
-            expr = r'''/NP/=P < /NP(-.+)?-APP/'''
-            result = get_first(node, expr, with_context=True)
-            if result:
-                _, ctx = result
-                if ctx.p.tag.find('-APP') == -1:
-                    ctx.p.tag += '-APP'
                 
     return root
     
@@ -427,7 +405,7 @@ def label(root):
                 if kid.tag == "VC":
                     tag(kid, 'a')
                     
-        elif is_vrd(node): # vrd is head-initial
+        elif is_vrd(node) or is_vsb(node): # vrd is head-initial
             tag(first_kid, 'h')
             for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
