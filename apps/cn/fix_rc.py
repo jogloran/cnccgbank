@@ -169,6 +169,7 @@ class FixExtraction(Fix):
 
         argument = ctx.t
         self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
+        self.fix_categories_starting_from(ctx.s, g)
         
         debug("T(argument): %s", lrp_repr(argument))
         debug("G: %s", lrp_repr(g))
@@ -239,6 +240,8 @@ class FixExtraction(Fix):
                 
     @staticmethod
     def is_relativiser(cat):
+    	'''Recognise categories of the shape {N,NP,QP,S}`|S[dcl]$. Roughly,
+any modifier category seeking a verbal category is a relativiser category.'''
         return (cat.is_complex() 
             and (is_rooted_in(N, cat.left) 
               or is_rooted_in(NP, cat.left) 
@@ -249,7 +252,10 @@ class FixExtraction(Fix):
     is_verbal_category = staticmethod(lambda cat: is_rooted_in(Sdcl, cat, respecting_features=True))
 
     def fix_categories_starting_from(self, node, until):
+        '''Adjusts category labels from _node_ to _until_ (not inclusive) to obtain the correct
+CCG analysis.'''
         while node is not until:
+            # Only fix binary rules
             if (not node.parent) or node.parent.count() < 2: break
 
             l, r, p = node.parent[0], node.parent[1], node.parent
@@ -273,7 +279,6 @@ class FixExtraction(Fix):
                     debug("New category: %s", p.category)
 
                 # L R[conj] -> P
-                #
                 elif R.has_feature('conj'):
                     new_L = L.clone()
 
@@ -283,15 +288,19 @@ class FixExtraction(Fix):
                     debug("New category: %s", new_L)
 
                 elif L.is_leaf():
+                    # , R -> P[conj] becomes , R -> R[conj]
                     if P.has_feature('conj') and l.tag in ('PU', 'CC'): # treat as partial coordination
                         debug("Fixing coordination: %s" % P)
                         p.category = r.category.clone_adding_feature('conj')
                         debug("new parent category: %s" % p.category)
                         
+                    # , R -> P becomes , R -> R
                     elif l.tag == "PU" and not P.has_feature('conj'): # treat as absorption
                         debug("Fixing left absorption: %s" % P)
                         p.category = r.category
 
+                    # L       (X|L)|Y -> X|Y becomes
+                    # X|(X|L) (X|L)|Y -> X|Y
                     elif R.is_complex() and R.left.is_complex() and L == R.left.right:
                         T = R.left.left
                         new_category = typeraise(L, T, TR_FORWARD)#T/(T|L)
@@ -305,10 +314,13 @@ class FixExtraction(Fix):
                         debug("New category: %s", new_category)
 
                 elif R.is_leaf():
+                    # R , -> P becomes R , -> R
                     if r.tag == "PU": # treat as absorption
                         debug("Fixing right absorption: %s" % P)
                         p.category = l.category
 
+                    # (X|R)|Y R       -> X|Y  becomes
+                    # (X|R)|Y X|(X|R) -> X|Y
                     elif L.is_complex() and L.left.is_complex() and R == L.left.right:
                         T = L.left.left
                         new_category = typeraise(R, T, TR_BACKWARD)#T|(T/R)
@@ -336,6 +348,7 @@ class FixExtraction(Fix):
                         l.category = T_A/(T_A/X)
                         new_parent_category = T_A
                         
+                    # Generalise over right modifiers of verbal categories (S[dcl]\X)$
                     elif self.is_verbal_category(L) and L.is_complex() and L.left.is_complex():
                         T = L.left.right
                         new_category = typeraise(R, T, TR_BACKWARD)
@@ -345,6 +358,7 @@ class FixExtraction(Fix):
                             node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
                             new_parent_category = bxcomp(L, new_category)
                             
+                    # Last ditch: try all of the composition rules to generalise over L R -> P
                     if not new_parent_category:
                         new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
                                             or bxcomp(L, R, when=not self.is_relativiser(R)) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
@@ -489,7 +503,8 @@ class FixExtraction(Fix):
                     replace_kid(top.parent, top, Node("NN", [top], ss.category/ss.category, head_index=0))
 
     def relabel_bei_category(self, top, pred):
-        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
+        # particle 'you' is tagged as a preposition but acts as the BEI marker
+        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI | $ ^"经"=BEI | $ ^"经过"=BEI | $ ^"随"=BEI | $ ^"为"=BEI | $ ^"以"=BEI | $ ^"经由"=BEI ]', with_context=True)
         s, bei = ctx.s, ctx.bei
 
         bei.category = bei.category.clone_with(right=s.category)
@@ -501,7 +516,7 @@ class FixExtraction(Fix):
         return bei
         
     def relabel_ba_category(self, top, ba):
-        _, ctx = get_first(top, r'*=S [ $ /BA/=BA ]', with_context=True)
+        _, ctx = get_first(top, r'*=S $ /BA/=BA', with_context=True)
         s, ba = ctx.s, ctx.ba
 
         ba.category = ba.category.clone_with(right=s.category)
