@@ -47,8 +47,8 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
     return cur
 
 def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
-#    kid_tag = strip_tag_if(not inherit_tag, node.tag)
-    if not node.tag.endswith(':A'):
+    # check 0:14(5) and 0:39(7): removing the below check causes spurious rules like NP NP -> NP\NP
+    if not (node.tag.endswith(':A') or node.tag.endswith(':c')):
        node.tag = strip_tag_if(True, node.tag)
     kid_tag = node.tag
     
