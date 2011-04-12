@@ -504,8 +504,7 @@ CCG analysis.'''
 
     def relabel_bei_category(self, top, pred):
         # particle 'you' is tagged as a preposition but acts as the BEI marker
-        #bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI | $ ^"经"=BEI | $ ^"经过"=BEI | $ ^"随"=BEI | $ ^"为"=BEI | $ ^"以"=BEI | $ ^"经由"=BEI ]', with_context=True)
-        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI ]', with_context=True)
+        bei, ctx = get_first(top, r'*=S [ $ /LB/=BEI | $ ^"由"=BEI | $ ^"经"=BEI | $ ^"经过"=BEI | $ ^"随"=BEI | $ ^"为"=BEI | $ ^"以"=BEI | $ ^"经由"=BEI ]', with_context=True)
         s, bei = ctx.s, ctx.bei
 
         bei.category = bei.category.clone_with(right=s.category)
