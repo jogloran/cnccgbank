@@ -169,7 +169,7 @@ class FixExtraction(Fix):
 
         argument = ctx.t
         self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
-        #self.fix_categories_starting_from(ctx.s, g)
+        self.fix_categories_starting_from(ctx.s, g)
         
         debug("T(argument): %s", lrp_repr(argument))
         debug("G: %s", lrp_repr(g))
