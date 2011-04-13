@@ -60,7 +60,7 @@ class FixExtraction(Fix):
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
             # TODO: needs to be tested with (!NP)-TPC
             (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
-            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
+
 
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
             # and what is expected (eg S/S)
@@ -100,6 +100,8 @@ class FixExtraction(Fix):
             (r'''^/\*T\*/ > { /[NPQ]P(?:-%(tags)s)?(?!-\d+)/=K 
                          >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }'''
                          % { 'tags': ModifierTagsRegex }, self.fix_nongap_extraction),
+
+            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
            # (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
@@ -357,7 +359,7 @@ CCG analysis.'''
                         if bxcomp(L, new_category):
                             node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
                             new_parent_category = bxcomp(L, new_category)
-                            
+
                     # Last ditch: try all of the composition rules to generalise over L R -> P
                     if not new_parent_category:
                         new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
@@ -488,7 +490,6 @@ CCG analysis.'''
             top, pp, p, t, s = ctx.top, ctx.pp, ctx.p, ctx.t, ctx.s
 
             self.fix_object_gap(pp, p, t, s)
-
             self.fix_categories_starting_from(s, until=top)
 
             # If we couldn't find the DEC node, this is the null relativiser case
