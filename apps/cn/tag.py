@@ -317,20 +317,6 @@ def preprocess(root):
                 new_node = Node('QP', cd_cc_cd)
                 p.kids.insert(0, new_node)
                 
-            # when an NP apposition modifies another N, the treebank has:
-            #         NP
-            #        /  \
-            #     X=NP  NP -- NN
-            #     /  \
-            # NP-APP NP
-            # we rewrite X's tag to be NP-APP to avoid the spurious rules like NP N -> N
-            expr = r'''/NP/=P < /NP(-.+)?-APP/'''
-            result = get_first(node, expr, with_context=True)
-            if result:
-                _, ctx = result
-                if ctx.p.tag.find('-APP') == -1:
-                    ctx.p.tag += '-APP'
-                
     return root
     
 def is_argument_cluster(node):
@@ -419,7 +405,7 @@ def label(root):
                 if kid.tag == "VC":
                     tag(kid, 'a')
                     
-        elif is_vrd(node): # vrd is head-initial
+        elif is_vrd(node) or is_vsb(node): # vrd is head-initial
             tag(first_kid, 'h')
             for kid in node[1:]:
                 if is_postverbal_adjunct_tag(kid.tag) or kid.tag.startswith('ADVP'):
