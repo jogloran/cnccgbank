@@ -169,8 +169,8 @@ def is_np_internal_structure(node):
              or kid.tag.endswith(':&') for kid in leaves(node)))
     
 def is_S_NP_apposition(node):
-    return node.tag.startswith('NP') and 
     # IP-APP < *pro* VP may be reduced to VP-APP by binarise
+    return node.tag.startswith('NP') and \
         (node[0].tag.startswith('IP-APP') or node[0].tag.startswith('VP-APP')) and (
         node[1].tag.startswith('NP') or has_noun_tag(node[1]))
     
