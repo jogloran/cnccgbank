@@ -172,7 +172,8 @@ def reshape_for_coordination(node, inside_np_internal_structure):
     return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, do_labelling=False)
 
 #@echo
-def label_head_initial(node, inherit_tag=True):
+def label_head_initial(node, inherit_tag=False):
+    if node.tag.endswith(':c'): inherit_tag=False
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
     kids = map(label_node, node.kids)[::-1]
