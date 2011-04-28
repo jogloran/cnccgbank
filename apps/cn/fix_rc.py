@@ -60,7 +60,7 @@ class FixExtraction(Fix):
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
             # TODO: needs to be tested with (!NP)-TPC
             (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
-
+            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
             # Adds a unary rule when there is a clash between the modifier type (eg PP-PRD -> PP)
             # and what is expected (eg S/S)
@@ -100,8 +100,6 @@ class FixExtraction(Fix):
             (r'''^/\*T\*/ > { /[NPQ]P(?:-%(tags)s)?(?!-\d+)/=K 
                          >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }'''
                          % { 'tags': ModifierTagsRegex }, self.fix_nongap_extraction),
-
-            (r'/(IP|CP-CND)/=P < {/-TPC:T$/a=T     $ /(IP|CP-CND)/=S }', self.fix_topicalisation_without_gap),
 
            # (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
