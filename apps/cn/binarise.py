@@ -125,18 +125,19 @@ def _label_coordination(node, inside_np_internal_structure=False):
 
 label_coordination = label_with_final_punctuation_high(_label_coordination)
 
-def is_pu(node):
+def is_absorption_pu(node):
     return node.tag == 'PU' and node.lex != '、'
 
 def get_kid(kids, seen_cc):
     pu = kids.pop()
     
-    if seen_cc and is_pu(pu) and len(kids) > 0:
+    if seen_cc and is_absorption_pu(pu) and len(kids) > 0:
         xp = kids.pop()
         xp_ = Node(xp.tag, [xp, pu], head_index=0)
         
         return xp_, False
     else:
+        sys.stdout.flush()
         return pu, pu.tag == 'CC'
 
 def get_kid_(kids):
@@ -395,6 +396,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     elif is_coordination(node) or is_ucp(node):
         return label_coordination(node, inside_np_internal_structure=inside_np_internal_structure)
     else:
+        warn("binarise: No known configuration for %s", node)
         return label_adjunction(node)
 
 class Binariser(Filter, OutputPrefacedPTBDerivation):

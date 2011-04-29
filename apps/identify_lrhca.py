@@ -177,6 +177,10 @@ def is_S_NP_apposition(node):
 def is_np_structure(node):
     # These tags are attested NP modifiers
     # rule out NP-PRD as NP structure (0:88(15))
+    
+    # rule out things already tagged explicitly as coordination by tag.py
+    if any(kid.tag.endswith(':c') for kid in node): return False
+    
     return node.tag.startswith('NP') and all( #and not node.tag.startswith('NP-PRD')) and all(
         (any(kid.tag.startswith(cat) for cat in NominalCategories)) or 
         kid.tag.startswith('ADJP') or 
