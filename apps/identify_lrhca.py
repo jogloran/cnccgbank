@@ -160,6 +160,9 @@ def is_ucp(node):
     return node[0].tag.endswith(':C') and node[1].tag != 'PU'
 
 def is_np_internal_structure(node):
+    # rule out things already tagged explicitly as coordination by tag.py
+    if any(kid.tag.endswith(':c') for kid in node): return False
+    
     return (node.tag.startswith('NP') and 
             all(kid.tag.endswith(':n') 
              or kid.tag.endswith(':N') 

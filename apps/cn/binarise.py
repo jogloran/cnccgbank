@@ -7,7 +7,7 @@ from munge.penn.io import parse_tree
 from munge.penn.aug_nodes import Leaf, Node
 from munge.trees.pprint import pprint
 from munge.proc.filter import Filter
-from munge.util.err_utils import debug
+from munge.util.err_utils import debug, warn
 from munge.util.func_utils import twice
 
 from apps.identify_lrhca import *
@@ -22,7 +22,7 @@ def strip_tag_if(cond, tag):
     else:
         return tag
 
-#@echo
+@echo
 def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_internal_structure=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
@@ -59,7 +59,7 @@ def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False
         return Node(kid_tag, [first, label_node(node)], head_index=0)
     return label_adjunction(node, inherit_tag=inherit_tag)
 
-#@echo
+@echo
 def label_np_internal_structure(node, inherit_tag=False):
     if (node.kids[-1].tag.endswith(':&')
         # prevent movement when we have an NP with only two children NN ETC
@@ -101,7 +101,7 @@ def label_with_final_punctuation_high(f):
         return result
     return _label
 
-#@echo
+@echo
 def _label_coordination(node, inside_np_internal_structure=False):
     if (node.kids[-1].tag.endswith(':&')
         # prevent movement when we have an NP with only two children NN ETC
@@ -172,7 +172,7 @@ def reshape_for_coordination(node, inside_np_internal_structure):
     
     return label_adjunction(node, inside_np_internal_structure=inside_np_internal_structure, do_labelling=False)
 
-#@echo
+@echo
 def label_head_initial(node, inherit_tag=False):
     if node.tag.endswith(':c'): inherit_tag=False
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
@@ -189,14 +189,14 @@ def label_head_initial(node, inherit_tag=False):
     cur.tag = node.tag
     return cur
 
-#@echo
+@echo
 def label_head_final(node):
     return label_adjunction(node)
 
 def is_right_punct_absorption(node):
     return node.count() == 2 and node.tag == node[0].tag and node[1].tag == 'PU'
 
-#@echo
+@echo
 def label_predication(node, inherit_tag=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
@@ -213,7 +213,7 @@ def label_predication(node, inherit_tag=False):
     
     return cur
 
-#@echo
+@echo
 def label_root(node):
     final_punctuation_stk = []
     
@@ -284,7 +284,7 @@ def matches(node, *matches):
 def exactly_matches(node, *matches):
     return node.tag in matches
 
-#@echo
+@echo
 def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     if node.is_leaf(): return node
     elif node.count() == 1:
