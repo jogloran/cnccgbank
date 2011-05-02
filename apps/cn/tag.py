@@ -27,6 +27,7 @@ PredicationRegex = re.compile(r'''
     (?:(PU|FLR)\s+)? # FLR between NP and VP (20:8(7))
     VP # predicate
 ''', re.VERBOSE)
+#(?:[:\w-]+)?\s*(\s+[:\w-]+\s*)*\s*(?:(PU|FLR)\s+)?\s*(?:[\w-]+-(?:PN|SBJ)(?:-\d+)?|NP)\s+\s*(?:(PU|FLR)\s+)?\s*VP
 def is_predication(node):
     kid_tags = ' '.join(kid.tag for kid in node)
     return node.tag.startswith('IP') and PredicationRegex.match(kid_tags)

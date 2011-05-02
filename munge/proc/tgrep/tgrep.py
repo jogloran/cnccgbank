@@ -169,7 +169,7 @@ def FixedTgrep(expression):
 class Tgrep(TgrepCore):
     def output(self):
         deriv_percentage = 0 if self.total == 0 else self.nmatched/float(self.total)*100.0
-        print "matches: %d/%d derivs = %.2f%%" % (self.nmatched, self.total, deriv_percentage)
+        print >>sys.stderr, "matches: %d/%d derivs = %.2f%%" % (self.nmatched, self.total, deriv_percentage)
         
     @staticmethod
     def show_node(match_node, bundle):
