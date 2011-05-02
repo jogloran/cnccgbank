@@ -100,7 +100,7 @@ def find_small(*args, **kwargs):
             
 def find_small_sents(*args, **kwargs):
     deriv = args[0]
-    if deriv.count() > 20: return
+    if deriv.count() > 10: return iter([])
     
     return tgrep(*args, **kwargs)
 
@@ -192,6 +192,10 @@ class Tgrep(TgrepCore):
     @staticmethod
     def show_tokens(match_node, bundle):
         print "%s: %s" % (bundle.label(), ''.join(match_node.text()))
+        
+    @staticmethod
+    def show_tokens_only(match_node, bundle):
+        print ''.join(match_node.text())
         
     @staticmethod
     def show_label(match_node, bundle):
