@@ -225,6 +225,9 @@ tag, using the mapping. If _return_none_when_unmatched_ is True, None is
 returned if the mapping yields no category; otherwise, an atomic category
 is returned with the base CPTB tag. If _is_root_, a special mapping is
 consulted first.'''
+    # See label_adjunction. If we have IP < IP-SBJ VP, we want the VP node to receive S[dcl]\S[dcl],
+    # not S[dcl]\NP (what it would receive if Map was consulted)
+    # For all other cases (a VP argument, for instance), we want the mapping VP -> S[dcl]\NP to hold
     if return_none_when_vp and node.tag.startswith('VP'): return None
     
     if node.tag == 'PU' and node.is_leaf():
@@ -443,6 +446,7 @@ def label_root(root):
                 root = new_node
 
             inherit_tag(new_node, node)
+#            print 'fixed PRO trace: %s' % pprint(node)
         
     return label(root)
 

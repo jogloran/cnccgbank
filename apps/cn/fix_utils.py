@@ -19,7 +19,7 @@ def replace_kid(node, old, new):
     
 #      P                   P
 #     / \       ->        / \
-#     L  R                L  r
+#     L  R-i              L  r-i      where -i is an optional index
 #       / \
 #       l  r
 def shrink_left(node, parent):

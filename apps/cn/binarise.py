@@ -367,8 +367,14 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             return node
     
     elif is_S_NP_apposition(node):
-        inherit_tag(node[1][0], node[1])
-        node.kids[1] = node[1][0]
+        # When NP(IP-APP NP), shrinks the NP<NN so we can get a head-final
+        # analysis.
+        # Without the following check, fails on 5:95(17) where NP(IP-APP NN) 
+        # instead of the usual NP(IP-APP NP)
+        if not node[1].is_leaf():
+            inherit_tag(node[1][0], node[1])
+            node.kids[1] = node[1][0]
+            
         return label_head_final(node)
     
     elif is_predication(node):

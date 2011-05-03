@@ -12,7 +12,7 @@ STDIN.each_with_index {|line, i|
         
     line.chomp!
     
-    (line =~ /(\d+):(\d+)\((\d+)\)/) || (line =~ /(\d+),(\d+),(\d+)/) || (line =~ /(\d+).*(\d+).*(\d+)/)
+    (line =~ /(\d+):(\d+)\((\d+)\)/) || (line =~ /(\d+),(\d+),(\d+)/) || (line =~ /(\d{1,2}).*?(\d{1,2}).*?(\d+)/)
     doc_name = "chtb_%02d%02d.fid" % [$1, $2]
     pdf_name = "wsj_%02d%02d.%02d.pdf" % [$1, $2, $3]
     section_name = "%02d" % $1
