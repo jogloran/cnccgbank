@@ -76,7 +76,7 @@ def label_right_absorption(node):
 
 #@echo
 def label_adjunction(node):
-    node[1].category = node.category or ptb_to_cat(node[1], return_none_when_unmatched=True) #or node.category
+    node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True, return_none_when_vp=True) or node.category
     node.kids[1] = label(node[1])
     
     node[0].category = featureless(node.category) / featureless(node[1].category)
@@ -219,12 +219,14 @@ RootMap = {
 }
 
 #@echo
-def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False):
+def ptb_to_cat(node, return_none_when_unmatched=False, is_root=False, return_none_when_vp=False):
     '''Given _node_, returns a category object based only on its treebank
 tag, using the mapping. If _return_none_when_unmatched_ is True, None is
 returned if the mapping yields no category; otherwise, an atomic category
 is returned with the base CPTB tag. If _is_root_, a special mapping is
 consulted first.'''
+    if return_none_when_vp and node.tag.startswith('VP'): return None
+    
     if node.tag == 'PU' and node.is_leaf():
         # map dunhao to category conj only when it's the left child
         # (some noise cases or mis-annotations like 10:43(25))
