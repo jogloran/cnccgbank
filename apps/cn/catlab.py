@@ -76,7 +76,7 @@ def label_right_absorption(node):
 
 #@echo
 def label_adjunction(node):
-    node[1].category = node.category
+    node[1].category = node.category or ptb_to_cat(node[1], return_none_when_unmatched=True) #or node.category
     node.kids[1] = label(node[1])
     
     node[0].category = featureless(node.category) / featureless(node[1].category)
@@ -146,7 +146,8 @@ Map = {
     'ADVP': SbNPfSbNP,
     'AD': SbNPfSbNP,
     
-    'VP': SdclbNP, 'VA': SdclbNP, 'VV': SdclbNP,
+    'VP': SdclbNP, 
+    'VA': SdclbNP, 'VV': SdclbNP,
     # not really intended for use. FLR < VE (see the "Addendum to the Bracketing Guidelines for the ACE Chinese Broadcast News Data")
     # appears in 25:97(2). We'll just treat this as a noisy unary rule.
     'VE': SdclbNP,
