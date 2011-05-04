@@ -400,7 +400,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
     elif is_head_initial(node):
         return label_head_initial(node)
     elif is_coordination(node) or is_ucp(node):
-        return label_coordination(node, inside_np_internal_structure=inside_np_internal_structure)
+        return label_coordination(node, inside_np_internal_structure=True)
     else:
         warn("binarise: No known configuration for %s", node)
         return label_adjunction(node)
