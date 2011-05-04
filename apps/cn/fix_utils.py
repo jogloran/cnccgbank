@@ -104,6 +104,7 @@ def fake_unify(l, r, result):
 
     cur = r
     while cur.is_complex(): cur = cur.left
+    if not cur.features: return result
 
     res = result
     while res.is_complex(): res = res.left
@@ -112,11 +113,14 @@ def fake_unify(l, r, result):
     return result
     
 TR_FORWARD, TR_BACKWARD, TR_TOPICALISATION = 1, 2, 3
-def typeraise(x, t, dir):
+def typeraise(x, t, dir, strip_features=True):
     '''
     Performs the typeraising X -> T|(T|X).
     '''
-    T, X = featureless(t), featureless(x)
+    if strip_features:
+        T, X = featureless(t), featureless(x)
+    else:
+        T, X = t, x
 
     if dir == TR_FORWARD:
         return T/(T|X)

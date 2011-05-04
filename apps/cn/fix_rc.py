@@ -312,7 +312,7 @@ CCG analysis.'''
                             p.category = new_parent_category
 
                         debug("New category: %s", new_category)
-
+                        
                 elif R.is_leaf():
                     # R , -> P becomes R , -> R
                     if r.tag == "PU": # treat as absorption
@@ -347,6 +347,21 @@ CCG analysis.'''
 
                         l.category = T_A/(T_A/X)
                         new_parent_category = T_A
+                        
+                    # (X|X)|Z Y       -> X becomes
+                    # (X|X)|Z X|(X|X) -> X|Z
+                    elif L.is_complex() and L.left.is_complex() and R == L.left.right:
+                        T = L.left.left
+                        new_category = typeraise(R, R, TR_BACKWARD, strip_features=False)#T/(T|L)
+                        node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
+
+                        debug("bxcomp(%s, %s)", L, new_category)
+                        new_parent_category = bxcomp(L, new_category)
+                        if new_parent_category:
+                            debug("new parent category: %s", new_parent_category)
+                            p.category = new_parent_category
+
+                        debug("New category: %s", new_category)
                         
                     # Generalise over right modifiers of verbal categories (S[dcl]\X)$
                     elif self.is_verbal_category(L) and L.is_complex() and L.left.is_complex():
