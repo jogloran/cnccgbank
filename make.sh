@@ -46,7 +46,7 @@ msg "Creating directory structure..."
 
 msg "Creating PARGs..."
 # Create PARGs
-./t -q -lapps.cn.mkdeps -9 ${final_dir}/PARG filtered
+./t -q -lapps.cn.mkdeps -9 ${final_dir}/PARG filtered 2> mkdeps_errors
 
 msg "Rebracketing (X|Y)[conj] -> X|Y[conj]..."
 # Rebracket [conj] as expected by C&C: (X|Y)[conj] becomes X|Y[conj]
