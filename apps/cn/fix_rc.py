@@ -402,9 +402,9 @@ CCG analysis.'''
             #      WHNP  CP     -->      CP              
             #            / \            /  \           
             #          IP  DEC         IP   DEC
-            if not n[0].is_leaf():
-                n[0].kids.pop(0)
-                n[0].head_index = 0
+            if not pred.is_leaf():
+                pred.kids.pop(0)
+                pred.head_index = 0
         else:
             if not reduced:
                 self.remove_null_element(node)
@@ -436,8 +436,6 @@ CCG analysis.'''
                 
                 debug("Creating null relativiser unary category: %s", SS/SS)
                 replace_kid(top.parent, top, Node("NN", [top], SS/SS, head_index=0))
-
-        debug(pprint(node))
 
     #@echo
     def fix_nongap_extraction(self, _, n, pred, k):
@@ -485,9 +483,9 @@ CCG analysis.'''
             #      WHNP  CP     -->      CP              
             #            / \            /  \           
             #          IP  DEC         IP   DEC          
-            if not n[0].is_leaf():
-                n[0].kids.pop(0)
-                n[0].head_index = 0
+            if not pred.is_leaf():
+                pred.kids.pop(0)
+                pred.head_index = 0
         else:
             if not reduced:
                 self.remove_null_element(node)
