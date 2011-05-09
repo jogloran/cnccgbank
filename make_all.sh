@@ -65,7 +65,7 @@ apply "labelled$dir_suffix" "fixed_rc$dir_suffix" \
     apps.cn.fix_rc FixExtraction extr_errors \
     "Applying extraction fixes..."
 apply "fixed_rc$dir_suffix" "fixed_adverbs$dir_suffix" \
-    apps.cn.fix_adverbs FixAdverbs extr_errors \
+    apps.cn.fix_adverbs FixAdverbs adverbs_errors \
     "Applying adverb fixes..."
 apply "fixed_adverbs$dir_suffix" "fixed_np$dir_suffix" \
     apps.cn.fix_np FixNP np_errors \
