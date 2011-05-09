@@ -137,7 +137,6 @@ def get_kid(kids, seen_cc):
         
         return xp_, False
     else:
-        sys.stdout.flush()
         return pu, pu.tag == 'CC'
 
 def get_kid_(kids):
@@ -250,7 +249,7 @@ def label_root(node):
 PunctuationPairs = frozenset(
     # Our CCGbank tags for these paired punctuation tags are:
     # XQU XCS XPA XPA XSQ XTL XCD XCS (where X denotes one of L, R)
-    ("“”", "「」", "（）", "()", "‘’", "《》", "『』", "「」")
+    ("“”", "「」", "（）", "()", "‘’", "《》", "『』", "〈〉")
 )
 def are_paired_punctuation(p1, p2):
     return p1 + p2 in PunctuationPairs
