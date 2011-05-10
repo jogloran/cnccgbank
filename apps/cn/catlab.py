@@ -439,6 +439,8 @@ def label_root(root):
     for node in nodes(root):
         # remove PRO traces as a preprocessing step
         if is_PRO_trace(node):
+            old_tag = node.tag
+            
             new_node = shrink_left(node, node.parent)
             new_node.tag = base_tag(new_node.tag, strip_cptb_tag=False)
             
@@ -446,7 +448,15 @@ def label_root(root):
                 root = new_node
 
             inherit_tag(new_node, node)
-#            print 'fixed PRO trace: %s' % pprint(node)
+            
+            # If we have something like
+            # IP-APP(LPA (IP-APP (IP-APP (*PRO* VP) RPA)))
+            # after PRO trace removal we want
+            # VP-APP (LPA VP-APP (VP-APP RPA)) (cf 10:3(39))
+            cur = new_node.parent
+            while cur and cur.tag == old_tag:
+                cur.tag = new_node.tag
+                cur = cur.parent
         
     return label(root)
 
