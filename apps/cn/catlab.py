@@ -107,7 +107,7 @@ def label_right_adjunction(node):
 
 #@echo
 def label_coordination(node, inside_np=False, ucp=False):
-    top_level_category = N if node.category == NP else node.category    
+    top_level_category = N if (not ucp and node.category == NP) else node.category
 
     node[0].category = ptb_to_cat(node[0]) if ucp else top_level_category # node.category
     node.kids[0] = label(node[0], inside_np)
@@ -115,7 +115,7 @@ def label_coordination(node, inside_np=False, ucp=False):
     node[1].category = top_level_category # node.category
     # Label then apply [conj], so that kid categories don't inherit the feature
     node.kids[1] = label(node[1])
-    node[1].category = top_level_category.clone_adding_feature('conj')#node.category.clone_adding_feature('conj')
+    node[1].category = top_level_category.clone_adding_feature('conj')
     
     return node
 
