@@ -54,7 +54,7 @@ class FixExtraction(Fix):
             (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
 
             (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_subj_gap), #0:11(4)
-            (r'{ /SB/=BEI $ { /VP/ <<    { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S > { *=P > *=PP } } } }', self.fix_short_bei_obj_gap), #1:54(3)
+            (r'{ /SB/=BEI $ { /VP/=BEIS <<    { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S > { *=P > *=PP } } } }', self.fix_short_bei_obj_gap), #1:54(3)
             (r'{ /SB/=BEI $ { /VP/=BEIS << { /VP/=P < { /NP-IO/=T < ^/\*-\d+$/ $ *=S } > *=PP } } }', self.fix_short_bei_io_gap), # 31:2(3)
 
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
@@ -194,11 +194,12 @@ class FixExtraction(Fix):
         # this analysis isn't entirely correct
         replace_kid(pp, p, s)
 
-    def fix_short_bei_obj_gap(self, node, pp, bei, t, p, s):
+    def fix_short_bei_obj_gap(self, node, pp, bei, beis, t, p, s):
         debug("fixing short bei object gap: pp:%s\np:%s\ns:%s", lrp_repr(pp), lrp_repr(p), lrp_repr(s))
         
         replace_kid(pp, p, s)
-        bei.category = bei.category.clone_with(right=s.category)
+        self.fix_categories_starting_from(s, until=pp)
+        bei.category = bei.category.clone_with(right=beis.category)
         
     def fix_short_bei_io_gap(self, node, pp, bei, beis, t, p, s):
         debug("fixing short bei io gap: pp:%s\np:%s\ns:%s", lrp_repr(pp), lrp_repr(p), lrp_repr(s))
@@ -356,6 +357,20 @@ CCG analysis.'''
                         node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
 
                         debug("bxcomp(%s, %s)", L, new_category)
+                        new_parent_category = bxcomp(L, new_category)
+                        if new_parent_category:
+                            debug("new parent category: %s", new_parent_category)
+                            p.category = new_parent_category
+
+                        debug("New category: %s", new_category)
+                        
+                    # (X|R)|Y R       -> X|Y  becomes
+                    # (X|R)|Y X|(X|R) -> X|Y
+                    elif L.is_complex() and L.left.is_complex() and R == L.left.right:
+                        T = L.left.left
+                        new_category = typeraise(R, T, TR_BACKWARD)#T|(T/R)
+                        node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
+
                         new_parent_category = bxcomp(L, new_category)
                         if new_parent_category:
                             debug("new parent category: %s", new_parent_category)
