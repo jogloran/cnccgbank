@@ -270,6 +270,34 @@ CCG analysis.'''
 
             if applied_rule is None:
                 debug("invalid rule %s %s -> %s", L, R, P)
+                
+                if R.is_complex() and R.left.is_complex() and L == R.left.right:
+                    # L       (X|L)|Y -> X|Y becomes
+                    # X|(X|L) (X|L)|Y -> X|Y
+                    T = R.left.left
+                    new_category = typeraise(L, T, TR_FORWARD)#T/(T|L)
+                    node.parent[0] = Node(l.tag, [l], new_category, head_index=0)
+
+                    new_parent_category = fcomp(new_category, R)
+                    if new_parent_category:
+                        debug("new parent category: %s", new_parent_category)
+                        p.category = new_parent_category
+
+                    debug("New category: %s", new_category)
+                
+                elif L.is_complex() and L.left.is_complex() and R == L.left.right:
+                    # (X|R)|Y R       -> X|Y  becomes
+                    # (X|R)|Y X|(X|R) -> X|Y
+                    T = L.left.left
+                    new_category = typeraise(R, T, TR_BACKWARD)#T|(T/R)
+                    node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
+
+                    new_parent_category = bxcomp(L, new_category)
+                    if new_parent_category:
+                        debug("new parent category: %s", new_parent_category)
+                        p.category = new_parent_category
+
+                    debug("New category: %s", new_category)
 
                 # conj R -> P
                 # Make P into R[conj]
