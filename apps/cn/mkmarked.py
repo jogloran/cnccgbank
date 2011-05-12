@@ -41,7 +41,7 @@ Exceptions = (
     # hacks
     # not a modifier category:
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/((S[dcl]\NP)/(S[dcl]\NP))'),
-     C(r'(((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){W}){_}')),
+     C(r'(((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){Y}){_}')),
      
     (C(r'((S[dcl]\NP)/NP)/((S[dcl]\NP)/NP)'),
      C(r'(((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}){_}')),
