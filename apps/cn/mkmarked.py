@@ -13,7 +13,7 @@ from apps.util.echo import echo
 def variables():
     '''Returns an iterator over variable names. The first variable name returned is _,
 for the outermost variable.'''
-    return iter('_YZWVUTRQABCDEF')
+    return iter('_YZWVUTRQA')#BCDEF')
 
 def is_modifier(cat):
     '''Returns whether _cat_ is of the form X/X.'''
@@ -25,15 +25,21 @@ def is_np_n(cat):
     
 C = parse_category
 Exceptions = (
-    (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{Z}/N{Z}){_}\(S[dcl]{Y}\NP{Z}){Y}){_}')),
-    (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{Z}/N{Z}){_}\(S[dcl]{Y}/NP{Z}){Y}){_}')),
-    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}')),
+# TODO: trying remapping to avoid conflicts
+# Y -> F
+# Z -> E
+# W -> D
+# V -> C
+# U -> B
+    (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{E}/N{E}){_}\(S[dcl]{F}\NP{E}){F}){_}')),
+    (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{E}/N{E}){_}\(S[dcl]{F}/NP{E}){F}){_}')),
+    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP{F}){_}/(S[dcl]{E}\NP{F}){E}){_}')),
     # gapped long bei
-    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
+    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{_}\NP{F}){_}/((S[dcl]{E}\NP{D}){E}/NP{F}){E}){_}/NP{D}){_}')),
     # non-gapped long bei
-    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/NP'), C(r'(((S[dcl]{_}\NP{W}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}/NP{Y}){_}')),
+    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/NP'), C(r'(((S[dcl]{_}\NP{D}){_}/(S[dcl]{E}\NP{F}){E}){_}/NP{F}){_}')),
     # gapped short bei
-    (C(r'(S[dcl]\NP)/((S[dcl]\NP)/NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/((S[dcl]{W}\NP{Z}){W}/NP{Y}){W}){_}')),
+    (C(r'(S[dcl]\NP)/((S[dcl]\NP)/NP)'), C(r'((S[dcl]{_}\NP{F}){_}/((S[dcl]{D}\NP{E}){D}/NP{F}){D}){_}')),
     # non-gapped short bei
     # TODO: coincides with the above control/raising category
 #    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP){_}/(S[dcl]\NP)){_}')),
@@ -41,47 +47,47 @@ Exceptions = (
     # hacks
     # not a modifier category:
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/((S[dcl]\NP)/(S[dcl]\NP))'),
-     C(r'(((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/(S[dcl]{W}\NP{Z}){W}){Y}){_}')),
+     C(r'(((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{E}){D}){F}/((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{E}){D}){F}){_}')),
      
     (C(r'((S[dcl]\NP)/NP)/((S[dcl]\NP)/NP)'),
-     C(r'(((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}/((S[dcl]{Y}\NP{Z}){Y}/NP{W}){Y}){_}')),
+     C(r'(((S[dcl]{F}\NP{E}){F}/NP{D}){F}/((S[dcl]{F}\NP{E}){F}/NP{D}){F}){_}')),
      
     #(C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'),
-    # C(r'(((S[dcl]{_}\NP{Y}){_}/((S[dcl]{Z}\NP{W}){Z}/NP{Y}){Z}){_}/NP{W}){_}')),
+    # C(r'(((S[dcl]{_}\NP{F}){_}/((S[dcl]{E}\NP{D}){E}/NP{F}){E}){_}/NP{D}){_}')),
      
     # make sure things which look like modifier categories but aren't are given the right markedup
-    (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/NP{Y}){_}')),
-    (C(r'(S\S)\(S\S)'), C(r'((S{Y}\S{Z}){Y}\(S{Y}\S{Z}){Y}){_}')),
-    (C(r'(S\S)/(S\S)'), C(r'((S{Y}\S{Z}){Y}/(S{Y}\S{Z}){Y}){_}')),
-    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{Z}){_}/S[dcl]{Y}){_}')),
+    (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/NP{F}){_}')),
+    (C(r'(S\S)\(S\S)'), C(r'((S{F}\S{E}){F}\(S{F}\S{E}){F}){_}')),
+    (C(r'(S\S)/(S\S)'), C(r'((S{F}\S{E}){F}/(S{F}\S{E}){F}){_}')),
+    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/S[dcl]{F}){_}')),
     
-    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{Y}\S{Z}){Y}/(S{W}\NP{V}){W}){_}/NP{Y}){_}')),
+    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{F}\S{E}){F}/(S{D}\NP{C}){D}){_}/NP{F}){_}')),
 
-    (C(r'S[q]\S[dcl]'), C(r'(S[q]{Y}\S[dcl]{Y}){_}')),
+    (C(r'S[q]\S[dcl]'), C(r'(S[q]{F}\S[dcl]{F}){_}')),
 
     # short bei for bei VPdcl/VPdcl (wo bei qiangzhi)
-    (C(r'(S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), C(r'((S[dcl]{_}\NP{Y}){_}/(((S[dcl]{Z}\NP{Y}){Z}/(S[dcl]{W}\NP{Y}){W}){Z}/NP{Y}){Z}){_}')),
+    (C(r'(S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), C(r'((S[dcl]{_}\NP{F}){_}/(((S[dcl]{E}\NP{F}){E}/(S[dcl]{D}\NP{F}){D}){E}/NP{F}){E}){_}')),
 
     # long bei for bei NP VPdcl/VPdcl (wo bei ta qiangzhi)
     (C(r'((S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP))/NP'),
-     C(r'(((S[dcl]{_}\NP{Y}){_}/(((S[dcl]{V}\NP{Z}){V}/(S[dcl]{W}\NP{Y}){W}){V}/NP{Y}){V}){_}/NP{Z}){_}')),
-      #C(r'(((S[dcl]{_}\NP{Y}){_}/(((S[dcl]{W}\NP{Z}){W}/(S[dcl]{V}\NP{Y}){V}){W}/NP{Y}){W}){_}/NP{Z}){_}')),
+     C(r'(((S[dcl]{_}\NP{F}){_}/(((S[dcl]{C}\NP{E}){C}/(S[dcl]{D}\NP{F}){D}){C}/NP{F}){C}){_}/NP{E}){_}')),
+      #C(r'(((S[dcl]{_}\NP{F}){_}/(((S[dcl]{D}\NP{E}){D}/(S[dcl]{C}\NP{F}){C}){D}/NP{F}){D}){_}/NP{E}){_}')),
     
     # VPdcl/VPdcl modifier category fix
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), 
-     C(r'((((S[dcl]{Z}\NP{Y}){Z}/(S[dcl]{W}\NP{Y}){W}){Z}/NP{Y}){V}/(((S[dcl]{Z}\NP{Y}){Z}/(S[dcl]{W}\NP{Y}){W}){Z}/NP{Y}){V}){_}')),
+     C(r'((((S[dcl]{E}\NP{F}){E}/(S[dcl]{D}\NP{F}){D}){E}/NP{F}){C}/(((S[dcl]{E}\NP{F}){E}/(S[dcl]{D}\NP{F}){D}){E}/NP{F}){C}){_}')),
     
     # gei category fix (NP gei NP NP VP e.g. tamen gei haizi jihui xuanze)
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/NP'),
-     C(r'((((S[dcl]{_}\NP{W}){_}/(S[dcl]{W}\NP{Y}){W}){_}/NP{Z}){_}/NP{Y}){_}')),
+     C(r'((((S[dcl]{_}\NP{D}){_}/(S[dcl]{D}\NP{F}){D}){_}/NP{E}){_}/NP{F}){_}')),
 
     # this category is probably not correct
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/S[dcl]'),
-     C(r'(((S[dcl]{_}\NP{V}){_}/(S[dcl]{W}\NP{Z}){W}){_}/S[dcl]{Y}){_}')),
+     C(r'(((S[dcl]{_}\NP{C}){_}/(S[dcl]{D}\NP{E}){D}){_}/S[dcl]{F}){_}')),
     
     # nor this (20:31(7))
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/PP'),
-     C(r'(((S[dcl]{_}\NP{Y}){_}/(S[dcl]{W}\NP{Z}){W}){_}/PP{V}){_}')),
+     C(r'(((S[dcl]{_}\NP{F}){_}/(S[dcl]{D}\NP{E}){D}){_}/PP{C}){_}')),
 
 )
 
