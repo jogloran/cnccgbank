@@ -300,7 +300,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith('VP') or is_verb_compound(node)) and  # a handful of VRDs project a single child (11:29(4))
                 (has_verbal_tag(node[0]) or 
                  matches(node[0], 'VPT', 'VSB', 'VRD', 'VCD', 'VNV', 'AD', 'PP', 'QP', 'LCP', 'NP')) or
-            (node.tag.startswith('ADJP') and matches(node[0], 'JJ', 'AD', 'NN')) # bad tagging 25:40(5)
+            (node.tag.startswith('ADJP') and matches(node[0], 'JJ', 'AD', 'NN', 'OD')) # bad tagging 25:40(5), 31:37(6)
             ) or
             (node.tag.startswith('ADVP') and exactly_matches(node[0], 'AD', 'CS', 'NN')) or
             (matches(node, 'NP-MNR', 'NP-PRP') and has_noun_tag(node[0])) or
@@ -322,6 +322,9 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith('PRN') and exactly_matches(node[0], 'PU')) or
             # 0:15(5) LST < PU
             (node.tag.startswith('LST') and exactly_matches(node[0], 'PU')) or
+            # unary DNP < QP in e.g. NP(DNP(QP(sanshi sui)) gongren) (5:51(6)) is meant to
+            # suggest implicit 'de' but this causes the spurious QP -> N/N rule
+            (node.tag.startswith('DNP') and matches(node[0], 'QP')) or
             matches(node, 'FLR') or matches(node, 'FW')):
             
             replacement = node[0]
