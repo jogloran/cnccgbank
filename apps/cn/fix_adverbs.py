@@ -3,6 +3,7 @@ from munge.proc.tgrep.tgrep import tgrep
 from munge.cats.cat_defs import S, SbNPbSbNP, featureless, Sdcl
 from munge.trees.traverse import leaves
 from munge.cats.nodes import FORWARD, BACKWARD
+from apps.cn.fix_rc import is_rooted_in
 from munge.util.err_utils import debug
 
 from apps.cn.output import OutputDerivation
@@ -25,7 +26,8 @@ class FixAdverbs(Fix):
         try:
             # Only generalise result categories rooted in S.
             # Otherwise, we get spurious generalisations such as N/N (N/N)\(N/N) (1:8(4))
-            if not L.left.left == Sdcl: return False
+            if not is_rooted_in(Sdcl, L, respecting_features=True): return False
+            if not is_rooted_in(S, R, respecting_features=True): return False
             
             return (R.left.left == L.left and # Y unifies
                     P.right == L.right and # Z unifies
@@ -41,7 +43,8 @@ class FixAdverbs(Fix):
         # (Y/Z)/W X\Y -> (X/Z)/W
         try:
             # Only generalise result categories rooted in S
-            if not L.left.left.left == Sdcl: return False
+            if not is_rooted_in(Sdcl, L, respecting_features=True): return False
+            if not is_rooted_in(S, R, respecting_features=True): return False
             
             return (R.left.left.left == L.left.left and # Y unifies
                     P.right == L.right and # W unifies
