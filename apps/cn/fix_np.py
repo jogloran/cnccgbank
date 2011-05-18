@@ -33,6 +33,7 @@ class FixNP(Fix):
         return [
             (r'@"NP"=P <1 @/\/N$/a=L <2 @"NP"=R', self.fix1),
             (r'*=P <1 @/\/NP$/a=L <2 @"N"=R', self.fix2),
+            (r'@"NP"=P <2 @/^N\\/', self.fix_np),
             (r'@"NP"=P <1 @"N/N" <2 @"N"', self.fix_np),
             (r'@"NP"=P <1 @"N" <2 @"N[conj]"', self.fix_np),
             (r'@"S/S"=P <1 @"NP" <2 @"NP"', self.fix_topicalised_apposition),

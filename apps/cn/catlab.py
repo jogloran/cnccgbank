@@ -351,7 +351,7 @@ def label(node, inside_np=False):
         return label_head_final(node)
         
     elif is_S_NP_apposition(node):
-        return label_head_final(node)
+        return rename_category_while_labelling_with(label_head_final, node, N)
         
     elif (node.count() == 1
        or is_topicalisation(node)
