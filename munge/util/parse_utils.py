@@ -28,7 +28,7 @@ the token matches _tok_.'''
         context = get_context(toks)
         raise DocParseException("Expected %s, got %s {next tokens: %s}" % (tok, next, context))
 
-DefaultContextLength = 10
+DefaultContextLength = 20
 def ensure_stream_exhausted(toks, caller, context_length=DefaultContextLength):
     '''Raises a DocParseException unless the stream _toks_ is empty. If not empty, displays
 a preview of the first few remaining tokens in the stream.'''

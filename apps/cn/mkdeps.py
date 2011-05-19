@@ -1,4 +1,5 @@
 # coding=utf-8
+import sys
 from apps.util.config import config
 #config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
 
@@ -12,7 +13,7 @@ from munge.cats.headed.parse import parse_category
 from munge.cats.trace import analyse
 from munge.trees.traverse import leaves, pairs_postorder, nodes, nodes_postorder
 from munge.util.iter_utils import flatten, seqify
-from munge.util.err_utils import debug, warn
+from munge.util.err_utils import debug, warn, err
 from munge.util.func_utils import identity
 from munge.util.iter_utils import each_pair
 from munge.trees.pprint import pprint
@@ -340,6 +341,8 @@ class MakeDependencies(Filter, OutputDerivation):
             deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
         # Squelch! We need an empty PARG entry even if the process fails, otherwise AUTO and PARG are out of sync
         except Exception, e: 
+            err("Processing failed on derivation %s:", bundle.label())
+            sys.stderr.flush()
             traceback.print_exc()
             deps = []
 
