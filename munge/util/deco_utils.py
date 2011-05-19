@@ -63,7 +63,7 @@ class memoised(object):
    def __repr__(self):
       """Return the function's docstring."""
       return self.func.__doc__
-      
+
 def predicated(f):
     '''Functions decorated with _predicated_ optionally accept a keyword
 argument _when_, which acts as a guard on the function call. If _when_

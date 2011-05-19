@@ -93,16 +93,18 @@ find_all = tgrep
 find_first = compose(curry(take, 1), find_all)
 def find_small(*args, **kwargs):
     matches = tgrep(*args, **kwargs)
-    for match in matches:
-        if len(match) == 2: match, context = match
-        if match.leaf_count() <= 10:
-            yield match
+    with_context = kwargs['with_context']
+
+    if with_context:
+        return ifilter(lambda (match, context): match.leaf_count() <= 10,
+                       matches)
+    else:
+        return ifilter(lambda match: match.leaf_count() <= 10, matches)
             
 def find_small_sents(*args, **kwargs):
     deriv = args[0]
-    if deriv.count() > 10: return iter([])
-    
-    return tgrep(*args, **kwargs)
+    if deriv.leaf_count() >= 20: return iter([])
+    else: return tgrep(*args, **kwargs)
 
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
