@@ -40,25 +40,12 @@ of such dependencies created in a given derivation.
 def make_set_head_from(l, r, p):
     L, R, P = l.cat, r.cat, p.cat
     
-    copy_vars(frm=R, to=P)
-
-    P.slot = deepcopy(P.slot)
-    update_with_fresh_var(p, P.slot)
-    P.slot.head.lex = list(flatten((L.slot.head.lex, R.slot.head.lex)))
-    
-    unifier = unify(L, R, ignore=True, copy_vars=True) # unify variables only in the two conjuncts
-    for (dest, src) in unifier:
-        if isinstance(src, (basestring, list)): continue
-        
-        old_head = src.slot.head
-        
-        # look under L and transform all references to 'Z' to references to the 'Z' inside R
-        for node in nodes(l):
-            for subcat in node.cat.nested_compound_categories():
-                if subcat.slot.head is old_head:
-                    subcat.slot.unify_heads(dest.slot)
-
-    unify(P, R, ignore=True) # unify variables only in the two conjuncts
+    for ll,rr,pp in zip(L.nested_compound_categories(),R.nested_compound_categories(),P.nested_compound_categories()):
+        if ll.slot.head.lex and rr.slot.head.lex:
+            pp.slot.head.lex = list(flatten((ll.slot.head.lex, rr.slot.head.lex)))
+        else:
+            unify(ll,rr,copy_vars=True,ignore=True)
+            unify(rr,pp,ignore=True)
 
 unanalysed = set()
 def mkdeps(root, postprocessor=identity):
@@ -189,12 +176,49 @@ def mkdeps(root, postprocessor=identity):
             p.cat._right = L.right
 
         elif comb in ('fwd_raise', 'bwd_raise'): # Xx -> [ Tf|(Tf|Xx)f ]f
-            P.slot.var = fresh_var()
+            if P == parse_category(r'(S[dcl]\NP)\((S[dcl]\NP)/(S[dcl]\NP))'):
+                # (S[dcl]y\NPz)y -> [ (S[dcl]f\NPg)f/((S[dcl]f\NPg)f\(S[dcl]y\NPz)y)f ]f
+                P.left.slot.var = P.left.left.slot.var = P.right.slot.var = P.slot.var = fresh_var() # f 
+                P.left.right.slot.var = fresh_var() # g
+                
+                copy_vars(frm=P.left, to=P.right.left)
+                copy_vars(frm=L,      to=P.right.right)
+                
+                unifier = unify(L, P.right.right)
+            elif P == parse_category(r'((S[dcl]\NP)/QP)\(((S[dcl]\NP)/QP)/NP)'):
+                # NPy -> [ ((S[dcl]v\NPw)v/QPz)v \ ( ((S[dcl]v\NPw)v/QPz)v/NPy )v ]v
+                P.slot.var = fresh_var()
+                P.left.slot = P.right.slot = \
+                    P.left. left.slot = P.left. left.left.slot = \
+                    P.right.left.slot = P.right.left.left.slot = \
+                    P.right.left.left.left.slot = P.slot # v
+#                P.right.right.slot = fresh_var() # y
+                P.right.right.slot = L.slot
+                P.left.right.slot.var = fresh_var('Z')
+                P.right.left.right.slot = P.left.right.slot # z
+                P.left.left.right.slot.var = fresh_var('W')
+                P.right.left.left.right.slot = P.left.left.right.slot # w
+                
+                unifier = unify(L, P.right.right)
+            elif P == parse_category(r'(S[dcl]\NP)\((S[dcl]\NP)/QP)'):
+                # QPy -> [ (S[dcl]v\NPz)v \ ((S[dcl]v\NPz)v/QPy)v ]v
+                P.slot.var = fresh_var()
+                P.left.slot = P.left.left.slot = \
+                    P.right.slot = P.right.left.slot = P.right.left.left.slot = P.slot # v
+#                P.right.right.slot = fresh_var() # y
+                P.right.right.slot = L.slot
+                P.left.right.slot.var = fresh_var('Z')
+                P.right.left.right.slot = P.left.right.slot # z
+                
+                unifier = unify(L, P.right.right)
+            else:
+                P.slot.var = fresh_var()
 
-            P.right.left.slot = P.left.slot = P.right.slot = P.slot
-            P.right.right.slot = L.slot
+                P.right.left.slot = P.left.slot = P.right.slot = P.slot
+                P.right.right.slot = L.slot
 
-            unifier = unify(L, P.right.right)
+                unifier = unify(L, P.right.right)
+
 
         elif comb == 'np_typechange':
             P.slot = L.slot # = copy_vars
