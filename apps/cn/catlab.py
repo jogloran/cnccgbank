@@ -228,8 +228,7 @@ consulted first.'''
     # See label_adjunction. If we have IP < IP-SBJ VP, we want the VP node to receive S[dcl]\S[dcl],
     # not S[dcl]\NP (what it would receive if Map was consulted). See 5:35(1) for an example.
     # For all other cases (a VP argument, for instance), we want the mapping VP -> S[dcl]\NP to hold
-    if return_none_when_vp and (
-        node.tag.startswith('VP') or has_verbal_tag(node)): return None
+    if return_none_when_vp and has_verbal_tag(node): return None
     
     if node.tag == 'PU' and node.is_leaf():
         # map dunhao to category conj only when it's the left child
