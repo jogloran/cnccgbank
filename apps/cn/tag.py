@@ -202,6 +202,10 @@ def preprocess(root):
         # fix bad annotation IP < IP (2:7(28)), VP < VP (0:1(5))
         elif any(is_repeated_unary_projection(xp, node) for xp in ('IP', 'VP', 'NP', 'CP')):
             node.kids = node[0].kids
+        # treat DP-SBJ as QP-SBJ (6:37(9)): the rationale is that the determiner (e.g. 每) acts as a specifier,
+        # just like a quantity
+        elif node.tag == 'DP-SBJ':
+            node.tag = 'QP-SBJ'
         # attach the PU preceding a PRN under the PRN
         elif last_kid and last_kid.tag == 'PRN' and last_kid.count() == 1:
             maybe_pu = node[last_kid_index-1]
@@ -397,8 +401,17 @@ def label(root):
                 elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
                     
-        elif is_vcd(node) or is_vnv(node):
+        elif is_vcd(node):
             pass
+            
+        elif is_vnv(node):
+            if node.count() == 3:
+                tag(node[0], 'l')
+                tag(node[1], 'h')
+                tag(node[2], 'r')
+            elif node.count() == 2:
+                tag(node[0], 'l')
+                tag(node[1], 'h')
             
         elif is_vcp(node):
             tag(first_kid, 'h')

@@ -226,7 +226,7 @@ returned if the mapping yields no category; otherwise, an atomic category
 is returned with the base CPTB tag. If _is_root_, a special mapping is
 consulted first.'''
     # See label_adjunction. If we have IP < IP-SBJ VP, we want the VP node to receive S[dcl]\S[dcl],
-    # not S[dcl]\NP (what it would receive if Map was consulted). See 5:35(1) for an example.
+    # not S[dcl]\NP (what it would receive if Map was consulted)
     # For all other cases (a VP argument, for instance), we want the mapping VP -> S[dcl]\NP to hold
     if return_none_when_vp and has_verbal_tag(node): return None
     
@@ -332,19 +332,13 @@ def label(node, inside_np=False):
         return label_right_adjunction(node)
         
     elif node.tag.startswith('VNV'):
-        if has_verbal_tag(node[0]):
-            node[0].category = node.category
-        elif node[0].tag.startswith('AD'):
-            node[0].category = node.category / node.category
+        # AD for 不, CD for a few mis-labelled  一 (看一看)
+        if node[0].tag.startswith('AD') or node[0].tag.startswith('CD'):
+            node[1].category = node.category.left
+            return label_head_initial(node)
         else:
-            node[0].category = ptb_to_cat(node)
-            
-        node.kids[0] = label(node[0])
-        
-        node[1].category = node.category
-        node.kids[1] = label(node[1])
-        
-        return node
+            node[0].category = node.category
+            return label_head_final(node)
 
     # must be above is_apposition, because there exist NP-APP:a ETC:& cases
     elif is_etc(node):
