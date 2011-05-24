@@ -65,6 +65,7 @@ Exceptions = (
     (C(r'(S[dcl]\S[dcl])/PP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/PP{F}){_}')),
     (C(r'(S[dcl]\S[dcl])/QP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/QP{F}){_}')),
     (C(r'(S[dcl]\S[dcl])/M'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/M{F}){_}')),
+    (C(r'S[dcl]\S[dcl]'), C(r'(S[dcl]{_}\S[dcl]{E}){_}')),
     
     (C(r'(S\S)\(S\S)'), C(r'((S{F}\S{E}){F}\(S{F}\S{E}){F}){_}')),
     (C(r'(S\S)/(S\S)'), C(r'((S{F}\S{E}){F}/(S{F}\S{E}){F}){_}')),
