@@ -46,7 +46,8 @@ def make_set_head_from(l, r, p):
         else:
             unify(ll,rr,copy_vars=True,ignore=True)
             unify(rr,pp,ignore=True)
-
+            copy_vars(rr,pp)
+            
 unanalysed = set()
 def mkdeps(root, postprocessor=identity):
     for i, leaf in enumerate(leaves(root)):
