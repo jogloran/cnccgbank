@@ -49,6 +49,7 @@ def make_set_head_from(l, r, p):
             copy_vars(rr,pp)
             
 unanalysed = set()
+Sdcl = parse_category('S[dcl]')
 def mkdeps(root, postprocessor=identity):
     for i, leaf in enumerate(leaves(root)):
         # Uniquify each leaf with an index
@@ -92,7 +93,11 @@ def mkdeps(root, postprocessor=identity):
 
         # [Xx/Yy]l [Yy/Zz]r -> [Xx/Zz]r
         elif comb == 'fwd_comp': # X/Y Y/Z -> X/Z
-            P.slot = R.slot # lexical head comes from R (Y/Z)
+            if is_rooted_in(Sdcl, L, respecting_features=True):
+                P.slot = L.slot
+            else:
+                P.slot = R.slot # lexical head comes from R (Y/Z)
+
             P.slot.var = fresh_var(prefix='K')
 
             unifier = unify(L.right, R.left)
@@ -101,7 +106,11 @@ def mkdeps(root, postprocessor=identity):
             
         # [Yy\Zz]l [Xx\Yy]r -> [Xx\Zz]l
         elif comb == 'bwd_comp': # Y\Z X\Y -> X\Z
-            P.slot = L.slot # lexical head comes from L (Y\Z)
+            if is_rooted_in(Sdcl, R, respecting_features=True):
+                P.slot = R.slot
+            else:
+                P.slot = L.slot # lexical head comes from L (Y\Z)
+
             P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(R.right, L.left)
