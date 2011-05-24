@@ -492,7 +492,8 @@ def label(root):
               # this should be treated as head-final complementation, not adjunction.
               is_lcp_internal_structure(last_kid)):
               
-            tag(last_kid, 'h')
+            if last_kid.tag.startswith('SP'): tag(last_kid, 'a')
+            else: tag(last_kid, 'h')
 
             # cf 2:23(7),1:9(28), a number of derivations have (CP(WHNP-1 CP(IP) DEC) XP) instead of
             # the expected (CP (WHNP-1) CP(IP DEC) XP)
