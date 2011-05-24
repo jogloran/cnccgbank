@@ -56,10 +56,18 @@ Exceptions = (
     # C(r'(((S[dcl]{_}\NP{F}){_}/((S[dcl]{E}\NP{D}){E}/NP{F}){E}){_}/NP{D}){_}')),
      
     # make sure things which look like modifier categories but aren't are given the right markedup
+    # these are all attested categories of the form (S[dcl]\S[dcl])/$
+    # TODO: we don't need to do this: just define a mapping for S[dcl]\S[dcl] and anything that uses it should
+    #       pick up correct markedup
     (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/NP{F}){_}')),
+    (C(r'(S[dcl]\S[dcl])/(S[dcl]\NP)'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/(S[dcl]{B}\NP{C}){B}){_}')),
+    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/S[dcl]{F}){_}')),
+    (C(r'(S[dcl]\S[dcl])/PP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/PP{F}){_}')),
+    (C(r'(S[dcl]\S[dcl])/QP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/QP{F}){_}')),
+    (C(r'(S[dcl]\S[dcl])/M'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/M{F}){_}')),
+    
     (C(r'(S\S)\(S\S)'), C(r'((S{F}\S{E}){F}\(S{F}\S{E}){F}){_}')),
     (C(r'(S\S)/(S\S)'), C(r'((S{F}\S{E}){F}/(S{F}\S{E}){F}){_}')),
-    (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/S[dcl]{F}){_}')),
     
     (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{F}\S{E}){F}/(S{D}\NP{C}){D}){_}/NP{F}){_}')),
 
