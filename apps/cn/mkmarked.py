@@ -52,6 +52,9 @@ Exceptions = (
     (C(r'((S[dcl]\NP)/NP)/((S[dcl]\NP)/NP)'),
      C(r'(((S[dcl]{F}\NP{E}){F}/NP{D}){F}/((S[dcl]{F}\NP{E}){F}/NP{D}){F}){_}')),
      
+    (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'),
+     C(r'((((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{C}){D}){F}/NP{G}){F}/(((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{C}){D}){F}/NP{G}){F}){_}')),
+     
     #(C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'),
     # C(r'(((S[dcl]{_}\NP{F}){_}/((S[dcl]{E}\NP{D}){E}/NP{F}){E}){_}/NP{D}){_}')),
      
