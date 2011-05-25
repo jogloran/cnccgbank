@@ -75,7 +75,7 @@ Exceptions = (
     (C(r'(S\LCP)/(S\NP)'), C(r'((S{F}\LCP{E}){F}/(S{F}\NP{D}){F}){_}')),
     (C(r'(S\QP)/(S\NP)'), C(r'((S{F}\QP{E}){F}/(S{F}\NP{D}){F}){_}')),
     
-    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{F}\S{E}){F}/(S{D}\NP{C}){D}){_}/NP{F}){_}')),
+    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{F}\S{E}){F}/(S{D}\NP{C}){D}){_}/NP{G}){_}')),
 
     (C(r'S[q]\S[dcl]'), C(r'(S[q]{F}\S[dcl]{F}){_}')),
 
