@@ -13,7 +13,7 @@ from apps.util.echo import echo
 def variables():
     '''Returns an iterator over variable names. The first variable name returned is _,
 for the outermost variable.'''
-    return iter('_YZWVUTRQAB')#CDEF')
+    return iter('_YZWVUTRQA')#CDEF')
 
 def is_modifier(cat):
     '''Returns whether _cat_ is of the form X/X.'''
@@ -52,7 +52,7 @@ Exceptions = (
      C(r'(((S[dcl]{F}\NP{E}){F}/NP{D}){F}/((S[dcl]{F}\NP{E}){F}/NP{D}){F}){_}')),
      
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'),
-     C(r'((((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{C}){D}){F}/NP{G}){F}/(((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{C}){D}){F}/NP{G}){F}){_}')),
+     C(r'((((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{C}){D}){F}/NP{B}){F}/(((S[dcl]{F}\NP{E}){F}/(S[dcl]{D}\NP{C}){D}){F}/NP{B}){F}){_}')),
      
     #(C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'),
     # C(r'(((S[dcl]{_}\NP{F}){_}/((S[dcl]{E}\NP{D}){E}/NP{F}){E}){_}/NP{D}){_}')),
@@ -75,7 +75,7 @@ Exceptions = (
     (C(r'(S\LCP)/(S\NP)'), C(r'((S{F}\LCP{E}){F}/(S{F}\NP{D}){F}){_}')),
     (C(r'(S\QP)/(S\NP)'), C(r'((S{F}\QP{E}){F}/(S{F}\NP{D}){F}){_}')),
     
-    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{F}\S{E}){F}/(S{D}\NP{C}){D}){_}/NP{G}){_}')),
+    (C(r'((S\S)/(S\NP))/NP'), C(r'(((S{F}\S{E}){F}/(S{D}\NP{C}){D}){_}/NP{B}){_}')),
 
     (C(r'S[q]\S[dcl]'), C(r'(S[q]{F}\S[dcl]{F}){_}')),
 
@@ -91,7 +91,7 @@ Exceptions = (
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), 
      C(r'((((S[dcl]{E}\NP{F}){E}/(S[dcl]{D}\NP{F}){D}){E}/NP{F}){C}/(((S[dcl]{E}\NP{F}){E}/(S[dcl]{D}\NP{F}){D}){E}/NP{F}){C}){_}')),
     
-    # gei category fix (NP gei NP NP VP e.g. tamen gei haizi jihui xuanze)
+    # gei category fix (NP gei NP NP VP e.g. tamen gei haizi jihui xuanze 10:53(34))
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/NP'),
      C(r'((((S[dcl]{_}\NP{C}){_}/(S[dcl]{D}\NP{E}){D}){_}/NP{F}){_}/NP{E}){_}')),
 
