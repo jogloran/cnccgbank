@@ -93,7 +93,7 @@ Exceptions = (
     
     # gei category fix (NP gei NP NP VP e.g. tamen gei haizi jihui xuanze)
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/NP'),
-     C(r'((((S[dcl]{_}\NP{D}){_}/(S[dcl]{D}\NP{F}){D}){_}/NP{E}){_}/NP{F}){_}')),
+     C(r'((((S[dcl]{_}\NP{C}){_}/(S[dcl]{D}\NP{E}){D}){_}/NP{F}){_}/NP{E}){_}')),
 
     # this category is probably not correct
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/S[dcl]'),
