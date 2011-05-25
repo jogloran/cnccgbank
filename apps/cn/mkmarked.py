@@ -13,7 +13,7 @@ from apps.util.echo import echo
 def variables():
     '''Returns an iterator over variable names. The first variable name returned is _,
 for the outermost variable.'''
-    return iter('_YZWVUTRQA')#BCDEF')
+    return iter('_YZWVUTRQAB')#CDEF')
 
 def is_modifier(cat):
     '''Returns whether _cat_ is of the form X/X.'''
@@ -30,7 +30,6 @@ Exceptions = (
 # Z -> E
 # W -> D
 # V -> C
-# U -> B
     (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{E}/N{E}){_}\(S[dcl]{F}\NP{E}){F}){_}')),
     (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{E}/N{E}){_}\(S[dcl]{F}/NP{E}){F}){_}')),
     (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{_}\NP{F}){_}/(S[dcl]{E}\NP{F}){E}){_}')),
@@ -63,7 +62,7 @@ Exceptions = (
     # TODO: we don't need to do this: just define a mapping for S[dcl]\S[dcl] and anything that uses it should
     #       pick up correct markedup
     (C(r'(S[dcl]\S[dcl])/NP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/NP{F}){_}')),
-    (C(r'(S[dcl]\S[dcl])/(S[dcl]\NP)'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/(S[dcl]{B}\NP{C}){B}){_}')),
+    (C(r'(S[dcl]\S[dcl])/(S[dcl]\NP)'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/(S[dcl]{F}\NP{D}){F}){_}')),
     (C(r'(S[dcl]\S[dcl])/S[dcl]'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/S[dcl]{F}){_}')),
     (C(r'(S[dcl]\S[dcl])/PP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/PP{F}){_}')),
     (C(r'(S[dcl]\S[dcl])/QP'), C(r'((S[dcl]{_}\S[dcl]{E}){_}/QP{F}){_}')),
