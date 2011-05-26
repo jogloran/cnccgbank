@@ -401,17 +401,8 @@ def label(root):
                 elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
                     
-        elif is_vcd(node):
+        elif is_vcd(node) or is_vnv(node):
             pass
-            
-        elif is_vnv(node):
-            if node.count() == 3:
-                tag(node[0], 'l')
-                tag(node[1], 'h')
-                tag(node[2], 'r')
-            elif node.count() == 2:
-                tag(node[0], 'l')
-                tag(node[1], 'h')
             
         elif is_vcp(node):
             tag(first_kid, 'h')
