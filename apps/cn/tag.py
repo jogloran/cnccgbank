@@ -262,6 +262,9 @@ def preprocess(root):
                         
             elif node[0].tag in ('NP', 'NP-PN', 'VP', 'IP') and node.tag == 'PRN':
                 node.kids = node[0].kids
+            elif node.tag == 'ADVP' and node.count() == 1 and node[0].tag == 'CS': 
+                # shrink so that CS will be considered the head by binarise
+                replace_kid(node.parent, node, node[0])
                 
         # Reshape LB (long bei)
         # ---------------------
@@ -278,7 +281,7 @@ def preprocess(root):
             
         # single mistagging CP-SBJ for CP in 24:58(1)
         elif node.tag == 'CP-SBJ': node.tag = 'CP'
-
+        
         else:
             # Fix wrongly attached DEC (5:26(6))
             result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
