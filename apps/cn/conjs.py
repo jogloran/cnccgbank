@@ -17,7 +17,7 @@ def where(pred, seq):
 class ConjAnalysis(Filter):
     def __init__(self):
         Filter.__init__(self)
-        self.conjs = defaultdict(set)
+        self.conjs = defaultdict(lambda: defaultdict(int))
         
     def accept_derivation(self, bundle):        
         for node in nodes(bundle.derivation):
@@ -25,10 +25,19 @@ class ConjAnalysis(Filter):
             if is_coordination(node):
                 ccs = list(where(lambda kid: kid.tag == 'CC', node.kids))
                 for cc in ccs:
-                    self.conjs[base_tag(node.tag)].add(cc.lex)
+                    self.conjs[base_tag(node.tag)][cc.lex] += 1
     
     def output(self):
         for top_tag, ccs in sorted(self.conjs.iteritems()):
-            print '% 5s | %s' % (top_tag, ' '.join(sorted(ccs)))
+            sorted_by_freq = sorted(ccs.iteritems(), key=lambda e: e[1], reverse=True)
+            print '% 5s | %s' % (top_tag, '; '.join('%s (%s)' % (lex, freq) for (lex, freq) in sorted_by_freq))
+            # print '% 5s' % top_tag,
+            # first = True
+            # for k, v in sorted(ccs.iteritems(), key=lambda e: e[1], reverse=True):
+            #     if not first:
+            #         print '     ',
+            #     else:
+            #         first = False
+            #     print '| % 5d %s' % (v, k)
             
             
