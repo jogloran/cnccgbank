@@ -138,7 +138,7 @@ def label_np_internal_structure(node):
         P = node.category
     
     for kid in node:
-        if kid.tag.endswith(':N'):
+        if kid.tag.endswith(':N') or kid.tag.endswith(':h'):
             kid.category = P
         elif kid.tag.endswith(':n') or \
              kid.tag.startswith('CD') or \
