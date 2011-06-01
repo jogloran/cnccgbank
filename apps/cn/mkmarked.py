@@ -3,6 +3,7 @@ import sys, copy
 from apps.util.config import config
 config.set(show_vars=True, curly_vars=True)
 
+from munge.cats.headed.nodes import AtomicCategory
 from munge.cats.headed.parse import *
 from munge.cats.cat_defs import S, Sdcl, NP, N
 from munge.util.err_utils import *
@@ -25,11 +26,6 @@ def is_np_n(cat):
     
 C = parse_category
 Exceptions = (
-# TODO: trying remapping to avoid conflicts
-# Y -> F
-# Z -> E
-# W -> D
-# V -> C
     (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{%E}/N{%E}){%_}\(S[dcl]{%F}\NP{%E}){%F}){%_}')),
     (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{%E}/N{%E}){%_}\(S[dcl]{%F}/NP{%E}){%F}){%_}')),
     (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/(S[dcl]{%E}\NP{%F}){%E}){%_}')),
@@ -110,7 +106,8 @@ Exceptions = (
 # sanity check to make sure all manual markedup slots are filled in
 for (frm, to) in Exceptions:
     for subcat in to.nested_compound_categories():
-        assert subcat.slot.var != '?', "Markedup for category %s contains unspecified var" % to
+        assert subcat.slot.var != AtomicCategory.NoVariableSentinel, \
+            "Markedup for category %s contains unspecified var" % to
 
 def get_cached_category_for(cat, lex, vars):
     '''If _cat_ matches one of the mappings defined in Exceptions, returns a copy of
@@ -119,9 +116,11 @@ the cached category, filling in its outermost variable's lex with _lex_.'''
         if cat.equal_respecting_features(frm):
             result = copy.deepcopy(to)
             for subcat in result.nested_compound_categories():
+                # rewrite a variable name beginning with % with an available
+                # variable (if the markedup has been parsed correctly, all
+                # mentions of that variable will be updated)
                 if subcat.slot.var.startswith('%'):
                     subcat.slot.var = vars.next()
-#            result.slot.head.lex = lex
             return result
     return None
 
@@ -135,11 +134,9 @@ available variable labels _vars_ and lexical item _lex_.'''
     cached = get_cached_category_for(cat, lex, vars=available)
     if cached: 
         cp = copy.deepcopy(cached)
-#        cp.slot.head.lex = cat.slot.head.lex
         return cp
     
-
-    if cat.slot.var == "?":
+    if cat.slot.var == AtomicCategory.NoVariableSentinel:
         suffix = str(n) if config.debug_vars else ''
         cat.slot.var = (available.next() + suffix)
 
@@ -177,10 +174,9 @@ def write_markedup(cats, file):
 def naive_label_derivation(root):
     '''Applies the markedup labelling algorithm to each leaf under _root_.'''
     for leaf in leaves(root):
-#        print "%s ->" % leaf.cat,
         leaf.cat = label(leaf.cat, lex=leaf.lex)
+        # pre-populate the outermost slot with the lexical item
         leaf.cat.slot.head.lex = leaf.lex
-#        print "%s" % leaf.cat
         
     return root
 

@@ -69,8 +69,10 @@ class Slot(object):
         
 class AtomicCategory(B.AtomicCategory):
     '''An AtomicCategory augmented with a Slot field.'''
+    NoVariableSentinel = '?'
+
     def __init__(self, *args, **kwargs):
-        var, value = kwargs.pop('var', '?'), kwargs.pop('value', None)
+        var, value = kwargs.pop('var', self.NoVariableSentinel), kwargs.pop('value', None)
         
         B.AtomicCategory.__init__(self, *args, **kwargs)
         self.slot = Slot(var, value)
