@@ -18,7 +18,7 @@ from apps.cn.fix_utils import *
 from apps.identify_lrhca import *
 from apps.cn.output import OutputPrefacedPTBDerivation
 
-def echo(fn, write=sys.stdout.write):
+def echo(fn, write=sys.stderr.write):
     return E.echo(fn, lrp_repr, write)
 
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
@@ -127,6 +127,36 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
     debug('label_partial_coordination node.category: %s, %s', node.category, node)
     node[1].category = ptb_to_cat(node[1]) if ucp else node.category 
     node.kids[1] = label(node[1], inside_np)
+    
+    return node
+    
+#@echo
+def label_np_internal_structure(node):
+    if node.category == NP:
+        P = N
+    else:
+        P = node.category
+    
+    for kid in node:
+        if kid.tag.endswith(':N'):
+            kid.category = P
+        elif kid.tag.endswith(':n') or \
+             kid.tag.startswith('CD') or \
+             kid.tag.startswith('OD'):
+            kid.category = P/P
+        elif kid.tag == 'CC':
+            kid.category = conj
+        elif kid.tag.startswith('NP'):
+            kid.category = P
+        else:
+            kid.category = np_modifier_tag_to_cat(kid.tag)
+    
+    if node.count() == 1:
+        node.category = node[0].category
+    
+    node.kids[0] = label(node[0])
+    if node.count() > 1:
+        node.kids[1] = label(node[1])
     
     return node
 
@@ -394,31 +424,7 @@ def label(node, inside_np=False):
             when=lambda category: category == NP)
     
     elif is_np_internal_structure(node):
-        if node.category == NP:
-            P = N
-        else:
-            P = node.category
-        
-        for kid in node:
-            if kid.tag.endswith(':N'):
-                kid.category = P
-            elif kid.tag.endswith(':n'):
-                kid.category = P/P
-            elif kid.tag == 'CC':
-                kid.category = conj
-            elif kid.tag.startswith('NP'):
-                kid.category = P
-            else:
-                kid.category = np_modifier_tag_to_cat(kid.tag)
-        
-        if node.count() == 1:
-            node.category = node[0].category
-        
-        node.kids[0] = label(node[0])
-        if node.count() > 1:
-            node.kids[1] = label(node[1])
-        
-        return node
+        return label_np_internal_structure(node)
     
     elif is_adjunction(node):
         return label_adjunction(node)

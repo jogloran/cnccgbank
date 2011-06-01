@@ -166,9 +166,11 @@ def is_np_internal_structure(node):
     return (node.tag.startswith('NP') and 
             all(kid.tag.endswith(':n') 
              or kid.tag.endswith(':N') 
-             or kid.tag in NominalCategories
+             or any(kid.tag.startswith(tag) for tag in NominalCategories)
              or kid.tag in ('PU', 'CC')
              or kid.tag.startswith('JJ')
+             or kid.tag.startswith('CD')
+             or kid.tag.startswith('OD')
              or kid.tag.endswith(':&') for kid in leaves(node)))
     
 def is_S_NP_apposition(node):
