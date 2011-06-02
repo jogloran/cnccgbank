@@ -129,17 +129,23 @@ def is_absorption_pu(node):
 def get_kid(kids, seen_cc):
     pu = kids.pop()
     
+    if kids and all(kid.tag == 'PU' for kid in kids):
+        return pu, False
+    
     if seen_cc and is_absorption_pu(pu) and len(kids) > 0:
         stk = [pu]
-        xp = kids.pop()
-        while xp and xp.tag.startswith('PU'):
-            stk.append(xp)
-            xp = kids.pop()
-            
+        n = kids.pop()
+        while n.tag.startswith('PU'):
+            stk.append(n)
+            if not kids:
+                break
+            n = kids.pop()
+
+        # now n is a non-punct
         while stk:
-            xp = Node(xp.tag, [xp, stk.pop()], head_index=0)
-        
-        return xp, False
+            n = Node(n.tag, [n, stk.pop()])
+    
+        return n, False
     else:
         return pu, pu.tag == 'CC'
 
