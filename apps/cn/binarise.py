@@ -130,10 +130,16 @@ def get_kid(kids, seen_cc):
     pu = kids.pop()
     
     if seen_cc and is_absorption_pu(pu) and len(kids) > 0:
+        stk = [pu]
         xp = kids.pop()
-        xp_ = Node(xp.tag, [xp, pu], head_index=0)
+        while xp and xp.tag.startswith('PU'):
+            stk.append(xp)
+            xp = kids.pop()
+            
+        while stk:
+            xp = Node(xp.tag, [xp, stk.pop()], head_index=0)
         
-        return xp_, False
+        return xp, False
     else:
         return pu, pu.tag == 'CC'
 
@@ -245,9 +251,7 @@ def label_root(node):
     return result
 
 PunctuationPairs = frozenset(
-    # Our CCGbank tags for these paired punctuation tags are:
-    # XQU XCS XPA XPA XSQ XTL XCD XCS (where X denotes one of L, R)
-    ("“”", "「」", "（）", "()", "‘’", "《》", "『』", "〈〉")
+    ("“”", "「」", "（）", "()", "‘’", "《》", "『』", "〈〉", "＜＞")
 )
 def are_paired_punctuation(p1, p2):
     return p1 + p2 in PunctuationPairs

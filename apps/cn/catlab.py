@@ -230,6 +230,8 @@ PunctuationMap = {
     
     '“': 'LQU', '”': 'RQU', # Roman double quote
     '‘': 'LQU', '’': 'RQU', # Roman single quote
+    '`': 'LQU', # ASCII backtick, used as opening quote in 7:2(24)
+    '＇': 'RQU', # full width apostrophe, used as close quote
     
     '—': '.', # Chinese dash
 
@@ -237,6 +239,7 @@ PunctuationMap = {
     '《': 'LRB', '》': 'RRB', # Chinese title bracket
     '『': 'LRB', '』': 'RRB', # Chinese double corner bracket
     '「': 'LRB', '」': 'RRB', # Chinese left corner bracket
+    '＜': 'LRB', '＞': 'RRB', # these turn up in 6:40(10)
     
     '/': '.', '//': '.',
 }
