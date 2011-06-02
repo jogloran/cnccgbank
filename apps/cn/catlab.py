@@ -209,7 +209,13 @@ PunctuationMap = {
     '.': '.', # Roman period
     '。': '.', # Chinese period
     
-    '、': 'LCM', # Enumeration comma (顿号) for separating list items
+    # Enumeration comma (顿号) for separating list items
+    # usually, this maps to the category conj, but there are derivations with
+    # underspecified ('funny') coordination structure involving the enumeration comma (0:57(12)).
+    # Since we can't treat these as conj, we simply treat them as absorption, in
+    # line with funny conj.
+    '、': ',',
+    
     '，': ',', # Clausal comma (逗号)
     ',': ',', # Roman comma
     
