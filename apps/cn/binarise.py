@@ -143,7 +143,7 @@ def get_kid(kids, seen_cc):
 
         # now n is a non-punct
         while stk:
-            n = Node(n.tag, [n, stk.pop()])
+            n = Node(n.tag, [n, stk.pop()], head_index=0)
     
         return n, False
     else:
