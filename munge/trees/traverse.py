@@ -66,7 +66,7 @@ def leaves_reversed(deriv, pred=None):
     if deriv.is_leaf():
         if (not pred) or (pred and pred(deriv)): yield deriv
     else:
-        for kid in reversed(list(deriv)):
+        for kid in reversed(deriv):
             for kid_node in leaves_reversed(kid, pred):
                 yield kid_node
 
