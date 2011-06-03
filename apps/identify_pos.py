@@ -16,3 +16,6 @@ def has_noun_tag(node):
 
 def is_verb_compound(node):
     return any(node.tag.startswith(cand) for cand in ('VPT', 'VSB', 'VRD', 'VCD', 'VNV'))
+    
+def has_question_tag(node):
+    return node.tag == 'CP-Q'

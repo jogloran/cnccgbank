@@ -12,7 +12,7 @@ from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
-from apps.identify_pos import VerbalCategories
+from apps.identify_pos import VerbalCategories, has_question_tag
 from apps.cn.fix_utils import inherit_tag, replace_kid
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
@@ -486,7 +486,13 @@ def label(root):
               # this should be treated as head-final complementation, not adjunction.
               is_lcp_internal_structure(last_kid)):
               
-            if last_kid.tag.startswith('SP'): tag(last_kid, 'a')
+            if last_kid.tag.startswith('SP'): 
+                # Treat final 吗 as the head to get the type-change category S[q]\S[dcl] (25:21(5))
+                if has_question_tag(node):
+                    tag(last_kid, 'h')
+                else:
+                    tag(last_kid, 'a')
+                    
             else: tag(last_kid, 'h')
 
             # cf 2:23(7),1:9(28), a number of derivations have (CP(WHNP-1 CP(IP) DEC) XP) instead of
