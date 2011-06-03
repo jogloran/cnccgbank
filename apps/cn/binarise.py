@@ -47,7 +47,7 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
     return cur
 
 def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
-    if node.count() > 2:
+    if node.count() > 2 and node[0].tag.find('-APP') != -1:
         # Label the first kid before removing it from the node: if we did this the
         # other way around, then shrinking (which relies on replace_kid) would not
         # find _node[0]_ among the kids of _node_, and fail.
@@ -55,7 +55,7 @@ def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False
         node.kids.pop(0)
         
         return Node(node.tag, [first, label_node(node)], head_index=0)
-    return label_adjunction(node, inherit_tag=inherit_tag)
+    return label_adjunction(node, inherit_tag=inherit_tag, inside_np_internal_structure=inside_np_internal_structure)
 
 #@echo
 def label_np_internal_structure(node, inherit_tag=False):
