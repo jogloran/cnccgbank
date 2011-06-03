@@ -13,11 +13,12 @@ STDIN.each_with_index {|line, i|
     line.chomp!
     
     (line =~ /(\d+):(\d+)\((\d+)\)/) || (line =~ /(\d+),(\d+),(\d+)/) || (line =~ /(\d{1,2}).*?(\d{1,2}).*?(\d+)/)
-    doc_name = "chtb_%02d%02d.fid" % [$1, $2]
-    pdf_name = "wsj_%02d%02d.%02d.pdf" % [$1, $2, $3]
-    section_name = "%02d" % $1
+    sec, doc, deriv = $1.to_i, $2.to_i, $3.to_i
+    doc_name = "chtb_%02d%02d.fid" % [sec, doc]
+    pdf_name = "wsj_%02d%02d.%02d.pdf" % [sec, doc, deriv]
+    section_name = "%02d" % sec
     
-    puts "Making %d:%d(%d)..." % [$1, $2, $3]
+    puts "Making %d:%d(%d)..." % [sec, doc, deriv]
     `./make_all.sh #{doc_name}:#{$3}`
     phases.each {|phase|
         if ["tagged", "binarised"].include? phase
