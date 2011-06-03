@@ -39,7 +39,9 @@ def initialise():
 # will not be considered identical
 expression_cache = {}
 def tgrep(deriv, expression, with_context=False, nonrecursive=False, left_to_right=False):
-    '''Performs the given tgrep query on the given tree.'''
+    '''Performs the given tgrep query on the given tree. If _with_context_ is True, each matched node
+yields a pair (node, context), and captured nodes are accessible by name using the dict-like context.
+If the user wants to keep context around, a copy must be made.'''
     if not expression: raise RuntimeError('No query expression given.')
 
     if expression in expression_cache:
@@ -60,8 +62,11 @@ def tgrep(deriv, expression, with_context=False, nonrecursive=False, left_to_rig
     traversal_method = (single if nonrecursive  else 
                         nodes  if left_to_right else 
                         nodes_reversed)
+                        
+    context = Context()
     for node in traversal_method(deriv):
-        context = Context()
+        context.clear()
+        
         if query.is_satisfied_by(node, context):
             if _tgrep_debug: debug("%s matched %s", lrp_repr(node), query)
             if with_context:
