@@ -33,6 +33,9 @@ class Node(object):
         '''Iterates over each child of this node.'''
         yield self.lch
         if self.rch: yield self.rch
+    def __reversed__(self):
+        if self.rch: yield self.rch
+        yield self.lch
 
     @property
     def parent(self): return self._parent
@@ -122,6 +125,7 @@ class Leaf(object):
         return " ".join(("(<L", str(self.cat), self.pos1, self.pos2, self.lex, self.catfix)) + ">)"
 
     def __iter__(self): raise StopIteration
+    __reversed__ = __iter__
 
     def __eq__(self, other):
         if other is None or not other.is_leaf(): return False

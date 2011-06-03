@@ -25,6 +25,8 @@ class Node(object):
 
     def __iter__(self):
         return self.kids.__iter__()
+    def __reversed__(self):
+        return reversed(self.kids)
         
     def leaf_count(self):
         return 1 + sum(kid.leaf_count() for kid in self)
@@ -90,6 +92,7 @@ class Leaf(object):
             ")" if first else ''))
             
     def __iter__(self): raise StopIteration
+    __reversed__ = __iter__
 
     count = const_(0)
     __len__ = count
