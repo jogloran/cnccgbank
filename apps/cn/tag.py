@@ -89,9 +89,6 @@ ValidNPInternalTags = frozenset(('NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC'))
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
         all(kid.tag in ValidNPInternalTags for kid in leaves(node)))
-        
-def is_np_app_structure(node):
-    return node.tag.startswith('NP') and any(kid.tag.find('-APP') != -1 for kid in node.kids)
     
 def is_vp_internal_structure(node):
     return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
@@ -432,15 +429,13 @@ def label(root):
                 if kid.tag not in ('CC', 'PU'):
                     tag(kid, 'c')
                                       
-        elif is_np_internal_structure(node) or is_np_app_structure(node):
+        elif is_np_internal_structure(node):
             first = True
             for kid in reversed(node.kids):
 #                if kid.tag.startswith('PRN'): continue
                     
                 if kid.tag == 'ETC':
                     tag(kid, '&')
-                elif kid.tag.startswith('DNP'):
-                    tag(kid, 'a')
                 elif kid.tag not in ('CC', 'PU'):
                     if first:
                         tag(kid, 'N')
