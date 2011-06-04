@@ -31,3 +31,8 @@ class PipeFormat(Filter, OutputDerivation):
         
     def format(self, leaf):
         return self.format_string % {'lex': leaf.lex, 'pos': leaf.pos1, 'cat': str(leaf.cat), 'stemmed_pos': base_tag(leaf.pos1)}
+        
+    opt = '0'
+    long_opt = 'pipe-format'
+    
+    arg_names = 'OUTDIR FORMAT-STRING'
