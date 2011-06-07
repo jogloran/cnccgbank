@@ -154,7 +154,7 @@ class AtomValue(object):
 class GetAtom(AtomValue):
     '''Matches tree nodes which are identical to the captured tree node.'''
     def __init__(self, var):
-        AtomValue.__init__(self, var, operator.eq)
+        AtomValue.__init__(self, var, lambda a, b: a.equal_respecting_features(b))
     def __repr__(self):
         return "=%s" % self.var
                 
