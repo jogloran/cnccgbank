@@ -12,7 +12,8 @@ padded_rsplit = curry(do_pad_split, str.rsplit)
 
 def nth_occurrence(seq, N, when, until):
     '''Given a sequence _seq_, this returns the _n_th sub-sequence for which
-the predicate _when_ is true, with _until_ defining the end of each sub-sequence.'''
+the predicate _when_ is true, with _until_ defining the end of each sub-sequence.
+The returned sub-sequence does not include the line where _until_ is True.'''
     n = 0
     buffer = []
     recording = False

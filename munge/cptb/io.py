@@ -2,6 +2,7 @@ from itertools import izip, count
 from munge.penn.parse import parse_tree, AugmentedPennParser
 from munge.io.single import SingleReader
 from munge.util.str_utils import nth_occurrence
+from munge.util.exceptions import CPTBParseException
 import os, re
 
 # Represents a derivation bundle in the Chinese Penn Treebank. This consists of a standard Penn 
@@ -47,7 +48,7 @@ class SGMLBag(SGMLParser):
         self.topmost = self.topmost_attrs = None
         
     def __getitem__(self, key):
-        return self.fields.get(key, None)
+        return self.fields.get(key, None)    
     
 class CPTBReader(SingleReader):
     '''An iterator over a CPTB document yielding derivation bundles.'''
@@ -93,4 +94,32 @@ class CPTBReader(SingleReader):
     def __iter__(self):
         for deriv, der_no in izip(self.derivs, count(1)):
             yield Derivation(self.sec_no, self.doc_no, self.index or der_no, deriv)
-            
+
+class CPTBHeadlineReader(CPTBReader):
+    '''Only returns derivations between <HEADLINE> tags. If you force this Reader, remember that
+this will fail on files which aren't CPTB formatted.'''
+
+    def __init__(self, filename):
+        SingleReader.__init__(self, filename)
+        self.sec_no, self.doc_no = self.determine_sec_and_doc()
+
+    def derivation_with_index(self, filename, i=None):
+        self.contents = SGMLBag()
+        with open(filename, 'r') as file:
+            headline_lines = nth_occurrence(file, N=1, 
+                             when=lambda line:  re.match(r'^<HEADLINE', line),
+                             until=lambda line: re.match(r'^</HEADLINE', line))
+            if not headline_lines: return None
+
+            if not headline_lines[0].startswith('<HEADLINE'):
+                raise CPTBParseException('Expected to find a <HEADLINE> line.')
+                
+            headline_lines = headline_lines[1:] # strip off <HEADLINE>
+            if i:
+                text = ''.join(headline_lines[i])
+            else:
+                text = '\n'.join(headline_lines)
+
+            self.contents.feed(text)
+
+        return parse_tree('\n'.join(self.contents['s']), AugmentedPennParser)

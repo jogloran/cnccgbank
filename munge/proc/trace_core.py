@@ -5,6 +5,7 @@ from itertools import izip, count
 from munge.io.guess import GuessReader
 from munge.io.multi import DirFileGuessReader
 from munge.penn.io import AugmentedPTBReader, CategoryPTBReader
+from munge.cptb.io import CPTBHeadlineReader
 
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
@@ -116,7 +117,7 @@ class TraceCore(object):
                 reader_class = globals()[self.reader_class_name]
                 info("Using reader class %s.", self.reader_class_name)
             except KeyError:
-                err("Reader class %s not found.", self.reader_class_name)
+                raise RuntimeError("Reader class %s not found." % self.reader_class_name)
         
         for file in files:
             try:

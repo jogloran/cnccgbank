@@ -170,7 +170,11 @@ def main(argv):
         sys.exit(0)
         
     # Run requested filters
-    tracer.run(opts.filters_to_run, files)
+    try:
+        tracer.run(opts.filters_to_run, files)
+    except RuntimeError, e:
+        err('%s', e)
+        sys.exit(1)
 
 if __name__ == '__main__':
     #try:

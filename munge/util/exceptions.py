@@ -3,6 +3,7 @@ class DocParseException(Exception): pass
 
 class PennParseException(DocParseException): pass
 class CCGbankParseException(DocParseException): pass
+class CPTBParseException(DocParseException): pass
 class CatParseException(DocParseException): pass
 
 class FilterException(Exception):
