@@ -19,6 +19,9 @@ def abab(l):
 def aab(l):
     return len(l) == 3 and l[0] == l[1]
 
+def aa(l):
+    return len(l) == 2 and l[0] == l[1]
+
 class RedupAnalysis(Filter):
     def __init__(self):
         Filter.__init__(self)
@@ -29,4 +32,5 @@ class RedupAnalysis(Filter):
         if aabb(l): print 'aabb', leaf.lex
         elif abab(l): print 'abab', leaf.lex
         elif aab(l): print 'aab', leaf.lex
+        elif aa(l): print 'aa', leaf.lex
 
