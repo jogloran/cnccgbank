@@ -43,19 +43,28 @@ class Node(object):
         return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def __getitem__(self, index):
-        return self.kids[index]
+        try:
+            n = len(self.kids)
+            if not (-n <= index < n): 
+                raise RuntimeError("Invalid index %d into Node %s." % (index, self))
+            return self.kids[index]
+        except TypeError:
+            return self.kids[index.start:index.stop]
+            
     def __setitem__(self, index, value):
-        self.kids[index] = value
-    def __delitem__(self, index):
-        self.kids.__delitem__(index)
-
-    def slice(self, range, value=None):
-        if value:
-            self.kids[range.start:range.stop] = value
+        try:
+            n = len(self.kids)
+            if not (-n <= index < n): 
+                raise RuntimeError("Invalid index %d into Node %s." % (index, self))
+            self.kids[index] = value
+            value.parent = self
+        except TypeError:
+            self.kids[index.start:index.stop] = value
             for node in value:
                 value.parent = self
-        else:
-            return self.kids[range.start:range.stop]
+                
+    def __delitem__(self, index):
+        self.kids.__delitem__(index)
 
     def __eq__(self, other):
         return (not other.is_leaf()) and self.tag == other.tag and self.kids == other.kids
@@ -99,7 +108,7 @@ class Leaf(object):
 
     def not_implemented(self, *args):
         raise NotImplementedError('Leaf has no children.')
-    __getitem__ = __setitem__ = __delitem__ = not_implemented
+    __getitem__ = __setitem__ = not_implemented
         
     def __eq__(self, other):
         return other.is_leaf() and self.tag == other.tag and self.lex == other.lex
