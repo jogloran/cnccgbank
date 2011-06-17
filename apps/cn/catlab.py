@@ -96,10 +96,12 @@ def label_np_structure(node):
 
 #@echo
 def label_right_adjunction(node):
+    #node[0].category = ptb_to_cat(node[0], return_none_when_unmatched=True) or node.category
     node[0].category = node.category
     node.kids[0] = label(node[0])
     
     no_features = featureless(node.category)
+    #node[1].category = no_features | featureless(node[0].category)
     node[1].category = no_features | no_features
     node.kids[1] = label(node[1])
     
@@ -268,7 +270,7 @@ consulted first.'''
     # See label_adjunction. If we have IP < IP-SBJ VP, we want the VP node to receive S[dcl]\S[dcl],
     # not S[dcl]\NP (what it would receive if Map was consulted). See 5:35(1) for an example.
     # For all other cases (a VP argument, for instance), we want the mapping VP -> S[dcl]\NP to hold
-    if return_none_when_vp and has_verbal_tag(node): return None
+    if return_none_when_vp and (has_verbal_tag(node) or node.tag.startswith('VP')): return None
     
     if node.tag == 'PU' and node.is_leaf():
         # map dunhao to category conj only when it's the left child
