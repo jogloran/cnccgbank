@@ -107,7 +107,9 @@ class FixExtraction(Fix):
             (r'*=TOP < { /BA/=BA $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
 
             # Removes the prodrop trace *pro*
-            (r'*=PP < { *=P < ^"*pro*" }', self.fix_prodrop),
+            # Also removes control/raising traces *PRO* which we have chosen not to shrink in catlab
+            # (see call to is_PRO_trace in label_root() of catlab.py)
+            (r'*=PP < { *=P < ^/\*(pro|PRO)\*/ }', self.fix_prodrop),
 
             # Removes wayward WHNP traces without a coindex (e.g. 0:86(5), 11:9(9))
             (r'* < { * < /WHNP(?!-)/ }', self.remove_null_element),

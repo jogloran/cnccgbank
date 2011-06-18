@@ -21,13 +21,13 @@ from apps.util.config import config
 PredicationRegex = re.compile(r'''
     (?:[:\w-]+)?
     (\s+[:\w-]+\s*)* # adjuncts (allow dashes and colons too, topicalised constituents already have :t/T)
-    (?:(PU|FLR)\s+)? # 7:74(10)
+    (?:(PU|FLR)\s+)* # 7:74(10)
     # allow dashes in the subject tag -- sometimes there are indices in the tag (NP-1)
-    (?:[\w-]+-(?:PN|SBJ)(?:-\d+)?|NP)\s+ # grammatical subject. IP < NP-PN VP occurs in 0:40(5), and an index may also be attached (2:68(3))
-    (?:(PU|FLR)\s+)? # FLR between NP and VP (20:8(7))
+    (?:[\w-]+-(?:PN|SBJ|APP)(?:-\d+)?|NP)\s+ # grammatical subject. IP < NP-PN VP occurs in 0:40(5), and an index may also be attached (2:68(3)). NP-APP VP occurs in 11:31(88)
+    (?:(PU|FLR)\s+)* # FLR between NP and VP (20:8(7)). permit multiple PU/FLR in this position (26:84(7))
     VP # predicate
 ''', re.VERBOSE)
-#(?:[:\w-]+)?\s*(\s+[:\w-]+\s*)*\s*(?:(PU|FLR)\s+)?\s*(?:[\w-]+-(?:PN|SBJ)(?:-\d+)?|NP)\s+\s*(?:(PU|FLR)\s+)?\s*VP
+#(?:[:\w-]+)?\s*(\s+[:\w-]+\s*)*\s*(?:(PU|FLR)\s+)?\s*(?:[\w-]+-(?:PN|SBJ|APP)(?:-\d+)?|NP)\s+\s*(?:(PU|FLR)\s+)?\s*VP
 def is_predication(node):
     kid_tags = ' '.join(kid.tag for kid in node)
     return node.tag.startswith('IP') and PredicationRegex.match(kid_tags)
@@ -353,6 +353,8 @@ def label(root):
             elif kid.tag == 'MSP':
                 tag(kid, 'a')
                 
+            elif kid.tag.endswith('-SBJ'): tag(kid, 'l')
+                
             else:
                 tag_if_topicalisation(kid)
                 
@@ -373,7 +375,9 @@ def label(root):
                 if (kid.tag.rfind('-SBJ') != -1 or 
                     # TODO: we can get IP < NP-PN VP (0:40(5)). is this correct?
                     # exclude NP-PN-LOC (10:62(25))
-                    (kid.tag.rfind('-PN') != -1 and kid.tag.rfind('-PN-LOC') == -1) or 
+                    (kid.tag.rfind('-PN') != -1 and kid.tag.rfind('-PN-LOC') == -1) or
+                    # NP-APP VP in 11:31(88)
+                    (kid.tag.rfind('-APP') != -1) or
                     kid.tag == "NP"):
                     
                     tag(kid, 'l') # TODO: is subject always left of predicate?
@@ -551,6 +555,10 @@ def label(root):
             tag(last_kid, 'h')
 
             for kid in node[0:-1]:
+                if kid.tag.endswith('-SBJ'): 
+                    # hack to handle predication nodes which fell through the PredicationRegex
+                    # because they had adjuncts attached at the wrong level between XP-SBJ and VP (11:13(89))
+                    tag(kid, 'l')
                 if not (kid.tag.startswith('PU') or kid.tag.startswith('CC')):
                     tag(kid, 'a')
                 else:

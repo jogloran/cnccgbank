@@ -460,6 +460,11 @@ def label_root(root):
     for node in nodes(root):
         # remove PRO traces as a preprocessing step
         if is_PRO_trace(node):
+            # We choose not to shrink *PRO* traces IP-SBJ < NP-SBJ(*PRO*) VP to avoid
+            # category proliferation (11:22(24))
+            # These *PRO* traces just get removed later as if they were *pro* traces (fix_prodrop in fix_rc.py)
+            if node.tag.startswith('IP-SBJ') and node[0].tag.startswith('NP-SBJ'): continue
+            
             old_tag = node.tag
             
             new_node = shrink_left(node, node.parent)
