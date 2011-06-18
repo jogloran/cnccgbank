@@ -76,7 +76,7 @@ def label_right_absorption(node):
 
 #@echo
 def label_adjunction(node):
-    if node.tag.endswith(':h'):
+    if node.tag.endswith(':h') or node.tag.find(':') == -1:
         node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True, return_none_when_vp=True, return_none_when_exactly_vp=True) or node.category
     else:
         node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True, return_none_when_vp=True) or node.category
