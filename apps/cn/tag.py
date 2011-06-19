@@ -353,7 +353,7 @@ def label(root):
             elif kid.tag == 'MSP':
                 tag(kid, 'a')
                 
-            elif kid.tag.endswith('-SBJ'): tag(kid, 'l')
+#            elif kid.tag.endswith('-SBJ'): tag(kid, 'l')
                 
             else:
                 tag_if_topicalisation(kid)
