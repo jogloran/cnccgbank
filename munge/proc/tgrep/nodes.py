@@ -1,6 +1,6 @@
 from munge.proc.tgrep.ops import *
 from munge.util.err_utils import warn
-from munge.proc.tgrep.tgrep import TgrepException
+from munge.util.exceptions import TgrepException
 import re
 import operator
 

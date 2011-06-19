@@ -6,6 +6,8 @@ class CCGbankParseException(DocParseException): pass
 class CPTBParseException(DocParseException): pass
 class CatParseException(DocParseException): pass
 
+class TgrepException(Exception): pass
+
 class FilterException(Exception):
     def __init__(self, inner, context, msg=''):
         Exception.__init__(self)

@@ -10,7 +10,7 @@ import munge.ccg.nodes as ccg
 from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err
 from munge.proc.tgrep.nodes import *
-from munge.proc.tgrep.tgrep import TgrepException
+from munge.util.exceptions import TgrepException
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "REGEX_SPEC", "OP", "UNARY_OP", "QUESTION",
           "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET", "AT")
@@ -38,10 +38,6 @@ def t_GT(t):
     
 def t_EQUAL(t):
     r'='
-    return t
-
-def t_STAR(t):
-    r'\*'
     return t
     
 def t_TILDE(t):
@@ -84,7 +80,11 @@ def t_AT(t):
 
 # Productions need to be sorted by descending length (maximal munch)
 def t_OP(t):
-    r'(<<,?|>>\'?|(<-?\d*)|>|\.\.?|\$\.?\.?|&)'
+    r'(<<,?|>>\'?|<%|(<(-?\d*))|>|\.\.?|\$\.?\.?|&)'
+    return t
+    
+def t_STAR(t):
+    r'\*'
     return t
     
 def t_UNARY_OP(t):

@@ -4,8 +4,6 @@ try:
     import ply.yacc as yacc
 except ImportError:
     import lex, yacc
-    
-class TgrepException(Exception): pass
 
 import munge.proc.tgrep.parse as parse
 from munge.proc.tgrep.nodes import Context
@@ -13,9 +11,10 @@ from munge.trees.traverse import nodes, leaves, nodes_postorder, nodes_reversed,
 from munge.trees.pprint import pprint
 from munge.util.iter_utils import take, single
 from munge.util.dict_utils import smash_key_case
-from munge.util.err_utils import debug
+from munge.util.err_utils import debug, info
 from munge.util.func_utils import compose
 from munge.util.iter_utils import take
+from munge.util.exceptions import TgrepException
 from functools import partial as curry
 from itertools import izip, ifilter
 
@@ -286,4 +285,3 @@ class Tgrep(TgrepCore):
     opt = 't'
     long_opt = 'tgrep'
     arg_names = 'EXPR'
-

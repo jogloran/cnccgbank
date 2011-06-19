@@ -83,6 +83,10 @@ def LeftChildOf(candidate, node, context):
 def RightChildOf(candidate, node, context):
     if node.is_leaf(): return False
     return node.count() > 1 and candidate.is_satisfied_by(node[1], context)
+    
+def AllChildrenOf(candidate, node, context):
+    if node.is_leaf(): return False
+    return all(candidate.is_satisfied_by(kid, context) for kid in node)
 
 @cast_to(int)
 def IsNthChildOf(n):
@@ -106,6 +110,7 @@ Operators = {
     '<<': Dominates,
     '<1': LeftChildOf,
     '<2': RightChildOf,
+    '<%': AllChildrenOf,
     '>': IsChildOf,
     '>>': IsDominatedBy,
     '.': ImmediatelyPrecedes,
