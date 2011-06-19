@@ -127,14 +127,18 @@ def is_absorption_pu(node):
     return node.tag == 'PU' and node.lex != '、'
 
 def get_kid(kids, seen_cc):
-    pu = kids.pop()
-    
+    def strip_tag(pos, tag):
+        if pos.endswith(':'+tag): return pos[:pos.rfind(':')]
+        return pos
+        
+    pu = kids.pop()    
     if kids and all(kid.tag == 'PU' for kid in kids):
         return pu, False
     
     if seen_cc and is_absorption_pu(pu) and len(kids) > 0:
         stk = [pu]
         n = kids.pop()
+        
         while n.tag.startswith('PU'):
             stk.append(n)
             if not kids:
@@ -143,7 +147,10 @@ def get_kid(kids, seen_cc):
 
         # now n is a non-punct
         while stk:
-            n = Node(n.tag, [n, stk.pop()], head_index=0)
+            old_tag = n.tag
+            n.tag = strip_tag(n.tag, 'm')
+            
+            n = Node(old_tag, [n, stk.pop()], head_index=0)
     
         return n, False
     else:

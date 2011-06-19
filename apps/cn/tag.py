@@ -50,12 +50,14 @@ def is_modification(node):
     
     return False
 
-if config.modification_unary_rules:
-    def has_modification_tag(node):
-        if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
+def _has_modification_tag(node):
+    if node.tag.startswith('CP'): return False # CP-m to be treated not as modification but adjunction
+
+    last_dash_index = node.tag.rfind('-')
+    return last_dash_index != -1 and node.tag[last_dash_index+1:] in FunctionTags
     
-        last_dash_index = node.tag.rfind('-')
-        return last_dash_index != -1 and node.tag[last_dash_index+1:] in FunctionTags
+if config.modification_unary_rules:
+    has_modification_tag = _has_modification_tag
 else:
     def has_modification_tag(node):
         return False
@@ -391,6 +393,8 @@ def label(root):
                 elif not vp_assigned and kid.tag == 'VP':
                     tag(kid, 'h')
                     vp_assigned = True
+                elif _has_modification_tag(kid):
+                    tag(kid, 'm')
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
@@ -568,7 +572,7 @@ def label(root):
                     # hack to handle predication nodes which fell through the PredicationRegex
                     # because they had adjuncts attached at the wrong level between XP-SBJ and VP (11:13(89))
                     tag(kid, 'l')
-                if not (kid.tag.startswith('PU') or kid.tag.startswith('CC')):
+                elif not (kid.tag.startswith('PU') or kid.tag.startswith('CC')):
                     tag(kid, 'a')
                 else:
                     tag_if_topicalisation(kid)
