@@ -336,6 +336,9 @@ def is_argument_cluster(node):
         and (
             (node[1].tag.startswith('QP') and not node[1].tag.startswith('QP-PRD')) or
             (node[1].tag.startswith('IP'))))
+            
+def is_trace(node):
+    return node.count() == 1 and node[0].tag == "-NONE-"
 
 def label(root):
     root = preprocess(root)
@@ -371,8 +374,11 @@ def label(root):
             pass
 
         elif is_predication(node):
-            for kid in node:
-                if (kid.tag.rfind('-SBJ') != -1 or 
+            sbj_assigned = False
+            vp_assigned = False
+            
+            for kid in reversed(node):
+                if not sbj_assigned and (kid.tag.rfind('-SBJ') != -1 or 
                     # TODO: we can get IP < NP-PN VP (0:40(5)). is this correct?
                     # exclude NP-PN-LOC (10:62(25))
                     (kid.tag.rfind('-PN') != -1 and kid.tag.rfind('-PN-LOC') == -1) or
@@ -381,8 +387,10 @@ def label(root):
                     kid.tag == "NP"):
                     
                     tag(kid, 'l') # TODO: is subject always left of predicate?
-                elif kid.tag == 'VP':
+                    sbj_assigned = True
+                elif not vp_assigned and kid.tag == 'VP':
                     tag(kid, 'h')
+                    vp_assigned = True
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
@@ -462,7 +470,8 @@ def label(root):
                 elif kid.tag not in ('CC', 'PU'):
                     tag(kid, 'C')
 
-        elif is_internal_structure(node) or is_verb_compound(node):
+        # exclude VP < VV AS: we want to tag this
+        elif (node.count() == 1) or is_verb_compound(node):
             pass
 
         elif ((first_kid.is_leaf() # head initial complementation
