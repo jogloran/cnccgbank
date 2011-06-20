@@ -393,8 +393,8 @@ def label(root):
                 elif not vp_assigned and kid.tag == 'VP':
                     tag(kid, 'h')
                     vp_assigned = True
-                elif _has_modification_tag(kid) and kid.tag.startswith('IP'):
-                    tag(kid, 'm')
+                # elif _has_modification_tag(kid) and kid.tag.startswith('IP'):
+                #     tag(kid, 'm')
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
