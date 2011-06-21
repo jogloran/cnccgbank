@@ -1,4 +1,4 @@
-from munge.trees.traverse import text_without_traces, text_without_quotes_or_traces
+from munge.trees.traverse import text_without_traces, text_without_quotes_or_traces, leaves
 from munge.util.func_utils import const_
 import re
 
@@ -29,7 +29,7 @@ class Node(object):
         return reversed(self.kids)
         
     def leaf_count(self):
-        return 1 + sum(kid.leaf_count() for kid in self)
+        return len(leaves(self))
 
     def count(self):
         return len(self.kids)
