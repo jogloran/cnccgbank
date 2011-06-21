@@ -398,6 +398,14 @@ def label(root):
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
+
+            for i, kid in enumerate(node):
+                try:
+                    if kid.tag.startswith('IP-') and node[i+1].tag == 'PU':
+                        tag(node[i+1], 'h')
+                        
+                except: continue
+                    
         elif node.count() == 1 and node.tag.startswith('VP') and is_verb_compound(node[0]):
             pass
                     

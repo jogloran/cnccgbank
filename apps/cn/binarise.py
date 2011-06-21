@@ -124,7 +124,7 @@ def _label_coordination(node, inside_np_internal_structure=False):
 label_coordination = label_with_final_punctuation_high(_label_coordination)
 
 def is_absorption_pu(node):
-    return node.tag == 'PU' and node.lex != '、'
+    return node.tag.startswith('PU') and node.lex != '、'
 
 def get_kid(kids, seen_cc):
     def strip_tag(pos, tag):
@@ -132,7 +132,7 @@ def get_kid(kids, seen_cc):
         return pos
         
     pu = kids.pop()    
-    if kids and all(kid.tag == 'PU' for kid in kids):
+    if kids and all(kid.tag.startswith('PU') for kid in kids):
         return pu, False
     
     if seen_cc and is_absorption_pu(pu) and len(kids) > 0:

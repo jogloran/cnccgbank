@@ -315,6 +315,9 @@ def is_PRO_trace(node):
     return (node.count() >= 2 and node[0].count() == 1
             and node[0][0].tag == "-NONE-"
             and node[0][0].lex == "*PRO*")
+            
+def is_punctuation_headed(node):
+    return node[1].tag == 'PU:h'
 
 #@echo
 def label(node, inside_np=False):
@@ -440,6 +443,9 @@ def label(node, inside_np=False):
     
     elif is_np_internal_structure(node):
         return label_np_internal_structure(node)
+        
+    elif is_punctuation_headed(node):
+        return label_head_final(node)
     
     elif is_adjunction(node):
         return label_adjunction(node)
