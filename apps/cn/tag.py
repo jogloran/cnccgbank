@@ -12,7 +12,7 @@ from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
-from apps.identify_pos import VerbalCategories, has_question_tag
+from apps.identify_pos import VerbalCategories, NominalCategories, has_question_tag
 from apps.cn.fix_utils import inherit_tag, replace_kid
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
@@ -87,13 +87,13 @@ def is_ucp(node):
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
     
-ValidNPInternalTags = frozenset(('NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC'))
+ValidNPInternalTags = {'NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC'}
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
         all(kid.tag in ValidNPInternalTags for kid in leaves(node)))
     
 def is_vp_internal_structure(node):
-    return node.count() > 1 and all(kid.tag in ('VV', 'VA', 'VC', 'VE') for kid in node)
+    return node.count() > 1 and all(kid.tag in NominalCategories for kid in node)
     
 def is_lcp_internal_structure(node):
     if not node.count() == 2: return False
@@ -120,8 +120,9 @@ def is_vcp(node):
 def is_vsb(node):
     return node.tag[0:3] == 'VSB'
     
+VerbCompoundTags = {'VPT', 'VNV', 'VCD', 'VRD', 'VCP', 'VSB'}
 def is_verb_compound(node):
-    return any(f(node) for f in (is_vpt, is_vnv, is_vcd, is_vrd, is_vcp, is_vsb))
+    return node.tag[:3] in VerbCompoundTags
     
 def is_prn(node):
     return node.tag.startswith('PRN') #and node[0].tag.startswith('PU')
@@ -151,6 +152,8 @@ else:
         elif node.tag.find('-TPC') != -1: tag(node, 'T')
         
 def is_right_absorption(node):
+    '''The CPTB annotation has some (possibly noisy) nodes which look like CCGbank-style right absorption: this returns True
+for cases of this.'''
     return node.count() == 2 and base_tag(node.tag) == base_tag(node[0].tag) and node[1].tag == 'PU'
     
 def is_repeated_unary_projection(tag, node):
@@ -401,7 +404,7 @@ def label(root):
 
             for i, kid in enumerate(node):
                 try:
-                    if kid.tag.startswith('IP-') and node[i+1].tag == 'PU':
+                    if kid.tag.startswith('IP-') and kid.tag.find('-TPC') == -1 and node[i+1].tag == 'PU':
                         tag(node[i+1], 'h')
                         
                 except: continue
