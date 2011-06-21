@@ -6,6 +6,9 @@ from munge.util.err_utils import debug
 from apps.cn.output import OutputPrefacedPTBDerivation
 
 class Fix(Filter, OutputPrefacedPTBDerivation):
+    '''An abstract filter which matches against particular node configurations and dispatches to
+a specified fix function to operate on that node. In addition, the output() method of this filter
+writes the modified derivations out in the prefaced PTB style.'''
     def __init__(self, outdir):
         Filter.__init__(self)
         OutputPrefacedPTBDerivation.__init__(self, outdir)
@@ -18,7 +21,7 @@ class Fix(Filter, OutputPrefacedPTBDerivation):
         - a string tgrep expression, all matches of which will be passed to 'fix'
         - an iterable, each element of which will be passed to 'fix'
         '''
-        raise NotImplementedError('You must subclass FixExtraction to specify a pattern.')
+        raise NotImplementedError('You must subclass Fix.pattern() to specify a pattern.')
         
     def fix(self, node):
         pass
