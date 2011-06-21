@@ -269,7 +269,7 @@ a pager program.'''
                make_option('-T', '--tags', help='Print tree tags.',
                            dest='show_mode', action='store_const', const='tags'),
 
-               make_option('-l', '--label', help='Print labels of matching trees.',
+               make_option('-l', '--label', help='Print document labels of matching trees.',
                            dest='show_mode', action='store_const', const='label'),
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
                            dest='show_mode', action='store_const', const='tokens'),
