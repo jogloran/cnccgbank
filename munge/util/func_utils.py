@@ -12,6 +12,8 @@ def compose2(f, g):
         return f(g(*args, **kwargs))
     return h
 
+from munge.util.deco_utils import seq_or_splat
+@seq_or_splat
 def compose(*fs):
     '''Returns the composition of any number of functions.'''
     fs = list(fs)
@@ -19,6 +21,15 @@ def compose(*fs):
     while fs:
         result = compose2(fs.pop(), result)
     return result
+    
+@seq_or_splat
+def chain_actions(*fs):
+    '''Given a list of functions _fs_, returns a function g(*args, **kwargs) which applies its arguments to each
+function in _fs_.'''
+    def _g(*args, **kwargs):
+        for f in fs:
+            f(*args, **kwargs)
+    return _g
 
 noop_function = lambda *args, **kwargs: None
 
