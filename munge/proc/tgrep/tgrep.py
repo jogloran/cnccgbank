@@ -9,10 +9,10 @@ import munge.proc.tgrep.parse as parse
 from munge.proc.tgrep.nodes import Context
 from munge.trees.traverse import nodes, leaves, nodes_postorder, nodes_reversed, tag_and_lex, tag_and_text_under, lrp_repr
 from munge.trees.pprint import pprint
-from munge.util.iter_utils import take, single
+from munge.util.iter_utils import take, single, intersperse
 from munge.util.dict_utils import smash_key_case
 from munge.util.err_utils import debug, info
-from munge.util.func_utils import compose
+from munge.util.func_utils import compose, chain_actions
 from munge.util.iter_utils import take
 from munge.util.exceptions import TgrepException
 from functools import partial as curry
@@ -113,6 +113,15 @@ def find_small_sents(*args, **kwargs):
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
     
+def caption_label(bundle):
+    sys.stdout.write(bundle.label())
+def caption_nwords(bundle):
+    sys.stdout.write(str(len(list(leaves(bundle.derivation)))))
+    
+def caption_space(bundle): sys.stdout.write(' ')
+def caption_tab(bundle):   sys.stdout.write('\t')
+def caption_newline(bundle): print
+    
 class TgrepCount(Filter):
     def __init__(self, expression):
         Filter.__init__(self)
@@ -151,11 +160,13 @@ class TgrepCore(Filter):
         raise NotImplementedError('TgrepCore subclasses must implement match_generator and match_callback.')
     match_generator = _not_implemented
     match_callback = _not_implemented
+    caption_generator = _not_implemented
         
     def accept_derivation(self, derivation_bundle):
         matched = False
         
         for match_node, context in self.match_generator(derivation_bundle.derivation, self.expression, with_context=True):
+            self.caption_generator(derivation_bundle)
             self.match_callback(match_node, derivation_bundle)
             if not matched: matched = True
             
@@ -179,28 +190,22 @@ class Tgrep(TgrepCore):
         
     @staticmethod
     def show_node(match_node, bundle):
-        print "%s: %s" % (bundle.label(), match_node)
+        print match_node
         
     @staticmethod
     def show_pp_node(match_node, bundle):
-        print bundle.label()
         print pprint(match_node)
 
     @staticmethod
     def show_tree(match_node, bundle):
-        print "%s: %s" % (bundle.label(), bundle.derivation)
+        print bundle.derivation
         
     @staticmethod
     def show_pp_tree(match_node, bundle):
-        print bundle.label()
         print pprint(bundle.derivation)
         
     @staticmethod
     def show_tokens(match_node, bundle):
-        print "%s: %s" % (bundle.label(), ''.join(match_node.text()))
-        
-    @staticmethod
-    def show_tokens_only(match_node, bundle):
         print ''.join(match_node.text())
         
     @staticmethod
@@ -209,8 +214,6 @@ class Tgrep(TgrepCore):
         
     @staticmethod
     def show_rule(match_node, bundle):
-        print bundle.label(),
-
         if match_node.is_leaf():
             print "(%s)" % match_node.cat
         else:
@@ -221,11 +224,10 @@ class Tgrep(TgrepCore):
                 
     @staticmethod
     def show_tags(match_node, bundle):
-        print bundle.label(),
         print match_node.__repr__(suppress_lex=True)
         
     @staticmethod
-    def show_matched_tag_only(match_node, bundle):
+    def show_matched_tag(match_node, bundle):
         print match_node.tag
         
     @staticmethod
@@ -235,8 +237,6 @@ class Tgrep(TgrepCore):
                 return tag_and_lex(node)
             else:
                 return "%s (%s)" % (node.tag, " ".join(tag_and_text_under(x) for x in node))
-                
-        print bundle.label() + ":",
         
         if node.is_leaf():
             print tag_and_lex(node)
@@ -245,6 +245,9 @@ class Tgrep(TgrepCore):
                 print "%s %s -> %s" % tuple(map(node_print, (node.lch, node.rch, node)))
             else:
                 print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
+                
+    @staticmethod
+    def show_none(node, bundle): pass
 
     FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS = range(4)
     find_functions = {
@@ -265,15 +268,34 @@ class Tgrep(TgrepCore):
         if callback_key not in self.find_functions:
             raise TgrepException('Invalid Tgrep find mode %s given.' % callback_key)
         return self.find_functions[callback_key]
+    
+    CAPTION_LABEL, CAPTION_NWORDS, CAPTION_SPACE, CAPTION_NEWLINE = range(4)
+    caption_functions = {
+        CAPTION_LABEL:  caption_label,
+        CAPTION_NWORDS: caption_nwords,
+        CAPTION_SPACE: caption_space,
+        CAPTION_NEWLINE: caption_newline,
+    }
+    def get_caption_function(self, callback_key):
+        if callback_key not in self.caption_functions:
+            raise TgrepException('Invalid Tgrep caption type %s given.' % callback_key)
+        return self.caption_functions[callback_key]
         
-    def __init__(self, expression, find_mode=FIND_FIRST, show_mode='node'):
+    def __init__(self, expression, find_mode=FIND_FIRST, show_mode='node', caption_modes=None):
         TgrepCore.__init__(self, expression)
+        
+        if caption_modes is None:
+            # apply default caption modes if none given
+            caption_modes = [Tgrep.CAPTION_LABEL, Tgrep.CAPTION_NWORDS, Tgrep.CAPTION_NEWLINE]
         
         self.find_mode = find_mode # node traversal strategy
         self.show_mode = show_mode # node output strategy
         
         self.match_generator = self.get_find_function(find_mode)
         self.match_callback  = self.get_show_function(show_mode)
+        self.caption_generator = chain_actions(
+            intersperse((self.get_caption_function(key) for key in caption_modes),
+                        spacer=caption_space))
         
     @staticmethod
     def is_valid_callback_key(key, callbacks):

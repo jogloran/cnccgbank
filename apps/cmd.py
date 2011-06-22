@@ -260,7 +260,7 @@ a pager program.'''
                make_option('-W', '--pp-whole-tree', help='Pretty print whole tree on match (not just matching subtrees).',
                            dest='show_mode', action='store_const', const='pp_whole_tree'),
 
-               make_option('-m', '--matched-tag-only', help='Print matched tag only.',
+               make_option('-m', '--matched-tag', help='Print matched tag.',
                            dest='show_mode', action='store_const', const='matched_tag'),
 
                make_option('-b', '--tags-and-text', help='Print tree tags and text under.',
@@ -269,23 +269,30 @@ a pager program.'''
                make_option('-T', '--tags', help='Print tree tags.',
                            dest='show_mode', action='store_const', const='tags'),
 
-               make_option('-l', '--label', help='Print document labels of matching trees.',
-                           dest='show_mode', action='store_const', const='label'),
                make_option('-t', '--tokens', help='Print tokens of matching trees.',
                            dest='show_mode', action='store_const', const='tokens'),
-               make_option('-o', '--tokens-only', help='Print only tokens of matching trees.',
-                           dest='show_mode', action='store_const', const='tokens_only'),
                make_option('-r', '--rule', help='Shows the local category context of the match.',
                            dest='show_mode', action='store_const', const='rule'),
+                           
+               make_option('-l', '--label', help='On match: print derivation label.',
+                           dest='caption_modes', action='append_const', const=Tgrep.CAPTION_LABEL),
+               make_option('-L', '--length', help='On match: print word count of derivation',
+                           dest='caption_modes', action='append_const', const=Tgrep.CAPTION_NWORDS),
+               make_option('--caption-space', help='On match: print a space',
+                           dest='caption_modes', action='append_const', const=Tgrep.CAPTION_SPACE),
+               make_option('--caption-newline', help='On match: print a newline',
+                           dest='caption_modes', action='append_const', const=Tgrep.CAPTION_NEWLINE),
+               make_option('-0', '--no-caption', help='On match: print no caption',
+                           dest='print_caption', action='store_false', default=True),
 
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
-                           dest='find_mode', action='store_const', const='all', default='all'),
+                           dest='find_mode', action='store_const', const=Tgrep.FIND_ALL, default=Tgrep.FIND_ALL),
                make_option('-3', '--find-small-sents', help='Find only matches in small sentences (20 or fewer words)',
-                           dest='find_mode', action='store_const', const='small_sents'),
+                           dest='find_mode', action='store_const', const=Tgrep.FIND_SMALL_SENTS),
                make_option('-2', '--find-small', help='Find all small matches (10 or fewer leaves).',
-                           dest='find_mode', action='store_const', const='small'),
+                           dest='find_mode', action='store_const', const=Tgrep.FIND_SMALL),
                make_option('-1', '--find-first', help='Match only one node where possible.',
-                           dest='find_mode', action='store_const', const='first') ])
+                           dest='find_mode', action='store_const', const=Tgrep.FIND_FIRST) ])
     def do_tgrep(self, args, opts):
         '''Performs a tgrep query.'''
         if not args.strip(): return
@@ -295,23 +302,25 @@ a pager program.'''
             'pp_subtree': 'pp_node',
             'whole_tree': 'tree',
             'pp_whole_tree': 'pp_tree',
-            'label':      'label',
             'tokens':     'tokens',
-            'tokens_only':'tokens_only',
             'rule':       'rule',
             'tags':       'tags',
             'tags_and_text':'tags_and_text',
-            'matched_tag':'matched_tag_only',
+            'matched_tag':'matched_tag',
+            'none': 'none'
         }[opts.show_mode]
-        find_mode = {
-            'all':        Tgrep.FIND_ALL,
-            'first':      Tgrep.FIND_FIRST,
-            'small':      Tgrep.FIND_SMALL,
-            'small_sents':Tgrep.FIND_SMALL_SENTS,
-        }[opts.find_mode]
+        
+        # if we passed -0/--no-caption, suppress all caption printing
+        if not opts.print_caption:
+            caption_modes = []
+        # otherwise, if the user didn't pass in any caption specifiers, use Tgrep's defaults by passing it None
+        elif not opts.caption_modes:
+            caption_modes = None
+        else:
+            caption_modes = opts.caption_modes
 
         def action():
-            tgrep_filter = Tgrep(args, show_mode=show_mode, find_mode=find_mode)
+            tgrep_filter = Tgrep(args, show_mode=show_mode, find_mode=opts.find_mode, caption_modes=caption_modes)
             self.tracer.run_filters((tgrep_filter, ), self.files)
 
         self.redirecting_stdout(action, 'Tgrep', (args, ))
