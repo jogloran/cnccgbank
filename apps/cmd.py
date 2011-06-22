@@ -252,7 +252,7 @@ a pager program.'''
                 pipe.stdin.close()
 
     @options([ make_option('-S', '--pp-subtree', help='Pretty print each matching subtree.',
-                            dest='show_mode', action='store_const', const='pp_subtree', default='pp_subtree'),
+                           dest='show_mode', action='store_const', const='pp_subtree', default='pp_subtree'),
                make_option('-s', '--subtree', help='Print each matching subtree only.',
                            dest='show_mode', action='store_const', const='subtree'),
                make_option('-w', '--whole-tree', help='Print whole tree on match (not just matching subtrees).',
