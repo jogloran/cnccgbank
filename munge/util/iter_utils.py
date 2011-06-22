@@ -40,3 +40,13 @@ def single(e):
     yield e
 
 get_first = curry(take, 1)
+
+def intersperse(seq, spacer):
+    '''Given a sequence _seq_, intersperses the given _spacer_ between each pair of elements.'''
+    first = True
+    for e in seq:
+        if first:
+            first = False
+        else:
+            yield spacer
+        yield e
