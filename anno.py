@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import sys
 import os
 import re
@@ -42,9 +43,13 @@ if __name__ == '__main__':
 
     elif mode == SET:
         with T.NamedTemporaryFile() as f:
+            f.write(r.get(base_key+'.note'))
+            f.flush()
+
             p = S.Popen([os.environ.get('EDITOR', None) or '/usr/bin/vim', f.name])
             p.wait()
-
+            
+            f.seek(0, 0)
             data = f.read()
             r.set(base_key+'.note', data)
 
