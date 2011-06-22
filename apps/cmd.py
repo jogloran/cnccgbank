@@ -16,7 +16,7 @@ from apps.util.cmd_utils import DefaultShell, HistorySavingDefaultShell
 from munge.util.iter_utils import flatten
 from munge.util.err_utils import warn, info, msg, err
 from munge.util.list_utils import list_preview
-from munge.proc.tgrep.tgrep import Tgrep
+from munge.proc.tgrep.tgrep import Tgrep, SmallSentenceThreshold, SmallSubtreeThreshold
 import munge.proc.trace as T
 
 from apps.util.config import config
@@ -287,9 +287,10 @@ a pager program.'''
 
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
                            dest='find_mode', action='store_const', const=Tgrep.FIND_ALL, default=Tgrep.FIND_ALL),
-               make_option('-3', '--find-small-sents', help='Find only matches in small sentences (20 or fewer words)',
+               make_option('-3', '--find-small-sents', 
+                           help=('Find only matches in small sentences (%d or fewer words)' % SmallSentenceThreshold),
                            dest='find_mode', action='store_const', const=Tgrep.FIND_SMALL_SENTS),
-               make_option('-2', '--find-small', help='Find all small matches (10 or fewer leaves).',
+               make_option('-2', '--find-small', help=('Find all small subtree matches (%d or fewer leaves).' % SmallSubtreeThreshold),
                            dest='find_mode', action='store_const', const=Tgrep.FIND_SMALL),
                make_option('-1', '--find-first', help='Match only one node where possible.',
                            dest='find_mode', action='store_const', const=Tgrep.FIND_FIRST) ])
