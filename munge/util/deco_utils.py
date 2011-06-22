@@ -40,6 +40,21 @@ def enum(**map):
     def _enum(f):
         return map.get(f, None)
     return _enum
+    
+def is_iterable(s):
+    return hasattr(s, '__iter__')
+def seq_or_splat(f):
+    '''Given function _f_, returns _f*_, defined as:
+f*([x, y, z, ...]) = f(x, y, z, ...) when x is a sequence
+f* = f otherwise
+'''
+    def _f(*args):
+        if len(args) == 1:
+            if is_iterable(args[0]):
+                return f(*list(args[0]))
+        else:
+            return f(*args)
+    return _f
 
 # From http://wiki.python.org/moin/PythonDecoratorLibrary#Memoize    
 class memoised(object):
