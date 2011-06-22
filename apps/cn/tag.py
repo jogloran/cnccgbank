@@ -404,7 +404,11 @@ def label(root):
 
             for i, kid in enumerate(node):
                 try:
-                    if kid.tag.startswith('IP-') and kid.tag.find('-TPC') == -1 and node[i+1].tag == 'PU':
+                    # exclude IP-SBJ PU VP from having the PU tagged :h (1:53(9))
+                    if kid.tag.startswith('IP-') and \
+                       kid.tag.find('-TPC') == -1 and \
+                       kid.tag.find('-SBJ') == -1 and \
+                       node[i+1].tag == 'PU':
                         tag(node[i+1], 'h')
                         
                 except: continue
