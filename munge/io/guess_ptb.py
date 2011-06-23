@@ -17,8 +17,10 @@ class PTBGuesser(object):
     def reader_class(): return AugmentedPTBReader
 
 class PrefacedPTBGuesser(object):
+    # 41 bytes are needed if the derivation number can enter 3 digits
+    # e.g. "ID=wsj_1068.153 PARSER=GOLD NUMPARSE=1\n((" = 41 bytes
     @staticmethod
-    def bytes_of_context_needed(): return 40
+    def bytes_of_context_needed(): return 41
     
     @staticmethod
     def identify(context):
