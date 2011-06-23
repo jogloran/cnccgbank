@@ -65,7 +65,8 @@ else:
 # coordination is
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+ (final punctuation)*
 # \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
-CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+\s*(?: (?:PU|ETC))*$')
+# ETC gets pre-tagged as ETC:&, so we match against that
+CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+\s*(?: (?:PU|ETC(?::&)?))*$')
 
 def is_coordination(node):
     def _fix(tag):
