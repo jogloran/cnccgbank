@@ -44,6 +44,15 @@ def label_head_final(node):
     node.kids[1] = label(node[1])
 
     return node
+    
+#@echo
+def label_etc_head_final(node):
+    node.kids[0] = label(node[0])
+
+    node[1].category = featureless(node.category) | featureless(node[0].category)
+    node.kids[1] = label(node[1])
+
+    return node
 
 #@echo
 def label_head_initial(node):
@@ -396,7 +405,7 @@ def label(node, inside_np=False):
 
     # must be above is_apposition, because there exist NP-APP:a ETC:& cases
     elif is_etc(node):
-        return label_head_final(node)
+        return label_etc_head_final(node)
         
     elif is_S_NP_apposition(node):
         return rename_category_while_labelling_with(label_head_final, node, N if node.category == NP else node.category)

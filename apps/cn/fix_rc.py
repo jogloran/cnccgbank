@@ -54,7 +54,8 @@ class FixExtraction(Fix):
             (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
 
             (r'/SB/=BEI $ { *=PP < { *=P < { /NP-SBJ/=T < ^/\*-\d+$/ $ *=S } } }', self.fix_short_bei_subj_gap), #0:11(4)
-            (r'{ /SB/=BEI $ { /VP/=BEIS <<    { /NP-OBJ/=T < ^/\*-\d+$/ $ *=S > { *=P > *=PP } } } }', self.fix_short_bei_obj_gap), #1:54(3)
+            # QP-OBJ in 8:64(10) (good example)
+            (r'{ /SB/=BEI $ { /VP/=BEIS <<    { /[NQ]P-OBJ/=T < ^/\*-\d+$/ $ *=S > { *=P > *=PP } } } }', self.fix_short_bei_obj_gap), #1:54(3)
             (r'{ /SB/=BEI $ { /VP/=BEIS << { /VP/=P < { /NP-IO/=T < ^/\*-\d+$/ $ *=S } > *=PP } } }', self.fix_short_bei_io_gap), # 31:2(3)
 
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
@@ -115,6 +116,9 @@ class FixExtraction(Fix):
             (r'* < { * < /WHNP(?!-)/ }', self.remove_null_element),
             # Removes undischarged topicalisation traces
             (r'*=PP < { *=P < { /-TPC/a=T << ^/\*T\*/ $ *=S } }', self.remove_tpc_trace),
+#            (r'*=PP < { *=P < { { * < ^/\*-\d+/ }=T $ *=S } }', self.remove_tpc_trace),
+            # Removes undischarged extraction traces (often associated with NP < WHNP CP(IP DEC), see 2:49(6))
+            (r'*=PP < { *=P < { { /WHNP-/ < ^/\*OP\*/ }=T $ *=S } }', self.remove_tpc_trace)
         ))
 
     def __init__(self, outdir):

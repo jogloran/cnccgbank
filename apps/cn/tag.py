@@ -267,8 +267,11 @@ def preprocess(root):
                         
             elif node[0].tag in ('NP', 'NP-PN', 'VP', 'IP') and node.tag == 'PRN':
                 node.kids = node[0].kids
-            elif node.tag == 'ADVP' and node.count() == 1 and node[0].tag == 'CS': 
-                # shrink so that CS will be considered the head by binarise
+                
+            # ADVP < CS: shrink so that CS will be considered the head by binarise
+            # CP < M: tagging error 7:14(8), 10:51(4), 11:13(32), 11:15(47)
+            elif ((node.tag == 'ADVP' and node[0].tag == 'CS') or  
+                  (node[0].tag == 'M' and node.tag == 'CP')):
                 replace_kid(node.parent, node, node[0])
                 
         # Reshape LB (long bei)
@@ -360,6 +363,12 @@ def label(root):
                 
             elif kid.tag == 'MSP':
                 tag(kid, 'a')
+                
+            elif kid.tag == 'FLR':
+                tag(kid, 'a')
+                
+            elif kid.tag == 'ETC':
+                tag(kid, '&')
                 
 #            elif kid.tag.endswith('-SBJ'): tag(kid, 'l')
                 
