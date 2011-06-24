@@ -88,7 +88,7 @@ def is_ucp(node):
 def is_internal_structure(node):
     return all(kid.is_leaf() for kid in node)
     
-ValidNPInternalTags = {'NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC'}
+ValidNPInternalTags = {'NN', 'NR', 'NT', 'JJ', 'PU', 'CC', 'ETC', 'ETC:&'}
 def is_np_internal_structure(node):
     return node.tag.startswith('NP') and node.count() > 1 and (
         all(kid.tag in ValidNPInternalTags for kid in leaves(node)))
