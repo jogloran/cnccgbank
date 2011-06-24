@@ -502,6 +502,21 @@ def label(root):
         # exclude VP < VV AS: we want to tag this
         elif (node.count() == 1) or is_verb_compound(node):
             pass
+        # head final complementation
+        elif (last_kid.is_leaf() or 
+              is_verb_compound(last_kid) or
+              # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
+              # this should be treated as head-final complementation, not adjunction.
+              is_lcp_internal_structure(last_kid)):
+
+            if last_kid.tag.startswith('SP'): 
+                # Treat final 吗 as the head to get the type-change category S[q]\S[dcl] (25:21(5))
+                if has_question_tag(node):
+                    tag(last_kid, 'h')
+                else:
+                    tag(last_kid, 'a')
+
+            else: tag(last_kid, 'h')
 
         elif ((first_kid.is_leaf() # head initial complementation
             # quoted verb (see fix in _preprocess_ function)
@@ -521,21 +536,7 @@ def label(root):
                 elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
 
-        # head final complementation
-        elif (last_kid.is_leaf() or 
-              is_verb_compound(last_kid) or
-              # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
-              # this should be treated as head-final complementation, not adjunction.
-              is_lcp_internal_structure(last_kid)):
-              
-            if last_kid.tag.startswith('SP'): 
-                # Treat final 吗 as the head to get the type-change category S[q]\S[dcl] (25:21(5))
-                if has_question_tag(node):
-                    tag(last_kid, 'h')
-                else:
-                    tag(last_kid, 'a')
-                    
-            else: tag(last_kid, 'h')
+
 
             # cf 2:23(7),1:9(28), a number of derivations have (CP(WHNP-1 CP(IP) DEC) XP) instead of
             # the expected (CP (WHNP-1) CP(IP DEC) XP)
