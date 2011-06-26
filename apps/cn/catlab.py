@@ -479,6 +479,8 @@ def label_root(root):
             # category proliferation (11:22(24))
             # These *PRO* traces just get removed later as if they were *pro* traces (fix_prodrop in fix_rc.py)
             if node.tag.startswith('IP-SBJ') and node[0].tag.startswith('NP-SBJ'): continue
+            # Similarly for IP(*PRO* VP) when it occurs in UCP (7:98(16), 0:83(11))
+            if node.tag.startswith('IP') and node.tag.endswith(':C'): continue
             
             old_tag = node.tag
             
