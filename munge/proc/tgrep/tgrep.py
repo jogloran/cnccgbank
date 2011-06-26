@@ -192,6 +192,9 @@ class Tgrep(TgrepCore):
         print "matches: %d/%d derivs = %.2f%%" % (self.nmatched, self.total, deriv_percentage)
         
     @staticmethod
+    def show_none(match_node, bundle): pass
+        
+    @staticmethod
     def show_node(match_node, bundle):
         print match_node
         
@@ -248,9 +251,6 @@ class Tgrep(TgrepCore):
                 print "%s %s -> %s" % tuple(map(node_print, (node.lch, node.rch, node)))
             else:
                 print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
-                
-    @staticmethod
-    def show_none(node, bundle): pass
 
     FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS = range(4)
     find_functions = {

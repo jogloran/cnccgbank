@@ -273,6 +273,8 @@ a pager program.'''
                            dest='show_mode', action='store_const', const='tokens'),
                make_option('-r', '--rule', help='Shows the local category context of the match.',
                            dest='show_mode', action='store_const', const='rule'),
+               make_option('-n', '--none', help='Print nothing on each match (captions may still be printed).',
+                           dest='show_mode', action='store_const', const='none'),
                            
                make_option('-l', '--label', help='On match: print derivation label.',
                            dest='caption_modes', action='append_const', const=Tgrep.CAPTION_LABEL),
