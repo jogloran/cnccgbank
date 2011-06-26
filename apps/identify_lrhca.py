@@ -179,7 +179,7 @@ def is_S_NP_apposition(node):
     # IP-APP < *PRO* VA -- we need to match against VA-APP too 10:4(3)
     return node.tag.startswith('NP') and \
         (node[0].tag.startswith('IP-APP') or node[0].tag.startswith('VP-APP') or node[0].tag.startswith('VV-APP') or node[0].tag.startswith('VA-APP') or
-         node[0].tag.startswith('VCD-APP')) and (
+         node[0].tag.startswith('VCD-APP') or node[0].tag.startswith('VSB-APP') or node[0].tag.startswith('VRD-APP')) and (
         node[1].tag.startswith('NP') or has_noun_tag(node[1]))
     
 def is_np_structure(node):
