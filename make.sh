@@ -32,13 +32,13 @@ time ./make_all.sh $corpus_dir_arg $dir_suffix_arg all && ./do_filter.sh && (pyt
 
 # Filter out derivations with [conj] leaves
 msg "Filtering out derivations with [conj] leaves..."
-perl -0777 -p -i.orig -e 's/.*\n.*<L [^ ]+\[conj\].*\n//g' ../terry/CCG/output/cn/filtered_corpus.txt
+./rmconj.py ../terry/CCG/output/cn/filtered_corpus.txt > filtered_corpus.noconj
 
 rm -rf ${final_dir}/{AUTO,PARG,train.piped}
 
 # Kill known bad sentences
 msg "Filtering rare categories and rules..."
-./filter.py ../terry/CCG/output/cn/filtered_corpus.txt > filtered
+./filter.py filtered_corpus.noconj > filtered
 
 msg "Creating directory structure..."
 # Regroup filtered_corpus into section directories
@@ -59,6 +59,8 @@ rm -rf piped
 ./t -q -lapps.cn.cnc -r PipeFormat piped "%w|%P|%s" -0 ${final_dir}/AUTO/*/*
 rm -rf ${final_dir}/piped
 ./regroup_piped.sh ${final_dir}/piped piped/*
+
+ln -sf ${final_dir} latest
 
 ended=`date +%c`
 
