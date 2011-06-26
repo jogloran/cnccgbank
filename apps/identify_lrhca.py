@@ -176,8 +176,10 @@ def is_np_internal_structure(node):
 def is_S_NP_apposition(node):
     # IP-APP < *pro* VP may be reduced to VP-APP by binarise, or
     # IP-APP < *PRO* VV (shrunk already by binarise unary shrink) to VV-APP 7:17(7)
+    # IP-APP < *PRO* VA -- we need to match against VA-APP too 10:4(3)
     return node.tag.startswith('NP') and \
-        (node[0].tag.startswith('IP-APP') or node[0].tag.startswith('VP-APP') or node[0].tag.startswith('VV-APP')) and (
+        (node[0].tag.startswith('IP-APP') or node[0].tag.startswith('VP-APP') or node[0].tag.startswith('VV-APP') or node[0].tag.startswith('VA-APP') or
+         node[0].tag.startswith('VCD-APP')) and (
         node[1].tag.startswith('NP') or has_noun_tag(node[1]))
     
 def is_np_structure(node):
