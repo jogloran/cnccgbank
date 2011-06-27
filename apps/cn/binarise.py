@@ -340,6 +340,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             # unary DNP < QP in e.g. NP(DNP(QP(sanshi sui)) gongren) (5:51(6)) is meant to
             # suggest implicit 'de' but this causes the spurious QP -> N/N rule
             (node.tag.startswith('DNP') and matches(node[0], 'QP')) or
+            ( (node.tag.startswith('NP-PRD') or node.tag.startswith('NP-PN-PRD')) and has_noun_tag(node[0]) ) or
             matches(node, 'FLR') or matches(node, 'FW')):
             
             replacement = node[0]
@@ -366,7 +367,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
               (node.tag.startswith('ADJP') and exactly_matches(node[0], 'PN', 'DT')) or
               # 28:82(8)
               (node.tag.startswith('DP') and matches(node[0], 'NN', 'PN')) or
-              (matches(node, #'NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD', 
+              (matches(node, #'NP-PRD', 'NP-TTL-PRD', 'NP-PN-PRD',
                              'NP-LOC', 'NP-ADV',
                              'NP-PN-TMP', 'NP-PN-LOC', 'NP-TMP', 'NP-DIR', 'NP-PN-DIR')
                   and has_noun_tag(node[0]))):
