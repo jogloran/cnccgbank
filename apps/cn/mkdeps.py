@@ -162,7 +162,11 @@ def mkdeps(root, postprocessor=identity):
                 warn("Invalid parent category %s for subject prodrop.", P)
             
         elif comb == 'fwd_xcomp': # [Xx/Yy]l [Yy\Zz]r -> [Xx/Zz]r
-            P.slot = R.slot
+            if is_rooted_in(Sdcl, L, respecting_features=True):
+                P.slot = L.slot
+            else:
+                P.slot = R.slot # lexical head comes from R (Y/Z)
+                
             P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(L.right, R.left)
@@ -170,7 +174,12 @@ def mkdeps(root, postprocessor=identity):
             p.cat._right = R.right
 
         elif comb == 'bwd_xcomp': # [Yy/Zz]l [Xx\Yy]r -> [Xx/Zz]l
-            P.slot = L.slot
+            if is_rooted_in(Sdcl, R, respecting_features=True):
+                P.slot = R.slot
+            else:
+                P.slot = L.slot # lexical head comes from L (Y\Z)
+        
+            # P.slot = L.slot
             P.slot.var = fresh_var(prefix='K')
             
             unifier = unify(R.right, L.left)
