@@ -51,7 +51,7 @@ static PyObject* pressplit_split(PyObject* self, PyObject* args) {
     const char* p = str;
     char c;
     
-    char cur[1024] = { 0 };
+    char cur[5000] = { 0 };
     char* curp = cur;
     
     static char single_char[2] = { 0 };
