@@ -29,7 +29,7 @@ class Node(object):
         return reversed(self.kids)
         
     def leaf_count(self):
-        return len(leaves(self))
+        return len(list(leaves(self)))
 
     def count(self):
         return len(self.kids)
