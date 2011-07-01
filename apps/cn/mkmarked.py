@@ -166,7 +166,7 @@ def write_markedup(cats, file):
     print >>file, PREFACE
     print >>file
     
-    for cat in cats:
+    for cat in sorted(cats):
         print >>file, cat.__repr__(suppress_vars=True)
         print >>file, "\t", 0, cat.__repr__()
         print >>file
