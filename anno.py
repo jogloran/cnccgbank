@@ -43,8 +43,10 @@ if __name__ == '__main__':
 
     elif mode == SET:
         with T.NamedTemporaryFile() as f:
-            f.write(r.get(base_key+'.note'))
-            f.flush()
+            note = r.get(base_key+'.note')
+            if note:
+                f.write(note)
+                f.flush()
 
             p = S.Popen([os.environ.get('EDITOR', None) or '/usr/bin/vim', f.name])
             p.wait()
