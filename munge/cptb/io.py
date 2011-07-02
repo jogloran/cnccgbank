@@ -92,7 +92,7 @@ class CPTBReader(SingleReader):
         return None
         
     def __iter__(self):
-        for deriv, der_no in izip(self.derivs, count(1)):
+        for der_no, deriv in enumerate(self.derivs, 1):
             yield Derivation(self.sec_no, self.doc_no, self.index or der_no, deriv)
 
 class CPTBHeadlineReader(CPTBReader):

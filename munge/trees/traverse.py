@@ -95,7 +95,7 @@ def text_without_traces(deriv, pred=lambda e: True):
 def text_in_span(deriv, begin, end):
     '''Returns a subset of the text under this node, as specified by a pair of indices
 (0 would be the leftmost leaf under this node).'''
-    for leaf, cur_index in izip(leaves(deriv), count()):
+    for cur_index, leaf in enumerate(leaves(deriv)):
         if begin <= cur_index < end:
             yield leaf.lex
         elif cur_index >= end:
@@ -118,7 +118,7 @@ def lrp_repr(node):
     
 # Assumes that the second argument is a leaf.
 def get_index_of_leaf(deriv, leaf):
-    for candidate_leaf, cur_index in izip(leaves(deriv), count()):
+    for cur_index, candidate_leaf in enumerate(leaves(deriv)):
         if leaf is candidate_leaf: return cur_index
     return None
 

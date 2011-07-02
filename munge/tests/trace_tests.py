@@ -14,7 +14,7 @@ from munge.ccg.io import CCGbankReader, Derivation
 from munge.trees.traverse import get_leaf
     
 def load_ccgbank_tree(fn, deriv_no):
-    for doc, i in izip(CCGbankReader(fn), count()):
+    for i, doc in enumerate(CCGbankReader(fn)):
         if i == deriv_no: return doc.derivation
     return None
 

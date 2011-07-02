@@ -87,7 +87,7 @@ class WritableCCGbankReader(object):
         return None
         
     def __setitem__(self, index, value):
-        for deriv, i in izip(self.derivs, count()):
+        for i, deriv in enumerate(self.derivs):
             if deriv.der_no == index: self.derivs[i] = value
         
     def __iter__(self):

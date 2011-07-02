@@ -84,7 +84,7 @@ class SubstFromAnnotatorFile(Filter):
         
         slashes = defaultdict(set)
         with file(fn, 'r') as f:
-            for (line, lineno) in izip(f, count()):
+            for lineno, line in enumerate(f):
                 line = line.rstrip()
                 
                 fields = line.split()
@@ -156,7 +156,7 @@ class AssignModeSplit(DerivationOutput, Filter):
         
     def mode_on_slash(self, cat, slash_index):
         '''Returns the mode found on the given index of _cat_.'''
-        for ((subcategory, _), cur_slash_index) in izip(cat.slashes(), count()):
+        for (cur_slash_index, (subcategory, _)) in enumerate(cat.slashes()):
             if cur_slash_index == slash_index:
                 return subcategory.mode
                 
@@ -167,7 +167,7 @@ class AssignModeSplit(DerivationOutput, Filter):
 mode on the given slash index. If category A is more permissive than category B, then
 no slash in A carries a mode any more restrictive than its corresponding slash in B.'''
         result = 0
-        for ((subcategory, _), cur_slash_index) in izip(cat.slashes(), count()):
+        for (cur_slash_index, (subcategory, _)) in enumerate(cat.slashes()):
             if cur_slash_index != ignored_slash_index:
                 result += ModeTier[subcategory.mode] * (cur_slash_index + 1)
         

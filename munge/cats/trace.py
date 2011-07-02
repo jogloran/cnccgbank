@@ -58,6 +58,10 @@ def try_unary_rules(l, r, cur):
                     return "fwd_raise"
                 elif cur.direction == BACKWARD and cur.right.direction == FORWARD:
                     return "bwd_raise"
+                    
+        if cur == SfS: return "lcp_sfs_typechange"
+        elif cur == SbNPfSbNP: return "lcp_sbnpfsbnp_typechange"
+        elif cur == NfN: return "lcp_nfn_typechange"
 
         if l.is_complex(): # Other special unary rules
             if l == SbNP:
@@ -67,7 +71,10 @@ def try_unary_rules(l, r, cur):
                     return "clause_mod_typechange"
 
     elif not l.is_complex(): # Atomic -> atomic rules
-        if str(l.cat) == 'N' and str(cur.cat) == 'NP': return "np_typechange"
+        Ls = str(l.cat)
+        Cs = str(cur.cat)
+        if Ls == 'N'   and Cs == 'NP': return "np_typechange"
+        if Ls == 'LCP' and Cs in 'NP': return "lcp_np_typechange"
 
     return None # no rule matched
 

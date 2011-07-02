@@ -238,10 +238,28 @@ def mkdeps(root, postprocessor=identity):
 
                 unifier = unify(L, P.right.right)
 
-
         elif comb == 'np_typechange':
             P.slot = L.slot # = copy_vars
             unifier = unify(P, L)
+            
+        elif comb == 'lcp_np_typechange':
+            P.slot = L.slot
+            unifier = unify(P, L)
+            
+        elif comb in ('lcp_sfs_typechange', 'lcp_nfn_typechange'):
+            P.left.slot.var = fresh_var()
+            P.right.slot = P.left.slot
+            
+            P.slot = L.slot
+            
+            register_unary(unaries, p, L.slot.head.lex)
+            
+        elif comb == 'lcp_sbnpfsbnp_typechange':
+            # [(Sy\NPz)y/(Sy\NPz)y]_
+            P.left.slot.var = fresh_var()
+            P.left.left.slot = P.right.left.slot = P.right.slot = P.left.slot
+            
+            register_unary(unaries, p, L.slot.head.lex)
         
         elif comb == 'null_relativiser_typechange': # Xy -> (Nf/Nf)y
             P.slot = L.slot

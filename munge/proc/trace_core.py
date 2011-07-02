@@ -137,7 +137,7 @@ class TraceCore(object):
 
                                     if filter.accept_comb_and_slash_index is not None:
                                         try:
-                                            for comb, slash_index in izip(applications_per_slash(leaf), count()):
+                                            for slash_index, comb in enumerate(applications_per_slash(leaf)):
                                                 filter.accept_comb_and_slash_index(leaf, comb, slash_index)
                                         except AttributeError: # TODO: hacky and inefficient, need this to work for PTB too
                                             pass

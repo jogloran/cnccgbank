@@ -163,6 +163,21 @@ def is_repeated_unary_projection(tag, node):
     
 def leaf_kids(node):
     return filter(lambda e: e.is_leaf(), node)
+
+def postprocess(root):
+    use_lcp_to_np = config.lcp_to_np_typechange
+    
+    for node in nodes(root):
+        # Exclude the conjuncts in LCP coordination: we want the LCP->NP promotion to apply once to the result of the coordination
+#        if use_lcp_to_np and node.tag.startswith('LCP') and not (node.tag.endswith(':c') or node.tag.endswith(':h')):
+        if use_lcp_to_np and node.tag.startswith('LCP') and not node.tag.endswith(':c'):
+            # if we're in LCP coordination then we want to protect the conjuncts from being converted
+            new_node = Node('NP', [node])
+            inherit_tag(new_node, node)
+        
+            replace_kid(node.parent, node, new_node)
+            
+    return root
     
 def preprocess(root):
     # IP < PP PU -> PP < PP PU (20:58(1))
@@ -170,7 +185,7 @@ def preprocess(root):
     
     for node in nodes(root):
         if node.is_leaf(): continue
-        
+                
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         # ---------------------
@@ -240,7 +255,11 @@ def preprocess(root):
             
             # fix NP < VV
             elif node.tag == 'NP' and node[0].tag == 'VV':
-                node.tag = node.tag.replace('NP', 'VP')            
+                node.tag = node.tag.replace('NP', 'VP')
+                
+            # fix NP < ADJP < JJ (5:35(1))
+            elif node.tag == 'NP' and node[0].tag == 'ADJP':
+                replace_kid(node.parent, node, node[0])
                 
             # fix projections NP < QP
             elif node[0].tag.startswith('QP') and node.tag.startswith('NP'):
@@ -274,6 +293,10 @@ def preprocess(root):
             elif ((node.tag == 'ADVP' and node[0].tag == 'CS') or  
                   (node[0].tag == 'M' and node.tag == 'CP')):
                 replace_kid(node.parent, node, node[0])
+                
+            # elif node.tag == 'VP' and node[0].tag == 'NP-PRD':
+            #     replace_kid(node.parent, node, node[0])
+                
                 
         # Reshape LB (long bei)
         # ---------------------
@@ -418,7 +441,7 @@ def label(root):
             for i, kid in enumerate(node):
                 try:
                     # exclude IP-SBJ PU VP from having the PU tagged :h (1:53(9))
-                    if kid.tag.startswith('IP-') and \
+                    if (kid.tag.startswith('IP-') or kid.tag.startswith('CP-')) and \
                        kid.tag.find('-TPC') == -1 and \
                        kid.tag.find('-SBJ') == -1 and \
                        node[i+1].tag == 'PU':
@@ -595,7 +618,9 @@ def label(root):
 
         else: # adjunction
             tag_adjunction(node, last_kid)
-                    
+    
+    root = postprocess(root)
+    
     return root
     
 def tag_adjunction(node, last_kid):

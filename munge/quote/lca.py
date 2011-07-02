@@ -24,7 +24,7 @@ class LCAQuoter(BaseQuoter):
             deriv = self.insert_quotes(deriv, lca_node, higher)
             
         quote_indices = [None, None]
-        for (leaf, index) in izip(leaves(deriv), count()):
+        for index, leaf in enumerate(leaves(deriv)):
             if str(leaf.cat) == 'LQU':
                 quote_indices[0] = index
             elif str(leaf.cat) == 'RQU':

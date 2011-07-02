@@ -31,7 +31,7 @@ def fix_locator(locator, reattach_direction):
     return locator
 
 for bundle in DirFileGuessReader(sys.argv[1], verbose=False):
-    for (leaf, index) in izip(leaves(bundle.derivation), count()):
+    for index, leaf in enumerate(leaves(bundle.derivation)):
         # exclude the case N (, N[conj]) -> N (we don't want to mess with the comma in this case)
         # but do include the case N[conj] (, N[conj]) (this is just absorption, not conjunction)
         if leaf.lex == ',':

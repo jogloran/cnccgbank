@@ -3,7 +3,7 @@ import random
 
 def first_index_such_that(pred, l):
     '''Finds the first index satisfying the given predicate, or None if no index does.'''
-    for e, i in izip(list(l), count()):
+    for i, e in enumerate(list(l)):
         if pred(e): return i
     return None
     
@@ -26,6 +26,11 @@ def find(pred, l):
         if pred(e): return e
         
     return None
+    
+def where(pred, seq):
+    '''An iterator over elements of _seq_ which satisfy _pred_.'''
+    for e in seq:
+        if pred(e): yield e
     
 def starmap(f, l):
     '''Given a sequence ((A1, B1, ...), (A2, B2, ...)) and a function (A, B, ...) -> C, this returns

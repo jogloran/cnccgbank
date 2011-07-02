@@ -66,7 +66,7 @@ class PrintAbsorptionCountsByBranching2(FixedTgrep(r'''
                     "(, %s) %s -> %s",
                     "%s (%s ,) -> %s",
                     "%s (, %s) -> %s")
-        for heading, index in izip(headings, count()):
+        for index, heading in enumerate(headings):
             env_hash = getattr(self, 'e%d' % index)
             print heading % ('X', 'Y', 'Z')
             print "-" * len(heading)
