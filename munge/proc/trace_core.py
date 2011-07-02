@@ -1,4 +1,5 @@
 import sys
+import errno
 
 from itertools import izip, count
 
@@ -145,6 +146,13 @@ class TraceCore(object):
                         for filter in filters:
                             filter.accept_derivation(derivation_bundle)
                             filter.context = None
+                            
+                    except IOError, e:
+                        # If output is going to a pager, and the user requests an interrupt (^C)
+                        # the filter fails with IOError: Broken pipe
+                        # In that case, running filters on further derivations will continue to
+                        # lead to 'Broken pipe', so just bail out
+                        if e.errno == errno.EPIPE: return
                             
                     except Exception, e:
                         self.last_exceptions.append( (derivation_bundle, sys.exc_info()) )
