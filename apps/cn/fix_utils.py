@@ -12,25 +12,29 @@ def has_tag(node, tag):
     t = node.tag
     return t[-1] == tag and t[-2] == ':'
     
-    def _base_tag(tag, strip_cptb_tag=True, strip_tag=True):
-        '''
-        Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
-        unmodified.
-        '''
-        # -NONE-
-        if len(tag) >= 3 and (tag[0] == tag[-1] == "-"): return tag
+def has_tags(node, tags):
+    '''Checks whether _node_ has a munge tag matching any in _tags_.'''
+    return t[-1] in tags and t[-2] == ':'
+    
+def _base_tag(tag, strip_cptb_tag=True, strip_tag=True):
+    '''
+    Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
+    unmodified.
+    '''
+    # -NONE-
+    if len(tag) >= 3 and (tag[0] == tag[-1] == "-"): return tag
 
-        # Remove our tags
-        if strip_tag:
-            colon_index = tag.find(":")
-            if colon_index != -1: tag = tag[:colon_index]
+    # Remove our tags
+    if strip_tag:
+        colon_index = tag.find(":")
+        if colon_index != -1: tag = tag[:colon_index]
 
-        # Remove CPTB tags
-        if strip_cptb_tag:
-            dash_index = tag.find("-")
-            if dash_index != -1: tag = tag[:dash_index]
+    # Remove CPTB tags
+    if strip_cptb_tag:
+        dash_index = tag.find("-")
+        if dash_index != -1: tag = tag[:dash_index]
 
-        return tag
+    return tag
 
 try:
     from pressplit import base_tag

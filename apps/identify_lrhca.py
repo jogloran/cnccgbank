@@ -1,7 +1,7 @@
 import re
 #from echo import echo
 
-from apps.cn.fix_utils import has_tag
+from apps.cn.fix_utils import has_tag, base_tag
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
 from apps.util.config import config
