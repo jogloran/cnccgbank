@@ -14,6 +14,7 @@ def has_tag(node, tag):
     
 def has_tags(node, tags):
     '''Checks whether _node_ has a munge tag matching any in _tags_.'''
+    t = node.tag
     return t[-1] in tags and t[-2] == ':'
     
 def _base_tag(tag, strip_cptb_tag=True, strip_tag=True):
