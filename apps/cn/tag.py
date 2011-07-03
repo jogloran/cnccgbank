@@ -13,7 +13,7 @@ from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.identify_pos import VerbalCategories, NominalCategories, has_question_tag
-from apps.cn.fix_utils import inherit_tag, replace_kid, base_tag
+from apps.cn.fix_utils import inherit_tag, replace_kid, base_tag, has_tag
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
 from apps.util.config import config
@@ -171,7 +171,7 @@ def postprocess(root):
     for node in nodes(root):
         # Exclude the conjuncts in LCP coordination: we want the LCP->NP promotion to apply once to the result of the coordination
 #        if use_lcp_to_np and node.tag.startswith('LCP') and not (node.tag.endswith(':c') or node.tag.endswith(':h')):
-        if use_lcp_to_np and node.tag.startswith('LCP') and not node.tag.endswith(':c'):
+        if use_lcp_to_np and node.tag.startswith('LCP') and (has_tag(node, 'l') or has_tag(node, 'r')):
             # if we're in LCP coordination then we want to protect the conjuncts from being converted
             new_node = Node('NP', [node])#, node.parent)
             inherit_tag(new_node, node)
