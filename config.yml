@@ -1,6 +1,5 @@
 modification_unary_rules: false
 only_np_topicalisation_valid: false
-restrictive_absorption: false
 curly_vars: false
 lcp_to_np_typechange: true
 vp_nongap_topicalisation: true
