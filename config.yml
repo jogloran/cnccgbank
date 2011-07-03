@@ -3,6 +3,7 @@ only_np_topicalisation_valid: false
 restrictive_absorption: false
 curly_vars: false
 lcp_to_np_typechange: true
+vp_nongap_topicalisation: false
 
 debug_vars: false
 show_vars: false
