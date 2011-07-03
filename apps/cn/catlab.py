@@ -12,14 +12,11 @@ from munge.cats.nodes import *
 from munge.cats.cat_defs import *
 from munge.trees.traverse import lrp_repr, nodes
 
-import apps.util.echo as E
+from apps.util.echo import echo
 
 from apps.cn.fix_utils import *
 from apps.identify_lrhca import *
 from apps.cn.output import OutputPrefacedPTBDerivation
-
-def echo(fn, write=sys.stderr.write):
-    return E.echo(fn, lrp_repr, write)
 
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
     '''Applies the labelling function _label_function_ to the given _node_, replacing
@@ -157,7 +154,7 @@ def label_np_internal_structure(node):
     
     for kid in node:
         # :r to ensure correct analysis in e.g. 0:86(3)
-        if has_tag(kid, 'N') or has_tag(kid, 'h') or has_tag(kid, 'r'):
+        if has_tags(kid, 'Nhr'):
             kid.category = P
         elif has_tag(kid, 'n') or \
              kid.tag.startswith('CD') or \
@@ -214,6 +211,7 @@ Map = {
     # to account for CLP modification (the modifiers should end up as M/M, see 0:9(3))
     'CLP': C('M'),
     'DP': C('NP/N'),
+    'DNP': NfN,
     
     'FW': N, # last ditch for filler words
     

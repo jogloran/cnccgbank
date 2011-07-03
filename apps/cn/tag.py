@@ -13,7 +13,7 @@ from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.identify_pos import VerbalCategories, NominalCategories, has_question_tag
-from apps.cn.fix_utils import inherit_tag, replace_kid, base_tag, has_tag
+from apps.cn.fix_utils import inherit_tag, replace_kid, base_tag, has_tag, has_tags
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
 from apps.util.config import config
@@ -164,14 +164,13 @@ def is_repeated_unary_projection(tag, node):
 def leaf_kids(node):
     return filter(lambda e: e.is_leaf(), node)
 
-from munge.trees.pprint import pprint
 def postprocess(root):
     use_lcp_to_np = config.lcp_to_np_typechange
     
     for node in nodes(root):
         # Exclude the conjuncts in LCP coordination: we want the LCP->NP promotion to apply once to the result of the coordination
 #        if use_lcp_to_np and node.tag.startswith('LCP') and not (node.tag.endswith(':c') or node.tag.endswith(':h')):
-        if use_lcp_to_np and node.tag.startswith('LCP') and (has_tag(node, 'l') or has_tag(node, 'r')):
+        if use_lcp_to_np and node.tag.startswith('LCP') and has_tags(node, 'lr'):
             # if we're in LCP coordination then we want to protect the conjuncts from being converted
             new_node = Node('NP', [node])#, node.parent)
             inherit_tag(new_node, node)
@@ -245,6 +244,11 @@ def preprocess(root):
             # VP is the new node[1]
             # now replace node[1] with Node(node[1])
             node[1] = Node(node[1].tag, [advp, node[1]], node)
+            
+        # fixing DNP(PN DEG), which causes mis-tagging DNP(PN:l DEG:h)
+        # only 3 cases: 23:61(5), 9:14(14), 21:3(11)
+        elif node.tag == 'DNP' and node.count() == 2 and node[0].tag == 'PN' and node[1].tag == 'DEG':
+            replace_kid(node, node[0], Node('NP', [node[0]]))
             
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.count() == 1:
