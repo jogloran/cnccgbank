@@ -11,7 +11,9 @@ class MarkedTests(unittest.TestCase):
             (r'S[q]\S[dcl]', '(S[q]{Y}\S[dcl]{Y}){_}'),
             (r'(S\NP)/(S\NP)', '((S{Y}\NP{Z}){Y}/(S{Y}\NP{Z}){Y}){_}'),
             ('X', 'X{_}'),
-            ('(S[dcl]\NP)/NP', '((S[dcl]{_}\NP{Y}){_}/NP{Z}){_}')
+            ('(S[dcl]\NP)/NP', '((S[dcl]{_}\NP{Y}){_}/NP{Z}){_}'),
+            (',', ',{_}'),
+            ('(S[dcl]\NP)/(S[dcl]\NP)','((S[dcl]{_}\NP{Y}){_}/(S[dcl]{Z}\NP{Y}){Z}){_}'),
         ):
             self.assertEqual(repr(label(parse_category(before))), after)
 
