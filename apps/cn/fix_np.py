@@ -33,6 +33,7 @@ class FixNP(Fix):
         return [
             (r'@"NP"=P <1 @/\/N$/a=L <2 @"NP"=R', self.fix1),
             (r'*=P <1 @/\/NP$/a=L <2 @"N"=R', self.fix2),
+            (r'*=P <2 @/\\NP$/a=R <1 @"N"=L', self.fix3),
             (r'@"NP"=P <2 @/^N\\/', self.fix_np),
             (r'@"NP"=P <1 @"N/N" <2 @"N"', self.fix_np),
             (r'@"NP"=P <1 @"N" <2 @"N[conj]"', self.fix_np),
@@ -48,6 +49,10 @@ class FixNP(Fix):
     # * < /NP N   ---> * < /NP ( NP < N )
     def fix2(self, node, p, l, r):
         return _insert_unary(NP, N)(self, node, r)
+
+    # * < /NP N   ---> * < /NP ( NP < N )
+    def fix3(self, node, p, l, r):
+        return _insert_unary(NP, N)(self, node, l)
         
     # NP < N/N N  ---> NP < N < N/N N
     fix_np = _insert_unary(NP, N)
