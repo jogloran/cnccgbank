@@ -6,6 +6,7 @@ from munge.trees.traverse import lrp_repr
 from munge.cats.nodes import BACKWARD, FORWARD
 from munge.util.err_utils import debug
 from munge.util.deco_utils import predicated
+from munge.util.exceptions import MungeException
 
 def has_tag(node, tag):
     '''Checks whether _node_ has the munge tag (not the PCTB part-of-speech) _tag_.'''
@@ -49,7 +50,7 @@ def replace_kid(node, old, new):
         i = node.kids.index(old)
         node[i] = new
     except ValueError:
-        raise Exception("Tried to replace:\n\t%s\nwith:\t%s\nactual kids:\n\t%s" % (lrp_repr(old), lrp_repr(new), '\n\t'.join((lrp_repr(kid) for kid in node.kids))))
+        raise MungeException("Tried to replace:\n\t%s\nwith:\t%s\nactual kids:\n\t%s" % (lrp_repr(old), lrp_repr(new), '\n\t'.join((lrp_repr(kid) for kid in node.kids))))
     
 #      P                   P
 #     / \       ->        / \
@@ -163,4 +164,4 @@ def typeraise(x, t, dir, strip_features=True):
     elif dir == TR_TOPICALISATION:
         return T/(T/X)
     else:
-        raise RuntimeException, "Invalid typeraise direction."
+        raise MungeException("Invalid typeraise direction.")

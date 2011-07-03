@@ -7,6 +7,11 @@ class CPTBParseException(DocParseException): pass
 class CatParseException(DocParseException): pass
 
 class TgrepException(Exception): pass
+class MungeException(Exception):
+    def __init__(self, msg):
+        Exception.__init__(self)
+        self.msg = msg
+    def __str__(self): return self.msg
 
 class FilterException(Exception):
     def __init__(self, inner, context, msg=''):
