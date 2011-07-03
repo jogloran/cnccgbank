@@ -1,7 +1,7 @@
 import re
 #from echo import echo
 
-from apps.cn.fix_utils import has_tag, base_tag
+from apps.cn.fix_utils import has_tag, has_tags, base_Tag
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
 from apps.util.config import config
@@ -54,7 +54,7 @@ def is_adjunction(node):
     return has_tag(node[0], 'a')
 
 def is_right_adjunction(node):
-    return has_tag(node[1], 'a') or has_tag(node[1], 'p')
+    return has_tags(node[1], 'ap')
 
 # conj NP -> NP[conj]
 def is_partial_coordination(node):
@@ -81,10 +81,10 @@ def is_ucp(node):
 
 def is_np_internal_structure(node):
     # rule out things already tagged explicitly as coordination by tag.py
-    if any(has_tag(kid, 'c') or has_tag(kid, 'C') for kid in node): return False
+    if any(has_tags(kid, 'cC') for kid in node): return False
     
     return (node.tag.startswith('NP') and
-            all(has_tag(kid, 'n') or has_tag(kid, 'N')
+            all(has_tags(kid, 'nN')
              or any(kid.tag.startswith(tag) for tag in NominalCategories)
              or kid.tag in ('PU', 'CC')
              or kid.tag.startswith('JJ')
@@ -106,7 +106,7 @@ def is_np_structure(node):
     # rule out NP-PRD as NP structure (0:88(15))
     
     # rule out things already tagged explicitly as coordination by tag.py
-    if any(has_tag(kid, 'c') or has_tag(kid, 'C') for kid in node): return False
+    if any(has_tags(kid, 'cC') for kid in node): return False
     
     return node.tag.startswith('NP') and all(
         (any(kid.tag.startswith(cat) for cat in NominalCategories)) or
