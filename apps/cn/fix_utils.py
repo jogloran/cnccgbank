@@ -3,10 +3,39 @@ from copy import copy
 
 from munge.cats.cat_defs import featureless
 from munge.trees.traverse import lrp_repr
-from apps.identify_lrhca import base_tag
 from munge.cats.nodes import BACKWARD, FORWARD
 from munge.util.err_utils import debug
 from munge.util.deco_utils import predicated
+
+def has_tag(node, tag):
+    '''Checks whether _node_ has the munge tag (not the PCTB part-of-speech) _tag_.'''
+    t = node.tag
+    return t[-1] == tag and t[-2] == ':'
+    
+    def _base_tag(tag, strip_cptb_tag=True, strip_tag=True):
+        '''
+        Strips any CPTB tags (e.g. NP[-PRD]), as well as our tags (e.g. NP[:r]). Traces are returned
+        unmodified.
+        '''
+        # -NONE-
+        if len(tag) >= 3 and (tag[0] == tag[-1] == "-"): return tag
+
+        # Remove our tags
+        if strip_tag:
+            colon_index = tag.find(":")
+            if colon_index != -1: tag = tag[:colon_index]
+
+        # Remove CPTB tags
+        if strip_cptb_tag:
+            dash_index = tag.find("-")
+            if dash_index != -1: tag = tag[:dash_index]
+
+        return tag
+
+try:
+    from pressplit import base_tag
+except ImportError:
+    base_tag = _base_tag
 
 def replace_kid(node, old, new):
     # make sure you go through Node#__setitem__, not by modifying Node.kids directly,

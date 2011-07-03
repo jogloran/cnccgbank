@@ -1,7 +1,7 @@
 from munge.proc.filter import Filter
 from apps.cn.output import *
 from munge.trees.traverse import leaves
-from apps.identify_lrhca import base_tag
+from apps.cn.fix_utils import base_tag
 
 class PipeFormat(Filter, OutputDerivation):
     '''Generates the "piped" output format used by C&C.'''

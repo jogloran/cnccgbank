@@ -1,7 +1,7 @@
 import munge.penn.nodes as N
 import re
 import munge.cats.nodes as C
-from apps.identify_lrhca import base_tag
+from apps.cn.fix_utils import base_tag
 
 class Node(N.Node):
     __slots__ = ["category", "head_index"]

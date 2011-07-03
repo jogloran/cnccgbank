@@ -6,7 +6,7 @@ from munge.util.err_utils import *
 from collections import defaultdict
 
 from apps.cn.tag import is_coordination
-from apps.identify_lrhca import base_tag
+from apps.cn.fix_utils import base_tag
 
 from collections import defaultdict
 

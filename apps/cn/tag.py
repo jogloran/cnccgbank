@@ -11,9 +11,9 @@ from munge.util.dict_utils import sorted_by_value_desc
 from munge.util.list_utils import first_index_such_that, last_index_such_that
 from munge.util.func_utils import satisfies_all
 
-from apps.identify_lrhca import base_tag, last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
+from apps.identify_lrhca import last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.identify_pos import VerbalCategories, NominalCategories, has_question_tag
-from apps.cn.fix_utils import inherit_tag, replace_kid
+from apps.cn.fix_utils import inherit_tag, replace_kid, base_tag
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
 from apps.util.config import config
@@ -164,6 +164,7 @@ def is_repeated_unary_projection(tag, node):
 def leaf_kids(node):
     return filter(lambda e: e.is_leaf(), node)
 
+from munge.trees.pprint import pprint
 def postprocess(root):
     use_lcp_to_np = config.lcp_to_np_typechange
     
@@ -172,9 +173,9 @@ def postprocess(root):
 #        if use_lcp_to_np and node.tag.startswith('LCP') and not (node.tag.endswith(':c') or node.tag.endswith(':h')):
         if use_lcp_to_np and node.tag.startswith('LCP') and not node.tag.endswith(':c'):
             # if we're in LCP coordination then we want to protect the conjuncts from being converted
-            new_node = Node('NP', [node])
+            new_node = Node('NP', [node])#, node.parent)
             inherit_tag(new_node, node)
-        
+
             replace_kid(node.parent, node, new_node)
             
     return root

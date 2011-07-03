@@ -59,7 +59,7 @@ def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False
 
 #@echo
 def label_np_internal_structure(node, inherit_tag=False):
-    if (node.kids[-1].tag.endswith(':&')
+    if (has_tag(node.kids[-1], '&')
         # prevent movement when we have an NP with only two children NN ETC
         and node.count() > 2):
         
@@ -101,7 +101,7 @@ def label_with_final_punctuation_high(f):
 
 #@echo
 def _label_coordination(node, inside_np_internal_structure=False):
-    if (node.kids[-1].tag.endswith(':&')
+    if (has_tag(node.kids[-1], '&')
         # prevent movement when we have an NP with only two children NN ETC
         and node.count() > 2):
         
@@ -190,7 +190,7 @@ def reshape_for_coordination(node, inside_np_internal_structure):
 
 #@echo
 def label_head_initial(node, inherit_tag=False):
-    if node.tag.endswith(':c'): inherit_tag=False
+    if has_tag(node, 'c'): inherit_tag=False
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
     
     kids = map(label_node, node.kids)[::-1]
@@ -276,7 +276,7 @@ def has_paired_punctuation(node):
 
 def hoist_punctuation_then(label_func, node):
     # Do not hoist paired punctuation inside a parenthetical
-    if node.tag.endswith(':p'): return label_func(node)
+    if has_tag(node, 'p'): return label_func(node)
     
     initial = node.kids.pop(0)
     final = node.kids.pop()
@@ -309,7 +309,7 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             
             ((inside_np_internal_structure and
                 ((node.tag.startswith('NP') 
-                    and (not node.tag.endswith(':A')) 
+                    and not has_tag(node, 'A')
                     and has_noun_tag(node[0])) or
                 node[0].tag == 'AD')) or
             (node.tag.startswith('VP') or is_verb_compound(node)) and  # a handful of VRDs project a single child (11:29(4))

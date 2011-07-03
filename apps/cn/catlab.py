@@ -85,7 +85,7 @@ def label_right_absorption(node):
 
 #@echo
 def label_adjunction(node):
-    if node.tag.endswith(':h') or node.tag.find(':') == -1:
+    if has_tag(node, 'h') or node.tag.find(':') == -1:
         node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True, return_none_when_vp=True, return_none_when_exactly_vp=True) or node.category
     else:
         node[1].category = ptb_to_cat(node[1], return_none_when_unmatched=True, return_none_when_vp=True) or node.category
@@ -157,9 +157,9 @@ def label_np_internal_structure(node):
     
     for kid in node:
         # :r to ensure correct analysis in e.g. 0:86(3)
-        if kid.tag.endswith(':N') or kid.tag.endswith(':h') or kid.tag.endswith(':r'):
+        if has_tag(kid, 'N') or has_tag(kid, 'h') or has_tag(kid, 'r'):
             kid.category = P
-        elif kid.tag.endswith(':n') or \
+        elif has_tag(kid, 'n') or \
              kid.tag.startswith('CD') or \
              kid.tag.startswith('OD'):
             kid.category = P/P
@@ -484,7 +484,7 @@ def label_root(root):
             # These *PRO* traces just get removed later as if they were *pro* traces (fix_prodrop in fix_rc.py)
             if node.tag.startswith('IP-SBJ') and node[0].tag.startswith('NP-SBJ'): continue
             # Similarly for IP(*PRO* VP) when it occurs in UCP (7:98(16), 0:83(11))
-            if node.tag.startswith('IP') and node.tag.endswith(':C'): continue
+            if node.tag.startswith('IP') and has_tag(node, 'C'): continue
             
             old_tag = node.tag
             

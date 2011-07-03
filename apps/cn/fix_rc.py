@@ -26,7 +26,7 @@ from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 
-from apps.identify_lrhca import base_tag
+from apps.cn.fix_utils import base_tag
 
 def get_trace_index_from_tag(tag):
     bits = base_tag(tag, strip_cptb_tag=False).rsplit('-', 1)
