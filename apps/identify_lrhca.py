@@ -111,11 +111,13 @@ def is_np_structure(node):
     return node.tag.startswith('NP') and all(
         (any(kid.tag.startswith(cat) for cat in NominalCategories)) or
         kid.tag.startswith('ADJP') or
-        kid.tag.startswith('QP') or
-        kid.tag.startswith('DP') or
+        kid.tag.startswith('QP') or kid.tag.startswith('CD') or
+        kid.tag.startswith('DP') or kid.tag.startswith('DT') or
+        # 24:98(3)
+        kid.tag.startswith('PN') or
         kid.tag.startswith('CP') or
         kid.tag.startswith('DNP') or
-        kid.tag.startswith('ADVP') or
+        kid.tag.startswith('ADVP') or kid.tag.startswith('AD') or
         kid.tag.startswith('IP') or
         kid.tag.startswith('JJ') or # JJ is in here because ADJP < JJ may have been shrunk already
         kid.tag.startswith('LCP') or
