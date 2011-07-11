@@ -206,6 +206,7 @@ class FixExtraction(Fix):
         # this analysis isn't entirely correct
         replace_kid(pp, p, s)
         self.fix_categories_starting_from(s, pp)
+        bei.category = bei.category.clone_with(right=bei.parent[1].category)
 
     def fix_short_bei_obj_gap(self, node, pp, bei, beis, t, p, s):
         debug("fixing short bei object gap: pp:%s\np:%s\ns:%s", lrp_repr(pp), lrp_repr(p), lrp_repr(s))
