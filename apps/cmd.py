@@ -176,7 +176,7 @@ class Shell(HistorySavingDefaultShell):
 
     def create_pager_pipe(self):
         if not self.pager_path:
-            raise RuntimeException('No pager was given.')
+            raise RuntimeError('No pager was given.')
 
         return subprocess.Popen(
             (self.pager_path, '-'),

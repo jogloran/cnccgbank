@@ -1,5 +1,4 @@
 from apps.cn.fix import Fix
-from munge.trees.traverse import leaves
 from apps.cn.fix_utils import *
 from munge.cats.cat_defs import N, NP, SfS
 import munge.penn.aug_nodes as A

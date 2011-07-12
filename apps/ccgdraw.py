@@ -1,4 +1,3 @@
-from itertools import izip, count
 import re, sys
     
 span_pat = re.compile(r'\S+')
