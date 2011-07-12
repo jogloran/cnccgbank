@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 import sys
-import re
 import os
 
 def convert_from_piped_quoted_string(s):
