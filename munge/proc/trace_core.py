@@ -27,7 +27,7 @@ class TraceCore(object):
         self.reader_class_name = reader_class_name
         
         self.last_exceptions = []
-        self.break_on_exception = break_on_exception
+        self._break_on_exception = break_on_exception
         
     @property
     def verbose(self): return self._verbose
