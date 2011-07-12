@@ -88,7 +88,7 @@ def label_with_final_punctuation_high(f):
         while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
             final_punctuation_stk.append( node.kids.pop() )
             
-            if not node.kids: return result
+            if not node.kids: return result # TODO: _result_ doesn't exist here
         
         result = f(node, *args, **kwargs)
         tag = result.tag
@@ -248,7 +248,7 @@ def label_root(node):
     while (not node.is_leaf()) and node.kids[-1].tag.startswith('PU'):
         final_punctuation_stk.append( node.kids.pop() )
         
-        if not node.kids: return result # is this reachable?
+        if not node.kids: return result # is this reachable? TODO: _result_ doesn't exist here
     
     if node.count() == 1:
         node.head_index = 0

@@ -251,6 +251,7 @@ def preprocess(root):
             replace_kid(node, node[0], Node('NP', [node[0]]))
             
         elif is_vnv(node) and node.count() == 3:
+            # Re-analyse VNV as coordination
             node[1].tag = 'CC'
             
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
