@@ -389,22 +389,6 @@ def label(node, inside_np=False):
         
     elif node.tag.startswith('VRD'):
         return label_right_adjunction(node)
-        
-    elif node.tag.startswith('VNV'):
-        if node[0].tag.startswith('AD'):
-            node[1].category = node.category.left
-            node.kids[1] = label(node[1])
-            
-            node[0].category = node.category / node[1].category
-            node.kids[0] = label(node[0])
-        else:
-            node[0].category = node.category
-            node.kids[0] = label(node[0])
-        
-            node[1].category = node.category | node.category
-            node.kids[1] = label(node[1])
-        
-        return node
 
     # must be above is_apposition, because there exist NP-APP:a ETC:& cases
     elif is_etc(node):

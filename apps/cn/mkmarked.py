@@ -100,15 +100,7 @@ Exceptions = (
     
     # nor this (20:31(7))
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/PP'),
-     C(r'(((S[dcl]{%_}\NP{%F}){%_}/(S[dcl]{%D}\NP{%E}){%D}){%_}/PP{%C}){%_}')),
-     
-    # VNV categories (copy categories of the form C\C/C)
-    (C(r'(((S[dcl]\NP)/(S[dcl]\NP))\((S[dcl]\NP)/(S[dcl]\NP)))/((S[dcl]\NP)/(S[dcl]\NP))'),
-     C(r'((((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%Z}\NP{%Y}){%Z}){%_}\((S[dcl]{%W}\NP{%Y}){%W}/(S[dcl]{%Z}\NP{%Y}){%Z}){%W}){%_}/((S[dcl]{%W}\NP{%Y}){%W}/(S[dcl]{%Z}\NP{%Y}){%Z}){%W}){%_}')),
-    (C(r'((S[dcl]\NP)\(S[dcl]\NP))/(S[dcl]\NP)'),
-     C(r'(((S[dcl]{%_}\NP{%Y}){%_}\(S[dcl]{%Z}\NP{%Y}){%Z}){%_}/(S[dcl]{%Z}\NP{%Y}){%Z}){%_}')),
-    (C(r'(((S[dcl]\NP)/NP)\((S[dcl]\NP)/NP))/((S[dcl]\NP)/NP)'),
-     C(r'((((S[dcl]{%_}\NP{%Y}){%_}/NP{%W}){%_}\ ((S[dcl]{%Z}\NP{%Y}){%Z}/NP{%W}){%Z}){%_} / ((S[dcl]{%Z}\NP{%Y}){%Z}/NP{%W}){%Z} ){%_}')),
+     C(r'(((S[dcl]{%_}\NP{%F}){%_}/(S[dcl]{%D}\NP{%E}){%D}){%_}/PP{%C}){%_}')),     
 )
 
 # sanity check to make sure all manual markedup slots are filled in

@@ -250,6 +250,9 @@ def preprocess(root):
         elif node.tag == 'DNP' and node.count() == 2 and node[0].tag == 'PN' and node[1].tag == 'DEG':
             replace_kid(node, node[0], Node('NP', [node[0]]))
             
+        elif is_vnv(node) and node.count() == 3:
+            node[1].tag = 'CC'
+            
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.count() == 1:
             if node[0].tag == 'JJ':
@@ -478,12 +481,6 @@ def label(root):
                     
         elif is_vcd(node):
             pass
-            
-        elif is_vnv(node):
-            if node.count() == 3:
-                tag(node[0],'l')
-                tag(node[1], 'h')
-                tag(node[2],'r')
             
         elif is_vcp(node):
             tag(first_kid, 'h')

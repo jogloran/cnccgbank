@@ -1,0 +1,2 @@
+ID=wsj_9930.1 PARSER=GOLD NUMPARSE=1
+(<T S[dcl] 1 2> (<L NP PN PN 你 NP>) (<T S[dcl]\NP 0 2> (<T (S[dcl]\NP)/NP 1 2> (<L (S[dcl]\NP)/NP VV VV 喜 (S[dcl]\NP)/NP>) (<T ((S[dcl]\NP)/NP)[conj] 1 2> (<L conj CC CC 不  conj>) (<L (S[dcl]\NP)/NP VV VV 喜欢 (S[dcl]\NP)/NP>) ) ) (<L NP PN PN 他 NP>) ) )
