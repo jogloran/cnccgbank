@@ -1,14 +1,10 @@
 # coding=utf-8
-import re
-
 from copy import copy
 
 from apps.cn.catlab import ptb_to_cat
-from apps.cn.fix_np import _insert_unary
 
 from apps.util.echo import echo
 
-from munge.proc.filter import Filter
 from munge.proc.tgrep.tgrep import tgrep, find_first, find_all
 from munge.penn.aug_nodes import Node
 
@@ -22,7 +18,6 @@ from munge.trees.traverse import lrp_repr
 from munge.util.err_utils import warn, debug
 from munge.util.dict_utils import update
 
-from apps.cn.output import OutputCCGbankDerivation
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 

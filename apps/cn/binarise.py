@@ -1,9 +1,7 @@
 # coding: utf-8
 from __future__ import with_statement
-import sys, re, os
 
 from munge.trees.traverse import nodes
-from munge.penn.io import parse_tree
 from munge.penn.aug_nodes import Leaf, Node
 from munge.trees.pprint import pprint
 from munge.proc.filter import Filter

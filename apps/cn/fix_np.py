@@ -1,8 +1,4 @@
-from munge.proc.filter import Filter
-from munge.proc.tgrep.tgrep import tgrep
-from apps.cn.output import OutputDerivation
 from apps.cn.fix import Fix
-from munge.cats.cat_defs import SbNPbSbNP
 from munge.trees.traverse import leaves
 from apps.cn.fix_utils import *
 from munge.cats.cat_defs import N, NP, SfS

@@ -1,6 +1,5 @@
 # coding=utf-8
 from __future__ import with_statement
-import sys, os
 from copy import copy
 
 from munge.proc.filter import Filter
@@ -10,7 +9,7 @@ from munge.util.deco_utils import memoised
 from munge.trees.pprint import *
 from munge.cats.nodes import *
 from munge.cats.cat_defs import *
-from munge.trees.traverse import lrp_repr, nodes
+from munge.trees.traverse import nodes
 
 from apps.util.echo import echo
 
