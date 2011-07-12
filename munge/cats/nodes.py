@@ -11,7 +11,8 @@ APPLY, ALL, COMP, NULL = range(4)
 ShowModes = config.use_modes
 
 class Featured(object):
-    '''Represents an object with a _features_ field.'''
+    '''Represents an object with a _features_ field. The class this is mixed into must provide
+a method clone_with(features) which returns a copy of itself with the given features added.'''
     def __init__(self, features=None):
         self.features = features or []
         
