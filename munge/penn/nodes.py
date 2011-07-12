@@ -104,7 +104,7 @@ class Leaf(object):
     def label_text(self): return "%s '%s'" % (re.escape(self.tag), self.lex)
     
     def text(self, with_quotes=True):
-        return (text_without_traces if with_quotes else text_without_traces_or_quotes)(self)
+        return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def not_implemented(self, *args):
         raise NotImplementedError('Leaf has no children.')
