@@ -1,5 +1,3 @@
-from itertools import izip, count
-
 from munge.ccg.nodes import Leaf, Node
 from munge.quote.base import BaseQuoter
 from munge.quote.utils import make_open_quote_leaf, make_closed_quote_leaf

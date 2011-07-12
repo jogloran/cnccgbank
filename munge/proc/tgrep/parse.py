@@ -4,8 +4,6 @@ try:
 except ImportError:
     import lex, yacc
 
-import sys, re
-
 import munge.ccg.nodes as ccg
 from munge.cats.cat_defs import C
 from munge.util.err_utils import warn, err

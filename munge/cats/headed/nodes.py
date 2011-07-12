@@ -1,6 +1,6 @@
 import munge.cats.nodes as B
 from apps.util.config import config
-from copy import copy, deepcopy
+from copy import copy
 
 class Head(object):
     '''A Head represents an assigned lexical item.'''

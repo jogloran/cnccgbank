@@ -7,7 +7,7 @@ to identify a single derivation within a given document.'''
     def derivation_with_index(self, filename, i):
         '''Overridden by subclasses, this should return a parsed object for
 the derivation with index _i_ inside _filename_.'''
-        raise UnimplementedError('derivation_with_index must be overridden.')
+        raise NotImplementedError('derivation_with_index must be overridden.')
         
     @staticmethod
     def get_offset(filename):

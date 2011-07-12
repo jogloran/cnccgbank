@@ -2,7 +2,6 @@
 
 import re
 from collections import defaultdict
-from itertools import count
 
 def re_rindex(regex, string):
     n = len(string)

@@ -1,5 +1,3 @@
-from itertools import izip, count
-from apps.util.config import config
 from munge.util.list_utils import intersperse
     
 def default_node_repr(node):

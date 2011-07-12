@@ -1,8 +1,6 @@
 import sys
 import errno
 
-from itertools import izip, count
-
 from munge.io.guess import GuessReader
 from munge.io.multi import DirFileGuessReader
 from munge.penn.io import AugmentedPTBReader, CategoryPTBReader

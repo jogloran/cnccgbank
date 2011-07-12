@@ -3,8 +3,6 @@ import re
 
 from munge.penn.parse import parse_tree, PennParser
 from munge.util.err_utils import warn
-from itertools import izip, count
-from munge.util.str_utils import padded_rsplit
 
 from munge.io.single import SingleReader
 from munge.util.str_utils import nth_occurrence

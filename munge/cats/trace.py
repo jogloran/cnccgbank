@@ -1,4 +1,3 @@
-from munge.cats.parse import parse_category
 from munge.cats.nodes import APPLY, COMP, NULL, ALL, BACKWARD, FORWARD
 from munge.cats.cat_defs import *
 

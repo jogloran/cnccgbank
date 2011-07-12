@@ -1,4 +1,4 @@
-from itertools import izip, islice, tee, takewhile, count, imap
+from itertools import izip, islice, tee
 from functools import partial as curry
 
 def each_pair(seq):

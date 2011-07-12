@@ -1,6 +1,5 @@
 from munge.util.exceptions import DocParseException
 from munge.util.iter_utils import take
-from itertools import islice
 from functools import partial as curry
 
 def with_paired_delimiters(pair, func, toks):

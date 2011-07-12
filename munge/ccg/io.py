@@ -1,5 +1,5 @@
 import re
-from itertools import imap, count, izip, islice
+from itertools import imap, islice
 
 from munge.util.exceptions import CCGbankParseException
 from munge.ccg.parse import parse_tree

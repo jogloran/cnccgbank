@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import re
-from itertools import izip, count
 
 def ancestors(node):
     '''Iterates over the nodes on a path from the given _node_ to the root.'''

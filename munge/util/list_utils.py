@@ -1,4 +1,3 @@
-from itertools import izip, count
 import random
 
 def first_index_such_that(pred, l):

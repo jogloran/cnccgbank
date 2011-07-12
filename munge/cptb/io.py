@@ -1,9 +1,8 @@
-from itertools import izip, count
 from munge.penn.parse import parse_tree, AugmentedPennParser
 from munge.io.single import SingleReader
 from munge.util.str_utils import nth_occurrence
 from munge.util.exceptions import CPTBParseException
-import os, re
+import re, os
 
 # Represents a derivation bundle in the Chinese Penn Treebank. This consists of a standard Penn 
 # Treebank bracketing preceded by some additional SGML-like markup.

@@ -1,7 +1,6 @@
 from optparse import OptionParser, OptionGroup
-import sys, os, re
+import sys, re
 
-from munge.proc.filter import Filter
 from munge.util.err_utils import warn, info, err
 from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method

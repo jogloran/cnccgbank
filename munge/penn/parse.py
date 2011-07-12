@@ -1,6 +1,5 @@
 # Parses the PTB string representation of a derivation.
 from munge.lex.lex import preserving_split
-from munge.util.exceptions import PennParseException
 from munge.util.parse_utils import with_parens, shift_and_check, ensure_stream_exhausted
 
 from apps.util.config import config

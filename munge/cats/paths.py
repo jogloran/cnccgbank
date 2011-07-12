@@ -1,4 +1,4 @@
-from itertools import imap, starmap, tee
+from itertools import starmap, tee
 from munge.util.iter_utils import each_pair
 from munge.util.list_utils import preserving_zip
 from munge.cats.trace import analyse

@@ -1,6 +1,5 @@
 from __future__ import with_statement
 from collections import defaultdict
-from itertools import izip, count
 import re, os
 
 from munge.proc.filter import Filter

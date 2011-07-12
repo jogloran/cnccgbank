@@ -3,7 +3,7 @@ from __future__ import with_statement
 from copy import copy
 
 from munge.proc.filter import Filter
-from munge.util.err_utils import warn, info
+from munge.util.err_utils import warn, info, debug
 from munge.util.deco_utils import memoised
 
 from munge.trees.pprint import *
