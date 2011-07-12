@@ -1,7 +1,6 @@
 from __future__ import with_statement
 from munge.proc.filter import Filter
 import os, re
-from functools import partial
 
 class OutputDerivation(object):
     '''Writes out a derivation to disk.'''

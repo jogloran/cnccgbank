@@ -3,22 +3,18 @@ import sys
 from apps.util.config import config
 #config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
 
-from copy import deepcopy, copy
 from itertools import chain
 import traceback
 
 from munge.proc.filter import Filter
-from munge.cats.headed.nodes import Head
 from munge.cats.headed.parse import parse_category
 from munge.cats.trace import analyse
-from munge.trees.traverse import leaves, pairs_postorder, nodes, nodes_postorder
+from munge.trees.traverse import leaves, pairs_postorder
 from munge.util.iter_utils import flatten, seqify
 from munge.util.err_utils import debug, warn, err
 from munge.util.func_utils import identity
-from munge.util.iter_utils import each_pair
 from munge.trees.pprint import pprint
 from munge.cats.labels import label_result, _label_result
-from munge.cats.paths import category_path_to_root, path_to_root
 from munge.cats.trace import analyse
 from apps.cn.output import OutputDerivation
 

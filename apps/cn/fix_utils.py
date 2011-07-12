@@ -4,7 +4,6 @@ from copy import copy
 from munge.cats.cat_defs import featureless
 from munge.trees.traverse import lrp_repr
 from munge.cats.nodes import BACKWARD, FORWARD
-from munge.util.err_utils import debug
 from munge.util.deco_utils import predicated
 from munge.util.exceptions import MungeException
 

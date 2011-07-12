@@ -5,7 +5,7 @@ config.set(show_vars=True, curly_vars=True)
 
 from munge.cats.headed.nodes import AtomicCategory
 from munge.cats.headed.parse import *
-from munge.cats.cat_defs import S, Sdcl, NP, N
+from munge.cats.cat_defs import NP, N
 from munge.util.err_utils import *
 from munge.trees.traverse import leaves
 
