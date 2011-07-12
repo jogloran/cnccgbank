@@ -118,7 +118,7 @@ application combinatory rules.'''
 def is_application(appl, arg, result, examine_modes=False):
     '''Returns whether [appl arg -> result] is an instance of one of the
 two application combinatory rules.'''
-    return ((not examine_modes) or allows_appl(appl.mode)) and \
+    return ((not examine_modes) or allows_application(appl.mode)) and \
             appl.right == arg and appl.left == result 
 
 def try_application(l, r, cur, examine_modes=False):
@@ -183,7 +183,7 @@ def try_composition(l, r, cur, examine_modes=False):
 def is_substitution(l, r, cur, examine_modes=False):
     '''Returns whether [appl arg -> result] is an instance of one of 
 the four substitution combinatory rules.'''
-    return ((not examine_modes) or (allows_comp(lhs.mode) and allows_comp(rhs.mode))) and \
+    return ((not examine_modes) or (allows_composition(l.mode) and allows_composition(r.mode))) and \
             l.left.left == cur.left and l.left.right == r.left and \
             l.right == r.right and r.right == cur.right
 
