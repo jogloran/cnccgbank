@@ -238,6 +238,10 @@ def preprocess(root):
             if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
                 node[1].tag = 'DEC'
                 
+        elif node.tag.startswith('NP') and any(kid.tag.startswith('QP-APP') for kid in node):
+            for kid in node:
+                if kid.tag.startswith('QP-APP'): kid.tag = kid.tag.replace('QP', 'NP')
+                
         # NP(CP NP-APP NP-PN) -> NP(CP NP(NP-APP NP-PN)) so that NP(NP-APP NP-PN) can receive NP internal structure-type analysis
         elif node.tag.startswith('NP') and node.count() == 3 and node[0].tag.startswith('CP') and node[1].tag.startswith('NP-APP') and node[2].tag.startswith('NP-PN'):
             np_app, np_pn = node[1], node[2]
@@ -600,6 +604,8 @@ def label(root):
                     elif not kid.tag.startswith('PU'):
                         tag(kid, 'l')
 
+        # TODO: if this is below coordination, then NP(NP-APP PU NP) is considered coordination instead of apposition (10:70(15))
+        #       actually, what happens if we get english-style apposition (NP1 , NP2)?
         elif is_apposition(node):
             if False:#any(kid.tag == 'IP-APP' for kid in node):
                 tag(last_kid, 'h')
