@@ -33,10 +33,16 @@ class FixNP(Fix):
             (r'@"NP"=P <1 @"N/N" <2 @"N"', self.fix_np),
             (r'@"NP"=P <1 @"N" <2 @"N[conj]"', self.fix_np),
             (r'@"S/S"=P <1 @"NP" <2 @"NP"', self.fix_topicalised_apposition),
+            
+            # bunch of N/N < N unary rules due to annotation noise (22:58(1))
+            (r'* < { @"N/N" < @"N"=N #<1 }=P', self.fix_nfn_n),
         ]
     
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
+        
+    def fix_nfn_n(self, pp, p, n):
+        replace_kid(pp, p, n)
         
     def fix1(self, node, p, l, r):
         r.category = N
