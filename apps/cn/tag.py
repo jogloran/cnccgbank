@@ -238,6 +238,13 @@ def preprocess(root):
             if get_first(node[0], r'^/\*T\*/') and not get_first(node[0], r'/DEC/'):
                 node[1].tag = 'DEC'
                 
+        # NP(CP NP-APP NP-PN) -> NP(CP NP(NP-APP NP-PN)) so that NP(NP-APP NP-PN) can receive NP internal structure-type analysis
+        elif node.tag.startswith('NP') and node.count() == 3 and node[0].tag.startswith('CP') and node[1].tag.startswith('NP-APP') and node[2].tag.startswith('NP-PN'):
+            np_app, np_pn = node[1], node[2]
+            del node.kids[1:]
+            
+            node.kids.append(Node(node.tag, [np_app, np_pn], node))
+                
         # IP < NP-SBJ ADVP VP rather than IP < NP-SBJ VP(ADVP VP) (25:59(12), 6:92(19))
         elif node.tag == 'IP' and node.count() == 3 and node[0].tag == 'NP-SBJ' and node[1].tag == 'ADVP' and node[2].tag == 'VP':
             advp = node.kids.pop(1)
