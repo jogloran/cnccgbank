@@ -120,8 +120,8 @@ def label_coordination(node, inside_np=False, ucp=False):
     top_level_category = N if (not ucp and node.category == NP) else node.category
 
     node[0].category = ptb_to_cat(node[0]) if ucp else top_level_category # node.category
-    # for UCP, if node[0]'s tag suggests NP, then use top_level_category instead
-    if ucp and node[0].category == NP:
+    # for UCP, if node[0]'s tag suggests NP or N (0:80(22)), then use top_level_category instead
+    if ucp and node[0].category in (NP, N):
         node[0].category = top_level_category
         
     node.kids[0] = label(node[0], inside_np)
