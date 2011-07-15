@@ -388,7 +388,9 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
         # analysis.
         # Without the following check, fails on 5:95(17) where NP(IP-APP NN) 
         # instead of the usual NP(IP-APP NP)
-        if not node[1].is_leaf():
+        # However, we don't want to shrink unless node[1] is actually a unary
+        # projection (otherwise we'd delete leaves like in 0:89(16))
+        if not node[1].is_leaf() and node[1].count() == 1 and node[1][0].is_leaf():
             inherit_tag(node[1][0], node[1])
             node.kids[1] = node[1][0]
             
