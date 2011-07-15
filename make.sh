@@ -38,15 +38,15 @@ rm -rf ${final_dir}/{AUTO,PARG,train.piped}
 
 # Kill known bad sentences
 msg "Filtering rare categories and rules..."
-./filter.py filtered_corpus.noconj > filtered
+./filter.py filtered_corpus.noconj > filtered_corpus
 
 msg "Creating directory structure..."
 # Regroup filtered_corpus into section directories
-./regroup.py filtered ${final_dir}/AUTO
+./regroup.py filtered_corpus ${final_dir}/AUTO
 
 msg "Creating PARGs..."
 # Create PARGs
-./t -q -lapps.cn.mkdeps -9 ${final_dir}/PARG filtered 2> mkdeps_errors
+./t -q -lapps.cn.mkdeps -9 ${final_dir}/PARG filtered_corpus 2> mkdeps_errors
 
 msg "Rebracketing (X|Y)[conj] -> X|Y[conj]..."
 # Rebracket [conj] as expected by C&C: (X|Y)[conj] becomes X|Y[conj]
@@ -60,7 +60,13 @@ rm -rf piped
 rm -rf ${final_dir}/piped
 ./regroup_piped.sh ${final_dir}/piped piped/*
 
-ln -sf ${final_dir} latest
+ln -sf ${final_dir}/ latest
+
+# Check for unequal texts
+msg "Checking for deleted leaves..."
+cat tagged/* | python leaves.py
+cat ${final_dir}/AUTO/*/* | python leaves.py
+python findcommon.py <(cat tagged/* | python leaves.py) <(cat ${final_dir}/AUTO/*/* | python leaves.py) 2> ${final_dir}/deleted
 
 ended=`date +%c`
 
