@@ -105,7 +105,7 @@ def find_small(*args, **kwargs):
         return ifilter(lambda (match, context): match.leaf_count() <= SmallSubtreeThreshold,
                        matches)
     else:
-        return ifilter(lambda match: match.leaf_count() <= 10, matches)
+        return ifilter(lambda match: match.leaf_count() <= SmallSubtreeThreshold, matches)
             
 SmallSentenceThreshold = 25
 def find_small_sents(*args, **kwargs):
@@ -223,10 +223,7 @@ class Tgrep(TgrepCore):
         if match_node.is_leaf():
             print "(%s)" % match_node.cat
         else:
-            if match_node.rch is not None:
-                print "(%s %s -> %s)" % (match_node.lch.cat, match_node.rch.cat, match_node.cat)
-            else:
-                print "(%s -> %s)" % (match_node.lch.cat, match_node.cat)
+            print "(%s -> %s)" % (' '.join(kid.cat for kid in match_node), match_node.cat)
                 
     @staticmethod
     def show_tags(match_node, bundle):
