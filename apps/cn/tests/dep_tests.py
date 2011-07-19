@@ -1,7 +1,7 @@
 import unittest
 
 from itertools import imap
-from apps.cn.mkdeps import mkdeps, UnificationException
+from apps.cn.mkdeps import mkdeps, UnificationException, IndexSeparator
 from apps.cn.mkmarked import naive_label_derivation
 from munge.ccg.parse import parse_tree
 
@@ -23,7 +23,7 @@ class DepTests(unittest.TestCase):
                     
                     t = naive_label_derivation(parse_tree(deriv))
                     # only take the first two elements (filler lex, arg lex)
-                    deps = set(imap(lambda v: tuple(e.split('*')[0] for e in v[0:2]), mkdeps(t)))
+                    deps = set(imap(lambda v: tuple(e.split(IndexSeparator)[0] for e in v[0:2]), mkdeps(t)))
                     gsdeps = parse_gsdeps(gsdeps_line)
                     
                     try:

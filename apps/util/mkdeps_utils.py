@@ -30,9 +30,6 @@ def fresh_var(prefix='F'):
     fresh_var_id += 1
     return ret
     
-def strip_index(s):
-    return s.split('*')[0]
-    
 class UnificationException(Exception): pass
 def unify(L, R, ignore=False, copy_vars=True):
     assgs = []
