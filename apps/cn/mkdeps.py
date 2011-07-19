@@ -46,10 +46,13 @@ def make_set_head_from(l, r, p):
             
 unanalysed = set()
 Sdcl = parse_category('S[dcl]')
+
+IndexSeparator = '`'
+IndexSeparatorTemplate = IndexSeparator + '%d'
 def mkdeps(root, postprocessor=identity):
     for i, leaf in enumerate(leaves(root)):
         # Uniquify each leaf with an index
-        leaf.lex += "*%d" % i
+        leaf.lex += IndexSeparatorTemplate % i
         # Apply the left to right slash labelling 
         # (we abuse this to refer to slots, not slashes)
         leaf.cat.parg_labelled()
@@ -364,7 +367,7 @@ def mkdeps(root, postprocessor=identity):
     return result
 
 def split_indexed_lex(s):
-    return s.split('*')
+    return s.split(IndexSeparator)
 
 Template = "%-4s %-4s %-25s %-4s %-15s %s"
 def write_parg(bundle, deps):
@@ -382,6 +385,9 @@ def write_deps(deps):
         bits.append(Template % tuple(str(e) for e in (ri, li, head_cat, head_label, r, l)))
     return bits
     
+def get_deps(root):
+    return mkdeps(naive_label_derivation(root))
+    
 class MakeDependencies(Filter, OutputDerivation):
     def __init__(self, outdir):
         Filter.__init__(self)
@@ -395,7 +401,7 @@ class MakeDependencies(Filter, OutputDerivation):
     @staticmethod
     def process(bundle):
         try:
-            deps = mkdeps(naive_label_derivation(bundle.derivation), postprocessor=identity)
+            deps = get_deps(bundle.derivation)
         # Squelch! We need an empty PARG entry even if the process fails, otherwise AUTO and PARG are out of sync
         except Exception, e: 
             err("Processing failed on derivation %s:", bundle.label())
