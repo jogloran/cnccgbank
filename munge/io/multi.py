@@ -19,17 +19,26 @@ modification of derivations, nor corpus output.'''
         self.verbose = verbose
 
     def __iter__(self):
-        for section_path in filter(lambda dir_name: os.path.isdir(dir_name), self.sections):
-            docs = glob(os.path.join(section_path, '*'))
-            for doc_path in docs:
-                if self.verbose: info("Processing %s...", doc_path)
-                reader = self.reader(doc_path)
+        # TODO: duplication
+        for section_path in self.sections:
+            # If _topdir_ has directories under, expand to use the files it contains
+            if os.path.isdir(section_path):
+                docs = glob(os.path.join(section_path, '*'))
+                for doc_path in docs:
+                    if self.verbose: info("Processing %s...", doc_path)
+                    reader = self.reader(doc_path)
+                    for deriv_bundle in reader:
+                        yield deriv_bundle
+                    del reader
+            # Otherwise _topdir_ is flat: read the files it contains
+            else:
+                reader = self.reader(section_path)
                 for deriv_bundle in reader:
                     yield deriv_bundle
                 del reader
 
     def no_getitem_setitem(self, *args):
-        raise NotImplementedError("get and setitem unavailable with PTBCorpusReader.")
+        raise NotImplementedError("get and setitem unavailable with MultiGuessReader.")
     __getitem__ = __setitem__ = no_getitem_setitem
 
     def __str__(self):
