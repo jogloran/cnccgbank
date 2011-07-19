@@ -71,10 +71,6 @@ class DirFileGuessReader(object):
                 reader = self.reader_class(self.path)
             else:
                 reader = GuessReader(self.path)
-        #else:
-        #    err("%s is neither a file nor a directory, so skipping.", path)
-        #    return
 
         for deriv_bundle in reader:
             yield deriv_bundle
-
