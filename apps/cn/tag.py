@@ -68,19 +68,20 @@ else:
 # ETC gets pre-tagged as ETC:&, so we match against that
 CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+\s*(?: (?:PU|ETC(?::&)?))*$')
 
-def is_coordination(node):
+def tag_string_for_coordination(node):
     def _fix(tag):
         # Special case:
         # let IP and CP coordinate (SFP sentences are annotated CP)
         if tag in ('CP', 'CP-Q'): return 'IP'
         elif tag.startswith('SP') or tag.startswith('MSP'): return None # ignore SP (26:65(5))
         return tag
-        
-    if not any(kid.tag in ('CC', 'PU') for kid in node): return False
-    
+
     # filter None, because kids to be ignored for the purpose of deciding coordination will map to None
-    kid_tags = ' '.join(filter(None, (_fix(kid.tag) for kid in node)))
-    return CoordinationRegex.match(kid_tags)
+    return ' '.join(filter(None, (_fix(kid.tag) for kid in node)))
+    
+def is_coordination(node):
+    if not any(kid.tag in ('CC', 'PU') for kid in node): return False
+    return CoordinationRegex.match(tag_string_for_coordination(node))
     
 def is_ucp(node):
     return node.tag.startswith("UCP") and not (node[0].tag == "PU" and node[-1].tag == "PU")
