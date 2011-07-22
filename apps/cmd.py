@@ -259,6 +259,8 @@ a pager program.'''
                            dest='show_mode', action='store_const', const='whole_tree'),
                make_option('-W', '--pp-whole-tree', help='Pretty print whole tree on match (not just matching subtrees).',
                            dest='show_mode', action='store_const', const='pp_whole_tree'),
+               make_option('-y', '--synttree', help='Pretty print as TikZ/QTree LaTeX.',
+                           dest='show_mode', action='store_const', const='pp_synttree'),
 
                make_option('-m', '--matched-tag', help='Print matched tag.',
                            dest='show_mode', action='store_const', const='matched_tag'),
@@ -305,6 +307,7 @@ a pager program.'''
             'pp_subtree': 'pp_node',
             'whole_tree': 'tree',
             'pp_whole_tree': 'pp_tree',
+            'pp_synttree': 'pp_synttree',
             'tokens':     'tokens',
             'rule':       'rule',
             'tags':       'tags',

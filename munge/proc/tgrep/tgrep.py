@@ -8,7 +8,10 @@ except ImportError:
 import munge.proc.tgrep.parse as parse
 from munge.proc.tgrep.nodes import Context
 from munge.trees.traverse import nodes, leaves, nodes_reversed, tag_and_lex, tag_and_text_under, lrp_repr
+
 from munge.trees.pprint import pprint
+from munge.trees.synttree import pprint_synttree
+
 from munge.util.iter_utils import take, single, intersperse
 from munge.util.dict_utils import smash_key_case
 from munge.util.err_utils import debug, info
@@ -209,6 +212,10 @@ class Tgrep(TgrepCore):
     @staticmethod
     def show_pp_tree(match_node, bundle):
         print pprint(bundle.derivation)
+        
+    @staticmethod
+    def show_pp_synttree(match_node, bundle):
+        print pprint_synttree(match_node)
         
     @staticmethod
     def show_tokens(match_node, bundle):
