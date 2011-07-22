@@ -13,7 +13,7 @@ def default_node_repr(node, compress=False):
             return "%s" % node.tag
             
 LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
-def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, detail_level=-1):
+def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, detail_level=-1, do_reduce=True):
     single_node_template = open + '%s' + close
     multi_node_template  = open + '%s %s' + close
     
@@ -33,7 +33,7 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, detail_l
                 out.append(single_node_template % node_repr(node, compress=reached_detail_level))
         else:
             # special case for nodes with all-leaf children
-            if node.count() <= LeafCompressThreshold and all(kid.is_leaf() for kid in node):
+            if do_reduce and node.count() <= LeafCompressThreshold and all(kid.is_leaf() for kid in node):
                 out.append( multi_node_template % 
                     (node_repr(node), 
                     ' '.join([base_pprint(child, 0, sep, '', reduced_leaves=True) for child in node])) )
