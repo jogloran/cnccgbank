@@ -1,4 +1,5 @@
 import sys
+import os
 import errno
 
 from munge.io.guess import GuessReader
@@ -6,6 +7,7 @@ from munge.io.multi import DirFileGuessReader
 from munge.penn.io import AugmentedPTBReader, CategoryPTBReader
 from munge.penn.prefaced_io import PrefacedPTBReader
 from munge.cptb.io import CPTBHeadlineReader
+from munge.io.paired import PairedReader
 
 from munge.trees.traverse import leaves
 from munge.cats.paths import applications_per_slash
@@ -106,24 +108,39 @@ class TraceCore(object):
                 err("No filter with name `%s' found.", filter_name)
 
         self.run_filters(filters, files)
+        
+    @staticmethod
+    def is_pair_spec(file):
+        def is_file_or_dir(f):
+            return os.path.isdir(f) or os.path.isfile(f)
+        bits = file.split('~', 2)
+        if len(bits) != 2: return False
+        return is_file_or_dir(bits[0]) and is_file_or_dir(bits[1])
 
     def run_filters(self, filters, files):
         # If all given filters were not found or had wrong argument count, do nothing
         if not filters: return
         
-        reader_class = None
+        reader_args = {}
         if self.reader_class_name:
             try:
                 reader_class = globals()[self.reader_class_name]
                 info("Using reader class %s.", self.reader_class_name)
+                
+                reader_args['reader_class'] = reader_class
             except KeyError:
                 raise RuntimeError("Reader class %s not found." % self.reader_class_name)
         
         for file in files:
+            if self.is_pair_spec(file):
+                meta_reader = PairedReader
+            else:
+                meta_reader = DirFileGuessReader
+                
             try:
                 self.last_exceptions = []
                 
-                for derivation_bundle in DirFileGuessReader(file, verbose=self.verbose, reader_class=reader_class):
+                for derivation_bundle in meta_reader(file, verbose=self.verbose, **reader_args):
                     if self.verbose: info("Processing %s...", derivation_bundle.label())
                     try:
                         for filter in filters:
@@ -174,4 +191,5 @@ class TraceCore(object):
 
         for filter in filters:
             filter.output()
-            print >>sys.stderr, "---"
+            if self.verbose:
+                print >>sys.stderr, "---"
