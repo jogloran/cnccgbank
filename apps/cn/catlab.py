@@ -285,7 +285,7 @@ consulted first.'''
     # For all other cases (a VP argument, for instance), we want the mapping VP -> S[dcl]\NP to hold
     if return_none_when_vp and (has_verbal_tag(node) or (return_none_when_exactly_vp and node.tag.startswith('VP'))): return None
     
-    if node.tag == 'PU' and node.is_leaf():
+    if node.tag in ('PU', 'CSC') and node.is_leaf():
         # map dunhao to category conj only when it's the left child
         # (some noise cases or mis-annotations like 10:43(25))
         # TODO: find a better way to do the lch test
