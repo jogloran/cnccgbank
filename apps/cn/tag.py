@@ -81,7 +81,13 @@ def tag_string_for_coordination(node):
     
 def is_coordination(node):
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
-    return CoordinationRegex.match(tag_string_for_coordination(node))
+    match = CoordinationRegex.match(tag_string_for_coordination(node))
+    if match:
+        if any(kid.tag == 'IP' for kid in node) and not any(kid.tag == 'CC' for kid in node):
+            for kid in node:
+                if kid.tag == 'PU' and kid.lex == '，':
+                    kid.tag = 'CSC'
+    return match
     
 def is_ucp(node):
     return node.tag.startswith("UCP") and not (node[0].tag == "PU" and node[-1].tag == "PU")
@@ -514,7 +520,7 @@ def label(root):
                 if kid.tag == "ETC":
                     tag(kid, '&')
 
-                if kid.tag not in ('CC', 'PU'):
+                if kid.tag not in ('CC', 'PU', 'CSC'):
                     tag(kid, 'c')
                                       
         elif is_np_internal_structure(node):

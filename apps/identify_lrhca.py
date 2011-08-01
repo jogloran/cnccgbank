@@ -59,7 +59,7 @@ def is_right_adjunction(node):
 # conj NP -> NP[conj]
 def is_partial_coordination(node):
     return (
-        node[0].is_leaf() and (node[0].tag.startswith('CC') or node[0].tag == 'PU') and #and has_tag(node[1], 'c') and \
+        node[0].is_leaf() and (node[0].tag.startswith('CC') or node[0].tag in ('PU', 'CSC')) and #and has_tag(node[1], 'c') and \
     # To handle serial comma-like constructions, which manifest as
     # XP PU CC XP, we want the CC, and not the PU, to be the operator,
     # despite the PU being higher in the tree:
