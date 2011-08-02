@@ -85,7 +85,7 @@ def is_coordination(node):
     if match:
         if any(kid.tag == 'IP' for kid in node) and not any(kid.tag == 'CC' for kid in node):
             for kid in node:
-                if kid.tag == 'PU' and kid.lex == '，':
+                if kid.tag == 'PU' and kid.lex in ('，', '；'):
                     kid.tag = 'CSC'
     return match
     
