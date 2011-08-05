@@ -85,6 +85,16 @@ def inherit_tag(node, other, strip_marker=False):
     elif other.tag.rfind(':') != -1 and node.tag.rfind(':') == -1:
         node.tag += other.tag[other.tag.rfind(':'):]
 
+# TODO:
+def inherit_tag_str(node_tag, other_tag, strip_marker=False):
+    '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
+    if strip_marker: return base_tag(node_tag, strip_cptb_tag=False)
+    
+    if other_tag.rfind('-') != -1 and node_tag.rfind(':') == -1:
+        return node_tag + other_tag[other_tag.rfind('-'):]
+    elif other_tag.rfind(':') != -1 and node_tag.rfind(':') == -1:
+        return node_tag + other_tag[other_tag.rfind(':'):]
+        
 @predicated
 def fcomp(l, r):
     if (l.is_leaf() or r.is_leaf() or

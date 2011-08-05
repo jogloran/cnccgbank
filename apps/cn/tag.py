@@ -13,7 +13,7 @@ from munge.util.func_utils import satisfies_all
 
 from apps.identify_lrhca import last_nonpunct_kid, get_nonpunct_kid, get_nonpunct_element
 from apps.identify_pos import VerbalCategories, NominalCategories, has_question_tag
-from apps.cn.fix_utils import inherit_tag, replace_kid, base_tag, has_tag, has_tags
+from apps.cn.fix_utils import inherit_tag, inherit_tag_str, replace_kid, base_tag, has_tag, has_tags
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
 from apps.util.config import config
@@ -542,7 +542,11 @@ def label(root):
         # must be above is_coordination (it subsumes UCP)
         elif is_ucp(node):
             left_conjunct_tag = first_kid.tag
+            
+            old_tag = node.tag
             node.tag = left_conjunct_tag
+            node.tag = inherit_tag_str(node.tag, old_tag)
+            
             for kid in nodes(node):
                 if kid.tag.startswith('UCP'):
                     kid.tag = left_conjunct_tag
