@@ -36,8 +36,8 @@ Exceptions = (
     # gapped short bei
     (C(r'(S[dcl]\NP)/((S[dcl]\NP)/NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/((S[dcl]{%D}\NP{%E}){%D}/NP{%F}){%D}){%_}')),
     # non-gapped short bei
-    # TODO: coincides with the above control/raising category
-#    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{%_}\NP){%_}/(S[dcl]\NP)){%_}')),
+    # alias SB because of conflict with control/raising category
+    (C(r'(S[dcl]\NP)/(S[dcl]\NP)~SB'), C(r'((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%W}\NP{%Z}){%W}){%_}~SB')),
 
     # hacks
     # not a modifier category:
@@ -113,7 +113,7 @@ def get_cached_category_for(cat, lex, vars):
     '''If _cat_ matches one of the mappings defined in Exceptions, returns a copy of
 the cached category, filling in its outermost variable's lex with _lex_.'''
     for frm, to in Exceptions:
-        if cat.equal_respecting_features(frm):
+        if cat.equal_respecting_features_and_alias(frm):
             result = copy.deepcopy(to)
             for subcat in result.nested_compound_categories():
                 # rewrite a variable name beginning with % with an available
@@ -168,7 +168,7 @@ def write_markedup(cats, file):
     
     for cat in sorted(cats):
         print >>file, cat.__repr__(suppress_vars=True)
-        print >>file, "\t", 0, cat.__repr__()
+        print >>file, "\t", 0, cat.__repr__(suppress_alias=True)
         print >>file
 
 def naive_label_derivation(root):

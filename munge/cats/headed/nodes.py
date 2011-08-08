@@ -66,28 +66,48 @@ class Slot(object):
             else: head = self.head.lex
             
             return self.var.lower() + (("=" + head) if head else '')
+            
+class Aliased(object):
+    def __init__(self, alias):
+        self.alias = alias
         
-class AtomicCategory(B.AtomicCategory):
+class AtomicCategory(B.AtomicCategory, Aliased):
     '''An AtomicCategory augmented with a Slot field.'''
     NoVariableSentinel = '?'
 
     def __init__(self, *args, **kwargs):
         var, value = kwargs.pop('var', self.NoVariableSentinel), kwargs.pop('value', None)
+        alias = kwargs.pop('alias', None)
         
         B.AtomicCategory.__init__(self, *args, **kwargs)
+        Aliased.__init__(self, alias)
+        
         self.slot = Slot(var, value)
         
     if config.show_vars:
         def __repr__(self, *args, **kwargs):
             r = B.AtomicCategory.__repr__(self, *args, **kwargs)
-            if kwargs.get('suppress_vars', False): return r
+            
+            if not kwargs.get('suppress_vars', False):                
+                if self.slot:
+                    r += repr(self.slot)
                 
-            if self.slot:
-                r += repr(self.slot)
+            if self.alias and not kwargs.get('suppress_alias', False):
+                r += '~'+self.alias
+                
             return r
+    else:
+        def __repr__(self, *args, **kwargs):
+            r = B.AtomicCategory.__repr__(self, *args, **kwargs)
+            if self.alias and not kwargs.get('suppress_alias', False):
+                r += '~'+self.alias
+            return r
+    
+    def equal_respecting_features_and_alias(self, other):
+        return B.AtomicCategory.equal_respecting_features(self, other) and self.alias == other.alias
             
     def __hash__(self):
-        return B.AtomicCategory.__hash__(self) ^ hash(self.slot)
+        return B.AtomicCategory.__hash__(self) ^ hash(self.slot) ^ hash(self.alias)
 
     def clone_with(self, features=None, slot=None):
         ret = AtomicCategory(self.cat, 
@@ -102,26 +122,40 @@ else:
     def bracket_category(s):
         return "[" + s + "]"
     
-class ComplexCategory(B.ComplexCategory):
+class ComplexCategory(B.ComplexCategory, Aliased):
     '''A ComplexCategory augmented with a Slot field.'''
     def __init__(self, *args, **kwargs):
         var, value = kwargs.pop('var', '?'), kwargs.pop('value', None)
+        alias = kwargs.pop('alias', None)
         
         B.ComplexCategory.__init__(self, *args, **kwargs)
+        Aliased.__init__(self, alias)
+        
         self.slot = Slot(var, value)
     
     if config.show_vars:
         def __repr__(self, *args, **kwargs):
             r = B.ComplexCategory.__repr__(self, *args, **kwargs)
-            if kwargs.get('suppress_vars', False): return r
-                    
-            if self.slot.var:
-                if kwargs.get('first', True):
-                    r = bracket_category(r)
+            if not kwargs.get('suppress_vars', False):
+                if self.slot.var:
+                    if kwargs.get('first', True):
+                        r = bracket_category(r)
         
-            r += repr(self.slot)
+                r += repr(self.slot)
+            
+            if self.alias and not kwargs.get('suppress_alias', False):
+                r += '~'+self.alias
         
             return r
+    else:
+        def __repr__(self, *args, **kwargs):
+            r = B.ComplexCategory.__repr__(self, *args, **kwargs)
+            if self.alias and not kwargs.get('suppress_alias', False):
+                r += '~'+self.alias
+            return r
+            
+    def equal_respecting_features_and_alias(self, other):
+        return B.ComplexCategory.equal_respecting_features(self, other) and self.alias == other.alias
 
     def clone_with(self, left=None, direction=None, right=None, features=None, slot=None):
         ret = ComplexCategory(left if left else self._left.clone(),
@@ -141,4 +175,4 @@ class ComplexCategory(B.ComplexCategory):
         return ret
 
     def __hash__(self):
-        return B.ComplexCategory.__hash__(self) ^ hash(self.slot)
+        return B.ComplexCategory.__hash__(self) ^ hash(self.slot) ^ hash(self.alias)

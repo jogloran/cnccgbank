@@ -10,13 +10,20 @@ from munge.util.deco_utils import memoised
 
 DefaultMode = ALL
 
+def parse_alias(toks):
+    toks.next() # skip over the '~'
+    return toks.next()
+
 # IMPORTANT: memoised is off for headed categories
 def parse_category(cat_string):
     # Return each mode symbol as a token too when encountered.
     # Important: avoid using mode symbols in atomic category labels.
-    toks = preserving_split(cat_string, "(\\/)[]{}")# + ComplexCategory.mode_symbols)
+    toks = preserving_split(cat_string, "(\\/)[]{}~")# + ComplexCategory.mode_symbols)
 
     result = parse_compound(toks, {})
+    if toks.peek() == '~':
+        result.alias = parse_alias(toks)
+        
     ensure_stream_exhausted(toks, 'cats.parse_category')
 
     return result
