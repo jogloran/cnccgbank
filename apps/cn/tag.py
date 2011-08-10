@@ -327,16 +327,18 @@ def preprocess(root):
                 
         # Reshape LB (long bei)
         # ---------------------
-        elif first_kid and first_kid.tag == "LB":
+        elif first_kid and first_kid.tag == "LB":            
             expr = r'''* < { /LB/=LB 
                        [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }
-                       | $ { /CP/ < { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
+                       | $ { /CP/=CP < { *=IP < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
             _, ctx = get_first(node, expr, with_context=True)
-
-            lb, sbj, pred = ctx.lb, ctx.sbj, ctx.pred
-
-            del node.kids
-            node.kids = [lb, sbj, pred]
+        
+            lb, sbj, pred, cp, ip = ctx.lb, ctx.sbj, ctx.pred, ctx.cp, ctx.ip
+            
+            replace_kid(node, cp, ip)
+        # 
+        #     del node.kids
+        #     node.kids = [lb, sbj, pred]
             
         # single mistagging CP-SBJ for CP in 24:58(1)
         elif node.tag == 'CP-SBJ': node.tag = 'CP'

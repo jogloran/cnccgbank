@@ -21,8 +21,6 @@ from munge.util.dict_utils import update
 from apps.cn.fix import Fix
 from apps.cn.fix_utils import *
 
-from apps.cn.fix_utils import base_tag
-
 def get_trace_index_from_tag(tag):
     bits = base_tag(tag, strip_cptb_tag=False).rsplit('-', 1)
     if len(bits) != 2:
@@ -42,8 +40,9 @@ class FixExtraction(Fix):
     def pattern(self):
         return list((
             # must come before object extraction
-            (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
-            (r'*=TOP                < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+#            (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+#            (r'*=TOP                < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+            (r'*=TOP < { /LB/=BEI $ { /IP/=S < { /VP/=VP < /V[PV]|VRD|VSB|VCD/=PRED < { /NP-OBJ/ < ^/\*/ } } }=BEIS }', self.fix_lb),
             
             # doesn't work for 1:34(8) where an additional PP adjunct intervenes
             (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
@@ -124,6 +123,14 @@ class FixExtraction(Fix):
 
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
+        
+    def fix_lb(self, _, top, vp, pred, s, bei, beis):
+        replace_kid(s, vp, pred)
+        self.fix_categories_starting_from(pred, until=s)
+        self.relabel_lb(bei, beis)
+        
+    def relabel_lb(self, bei, beis):
+        bei.category = bei.category.clone_with(right=beis.category)
         
     def clusterfix(self, top, pp, p, s, t):
         debug("Fixing argument cluster coordination: %s", pprint(top))

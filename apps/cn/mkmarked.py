@@ -38,6 +38,8 @@ Exceptions = (
     # non-gapped short bei
     # alias SB because of conflict with control/raising category
     (C(r'(S[dcl]\NP)/(S[dcl]\NP)~SB'), C(r'((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%W}\NP{%Z}){%W}){%_}~SB')),
+    
+    (C(r'(S[dcl]\NP)/(S[dcl]/NP)'), C(r'((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%Z}/NP{%Y}){%Z}){%_}')),
 
     # hacks
     # not a modifier category:
