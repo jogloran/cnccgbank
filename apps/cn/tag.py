@@ -334,8 +334,8 @@ def preprocess(root):
             _, ctx = get_first(node, expr, with_context=True)
         
             lb, sbj, pred, cp, ip = ctx.lb, ctx.sbj, ctx.pred, ctx.cp, ctx.ip
-            
-            replace_kid(node, cp, ip)
+            if cp:
+                replace_kid(node, cp, ip)
         # 
         #     del node.kids
         #     node.kids = [lb, sbj, pred]

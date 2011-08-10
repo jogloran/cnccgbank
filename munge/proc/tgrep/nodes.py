@@ -7,7 +7,8 @@ import operator
 class AttributeAccessibleDict(dict):
     '''A dict subclass allowing attribute access to its keys.'''
     def __getattr__(self, attr):
-        return self[attr.upper()]
+        '''Converts attribute access to key access, but returns None if the key is not present.'''
+        return self.get(attr.upper(), None)
     def __setattr__(self, attr, v):
         self[attr.upper()] = v
 
