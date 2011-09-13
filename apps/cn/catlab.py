@@ -285,6 +285,8 @@ consulted first.'''
     # For all other cases (a VP argument, for instance), we want the mapping VP -> S[dcl]\NP to hold
     if return_none_when_vp and (has_verbal_tag(node) or (return_none_when_exactly_vp and node.tag.startswith('VP'))): return None
     
+#    if node.tag.find('-PRD') != -1: return make_atomic_category('PE')
+    
     if node.tag in ('PU', 'CSC') and node.is_leaf():
         # map dunhao to category conj only when it's the left child
         # (some noise cases or mis-annotations like 10:43(25))
@@ -301,6 +303,10 @@ consulted first.'''
     # CP ending in SP (5:95(30)) should be treated as IP
     if node.tag.startswith("CP") and node[-1].tag.startswith("SP"):
         return Sdcl
+        
+    # Without this, adjuncts of NP-PRD get (S\NP)/NP instead of (S\NP)/(S\NP) because Map is being consulted (10:68(21))
+    if node.tag.startswith('NP') and node.tag.find('-PRD') != -1:
+        return SdclbNP
     
     original_tag = base_tag(node.tag, strip_cptb_tag=False)
     stemmed_tag = base_tag(node.tag)
