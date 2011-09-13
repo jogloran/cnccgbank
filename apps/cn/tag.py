@@ -79,11 +79,11 @@ def tag_string_for_coordination(node):
     # filter None, because kids to be ignored for the purpose of deciding coordination will map to None
     return ' '.join(filter(None, (_fix(kid.tag) for kid in node)))
     
-def is_coordination(node):
+def is_coordination(node, at_top=False):
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
     match = CoordinationRegex.match(tag_string_for_coordination(node))
     if match:
-        if any(kid.tag == 'IP' for kid in node) and not any(kid.tag == 'CC' for kid in node):
+        if at_top and any(kid.tag == 'IP' for kid in node) and not any(kid.tag == 'CC' for kid in node):
             for kid in node:
                 if kid.tag == 'PU' and kid.lex in ('，', '；'):
                     kid.tag = 'CSC'
@@ -407,6 +407,9 @@ def label(root):
     for node in nodes(root):
         if node.is_leaf(): continue
         
+        at_top = False
+        if node.parent is None: at_top = True
+        
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         
@@ -517,7 +520,7 @@ def label(root):
                 elif not kid.tag.startswith('PU'):
                     tag(kid, 'r')
 
-        elif is_coordination(node): # coordination
+        elif is_coordination(node, at_top=at_top): # coordination
             for kid in node:
                 if kid.tag == "ETC":
                     tag(kid, '&')
