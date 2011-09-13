@@ -13,11 +13,11 @@ def default_node_repr(node, compress=False):
             return "%s" % node.tag
             
 LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
-def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, detail_level=-1, do_reduce=True):
+def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduce=True):
     single_node_template = open + '%s' + close
     multi_node_template  = open + '%s %s' + close
     
-    def base_pprint(node, level=0, sep='   ', newline='\n', reduced_leaves=False):
+    def base_pprint(node, level=0, sep='   ', newline='\n', detail_level=-1, reduced_leaves=False, **kwargs):
         out = []
         if bracket_outermost and level == 0:
             out.append(open)
@@ -36,10 +36,10 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, detail_l
             if do_reduce and node.count() <= LeafCompressThreshold and all(kid.is_leaf() for kid in node):
                 out.append( multi_node_template % 
                     (node_repr(node), 
-                    ' '.join([base_pprint(child, 0, sep, '', reduced_leaves=True) for child in node])) )
+                    ' '.join([base_pprint(child, 0, sep, '', reduced_leaves=True, detail_level=detail_level) for child in node])) )
             else:
                 out.append( "%s%s%s" % (open, node_repr(node), newline) )
-                out += intersperse([base_pprint(child, level+1, sep, newline) for child in node], newline)
+                out += intersperse([base_pprint(child, level+1, sep, newline, detail_level=detail_level) for child in node], newline)
                 out.append( close )
 
         if bracket_outermost and level == 0:
