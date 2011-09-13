@@ -85,8 +85,9 @@ def is_coordination(node, at_top=False):
 
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
     match = CoordinationRegex.match(tag_string_for_coordination(node))
-    if not match and _use_csc:
-        if at_top and any(kid.tag == 'IP' for kid in node) and not any(kid.tag == 'CC' for kid in node):
+
+    if match and _use_csc:
+        if at_top and all((kid.tag.startswith('IP') or kid.tag == 'PU') for kid in node) and not any(kid.tag == 'CC' for kid in node):
             for kid in node:
                 if kid.tag == 'PU' and kid.lex in ('，', '；'):
                     kid.tag = 'CSC'
