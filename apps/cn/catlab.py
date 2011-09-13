@@ -286,7 +286,6 @@ consulted first.'''
     if return_none_when_vp and (has_verbal_tag(node) or (return_none_when_exactly_vp and node.tag.startswith('VP'))): return None
     
 #    if node.tag.find('-PRD') != -1: return make_atomic_category('PE')
-    
     if node.tag in ('PU', 'CSC') and node.is_leaf():
         # map dunhao to category conj only when it's the left child
         # (some noise cases or mis-annotations like 10:43(25))
@@ -305,7 +304,13 @@ consulted first.'''
         return Sdcl
         
     # Without this, adjuncts of NP-PRD get (S\NP)/NP instead of (S\NP)/(S\NP) because Map is being consulted (10:68(21))
-    if node.tag.startswith('NP') and node.tag.find('-PRD') != -1:
+    # However, check that we don't have:
+    #         VP
+    #        /  \
+    #       VC   NP-PRD
+    # in which case let NP-PRD -> category NP go through (0:58(8))
+    if (node.tag.startswith('NP') and node.tag.find('-PRD') != -1 and
+        not node.parent[0].tag.startswith('VC')):
         return SdclbNP
     
     original_tag = base_tag(node.tag, strip_cptb_tag=False)
