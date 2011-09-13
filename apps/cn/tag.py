@@ -430,8 +430,6 @@ def label(root):
             elif kid.tag == 'ETC':
                 tag(kid, '&')
                 
-#            elif kid.tag.endswith('-SBJ'): tag(kid, 'l')
-                
             else:
                 tag_if_topicalisation(kid)
                 
@@ -593,7 +591,7 @@ def label(root):
               is_verb_compound(last_kid) or
               # lcp internal structure (cf 10:2(13)) is possible: despite the structure (LCP (NP) (LCP))
               # this should be treated as head-final complementation, not adjunction.
-              is_lcp_internal_structure(last_kid)):
+              is_lcp_internal_structure(last_kid)) and not any(first_kid.tag.find(ftag) != -1 for ftag in FunctionTags):
               
             if last_kid.tag.startswith('SP'): 
                 # Treat final 吗 as the head to get the type-change category S[q]\S[dcl] (25:21(5))
@@ -635,9 +633,7 @@ def label(root):
             for kid in node:
                 if not kid.tag.startswith('PU'):
                     # exclude CP-APP (see is_apposition() above)
-                    if False:#kid.tag == 'IP-APP':
-                        tag(kid, 'l')
-                    elif kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
+                    if kid.tag.endswith('-APP') and not kid.tag.startswith('CP'):
                         tag(kid, 'A')
                     else:
                         tag(kid, 'a')
