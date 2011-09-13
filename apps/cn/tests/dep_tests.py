@@ -46,7 +46,7 @@ class DepTests(unittest.TestCase):
         self.check('apps/cn/tests/test2.ccg', 'apps/cn/tests/test2.gs')
         self.check('apps/cn/tests/test3.ccg', 'apps/cn/tests/test3.gs')
         self.check('apps/cn/tests/test4.ccg', 'apps/cn/tests/test4.gs')
-#        self.check('apps/cn/tests/passives.ccg', 'apps/cn/tests/passives.gs')
+        self.check('apps/cn/tests/passives.ccg', 'apps/cn/tests/passives.gs')
         self.check('apps/cn/tests/vnv.ccg', 'apps/cn/tests/vnv.gs')
 #        self.check('final/chtb_9992.fid', 'apps/cn/tests/blah.gs')
                     

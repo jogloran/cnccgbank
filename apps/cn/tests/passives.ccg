@@ -1,4 +1,4 @@
 ID=wsj_9990.1 PARSER=GOLD NUMPARSE=1 gapped LB
 (<T S[dcl] 0 2> (<T S[dcl] 1 2> (<T NP 1 2> (<L NP/N DT DT 这些 NP/N>) (<L N NN NN 产品 N>) ) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD 已 (S\NP)/(S\NP)>) (<T S[dcl]\NP 0 2> (<T (S[dcl]\NP)/(S[dcl]\NP) 0 2> (<L ((S[dcl]\NP)/(S[dcl]\NP))/NP LB LB 被 ((S[dcl]\NP)/(S[dcl]\NP))/NP>) (<T NP 0 1> (<L N NN NN 行家们 N>) ) ) (<T S[dcl]\NP 0 2> (<T (S[dcl]\NP)/NP 1 2> (<L (S[dcl]\NP)/NP VV VV 鉴定 (S[dcl]\NP)/NP>) (<L (S\NP)\(S\NP) VV VV 为 (S\NP)\(S\NP)>) ) (<T NP 0 1> (<L N NN NN 产品 N>) ) ) ) ) ) (<L . PU PU 。 .>) )
 ID=wsj_9990.2 PARSER=GOLD NUMPARSE=1 non-gapped SB
-(<T S[dcl] 1 2> (<L NP NP NP 他 NP>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/(S[dcl]\NP) SB SB 被 (S[dcl]\NP)/(S[dcl]\NP)>) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD 正式 (S\NP)/(S\NP)>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV 认定 (S[dcl]\NP)/NP>) (<T NP 0 1> (<L N NN NN 资格 N>) ) ) ) ) )
+(<T S[dcl] 1 2> (<L NP NP NP 他 NP>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/(S[dcl]\NP)~SB SB SB 被 (S[dcl]\NP)/(S[dcl]\NP)>) (<T S[dcl]\NP 1 2> (<L (S\NP)/(S\NP) AD AD 正式 (S\NP)/(S\NP)>) (<T S[dcl]\NP 0 2> (<L (S[dcl]\NP)/NP VV VV 认定 (S[dcl]\NP)/NP>) (<T NP 0 1> (<L N NN NN 资格 N>) ) ) ) ) )
