@@ -47,6 +47,7 @@ def comb_lines(lines):
     
 tail_pat = re.compile(r'-+(.*)')
 tails = {
+    '?': 'whatcomb',
     '>': 'fapply',
     '<': 'bapply',
     '>B': 'fcomp',
