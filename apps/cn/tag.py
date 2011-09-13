@@ -79,10 +79,13 @@ def tag_string_for_coordination(node):
     # filter None, because kids to be ignored for the purpose of deciding coordination will map to None
     return ' '.join(filter(None, (_fix(kid.tag) for kid in node)))
     
+_use_csc = config.use_csc
 def is_coordination(node, at_top=False):
+    global _use_csc
+
     if not any(kid.tag in ('CC', 'PU') for kid in node): return False
     match = CoordinationRegex.match(tag_string_for_coordination(node))
-    if match:
+    if not match and _use_csc:
         if at_top and any(kid.tag == 'IP' for kid in node) and not any(kid.tag == 'CC' for kid in node):
             for kid in node:
                 if kid.tag == 'PU' and kid.lex in ('，', '；'):
