@@ -45,7 +45,13 @@ apply() {
 
 echo Started at: `date`
 
+# 0. Filter
+#apply "$corpus_dir" "filtered$dir_suffix" \
+#    apps.cn.clean Clean clean_errors \
+#    "Filtering derivations..."
+
 # 1. Tag
+#apply "filtered$dir_suffix" "tagged$dir_suffix" \
 apply "$corpus_dir" "tagged$dir_suffix" \
     apps.cn.tag TagStructures tag_errors \
     "Tagging derivations..."
