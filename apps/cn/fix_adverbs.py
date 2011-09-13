@@ -79,6 +79,7 @@ class FixAdverbs(Fix):
                     debug("Generalised %s to %s", R, node.category)
         
     def fix(self, node):
+        # Add ~SB alias
         if str(node.category) == '(S[dcl]\\NP)/(S[dcl]\\NP)' and node.tag.startswith('SB'):
             node.category.alias = "SB"
             
