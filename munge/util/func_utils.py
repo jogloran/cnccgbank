@@ -17,6 +17,9 @@ from munge.util.deco_utils import seq_or_splat
 def compose(*fs):
     '''Returns the composition of any number of functions.'''
     fs = list(fs)
+    if not fs:
+        return identity
+        
     result = fs.pop()
     while fs:
         result = compose2(fs.pop(), result)
