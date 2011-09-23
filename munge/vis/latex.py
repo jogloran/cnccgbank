@@ -8,17 +8,10 @@ def min_leaf_id(node, root):
     while not cur.is_leaf():
         cur = cur[0]
         
-    # cur is the left corner of _node_
-    
+    # cur is the left corner of _node_    
     for leaf_id, leaf in enumerate(leaves(root)):
         if leaf is cur:
             return leaf_id
-            
-def nodes_with_depth(node, depth=0):
-    yield (deriv, depth)
-    for kid in deriv:
-        for kid_node in nodes_with_depth(kid, depth+1):
-            yield (kid_node, depth+1)
 
 def group(rows):
     output = []
@@ -75,6 +68,7 @@ def ccg2latex(node):
         subline = []
         subout = []
         last_span = 0
+        
         for leftmost_leaf_id, cat, comb, span in subrows:
             subline.append( "&"*(leftmost_leaf_id - last_span) + ("\%s{%s}" % (comb_symbol(comb), span)) )
             subout.append( "&"*(leftmost_leaf_id - last_span) + ("\mc{%d}{%s}" % (span, sanitise_category(str(cat)))) )
@@ -84,6 +78,5 @@ def ccg2latex(node):
         out.append(' '.join(subline) + '\\\\')
         out.append(' '.join(subout) + '\\\\')
 
-#    print ' '.join(out)
     out.append('}')
     return '\n'.join(out)
