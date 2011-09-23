@@ -48,22 +48,26 @@ tails = {
     'fwd_typeraise': 'ftype',
     'bwd_typeraise': 'btype',
 }
-def ccg2latex(node):
+def ccg2latex(root):
     def comb_symbol(comb):
         return tails.get(comb, 'uline')
+    def cat_repr(cat):
+        return sanitise_category(str(cat))
         
-    out = ['\deriv{%d}{' % node.leaf_count()]
+    out = ['\deriv{%d}{' % root.leaf_count()]
     rows = []
     
-    # lex line
-    out.append( (' & '.join(("\\cjk{%s}"%leaf.lex) for leaf in leaves(node))) + '\\\\' )
-    # underlines line
-    out.append( ' & '.join(["\uline{1}"] * node.leaf_count()) + '\\\\' )
-    # cats line
-    out.append( (' & '.join(("\\cf{%s}"%sanitise_category(str(leaf.cat))) for leaf in leaves(node))) + '\\\\' )
+    all_leaves = list(leaves(root))
     
-    for l, r, p in pairs_postorder(node):
-        rows.append( (min_leaf_id(p, node), p.cat, analyse(l.cat, r and r.cat, p.cat), p.leaf_count()) )
+    # lex line
+    out.append( (' & '.join(("\\cjk{%s}"%leaf.lex) for leaf in all_leaves)) + '\\\\' )
+    # underlines line
+    out.append( ' & '.join(["\uline{1}"] * root.leaf_count()) + '\\\\' )
+    # cats line
+    out.append( (' & '.join(("\\cf{%s}"%cat_repr(leaf.cat)) for leaf in all_leaves)) + '\\\\' )
+    
+    for l, r, p in pairs_postorder(root):
+        rows.append( (min_leaf_id(p, root), p.cat, analyse(l.cat, r and r.cat, p.cat), p.leaf_count()) )
         
     grouped_subrows = group(rows)
         
@@ -74,7 +78,7 @@ def ccg2latex(node):
         
         for leftmost_leaf_id, cat, comb, span in subrows:
             subline.append( "&"*(leftmost_leaf_id - last_span) + ("\%s{%s}" % (comb_symbol(comb), span)) )
-            subout.append( "&"*(leftmost_leaf_id - last_span) + ("\mc{%d}{%s}" % (span, sanitise_category(str(cat)))) )
+            subout.append(  "&"*(leftmost_leaf_id - last_span) + ("\mc{%d}{%s}" % (span, cat_repr(cat))) )
             
             last_span = leftmost_leaf_id+span-1
 
