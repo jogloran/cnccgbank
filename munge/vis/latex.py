@@ -55,8 +55,11 @@ def ccg2latex(node):
     out = ['\deriv{%d}{' % node.leaf_count()]
     rows = []
     
+    # lex line
     out.append( (' & '.join(("\\cjk{%s}"%leaf.lex) for leaf in leaves(node))) + '\\\\' )
+    # underlines line
     out.append( ' & '.join(["\uline{1}"] * node.leaf_count()) + '\\\\' )
+    # cats line
     out.append( (' & '.join(("\\cf{%s}"%sanitise_category(str(leaf.cat))) for leaf in leaves(node))) + '\\\\' )
     
     for l, r, p in pairs_postorder(node):
@@ -67,7 +70,7 @@ def ccg2latex(node):
     for subrows in grouped_subrows:
         subline = []
         subout = []
-        last_span = 0
+        last_span = 0 # holds the index of the rightmost span in this row
         
         for leftmost_leaf_id, cat, comb, span in subrows:
             subline.append( "&"*(leftmost_leaf_id - last_span) + ("\%s{%s}" % (comb_symbol(comb), span)) )
@@ -75,7 +78,9 @@ def ccg2latex(node):
             
             last_span = leftmost_leaf_id+span-1
 
+        # write out underlines line
         out.append(' '.join(subline) + '\\\\')
+        # write out cats line
         out.append(' '.join(subout) + '\\\\')
 
     out.append('}')
