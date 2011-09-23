@@ -4,6 +4,7 @@ from itertools import groupby
 from apps.ccgdraw import sanitise_category
 
 def min_leaf_id(node, root):
+    '''(Inefficiently) finds the leaf index of _node_ relative to _root_.'''
     cur = node
     while not cur.is_leaf():
         cur = cur[0]
@@ -14,6 +15,8 @@ def min_leaf_id(node, root):
             return leaf_id
 
 def group(rows):
+    '''Groups [row] into [ [row] ], where each sub-list contains reductions which can be rendered
+in the same row.'''
     output = []
     subrow = []
     last_leftmost = -1
@@ -34,7 +37,7 @@ def group(rows):
         
     return output
     
-tails = {
+arrows = {
     'fwd_appl': 'fapply',
     'bwd_appl': 'bapply',
     'fwd_comp': 'fcomp',
@@ -50,7 +53,7 @@ tails = {
 }
 def ccg2latex(root):
     def comb_symbol(comb):
-        return tails.get(comb, 'uline')
+        return arrows.get(comb, 'uline')
     def cat_repr(cat):
         return sanitise_category(str(cat))
         
