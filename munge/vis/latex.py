@@ -57,9 +57,7 @@ def ccg2latex(root):
     def cat_repr(cat):
         return sanitise_category(str(cat))
         
-    out = ['\deriv{%d}{' % root.leaf_count()]
-    rows = []
-    
+    out = ['\deriv{%d}{' % root.leaf_count()]    
     all_leaves = list(leaves(root))
     
     # lex line
@@ -69,6 +67,7 @@ def ccg2latex(root):
     # cats line
     out.append( (' & '.join(("\\cf{%s}"%cat_repr(leaf.cat)) for leaf in all_leaves)) + '\\\\' )
     
+    rows = []
     for l, r, p in pairs_postorder(root):
         rows.append( (min_leaf_id(p, root), p.cat, analyse(l.cat, r and r.cat, p.cat), p.leaf_count()) )
         
