@@ -75,7 +75,7 @@ class Node(object):
     
     def leaf_count(self):
         '''Returns the number of leaves under this node.'''
-        count = 1 + self._lch.leaf_count()
+        count = self._lch.leaf_count()
         if self._rch: count += self._rch.leaf_count()
         
         return count
