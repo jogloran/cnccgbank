@@ -68,18 +68,20 @@ def make_derivation(deriv, assigned_id=None):
 
         return ''.join(ret)
 
-def make_graph(deriv, label=""):
+def make_graph(deriv, label="", fontname="Hei"):
     '''Generates the DOT representation.'''
     # TODO: Need to get rid of the font change at some point
+    
     return (
 '''digraph G {
-node [fontname=Hei]
+node [fontname=%s]
 label="%s"
 labelloc="t"
 labeljust="r"
 fontname="Helvetica"
 fontsize=24
-%s}''' % (label, make_derivation(deriv)))
+lex [shape=plaintext,label="%s"]
+%s}''' % (fontname, label, ' '.join(deriv.text()), make_derivation(deriv)))
 
 def write_graph(deriv, fn, label=""):
     '''Writes the DOT representation to a file.'''
