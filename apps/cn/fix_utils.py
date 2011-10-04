@@ -94,6 +94,7 @@ def inherit_tag_str(node_tag, other_tag, strip_marker=False):
         return node_tag + other_tag[other_tag.rfind('-'):]
     elif other_tag.rfind(':') != -1 and node_tag.rfind(':') == -1:
         return node_tag + other_tag[other_tag.rfind(':'):]
+    return node_tag
         
 @predicated
 def fcomp(l, r):

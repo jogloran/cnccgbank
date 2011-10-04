@@ -30,6 +30,7 @@ writes the modified derivations out in the prefaced PTB style.'''
     def do_tgrep_with_callback(root, pattern, callback):
         new_root = None
         for match_node, context in tgrep(root, pattern, with_context=True):
+            debug("Callback %s matched", callback.__name__)
             if context: # only supply a context if the expression binds variables
                 # smash the case, variables in tgrep expressions are case insensitive
                 result = callback(match_node, **smash_key_case(context))

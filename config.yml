@@ -1,12 +1,13 @@
 modification_unary_rules: false
 only_np_topicalisation_valid: false
+restrictive_absorption: false
 curly_vars: false
 lcp_to_np_typechange: true
 vp_nongap_topicalisation: true
 
 debug_vars: false
 show_vars: false
-debug: false
+debug: true
 
 low_key_debug: false
 aug_pprint: false
@@ -16,6 +17,8 @@ cn_puncts: true
 cn_rules: true
 use_modes: false
 headed_cats: true
+hatted_cats: false
 highlight_head_arrows: true
 fail_on_unassigned_variables: false
-use_csc: false
+use_csc: true
+use_bare_N: false

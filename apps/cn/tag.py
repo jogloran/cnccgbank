@@ -66,6 +66,7 @@ else:
 # (PU spaces)+ (conjunct)( (PU spaces) conjunct)+ (final punctuation)*
 # \b ensures that an entire conjunct is matched (we had a case where PP-PRP PU PP ADVP VP was unexpectedly matching)
 # ETC gets pre-tagged as ETC:&, so we match against that
+# TODO: 22:61(1) has NP(NP-APP PU NP-PN) mistagged as coordination
 CoordinationRegex = re.compile(r'(?:(?:PU|CC) )*\b([\w:]+)(-[\w:-]+)?\b(?: (?:(?:PU|CC) )+\1(-[\w:-]+)?)+\s*(?: (?:PU|ETC(?::&)?))*$')
 
 def tag_string_for_coordination(node):
@@ -327,7 +328,10 @@ def preprocess(root):
                 
             # elif node.tag == 'VP' and node[0].tag == 'NP-PRD':
             #     replace_kid(node.parent, node, node[0])
-                
+            
+            # couple of noisy derivs like 10:35(80), 10:26(121), 11:37(3)
+            # elif node.tag == 'VP' and node[0].tag.startswith('IP'):
+            #     replace_kid(node.parent, node, node[0])
                 
         # Reshape LB (long bei)
         # ---------------------
@@ -549,12 +553,20 @@ def label(root):
         # must be above is_coordination (it subsumes UCP)
         elif is_ucp(node):
             left_conjunct_tag = first_kid.tag
+            # NOTE:
+            # There are some cases where the UCP annotation is suspect (1:36(11))
+            # we will obtain the wrong analysis in these cases because the UCP node
+            # does not directly dominate its conjuncts
             
             old_tag = node.tag
             node.tag = left_conjunct_tag
             node.tag = inherit_tag_str(node.tag, old_tag)
             
-            for kid in nodes(node):
+            for kid in nodes(node):            
+                if kid.tag is None:
+                    print kid
+                    print kid.tag
+                
                 if kid.tag.startswith('UCP'):
                     kid.tag = left_conjunct_tag
             for kid in node:
@@ -662,6 +674,9 @@ def label(root):
     return root
     
 def tag_adjunction(node, last_kid):
+    # noisy derivation 5:0(22)
+    if not last_kid: return
+    
     tag(last_kid, 'h')
 
     for kid in node[0:-1]:

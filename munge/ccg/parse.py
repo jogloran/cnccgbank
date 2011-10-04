@@ -1,7 +1,9 @@
 from munge.lex.lex import preserving_split
 from apps.util.config import config
 
-if config.headed_cats:
+if config.hatted_cats:
+    from munge.cats.hatted.parse import parse_category
+elif config.headed_cats:
     from munge.cats.headed.parse import parse_category
 else:
     from munge.cats.parse import parse_category

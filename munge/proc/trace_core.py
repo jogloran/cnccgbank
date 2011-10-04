@@ -1,6 +1,7 @@
 import sys
 import os
 import errno
+import re
 
 from munge.io.guess import GuessReader
 from munge.io.multi import DirFileGuessReader
@@ -106,6 +107,18 @@ class TraceCore(object):
                 filters.append(filter_class(*args))
             except KeyError:
                 err("No filter with name `%s' found.", filter_name)
+                
+        # convert short notation in file specifiers to proper paths
+        def expand_short_notation(fn):
+            # short notation is 
+            # corpus:ss,dd,deriv -> corpus/chtb_ssdd.fid:deriv
+            m = re.match(r'([^:]+):(\d+),(\d+),(\d+)', fn)
+            if m:
+                corpus_dir, sec, doc, deriv = m.groups()
+                return os.path.join(corpus_dir, 'chtb_%02d%02d.fid:%d' % (int(sec), int(doc), int(deriv)))
+            return fn
+            
+        files = [expand_short_notation(file) for file in files]
 
         self.run_filters(filters, files)
         

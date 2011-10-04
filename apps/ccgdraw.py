@@ -1,4 +1,5 @@
 import re, sys
+from munge.util.list_utils import transpose
     
 span_pat = re.compile(r'\S+')
 def get_spans_of(words):
@@ -8,12 +9,6 @@ def get_spans_of(words):
 def get_spans_and_text_of(words):
     for r in span_pat.finditer(words):
         yield (r.span(), r.group())
-        
-def transpose(xs):
-    return map(list, zip(*xs))
-    
-def sanitise_category(cat):
-    return re.sub(r'\\', r'\\bs ', cat)
     
 ESCAPED_NEWLINE = '\\\\\n'
 def comb_lines(lines):

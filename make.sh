@@ -28,7 +28,8 @@ shift $(($OPTIND - 1))
 
 started=`date +%c`
 ./make_clean.sh
-time ./make_all.sh $corpus_dir_arg $dir_suffix_arg all && ./do_filter.sh && (python -m'apps.cn.find_unanalysed' '../terry/CCG/output/cn/filtered_corpus.txt' > unanalysed)
+time ./make_all.sh $corpus_dir_arg $dir_suffix_arg all && \
+./do_filter.sh && (python -m'apps.cn.find_unanalysed' '../terry/CCG/output/cn/filtered_corpus.txt' > unanalysed)
 
 # Filter out derivations with [conj] leaves
 msg "Filtering out derivations with [conj] leaves..."

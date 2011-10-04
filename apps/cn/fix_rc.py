@@ -34,6 +34,8 @@ def is_rooted_in(subcat, cat, respecting_features=False):
         cur = cur.left
     return cur.equal_respecting_features(subcat) if respecting_features else cur == subcat
     
+use_bare_N = config.use_bare_N
+    
 ModifierTags = frozenset(("TPC", "LOC", "EXT", "ADV", "DIR", "IO", "LGS", "MNR", "PN", "PRP", "TMP", "TTL"))
 ModifierTagsRegex = "(?:" + "|".join(ModifierTags) + ")"
 class FixExtraction(Fix):
@@ -435,9 +437,11 @@ CCG analysis.'''
 
                     # Last ditch: try all of the composition rules to generalise over L R -> P
                     if not new_parent_category:
+                        # having fxcomp creates bad categories in NP(IP DEC) construction (1:97(3))
+                        # but, we need fxcomp to create the gap NP-TPC NP-SBJ(*T*) VP, so allow it when the rhs doesn't look like the DEC category
                         new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
                                             or bxcomp(L, R, when=not self.is_relativiser(R)) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
-                                            or fxcomp(L, R))
+                                            or fxcomp(L, R, when=not self.is_relativiser(R)))
 
                     if new_parent_category:
                         debug("new parent category: %s", new_parent_category)
@@ -450,11 +454,15 @@ CCG analysis.'''
 
     #@echo
     def fix_subject_extraction(self, _, n, pred, w=None, reduced=False):
+        global use_bare_N
+        
         debug("%s", reduced)
         node = n
         debug("Fixing subject extraction: %s", lrp_repr(node))
 
-        if pred.tag.startswith('NP'):
+        # We only want this if we are using the N -> NP unary rule
+        # This 'fix' lets us rewrite NP(WHNP CP) as NP(CP) with categories NP(N)
+        if use_bare_N and pred.tag.startswith('NP'):
             # Fix for the NP(VP de) case:
             # ---------------------------
             #         NP                 NP
@@ -532,10 +540,14 @@ CCG analysis.'''
         replace_kid(p, a, Node("NN", [new_kid], s.category/s.category, head_index=0))
 
     def fix_object_extraction(self, _, n, pred, w=None, reduced=False):
+        global use_bare_N
+        
         node = n
         debug("Fixing object extraction: %s", lrp_repr(node))
         
-        if pred.tag.startswith('NP'):
+        # We only want this if we are using the N -> NP unary rule
+        # This 'fix' lets us rewrite NP(WHNP CP) as NP(CP) with categories NP(N)
+        if use_bare_N and pred.tag.startswith('NP'):
             # Fix for the NP(VP de) case:
             # ---------------------------
             #         NP                 NP

@@ -1,7 +1,7 @@
 from munge.cats.trace import analyse
 from munge.trees.traverse import pairs_postorder, leaves
 from itertools import groupby
-from apps.ccgdraw import sanitise_category
+from apps.util.latex.table import sanitise_category
 
 def min_leaf_id(node, root):
     '''(Inefficiently) finds the leaf index of _node_ relative to _root_.'''

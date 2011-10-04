@@ -35,6 +35,10 @@ def starmap(f, l):
     '''Given a sequence ((A1, B1, ...), (A2, B2, ...)) and a function (A, B, ...) -> C, this returns
 a sequence (C1, C2, ...).'''
     for e in l: f(*e)
+    
+def transpose(xs):
+    '''Transposes a list of lists.'''
+    return map(list, zip(*xs))
 
 def preserving_zip(*orig_seqs):
     '''A preserving zip which does not truncate to the length of the shortest sequence like the standard zip.
@@ -100,4 +104,3 @@ class FixedSizeRandomList(list):
                 self[j] = v
                 
         self.n += 1
-    

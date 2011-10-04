@@ -295,16 +295,19 @@ def matches(node, *matches):
 def exactly_matches(node, *matches):
     return node.tag in matches
 
+use_bare_N = config.use_bare_N
 #@echo
 def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
+    # NP<NN shrinking happens unconditionally if use_bare_N is false
+    do_np_shrink = (not use_bare_N) or inside_np_internal_structure
+    
     if node.is_leaf(): return node
     elif node.count() == 1:
         node.head_index = 0
 
         # shrinkage rules (NP < NN shrinks to NN)
         if (do_shrink and
-            
-            ((inside_np_internal_structure and
+            ((do_np_shrink and
                 ((node.tag.startswith('NP') 
                     and not has_tag(node, 'A')
                     and has_noun_tag(node[0])) or

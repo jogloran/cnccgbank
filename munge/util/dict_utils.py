@@ -3,6 +3,11 @@ class CountDict(dict):
 
     def __missing__(self, key):
         return 0
+        
+class PrefixSet(set):
+    '''A set which implicitly contains all string prefixes of items added to it.'''
+    def __contains__(self, item):
+        return any(candidate.startswith(item) for candidate in self)
 
 def sorted_by_value_desc(dict):
     '''Given a _dict_, returns its (key, value) pairs sorted in descending order.'''

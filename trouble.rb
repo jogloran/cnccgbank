@@ -30,5 +30,6 @@ STDIN.each_with_index {|line, i|
     open_cmd = "open -a /Applications/Preview.app "
     dot_files = phases.map {|phase| "#{phase}_dots/#{section_name}/#{pdf_name}"}.select {|file| test ?f, file}
     open_cmd += dot_files.join(' ')
+    puts open_cmd
     system open_cmd
 }

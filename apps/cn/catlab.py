@@ -17,6 +17,8 @@ from apps.cn.fix_utils import *
 from apps.identify_lrhca import *
 from apps.cn.output import OutputPrefacedPTBDerivation
 
+use_bare_N = config.use_bare_N
+
 def rename_category_while_labelling_with(label_function, node, substitute, when=None):
     '''Applies the labelling function _label_function_ to the given _node_, replacing
 its category with _substitute_ before labelling, and re-instating the former category
@@ -117,7 +119,10 @@ def label_right_adjunction(node):
 
 #@echo
 def label_coordination(node, inside_np=False, ucp=False):
-    top_level_category = N if (not ucp and node.category == NP) else node.category
+    if use_bare_N:
+        top_level_category = N if (not ucp and node.category == NP) else node.category
+    else:
+        top_level_category = NP if (not ucp and node.category == NP) else node.category
 
     node[0].category = ptb_to_cat(node[0]) if ucp else top_level_category # node.category
     # for UCP, if node[0]'s tag suggests NP or N (0:80(22)), then use top_level_category instead
@@ -146,8 +151,8 @@ def label_partial_coordination(node, inside_np=False, ucp=False):
     
 #@echo
 def label_np_internal_structure(node):
-    if node.category == NP:
-        P = N
+    if use_bare_N and node.category == NP:
+        P = NP
     else:
         P = node.category
     
@@ -177,12 +182,16 @@ def label_np_internal_structure(node):
 
 # If no process successfully assigns a category, these are used to map PTB tags to
 # a 'last-ditch' category.
+
+# If we are using N->NP, then map lexical nouns and their modifiers to N. Otherwise, map them to NP.
+BareN = N if use_bare_N else NP
+BareNfN = NfN if use_bare_N else NPfNP
 Map = {
     'NP': NP, 'PN': NP,
     'DT': NP,
     'NT': NP,
     
-    'NN': N, 'NR': N,
+    'NN': BareN, 'NR': BareN,
     
     'FRAG': Sfrg,
     'IP': Sdcl,
@@ -205,14 +214,16 @@ Map = {
     # to account for noise in 25:43(4)
     'OD': QP,
     
-    'ADJP': NfN,
-    'JJ': NfN,
+    'ADJP': BareNfN,
+    'JJ': BareNfN,
     # to account for CLP modification (the modifiers should end up as M/M, see 0:9(3))
     'CLP': C('M'),
-    'DP': NfN,
-    'DNP': NfN,
     
-    'FW': N, # last ditch for filler words
+    'DP-TPC': NP, # DP-TPC in 0:13(9)
+    'DP': BareN,
+    'DNP': BareNfN,
+    
+    'FW': BareN, # last ditch for filler words
     
     'CP-PRD': NP,
     'CP-OBJ': Sdcl, # 8:16(9) CP in object position is treated as IP
@@ -345,6 +356,8 @@ def label(node, inside_np=False):
     '''
     Labels the descendants of _node_ and returns _node_.
     '''
+    global BareN
+    
     if node.category is None:
         node.category = ptb_to_cat(node)
         
@@ -353,7 +366,7 @@ def label(node, inside_np=False):
         if node.tag.startswith('NT'): # map NT -> NP, not N
             node.category = NP
         elif has_noun_tag(node):
-            node.category = N
+            node.category = BareN
         else:
             node.category = ptb_to_cat(node)
     
@@ -405,7 +418,7 @@ def label(node, inside_np=False):
         return label_etc_head_final(node)
         
     elif is_S_NP_apposition(node):
-        return rename_category_while_labelling_with(label_head_final, node, N if node.category == NP else node.category)
+        return rename_category_while_labelling_with(label_head_final, node, BareN if node.category == NP else node.category)
         
     elif (node.count() == 1
        or is_topicalisation(node)
@@ -444,7 +457,7 @@ def label(node, inside_np=False):
     elif is_np_structure(node):# and not node[0].tag.startswith('IP-APP'):
         return rename_category_while_labelling_with(
             label_np_structure,
-            node, N,
+            node, BareN,
             when=lambda category: category == NP)
     
     elif is_np_internal_structure(node):
@@ -478,6 +491,13 @@ def label_root(root):
             if node.tag.startswith('IP-SBJ') and node[0].tag.startswith('NP-SBJ'): continue
             # Similarly for IP(*PRO* VP) when it occurs in UCP (7:98(16), 0:83(11))
             if node.tag.startswith('IP') and has_tag(node, 'C'): continue
+            
+            if node.parent is None: continue
+            
+            # Avoid generating LCP\S[dcl] and LCP\(S[dcl]\NP) categories (annotation seems to be inconsistent 6:31(4), 4:50(4))
+            if node.tag.startswith('IP') and node.parent.tag.startswith('LCP'): continue
+            if node.tag.startswith('IP') and node.parent.tag.startswith('PP'): continue
+            # However, if we have IP(*PRO* VP) at the root, treat as pro-drop to eliminate S\NP as a root category
             
             old_tag = node.tag
             

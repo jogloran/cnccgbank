@@ -1,5 +1,6 @@
 from munge.trees.pprint import pprint_with
 from munge.trees.traverse import text
+from apps.util.latex.table import sanitise_category
 
 def process_lex_node_repr(node, compress=False):
     if compress:
@@ -21,7 +22,6 @@ def process_lex_node_reprL(node, compress=False):
     else:
         return "%s" % node.tag
         
-from apps.ccgdraw import sanitise_category
 Rnode_id = 0
 def process_lex_node_reprR(node, compress=False):
     if compress:
