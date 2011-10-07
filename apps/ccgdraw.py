@@ -1,5 +1,6 @@
 import re, sys
 from munge.util.list_utils import transpose
+from apps.util.latex.table import sanitise_category
     
 span_pat = re.compile(r'\S+')
 def get_spans_of(words):
