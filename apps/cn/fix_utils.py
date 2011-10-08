@@ -6,6 +6,7 @@ from munge.trees.traverse import lrp_repr
 from munge.cats.nodes import BACKWARD, FORWARD
 from munge.util.deco_utils import predicated
 from munge.util.exceptions import MungeException
+from munge.util.err_utils import debug
 
 def has_tag(node, tag):
     '''Checks whether _node_ has the munge tag (not the PCTB part-of-speech) _tag_.'''
@@ -79,9 +80,9 @@ def inherit_tag(node, other, strip_marker=False):
     # node = IP:h-APP:a
     '''Gives _node_ the tag that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
     if strip_marker: node.tag = base_tag(node.tag, strip_cptb_tag=False)
-    
-    if other.tag.rfind('-') != -1 and node.tag.rfind(':') == -1:
-        node.tag += other.tag[other.tag.rfind('-'):]
+
+    if other.tag.rfind('-') != -1 and node.tag.rfind('-') == -1:
+        node.tag += other.tag[other.tag.rfind('-'):]    
     elif other.tag.rfind(':') != -1 and node.tag.rfind(':') == -1:
         node.tag += other.tag[other.tag.rfind(':'):]
 

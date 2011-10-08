@@ -169,40 +169,49 @@ class FixExtraction(Fix):
         replace_kid(pp, p, s)
 
     def fix_rnr(self, rnr, g):
-        debug("Fixing RNR: %s", pprint(g))
-        index = get_trace_index_from_tag(rnr.lex) # -i
-        debug("index: %s", index)
-        expr = r'*=PP < { *=P < { *=T < ^/\*RNR\*%s/ $ *=S } }' % index
-        for node, ctx in find_all(g, expr, with_context=True):
-            inherit_tag(ctx.s, ctx.p)
-            self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
-            self.fix_categories_starting_from(ctx.s, g)
+        # G is the node dominating all the conjuncts
+        rnr_tags = []
+        for node, ctx in find_all(
+            g, r'/:c/a', with_context=True):
+            for rnr in find_all(
+                node, r'^/\*RNR\*/'):
+                rnr_tags.append(get_trace_index_from_tag(rnr.lex))
+
+        for index in rnr_tags:
+            for node, ctx in find_all(
+                g,
+                r'*=PP < { *=P < { *=T < ^/\*RNR\*%s/ $ *=S } }' % index,
+                with_context=True
+            ):
+                inherit_tag(ctx.s, ctx.p)
+                self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
+                self.fix_categories_starting_from(ctx.s, g)
+                
+        last_conjunct = list(find_first(g, r'/:c/a', left_to_right=False))
         
-        debug("post deletion: %s", pprint(g))
-
-        expr = r'*=PP < { *=P < { /%s/a=T $ *=S } }' % index
-        node, ctx = get_first(g, expr, with_context=True)
-
-        argument = ctx.t
-        self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
-        self.fix_categories_starting_from(ctx.s, g)
+        args = []
+        parent = None
+        for index in rnr_tags:
+            for node, ctx in find_all(
+                last_conjunct[0],
+                r'*=P < { /%s/a=T $ *=S }' % index,
+                with_context=True
+            ):
+                args.append(ctx.t)
+                
+                replace_kid(ctx.p.parent, ctx.p, ctx.s)
+                self.fix_categories_starting_from(ctx.s, g)
+                
+                parent = ctx.p.parent
+                
+        args.reverse()
         
-        debug("T(argument): %s", lrp_repr(argument))
-        debug("G: %s", lrp_repr(g))
-        debug('PP: %s, P: %s, T: %s, S: %s', *map(lrp_repr, (ctx.pp, ctx.p, ctx.t, ctx.s)))
-
-        new_g = Node(g.tag, [g, argument], g.category, head_index=0)
-
+        new_g = g
+        for arg in args:
+            new_g = Node(new_g.tag, [new_g, arg], new_g.category.left)
+        
         replace_kid(g.parent, g, new_g)
-        argument.parent = new_g # argument was previously disconnected
-
-        new_g.category = ctx.s.category.left
-
-        self.fix_categories_starting_from(argument, new_g)
-
-        debug("Done: %s", pprint(g))
-        # print pprint(g.parent)
-
+                
     def fix_short_bei_subj_gap(self, node, bei, pp, p, t, s):
         debug("fixing short bei subject gap: %s", lrp_repr(pp))
         # take the VP sibling of SB
