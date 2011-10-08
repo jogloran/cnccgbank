@@ -262,6 +262,7 @@ PunctuationMap = {
     '—': '.', # Chinese dash
 
     '〈': 'LRB', '〉': 'RRB', # Chinese single bracket    
+    '〈': 'LRB', '〉': 'RRB', # Chinese single bracket
     '《': 'LRB', '》': 'RRB', # Chinese title bracket
     '『': 'LRB', '』': 'RRB', # Chinese double corner bracket
     '「': 'LRB', '」': 'RRB', # Chinese left corner bracket

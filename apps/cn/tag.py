@@ -36,7 +36,7 @@ def is_apposition(node):
     # QP < NP-APP QP in 0:8(7)
     return ((node.tag.startswith('NP') or node.tag.startswith('QP')) and 
         # exclude CP-APP? it's not really apposition, rather adjunction
-        any(kid.tag != "CP-APP" and kid.tag.endswith('-APP') for kid in node))
+        any(kid.tag.endswith('-APP') and kid.tag != 'CP-APP' for kid in node))
 
 # We exclude -IJ, so we can get analyses of INTJ nodes
 FunctionTags = frozenset('ADV TMP LOC DIR BNF CND DIR LGS MNR PRP'.split())

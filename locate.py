@@ -1,17 +1,10 @@
 #! /usr/bin/env python
 
 import sys
+import re
 import os
 
-def convert_from_piped_quoted_string(s):
-    for tok in s.split(' '):
-        yield tok.split('|')[0]
-
-if '|' in sys.argv[1]:
-    sought = set(convert_from_piped_quoted_string(sys.argv[1]))
-    print sought
-else:
-    sought = set(sys.argv[1:])
+sought = set(sys.argv[1:])
 corpus = 'corpora/cptb/segmented'
 
 XML, PLAIN = 1, 2
@@ -22,7 +15,7 @@ def determine_format_from(line):
 for path, dirs, files in os.walk(corpus):
     for fn in files:
         if not fn.endswith('.seg'): continue
-
+        
         doc_sent_no = 0
         lines = open(os.path.join(path, fn), 'r').xreadlines()
 

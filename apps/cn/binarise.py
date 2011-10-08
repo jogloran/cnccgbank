@@ -320,7 +320,8 @@ def _label_node(node, inside_np_internal_structure=False, do_shrink=True):
             (node.tag.startswith('ADVP') and exactly_matches(node[0], 'AD', 'CS', 'NN')) or
             (matches(node, 'NP-MNR', 'NP-PRP') and has_noun_tag(node[0])) or
             # 8:1(5)
-            (node.tag == 'NP-PN:a' and exactly_matches(node[0], 'NR')) or
+            (node.tag.startswith('NP-PN') and 
+                node.tag.endswith(':a') and exactly_matches(node[0], 'NR')) or
             (node.tag.startswith('CLP') and exactly_matches(node[0], 'M')) or
             (node.tag.startswith('LCP') and exactly_matches(node[0], 'LC')) or
             # DT < OD found in 6:25(11)

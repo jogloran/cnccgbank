@@ -1,6 +1,5 @@
 import re, sys
 from munge.util.list_utils import transpose
-from apps.util.latex.table import sanitise_category
     
 span_pat = re.compile(r'\S+')
 def get_spans_of(words):
@@ -57,7 +56,8 @@ tails = {
     '>T': 'ftype',
     '<T': 'btype',
     'conj': 'conj',
-    '': 'uline'
+    '': 'uline',
+    '?': 'unknown'
 }
 def get_combinator_for_arrow(arrow):
     match = tail_pat.match(arrow)

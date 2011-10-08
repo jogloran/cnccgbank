@@ -303,9 +303,9 @@ a pager program.'''
         if not args.strip(): return
 
         show_mode = {
-            'subtree':    'node',
-            'pp_subtree': 'pp_node',
-            'whole_tree': 'tree',
+            'subtree':       'node',
+            'pp_subtree':    'pp_node',
+            'whole_tree':    'tree',
             'pp_whole_tree': 'pp_tree',
             'pp_synttree': 'pp_synttree',
             'tokens':     'tokens',
