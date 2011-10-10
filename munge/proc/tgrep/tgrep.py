@@ -211,7 +211,7 @@ class Tgrep(TgrepCore):
         
     @staticmethod
     def show_pp_tree(match_node, bundle):
-        print pprint(bundle.derivation)
+        print pprint(bundle.derivation, focus=match_node)
         
     @staticmethod
     def show_pp_synttree(match_node, bundle):

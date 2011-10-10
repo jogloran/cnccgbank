@@ -27,11 +27,17 @@ dark_colors  = ["black", "darkred", "darkgreen", "brown", "darkblue",
 light_colors = ["darkgray", "red", "green", "yellow", "blue",
                 "fuchsia", "turquoise", "white"]
 
-x = 30
+x = 30 # escapes for ansi foreground colours start at 30
 for d, l in zip(dark_colors, light_colors):
     codes[d] = esc + "%im" % x
     codes[l] = esc + "%i;01m" % x
     x += 1
+    
+x = 40 # escapes for ansi background colours start at 40
+for l in light_colors:
+    codes["bg%s"%l] = esc + "%im" % x
+    x += 1
+print codes
 
 del d, l, x
 
@@ -40,14 +46,11 @@ codes["darkyellow"] = codes["brown"]
 codes["fuscia"]     = codes["fuchsia"]
 codes["white"]      = codes["bold"]
 
-
 def reset_color():
     return codes["reset"]
 
-
 def colour(color_key, text):
     return codes[color_key] + text + codes["reset"]
-
 
 def ansiformat(attr, text):
     """
@@ -72,4 +75,3 @@ def ansiformat(attr, text):
     result.append(text)
     result.append(codes['reset'])
     return ''.join(result)
-
