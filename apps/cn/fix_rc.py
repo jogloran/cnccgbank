@@ -214,7 +214,7 @@ class FixExtraction(Fix):
         
         new_g = g
         for arg in args:
-            new_g = Node(new_g.tag, [new_g, arg], new_g.category.left)
+            new_g = Node(new_g.tag, [new_g, arg], new_g.category.left, head_index=0)
         
         replace_kid(g.parent, g, new_g)
                 
