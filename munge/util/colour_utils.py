@@ -37,7 +37,6 @@ x = 40 # escapes for ansi background colours start at 40
 for l in light_colors:
     codes["bg%s"%l] = esc + "%im" % x
     x += 1
-print codes
 
 del d, l, x
 
