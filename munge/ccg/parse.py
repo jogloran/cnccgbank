@@ -1,5 +1,5 @@
 from munge.lex.lex import preserving_split
-from apps.util.config import config
+from munge.util.config import config
 
 if config.hatted_cats:
     from munge.cats.hatted.parse import parse_category

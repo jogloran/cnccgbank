@@ -1,6 +1,6 @@
 import sys, copy
 
-from apps.util.config import config
+from munge.util.config import config
 config.set(show_vars=True, curly_vars=True)
 
 from munge.cats.headed.nodes import AtomicCategory

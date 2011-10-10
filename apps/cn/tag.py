@@ -16,7 +16,7 @@ from apps.identify_pos import VerbalCategories, NominalCategories, has_question_
 from apps.cn.fix_utils import inherit_tag, inherit_tag_str, replace_kid, base_tag, has_tag, has_tags
 from apps.util.echo import echo
 from apps.cn.output import OutputPrefacedPTBDerivation
-from apps.util.config import config
+from munge.util.config import config
 
 PredicationRegex = re.compile(r'''
     (?:[:\w-]+)?

@@ -5,7 +5,7 @@ from munge.util.err_utils import warn, info, err
 from munge.proc.trace_core import TraceCore
 from munge.proc.dynload import get_argcount_for_method
 
-from apps.util.config import config
+from munge.util.config import config
     
 BuiltInPackages = ['munge.proc.builtins', 
                    'munge.proc.tgrep.tgrep', 

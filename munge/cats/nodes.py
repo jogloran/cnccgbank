@@ -1,7 +1,7 @@
 from copy import copy
 from munge.util.exceptions import CatParseException
 from munge.util.func_utils import const_
-from apps.util.config import config
+from munge.util.config import config
 
 import re
 

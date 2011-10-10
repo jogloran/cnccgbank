@@ -4,7 +4,7 @@ import re
 from apps.cn.fix_utils import has_tag, has_tags, base_tag
 from munge.trees.traverse import leaves
 from apps.identify_pos import *
-from apps.util.config import config
+from munge.util.config import config
 from munge.util.func_utils import satisfies_any
 
 def last_nonpunct_kid(node):

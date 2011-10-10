@@ -19,7 +19,7 @@ from munge.util.list_utils import list_preview
 from munge.proc.tgrep.tgrep import Tgrep, SmallSentenceThreshold, SmallSubtreeThreshold
 import munge.proc.trace as T
 
-from apps.util.config import config
+from munge.util.config import config
 
 BuiltInPackages = T.BuiltInPackages
 DefaultPager = '/usr/bin/less' # pager to use if $PAGER not set

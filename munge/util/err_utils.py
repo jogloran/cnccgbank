@@ -1,5 +1,5 @@
 import sys
-from apps.util.config import config
+from munge.util.config import config
 
 muzzled = False
 def muzzle(quiet=True):

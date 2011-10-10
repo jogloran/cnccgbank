@@ -1,6 +1,6 @@
 # coding=utf-8
 import sys
-from apps.util.config import config
+from munge.util.config import config
 #config.set(show_vars=True, debug=True) # override show_vars. must come before cats.nodes import
 
 from itertools import chain

@@ -2,7 +2,7 @@
 
 from munge.cats.nodes import AtomicCategory
 from munge.cats.parse import parse_category
-from apps.util.config import config
+from munge.util.config import config
 
 def featureless(cat):
     ret = cat.clone()

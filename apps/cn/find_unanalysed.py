@@ -11,7 +11,7 @@ from munge.cats.trace import analyse
 from munge.trees.traverse import nodes
 from collections import defaultdict
 from munge.util.err_utils import debug
-from apps.util.config import config
+from munge.util.config import config
 from munge.util.dict_utils import sorted_by_value_desc
 from munge.cats.cat_defs import *
 

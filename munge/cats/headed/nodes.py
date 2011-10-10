@@ -1,5 +1,5 @@
 import munge.cats.nodes as B
-from apps.util.config import config
+from munge.util.config import config
 from copy import copy
 
 class Head(object):
