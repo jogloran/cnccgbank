@@ -57,11 +57,13 @@ class Shell(HistorySavingDefaultShell):
     verbose = property(get_verbose, set_verbose)
 
     def do_quiet(self, args):
+        '''Produces less output during processing.'''
         if self._verbose:
             self.set_verbose(False)
             msg("Will generate less output.")
 
     def do_verbose(self, args):
+        '''Produces more output during processing.'''
         if not self._verbose:
             self.set_verbose(True)
             msg("Will generate more output.")
