@@ -425,21 +425,7 @@ CCG analysis.'''
                             p.category = new_parent_category
 
                         debug("New category: %s", new_category)
-                        
-                    # (X|R)|Y R       -> X|Y  becomes
-                    # (X|R)|Y X|(X|R) -> X|Y
-                    elif L.is_complex() and L.left.is_complex() and R == L.left.right:
-                        T = L.left.left
-                        new_category = typeraise(R, T, TR_BACKWARD)#T|(T/R)
-                        node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
-
-                        new_parent_category = bxcomp(L, new_category)
-                        if new_parent_category:
-                            debug("new parent category: %s", new_parent_category)
-                            p.category = new_parent_category
-
-                        debug("New category: %s", new_category)
-                        
+                                            
                     # Generalise over right modifiers of verbal categories (S[dcl]\X)$
                     elif self.is_verbal_category(L) and L.is_complex() and L.left.is_complex():
                         T = L.left.right
