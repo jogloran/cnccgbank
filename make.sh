@@ -61,7 +61,7 @@ rm -rf piped
 rm -rf ${final_dir}/piped
 ./regroup_piped.sh ${final_dir}/piped piped/*
 
-ln -sf ${final_dir}/ latest
+rm latest; ln -sf ${final_dir} latest
 
 # Check for unequal texts
 msg "Checking for deleted leaves..."
