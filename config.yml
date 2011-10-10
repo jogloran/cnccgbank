@@ -7,7 +7,7 @@ vp_nongap_topicalisation: true
 
 debug_vars: false
 show_vars: false
-debug: true
+debug: false
 
 low_key_debug: false
 aug_pprint: false
