@@ -1,4 +1,5 @@
 from munge.util.list_utils import intersperse
+from munge.util.colour_utils import codes
     
 def default_node_repr(node, compress=False):
     if hasattr(node, 'category') and node.category is not None:
@@ -12,7 +13,6 @@ def default_node_repr(node, compress=False):
         else:
             return "%s" % node.tag
             
-from munge.util.colour_utils import codes
 LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
 def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduce=True):
     single_node_template = open + '%s' + close
@@ -35,17 +35,21 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduc
         reached_detail_level = level==detail_level
     
         if node.is_leaf() or reached_detail_level:
+            leaf_repr = node_repr(node, compress=reached_detail_level)
+            
             if reduced_leaves:
-                out.append(node_repr(node, compress=reached_detail_level))
+                out.append(leaf_repr)
             else:
-                out.append(single_node_template % node_repr(node, compress=reached_detail_level))
+                out.append(single_node_template % leaf_repr)
         else:
             # special case for nodes with all-leaf children
             if do_reduce and node.count() <= LeafCompressThreshold and all(kid.is_leaf() for kid in node):
-                out.append( multi_node_template % 
-                    (node_repr(node), 
-                    ' '.join([base_pprint(child, 0, sep, '', reduced_leaves=True, detail_level=detail_level, 
-                        focus=focus, focused=focused) for child in node])) )
+                # set level=0 so the text is not indented
+                kid_reprs = [base_pprint(child, 0, sep, '', 
+                             reduced_leaves=True, detail_level=detail_level, 
+                             focus=focus, focused=focused) for child in node]
+                             
+                out.append( multi_node_template % (node_repr(node), ' '.join(kid_reprs)) )
             else:
                 out.append( "%s%s%s" % (open, node_repr(node), newline) )
                 out += intersperse([base_pprint(child, level+1, sep, newline, detail_level=detail_level,
