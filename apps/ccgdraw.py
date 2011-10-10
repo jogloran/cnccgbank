@@ -56,8 +56,13 @@ tails = {
     '>T': 'ftype',
     '<T': 'btype',
     'conj': 'conj',
+    'conj1': 'conjone',
+    'conj2': 'conjtwo',
+    'topgap': 'topgap',
+    'top': 'toptop',
     '': 'uline',
-    '?': 'unknown'
+    '*': 'asterisk',
+    'H': 'unhat',
 }
 def get_combinator_for_arrow(arrow):
     match = tail_pat.match(arrow)
