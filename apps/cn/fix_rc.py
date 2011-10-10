@@ -190,20 +190,26 @@ class FixExtraction(Fix):
         last_conjunct = list(find_first(g, r'/:c/a', left_to_right=False))
         
         args = []
-        parent = None
         for index in rnr_tags:
-            for node, ctx in find_all(
+            # find_first, because we only want to find one match, the shallowest.
+            # cf 7:27(10), if NP-OBJ-2(NN NP-OBJ-2(JJ NN)), then we only want to identify
+            # one matching node for index -2 -- the shallowest -- and not two.
+            for node, ctx in find_first(
                 last_conjunct[0],
                 r'*=P < { /%s/a=T $ *=S }' % index,
                 with_context=True
             ):
                 args.append(ctx.t)
                 
+                # Note: last_conjunct may be disconnected from
+                # the tree by replace_kid (when ctx.p == last_conjunct)
                 replace_kid(ctx.p.parent, ctx.p, ctx.s)
                 self.fix_categories_starting_from(ctx.s, g)
                 
-                parent = ctx.p.parent
-                
+        # Because the find_all which retrieved the args is an in-order left-to-right traversal, it will find
+        # shallower nodes before deeper nodes. Therefore, if a verb has two args V A1 A2, the _args_ list will
+        # contain [A2, A1] because A2 is shallower (further from the head) than A1.
+        # We reverse the list of args, so that args are re-attached from the inside out (starting from A1).
         args.reverse()
         
         new_g = g
