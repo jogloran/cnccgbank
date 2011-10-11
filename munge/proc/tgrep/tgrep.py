@@ -114,7 +114,7 @@ def find_small(*args, **kwargs):
     else:
         return ifilter(lambda match: match.leaf_count() <= SmallSubtreeThreshold, matches)
             
-SmallSentenceThreshold = 25
+SmallSentenceThreshold = 18
 def find_small_sents(*args, **kwargs):
     deriv = args[0]
     if deriv.leaf_count() > SmallSentenceThreshold: return iter([])
