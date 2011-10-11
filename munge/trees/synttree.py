@@ -9,7 +9,7 @@ def process_lex_node_repr(node, compress=False):
         return "{\\Pos{%s} \\cjk{%s}}" % (node.tag, node.lex)
     else:
         return "\\Pos{%s}" % node.tag
-        
+
 Lnode_id = 0
 def process_lex_node_reprL(node, compress=False):
     if compress:
@@ -28,7 +28,7 @@ def process_lex_node_reprR(node, compress=False):
         return "\\cf{%s} %s \\cjk{%s}" % (sanitise_category(str(node.category)), "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
     if node.is_leaf():
         global Rnode_id
-        result = "\\cf{%s} \\node(r%s){\\cjk{%s}};" % (sanitise_category(str(node.category)), Rnode_id, node.lex)
+        result = "\\node(r%s){\\cf{%s} \\cjk{%s}};" % (Rnode_id, sanitise_category(str(node.category)), node.lex)
         Rnode_id += 1
         return result
     else:
