@@ -22,6 +22,10 @@ from functools import partial as curry
 from itertools import izip, ifilter
 
 from munge.proc.filter import Filter
+from munge.util.config import config
+
+from munge.util.colour_utils import codes
+use_colour = config.use_colour
 
 _tgrep_debug = False
 _tgrep_initialised = False
@@ -172,7 +176,10 @@ class TgrepCore(Filter):
         matched = False
         
         for match_node, context in self.match_generator(derivation_bundle.derivation, self.expression, with_context=True):
+            if use_colour: sys.stdout.write(codes['bold'])
             self.caption_generator(derivation_bundle)
+            if use_colour: sys.stdout.write(codes['reset'])
+            
             self.match_callback(match_node, derivation_bundle)
             if not matched: matched = True
             
