@@ -2,11 +2,17 @@ from munge.trees.pprint import pprint_with
 from munge.trees.traverse import text
 from apps.util.latex.table import sanitise_category
 
+def latex_tag_for(lex):
+    if lex.startswith('*'):
+        return r'\PTag{%s}' % lex
+    else:
+        return r'\cjk{%s}' % lex
+        
 def process_lex_node_repr(node, compress=False):
     if compress:
         return "\\Pos{%s} %s \\cjk{%s}" % (node.tag, "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
     if node.is_leaf():
-        return "{\\Pos{%s} \\cjk{%s}}" % (node.tag, node.lex)
+        return "{\\Pos{%s} %s}" % (node.tag, latex_tag_for(node.lex))
     else:
         return "\\Pos{%s}" % node.tag
 
@@ -16,7 +22,7 @@ def process_lex_node_reprL(node, compress=False):
         return "%s %s \\cjk{%s}" % (node.tag, "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
     if node.is_leaf():
         global Lnode_id
-        result = "%s \\node(l%s){\\cjk{%s}};" % (node.tag, Lnode_id, node.lex)
+        result = "%s \\node(l%s){%s};" % (node.tag, Lnode_id, latex_tag_for(node.lex))
         Lnode_id += 1
         return result
     else:
@@ -28,7 +34,7 @@ def process_lex_node_reprR(node, compress=False):
         return "\\cf{%s} %s \\cjk{%s}" % (sanitise_category(str(node.category)), "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
     if node.is_leaf():
         global Rnode_id
-        result = "\\node(r%s){\\cf{%s} \\cjk{%s}};" % (Rnode_id, sanitise_category(str(node.category)), node.lex)
+        result = "\\node(r%s){\\cf{%s} %s};" % (Rnode_id, sanitise_category(str(node.category)), latex_tag_for(node.lex))
         Rnode_id += 1
         return result
     else:
