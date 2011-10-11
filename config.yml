@@ -1,3 +1,5 @@
+use_colour: false
+
 modification_unary_rules: false
 only_np_topicalisation_valid: false
 restrictive_absorption: false
@@ -22,3 +24,4 @@ highlight_head_arrows: true
 fail_on_unassigned_variables: false
 use_csc: true
 use_bare_N: false
+

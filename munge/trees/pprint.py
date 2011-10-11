@@ -1,5 +1,8 @@
+from munge.util.config import config
 from munge.util.list_utils import intersperse
 from munge.util.colour_utils import codes
+
+use_colour = config.use_colour
     
 def default_node_repr(node, compress=False):
     if hasattr(node, 'category') and node.category is not None:
@@ -29,7 +32,7 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduc
         if focus and (focus is node):
             focused = True
 
-        if focused:
+        if focused and use_colour:
             out.append(codes['bggreen'])
             
         reached_detail_level = level==detail_level
@@ -60,7 +63,7 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduc
             out.append(close)
             
         # only reset colour sequences when we finish recursion on the focus node
-        if focus and (focus is node):
+        if focus and (focus is node) and use_colour:
             out.append(codes['reset'])
         
         return ''.join(out)
