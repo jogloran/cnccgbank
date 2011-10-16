@@ -22,6 +22,14 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduc
     multi_node_template  = open + '%s %s' + close
     
     def base_pprint(node, level=0, sep='   ', newline='\n', detail_level=-1, reduced_leaves=False, focus=None, focused=False, **kwargs):
+        '''Prertty prints _node_.
+sep: a string to use to indent a line by one level
+newline: a string to use at the end of each line
+detail_level: a depth, beyond which node_repr is called with kwarg compress=True
+reduced_leaves: whether to use reduced leaves
+focus: a node, under which a highlighting colour is applied
+focused: whether a highlighting colour is being applied
+'''
         out = []
         
         if bracket_outermost and level == 0:
