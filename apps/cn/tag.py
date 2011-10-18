@@ -326,6 +326,10 @@ def preprocess(root):
                   (node[0].tag == 'M' and node.tag == 'CP')):
                 replace_kid(node.parent, node, node[0])
                 
+            # fix NP<DNP so that it's headed by the DEC 8:38(18), 0:30(4)
+            elif node.tag.startswith('NP') and node[0].tag.startswith('DNP'):
+                node.kids = node[0].kids
+
             # elif node.tag == 'VP' and node[0].tag == 'NP-PRD':
             #     replace_kid(node.parent, node, node[0])
             
