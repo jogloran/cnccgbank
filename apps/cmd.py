@@ -293,6 +293,8 @@ a pager program.'''
 
                make_option('-a', '--find-all', help='Find all matches (not just the first).',
                            dest='find_mode', action='store_const', const=Tgrep.FIND_ALL, default=Tgrep.FIND_ALL),
+               make_option('--find-top', help='Only match against the root node.',
+                           dest='find_mode', action='store_const', const=Tgrep.FIND_TOP),
                make_option('-3', '--find-small-sents', 
                            help=('Find only matches in small sentences (%d or fewer words)' % SmallSentenceThreshold),
                            dest='find_mode', action='store_const', const=Tgrep.FIND_SMALL_SENTS),

@@ -120,6 +120,10 @@ def find_small_sents(*args, **kwargs):
     if deriv.leaf_count() > SmallSentenceThreshold: return iter([])
     else: return tgrep(*args, **kwargs)
 
+def find_top(*args, **kwargs):
+    expr = '%s ! > *' % args[1] # expression string is argument 2 to tgrep
+    return tgrep(args[0], expr, **kwargs)
+
 def matches(derivation, expression):
     return list(find_first(derivation, expression))
     
@@ -263,12 +267,13 @@ class Tgrep(TgrepCore):
             else:
                 print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
 
-    FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS = range(4)
+    FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS, FIND_TOP = range(5)
     find_functions = {
         FIND_FIRST: find_first,
         FIND_ALL:   find_all,
         FIND_SMALL: find_small,
-        FIND_SMALL_SENTS: find_small_sents
+        FIND_SMALL_SENTS: find_small_sents,
+        FIND_TOP:   find_top,
     }
     
     def get_show_function(self, callback_key):
