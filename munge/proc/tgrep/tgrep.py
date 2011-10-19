@@ -230,7 +230,7 @@ class Tgrep(TgrepCore):
         
     @staticmethod
     def show_tokens(match_node, bundle):
-        print ''.join(match_node.text())
+        print ' '.join(match_node.text())
         
     @staticmethod
     def show_label(match_node, bundle):
@@ -262,10 +262,10 @@ class Tgrep(TgrepCore):
         if node.is_leaf():
             print tag_and_lex(node)
         else:
-            if node.rch:
-                print "%s %s -> %s" % tuple(map(node_print, (node.lch, node.rch, node)))
+            if node.count() == 2 and node[1]:
+                print "%s %s -> %s" % tuple(map(node_print, (node[0], node[1], node)))
             else:
-                print "%s -> %s" % tuple(map(node_print, (node.lch, node)))
+                print "%s -> %s" % tuple(map(node_print, (node[0], node)))
 
     FIND_FIRST, FIND_ALL, FIND_SMALL, FIND_SMALL_SENTS, FIND_TOP = range(5)
     find_functions = {
