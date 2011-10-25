@@ -26,8 +26,8 @@ def is_np_n(cat):
     
 C = parse_category
 Exceptions = (
-    (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{%E}/N{%E}){%_}\(S[dcl]{%F}\NP{%E*}){%F}){%_}')),
-    (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{%E}/N{%E}){%_}\(S[dcl]{%F}/NP{%E*}){%F}){%_}')),
+    (C(r'(NP/NP)\(S[dcl]\NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}\NP{%E*}){%F}){%_}')),
+    (C(r'(NP/NP)\(S[dcl]/NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}/NP{%E*}){%F}){%_}')),
     (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/(S[dcl]{%E}\NP{%F*}){%E}){%_}')),
     # gapped long bei
     (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{%_}\NP{%F}){%_}/((S[dcl]{%E}\NP{%D}){%E}/NP{%F*}){%E}){%_}/NP{%D}){%_}')),
