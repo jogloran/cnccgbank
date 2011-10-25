@@ -26,20 +26,20 @@ def is_np_n(cat):
     
 C = parse_category
 Exceptions = (
-    (C(r'(NP/NP)\(S[dcl]\NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}\NP{%E*}){%F}){%_}')),
-    (C(r'(NP/NP)\(S[dcl]/NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}/NP{%E*}){%F}){%_}')),
-    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/(S[dcl]{%E}\NP{%F*}){%E}){%_}')),
+    (C(r'(NP/NP)\(S[dcl]\NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}\NP{%E}){%F}){%_}')),
+    (C(r'(NP/NP)\(S[dcl]/NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}/NP{%E}){%F}){%_}')),
+    (C(r'(S[dcl]\NP)/(S[dcl]\NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/(S[dcl]{%E}\NP{%F}){%E}){%_}')),
     # gapped long bei
-    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{%_}\NP{%F}){%_}/((S[dcl]{%E}\NP{%D}){%E}/NP{%F*}){%E}){%_}/NP{%D}){%_}')),
+    (C(r'((S[dcl]\NP)/((S[dcl]\NP)/NP))/NP'), C(r'(((S[dcl]{%_}\NP{%F}){%_}/((S[dcl]{%E}\NP{%D}){%E}/NP{%F}){%E}){%_}/NP{%D}){%_}')),
     # non-gapped long bei
-    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/NP'), C(r'(((S[dcl]{%_}\NP{%D}){%_}/(S[dcl]{%E}\NP{%F}){%E}){%_}/NP{%F*}){%_}')),
+    (C(r'((S[dcl]\NP)/(S[dcl]\NP))/NP'), C(r'(((S[dcl]{%_}\NP{%D}){%_}/(S[dcl]{%E}\NP{%F}){%E}){%_}/NP{%F}){%_}')),
     # gapped short bei
-    (C(r'(S[dcl]\NP)/((S[dcl]\NP)/NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/((S[dcl]{%D}\NP{%E}){%D}/NP{%F*}){%D}){%_}')),
+    (C(r'(S[dcl]\NP)/((S[dcl]\NP)/NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/((S[dcl]{%D}\NP{%E}){%D}/NP{%F}){%D}){%_}')),
     # non-gapped short bei
     # alias SB because of conflict with control/raising category
     (C(r'(S[dcl]\NP)/(S[dcl]\NP)~SB'), C(r'((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%W}\NP{%Z}){%W}){%_}~SB')),
     
-    (C(r'(S[dcl]\NP)/(S[dcl]/NP)'), C(r'((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%Z}/NP{%Y*}){%Z}){%_}')),
+    (C(r'(S[dcl]\NP)/(S[dcl]/NP)'), C(r'((S[dcl]{%_}\NP{%Y}){%_}/(S[dcl]{%Z}/NP{%Y}){%Z}){%_}')),
 
     # hacks
     # not a modifier category:
@@ -81,11 +81,11 @@ Exceptions = (
     (C(r'S[q]\S[dcl]'), C(r'(S[q]{%F}\S[dcl]{%F}){%_}')),
 
     # short bei for bei VPdcl/VPdcl (wo bei qiangzhi)
-    (C(r'(S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/(((S[dcl]{%E}\NP{%F}){%E}/(S[dcl]{%D}\NP{%F}){%D}){%E}/NP{%F*}){%E}){%_}')),
+    (C(r'(S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP)'), C(r'((S[dcl]{%_}\NP{%F}){%_}/(((S[dcl]{%E}\NP{%F}){%E}/(S[dcl]{%D}\NP{%F}){%D}){%E}/NP{%F}){%E}){%_}')),
 
     # long bei for bei NP VPdcl/VPdcl (wo bei ta qiangzhi)
     (C(r'((S[dcl]\NP)/(((S[dcl]\NP)/(S[dcl]\NP))/NP))/NP'),
-     C(r'(((S[dcl]{%_}\NP{%F}){%_}/(((S[dcl]{%C}\NP{%E}){%C}/(S[dcl]{%D}\NP{%F}){%D}){%C}/NP{%F}){%C}){%_}/NP{%E*}){%_}')),
+     C(r'(((S[dcl]{%_}\NP{%F}){%_}/(((S[dcl]{%C}\NP{%E}){%C}/(S[dcl]{%D}\NP{%F}){%D}){%C}/NP{%F}){%C}){%_}/NP{%E}){%_}')),
       #C(r'(((S[dcl]{%_}\NP{%F}){%_}/(((S[dcl]{%D}\NP{%E}){%D}/(S[dcl]{%C}\NP{%F}){%C}){%D}/NP{%F}){%D}){%_}/NP{%E}){%_}')),
     
     # VPdcl/VPdcl modifier category fix
@@ -94,7 +94,7 @@ Exceptions = (
     
     # gei category fix (NP gei NP NP VP e.g. tamen gei haizi jihui xuanze 10:53(34))
     (C(r'(((S[dcl]\NP)/(S[dcl]\NP))/NP)/NP'),
-     C(r'((((S[dcl]{%_}\NP{%C}){%_}/(S[dcl]{%D}\NP{%E}){%D}){%_}/NP{%F}){%_}/NP{%E*}){%_}')),
+     C(r'((((S[dcl]{%_}\NP{%C}){%_}/(S[dcl]{%D}\NP{%E}){%D}){%_}/NP{%F}){%_}/NP{%E}){%_}')),
 
     # this category is probably not correct
     (C(r'((S[dcl]\NP)/(S[dcl]\NP))/S[dcl]'),

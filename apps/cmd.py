@@ -180,8 +180,13 @@ class Shell(HistorySavingDefaultShell):
         if not self.pager_path:
             raise RuntimeError('No pager was given.')
 
+        if os.path.basename(self.pager_path) == 'less':
+            params = (self.pager_path, '-R', '-')
+        else:
+            params = (self.pager_path, '-')
+
         return subprocess.Popen(
-            (self.pager_path, '-'),
+            params,
             stdin=subprocess.PIPE,
             stdout=None, stderr=None,
             shell=False)
