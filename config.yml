@@ -4,7 +4,6 @@ modification_unary_rules: false
 only_np_topicalisation_valid: false
 restrictive_absorption: false
 curly_vars: false
-lcp_to_np_typechange: true
 vp_nongap_topicalisation: true
 
 debug_vars: false
@@ -23,5 +22,9 @@ hatted_cats: false
 highlight_head_arrows: true
 fail_on_unassigned_variables: false
 use_csc: true
-use_bare_N: false
 
+use_bare_N: false
+use_sb_alias: true
+lcp_to_np_typechange: true
+punct_cued_typechange: false
+merge_verb_compounds: false

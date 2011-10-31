@@ -18,5 +18,6 @@ def smash_key_case(d):
     return dict( (k.lower(), v) for (k, v) in d.iteritems() )
     
 def update(dict, **kwargs):
+    '''Chainable dict update.'''
     dict.update(**kwargs)
     return dict

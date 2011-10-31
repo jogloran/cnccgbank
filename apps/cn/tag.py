@@ -413,6 +413,7 @@ def is_argument_cluster(node):
 def is_trace(node):
     return node.count() == 1 and node[0].tag == "-NONE-"
 
+punct_cued_typechange = config.punct_cued_typechange
 def label(root):
     root = preprocess(root)
     
@@ -479,17 +480,17 @@ def label(root):
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
-
-            for i, kid in enumerate(node):
-                try:
-                    # exclude IP-SBJ PU VP from having the PU tagged :h (1:53(9))
-                    if (kid.tag.startswith('IP-') or kid.tag.startswith('CP-')) and \
-                       kid.tag.find('-TPC') == -1 and \
-                       kid.tag.find('-SBJ') == -1 and \
-                       node[i+1].tag == 'PU':
-                        tag(node[i+1], 'h')
+            if punct_cued_typechange:
+                for i, kid in enumerate(node):
+                    try:
+                        # exclude IP-SBJ PU VP from having the PU tagged :h (1:53(9))
+                        if (kid.tag.startswith('IP-') or kid.tag.startswith('CP-')) and \
+                           kid.tag.find('-TPC') == -1 and \
+                           kid.tag.find('-SBJ') == -1 and \
+                           node[i+1].tag == 'PU':
+                            tag(node[i+1], 'h')
                         
-                except: continue
+                    except: continue
                     
         elif node.count() == 1 and node.tag.startswith('VP') and is_verb_compound(node[0]):
             pass
