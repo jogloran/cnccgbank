@@ -1,4 +1,4 @@
-use_colour: false
+use_colour: true
 
 modification_unary_rules: false
 only_np_topicalisation_valid: false
