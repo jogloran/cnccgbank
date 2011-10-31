@@ -5,6 +5,9 @@ from apps.cn.fix_rc import is_rooted_in
 from munge.util.err_utils import debug
 
 from apps.cn.fix import Fix
+from munge.util.config import config
+
+use_sb_alias = config.use_sb_alias
 
 class FixAdverbs(Fix):
     def pattern(self):
@@ -80,7 +83,8 @@ class FixAdverbs(Fix):
         
     def fix(self, node):
         # Add ~SB alias
-        if str(node.category) == '(S[dcl]\\NP)/(S[dcl]\\NP)' and node.tag.startswith('SB'):
+        global use_sb_alias
+        if use_sb_alias and str(node.category) == '(S[dcl]\\NP)/(S[dcl]\\NP)' and node.tag.startswith('SB'):
             node.category.alias = "SB"
             
         self.do_fix(node)
