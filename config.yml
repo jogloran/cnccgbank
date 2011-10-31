@@ -26,5 +26,5 @@ use_csc: true
 use_bare_N: false
 use_sb_alias: true
 lcp_to_np_typechange: true
-punct_cued_typechange: false
-merge_verb_compounds: false
+punct_cued_typechange: true
+merge_verb_compounds: true
