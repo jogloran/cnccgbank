@@ -111,7 +111,6 @@ def label_right_adjunction(node):
     node.kids[0] = label(node[0])
     
     no_features = featureless(node.category)
-    #node[1].category = no_features | featureless(node[0].category)
     node[1].category = no_features | no_features
     node.kids[1] = label(node[1])
     
