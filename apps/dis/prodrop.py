@@ -24,3 +24,12 @@ class ProdropCheck(Tabulation('verbs'), Filter):
             if head not in heads:
                 self.verbs[' '.join(head.text())] += 1
                 heads.add(head)
+                
+class AllVerbsCheck(Tabulation('verbs'), Filter):
+    def __init__(self):
+        super(AllVerbsCheck, self).__init__() 
+        
+    def accept_derivation(self, bundle):
+        top = bundle.derivation
+        for node, ctx in find_all(top, r'/V[VACE]/', with_context=True):
+            self.verbs[' '.join(node.text())] += 1
