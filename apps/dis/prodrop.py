@@ -17,9 +17,12 @@ class ProdropCheck(Filter):
         
     def accept_derivation(self, bundle):
         top = bundle.derivation
+        heads = set()
         for node, ctx in find_all(top, r'* $ { * < ^/\*pro\*/ }', with_context=True):
             head = find_head(node)
-            self.verbs[' '.join(head.text())] += 1
+            if head not in heads:
+                self.verbs[' '.join(head.text())] += 1
+                heads.add(head)
             
     def output(self):
         for k, freq in sorted(self.verbs.iteritems(), key=lambda e: e[1], reverse=True):
