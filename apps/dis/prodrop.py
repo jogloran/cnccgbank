@@ -10,10 +10,11 @@ def find_head(node):
         cur = cur[ cur.head_index ]
     return cur
 
-class ProdropCheck(Filter):
+from apps.util.tabulation import Tabulation
+# order of superclasses is important
+class ProdropCheck(Tabulation('verbs'), Filter):
     def __init__(self):
-        Filter.__init__(self)
-        self.verbs = defaultdict(int)
+        super(ProdropCheck, self).__init__()
         
     def accept_derivation(self, bundle):
         top = bundle.derivation
@@ -23,7 +24,12 @@ class ProdropCheck(Filter):
             if head not in heads:
                 self.verbs[' '.join(head.text())] += 1
                 heads.add(head)
-            
-    def output(self):
-        for k, freq in sorted(self.verbs.iteritems(), key=lambda e: e[1], reverse=True):
-            print '% 3d | %s' % (freq, k)
+                
+class AllVerbsCheck(Tabulation('verbs'), Filter):
+    def __init__(self):
+        super(AllVerbsCheck, self).__init__() 
+        
+    def accept_derivation(self, bundle):
+        top = bundle.derivation
+        for node, ctx in find_all(top, r'/V[VACE]/', with_context=True):
+            self.verbs[' '.join(node.text())] += 1
