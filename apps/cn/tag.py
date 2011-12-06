@@ -191,12 +191,17 @@ def postprocess(root):
             
     return root
     
+rewrite_lcp_as_np = config.rewrite_lcp_as_np
+    
 def preprocess(root):
     # IP < PP PU -> PP < PP PU (20:58(1))
     if root.count() == 2 and root[1].tag == 'PU' and root[0].tag.startswith('PP'): root.tag = root[0].tag
     
     for node in nodes(root):
         if node.is_leaf(): continue
+        
+        if rewrite_lcp_as_np and node.tag.startswith('LCP'):
+            node.tag = node.tag.replace('LCP', 'NP')
                 
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
