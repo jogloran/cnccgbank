@@ -480,6 +480,8 @@ def label(node, inside_np=False):
             node.__repr__(suppress_lex=True))
         return label_adjunction(node)
 
+rewrite_lcp_as_np = config.rewrite_lcp_as_np
+
 def label_root(root):
     root.category = ptb_to_cat(root, is_root=True)
     
@@ -498,6 +500,8 @@ def label_root(root):
             # Avoid generating LCP\S[dcl] and LCP\(S[dcl]\NP) categories (annotation seems to be inconsistent 6:31(4), 4:50(4))
             if node.tag.startswith('IP') and node.parent.tag.startswith('LCP'): continue
             if node.tag.startswith('IP') and node.parent.tag.startswith('PP'): continue
+            if rewrite_lcp_as_np and node.tag.startswith('IP') and node.parent.tag.startswith('NP'): continue
+            
             # However, if we have IP(*PRO* VP) at the root, treat as pro-drop to eliminate S\NP as a root category
             
             old_tag = node.tag
