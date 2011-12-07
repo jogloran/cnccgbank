@@ -114,16 +114,11 @@ def allows_application(mode_index):
 application combinatory rules.'''
     return mode_index in (APPLY, COMP, ALL)
 
-def is_application(appl, arg, result, examine_modes=False, examine_features=True):
+def is_application(appl, arg, result, examine_modes=False):
     '''Returns whether [appl arg -> result] is an instance of one of the
 two application combinatory rules.'''
-    if (examine_modes and allows_application(appl.mode)): return False
-    
-    if examine_features:
-        return appl.right.equal_respecting_features(arg) and \
-               appl.left.equal_respecting_features(result)
-    else:
-        return appl.right == arg and appl.left == result
+    return ((not examine_modes) or allows_application(appl.mode)) and \
+            appl.right == arg and appl.left == result 
 
 def try_application(l, r, cur, examine_modes=False):
     '''Determines if [l r -> cur] matches any application rules. If _examine_modes_ is
@@ -144,9 +139,7 @@ def is_composition(l, r, result, examine_modes=False):
     '''Returns whether [appl arg -> result] is an instance of one of 
 the four composition combinatory rules.'''
     return ((not examine_modes) or (allows_composition(l.mode) and allows_composition(r.mode))) and \
-            l.right.equal_respecting_features(r.left) and \
-            l.left.equal_respecting_features(result.left) and \
-            r.right.equal_respecting_features(result.right)
+            l.right == r.left and l.left == result.left and r.right == result.right
 
 def try_composition(l, r, cur, examine_modes=False):
     '''Determines if [l r -> cur] matches any composition rules. If _examine_modes_ is

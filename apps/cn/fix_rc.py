@@ -103,8 +103,6 @@ class FixExtraction(Fix):
             (r'''^/\*T\*/ > { /[NPQ]P(?:-%(tags)s)?(?!-\d+)/=K 
                          >> { /[ICV]P/ $ {/WH[NP]P(-\d+)?/ > { /CP/=PRED > *=N } } } }'''
                          % { 'tags': ModifierTagsRegex }, self.fix_nongap_extraction),
-                         
-            (r'/AS/', self.apply_finite),
 
            # (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
@@ -127,37 +125,6 @@ class FixExtraction(Fix):
 
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
-        
-    def percolate_from(self, node):
-        cur = node
-        if cur.is_leaf(): cur = cur.parent
-        
-        while cur is not None:
-            L, R, P = cur[0].category, cur[1].category if cur.count() > 1 else None, cur.category
-
-            debug('cur: %s', cur.category)
-            debug('L: %s R: %s P: %s', L, R, P)
-            
-            if L.is_complex() and L.right == R: # X/Y Y
-                cur.category = L.left
-                cur.category = fake_unify(L, R, cur.category)
-            elif R.is_complex() and R.right == L: # Y X\Y
-                cur.category = R.left
-                cur.category = fake_unify(L, R, cur.category)
-            elif L.is_complex() and R.is_complex() and L.left == R.right: # Y/Z X\Y -> X/Z
-                cur.category = cur.category.clone_with(left=R.left)
-                cur.category = fake_unify(L, R, cur.category)
-            elif P == L and R == C('.'): # X . -> X
-                cur.category = L
-                
-            debug('>cur: %s', cur.category)
-                
-            cur = cur.parent
-        
-    def apply_finite(self, AS):
-        warn('apply_finite')
-        AS.category = C(r'(S[fin]\NP)\(S[dcl]\NP)')
-        self.percolate_from(AS)
         
     def fix_lb(self, _, top, vp, pred, s, bei, beis):
         replace_kid(s, vp, pred)
@@ -319,11 +286,10 @@ any modifier category seeking a verbal category is a relativiser category.'''
             
     is_verbal_category = staticmethod(lambda cat: is_rooted_in(Sdcl, cat, respecting_features=True))
 
-    @classmethod
-    def fix_categories_starting_from(C, node, until=None):
+    def fix_categories_starting_from(self, node, until):
         '''Adjusts category labels from _node_ to _until_ (not inclusive) to obtain the correct
 CCG analysis.'''
-        while (node.parent is not None) and (node is not until):
+        while node is not until:
             # Only fix binary rules
             if (not node.parent) or node.parent.count() < 2: break
 
@@ -348,7 +314,7 @@ CCG analysis.'''
 
                     new_parent_category = fcomp(new_category, R)
                     if new_parent_category:
-                        debug("1 new parent category: %s", new_parent_category)
+                        debug("new parent category: %s", new_parent_category)
                         p.category = new_parent_category
 
                     debug("New category: %s", new_category)
@@ -362,7 +328,7 @@ CCG analysis.'''
 
                     new_parent_category = bxcomp(L, new_category)
                     if new_parent_category:
-                        debug("2 new parent category: %s", new_parent_category)
+                        debug("new parent category: %s", new_parent_category)
                         p.category = new_parent_category
 
                     debug("New category: %s", new_category)
@@ -389,7 +355,7 @@ CCG analysis.'''
                     if P.has_feature('conj') and l.tag in ('PU', 'CC'): # treat as partial coordination
                         debug("Fixing coordination: %s" % P)
                         p.category = r.category.clone_adding_feature('conj')
-                        debug("3 new parent category: %s" % p.category)
+                        debug("new parent category: %s" % p.category)
                         
                     # , R -> P becomes , R -> R
                     elif l.tag == "PU" and not P.has_feature('conj'): # treat as absorption
@@ -405,7 +371,7 @@ CCG analysis.'''
 
                         new_parent_category = fcomp(new_category, R)
                         if new_parent_category:
-                            debug("4 new parent category: %s", new_parent_category)
+                            debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
 
                         debug("New category: %s", new_category)
@@ -425,7 +391,7 @@ CCG analysis.'''
 
                         new_parent_category = bxcomp(L, new_category)
                         if new_parent_category:
-                            debug("5 new parent category: %s", new_parent_category)
+                            debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
 
                         debug("New category: %s", new_category)
@@ -436,7 +402,7 @@ CCG analysis.'''
                     # try typeraising fix
                     # T/(T/X) (T\A)/X -> T can be fixed:
                     # (T\A)/((T\A)/X) (T\A)/X -> T\A
-                    if C.is_topicalisation(L) and (
+                    if self.is_topicalisation(L) and (
                         L.right.right == R.right and
                         P == L.left and P == R.left.left):
                         T_A = R.left
@@ -455,31 +421,31 @@ CCG analysis.'''
                         debug("bxcomp(%s, %s)", L, new_category)
                         new_parent_category = bxcomp(L, new_category)
                         if new_parent_category:
-                            debug("5 new parent category: %s", new_parent_category)
+                            debug("new parent category: %s", new_parent_category)
                             p.category = new_parent_category
 
                         debug("New category: %s", new_category)
                                             
                     # Generalise over right modifiers of verbal categories (S[dcl]\X)$
-                    # elif C.is_verbal_category(L) and L.is_complex() and L.left.is_complex():
-                    #     T = L.left.right
-                    #     new_category = typeraise(R, T, TR_BACKWARD)
-                    #     debug('Trying out %s', new_category)
-                    #     
-                    #     if bxcomp(L, new_category):
-                    #         node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
-                    #         new_parent_category = bxcomp(L, new_category)
+                    elif self.is_verbal_category(L) and L.is_complex() and L.left.is_complex():
+                        T = L.left.right
+                        new_category = typeraise(R, T, TR_BACKWARD)
+                        debug('Trying out %s', new_category)
+                        
+                        if bxcomp(L, new_category):
+                            node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
+                            new_parent_category = bxcomp(L, new_category)
 
                     # Last ditch: try all of the composition rules to generalise over L R -> P
                     if not new_parent_category:
                         # having fxcomp creates bad categories in NP(IP DEC) construction (1:97(3))
                         # but, we need fxcomp to create the gap NP-TPC NP-SBJ(*T*) VP, so allow it when the rhs doesn't look like the DEC category
-                        new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not C.is_relativiser(R)) 
-                                            or bxcomp(L, R, when=not C.is_relativiser(R)) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
-                                            or fxcomp(L, R, when=not C.is_relativiser(R)))
+                        new_parent_category = (fcomp(L, R) or bcomp(L, R, when=not self.is_relativiser(R)) 
+                                            or bxcomp(L, R, when=not self.is_relativiser(R)) #or bxcomp2(L, R, when=self.is_verbal_category(L)) 
+                                            or fxcomp(L, R, when=not self.is_relativiser(R)))
 
                     if new_parent_category:
-                        debug("7 new parent category: %s", new_parent_category)
+                        debug("new parent category: %s", new_parent_category)
                         p.category = new_parent_category
                     else:
                         debug("couldn't fix, skipping")

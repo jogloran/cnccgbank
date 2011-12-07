@@ -113,8 +113,6 @@ def bcomp(l, r):
         
     return fake_unify(r, l, r.left | l.right)
 
-from apps.util.echo import echo
-@echo
 @predicated
 def bxcomp(l, r):
     # Y/Z X\Y -> X/Z
@@ -123,7 +121,6 @@ def bxcomp(l, r):
         l.direction != FORWARD or l.direction == r.direction): return None
 
     return fake_unify(r, l, r.left / l.right)
-    # return r.left/l.right
     
 @predicated
 def bxcomp2(l, r):
