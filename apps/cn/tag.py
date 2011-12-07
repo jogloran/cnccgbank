@@ -395,7 +395,7 @@ def preprocess(root):
                 _, ctx = result
                 p = ctx.p
                 
-                if p.count() <= 3: break
+                if p.count() <= 3: continue
                 
                 cd_cc_cd, rest = p.kids[0:3], p.kids[3:]
                 del p.kids[0:3]
