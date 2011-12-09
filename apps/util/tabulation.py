@@ -2,6 +2,7 @@ from collections import defaultdict
 import math
 
 def decimal_length(n):
+    '''Returns the length of _n_ in decimal digits. Undefined for n<0.'''
     return math.floor(math.log10(n) + 1)
 
 def Tabulation(table_var):

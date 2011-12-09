@@ -9,16 +9,15 @@ from munge.util.config import config
 
 use_sb_alias = config.use_sb_alias
 
+def is_modifier_category(cat):
+    return cat.is_complex() and cat.left == cat.right
+
 class FixAdverbs(Fix):
     def pattern(self):
         return leaves
     
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
-        
-    @staticmethod
-    def is_modifier_category(cat):
-        return cat.is_complex() and cat.left == cat.right
     
     @staticmethod
     def is_bxcomp_candidate(L, R, P):
@@ -70,7 +69,7 @@ class FixAdverbs(Fix):
             L, R, P = (n.category for n in (l, r, p))
             
             if (not p.tag.startswith('VSB') and
-                C.is_modifier_category(R) and
+                is_modifier_category(R) and
                 L.is_complex() and
                 r is node):
                 
