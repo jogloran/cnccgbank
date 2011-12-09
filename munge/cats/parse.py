@@ -1,7 +1,7 @@
 from itertools import *
 
 from munge.lex.lex import preserving_split
-from munge.cats.nodes import BACKWARD, FORWARD, AtomicCategory, ComplexCategory, ALL
+from munge.cats.nodes import BACKWARD, FORWARD, BAR, AtomicCategory, ComplexCategory, ALL
 from munge.util.parse_utils import *
 from munge.util.exceptions import CatParseException
 
@@ -15,7 +15,7 @@ def parse_category(cat_string):
 tokens remain.'''
     # Return each mode symbol as a token too when encountered.
     # Important: avoid using mode symbols in atomic category labels.
-    toks = preserving_split(cat_string, "(\\/)[]")# + ComplexCategory.mode_symbols)
+    toks = preserving_split(cat_string, "(\\/|)[]")# + ComplexCategory.mode_symbols)
 
     result = parse_compound(toks)
     ensure_stream_exhausted(toks, 'cats.parse_category')
@@ -39,11 +39,13 @@ def parse_direction(toks):
         return FORWARD
     elif slash == '\\':
         return BACKWARD
+    elif slash == '|':
+        return BAR
     else:
         raise CatParseException, "Expected a slash direction (\\, /)."
 
 def is_direction(char):
-    return char in ('/', '\\')
+    return char in ('/', '\\', '|')
 
 def parse_feature(toks):
     return with_squares(lambda toks: toks.next(), toks)
