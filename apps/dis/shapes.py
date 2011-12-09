@@ -19,8 +19,12 @@ def categorise_category(cat):
 class Shapes(Tabulation('shapes'), Filter):
     def __init__(self):
         super(Shapes, self).__init__()
+        self.lexicon = set()
         
     def accept_leaf(self, leaf):
-        kategory = categorise_category(leaf.cat)
-        if kategory == '?': print leaf.cat
-        self.shapes[ kategory ] += 1
+        if leaf.cat not in self.lexicon:
+            kategory = categorise_category(leaf.cat)
+            if kategory == '?': print leaf.cat
+            self.shapes[ kategory ] += 1
+            
+            self.lexicon.add(leaf.cat)
