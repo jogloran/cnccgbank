@@ -80,8 +80,13 @@ def register_builtin_switches(parser):
     '''Registers the command-line switches which are always available as an option group.'''
     group = OptionGroup(parser, title='Built-in operations')
 
+    # This option is 'fake' in that filter_library_switches() ensures that optparser never sees
+    # switches beginning with -l: we filter them out early so that we can pass TraceCore a list
+    # of all filters to load (which in turn is used by optparser to populate its list of available filters)
     group.add_option("-l", "--load-package", help="Makes available all filters from the given package.",
                       action='append', dest='packages', metavar="PKG")
+    group.add_option("-I", "--load-path", help="Makes available all filters under the given path.",
+                      action='append', dest='autoload_paths', metavar="PKG")
     group.add_option("-L", "--list-filters", help="Lists all loaded filters.",
                       action='store_true', dest='do_list_filters')
     group.add_option("-r", "--run", help="Runs a filter.", type='string', nargs=1,
