@@ -1,7 +1,6 @@
 # Find the most common verbs for which pro-drop applies
 
 from munge.proc.filter import Filter
-from collections import defaultdict
 from munge.proc.tgrep.tgrep import tgrep, find_first, find_all
 
 def find_head(node):
