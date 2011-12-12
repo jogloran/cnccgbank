@@ -180,7 +180,6 @@ def main(argv):
     # Done with parser
     parser.destroy()
     
-    print config.config
     if opts.debug:
         config.set(debug=True)
             
