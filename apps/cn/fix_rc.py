@@ -418,7 +418,6 @@ CCG analysis.'''
                         new_category = typeraise(R, R, TR_BACKWARD, strip_features=False)#T/(T|L)
                         node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
 
-                        debug("bxcomp(%s, %s)", L, new_category)
                         new_parent_category = bxcomp(L, new_category)
                         if new_parent_category:
                             debug("new parent category: %s", new_parent_category)
