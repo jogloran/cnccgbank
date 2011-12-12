@@ -22,9 +22,9 @@ class Shapes(Tabulation('shapes'), Filter):
         self.lexicon = set()
         
     def accept_leaf(self, leaf):
-        if leaf.cat not in self.lexicon:
+        if str(leaf.cat) not in self.lexicon:
             kategory = categorise_category(leaf.cat)
-            if kategory == '?': print leaf.cat
+            #if kategory == '?': print leaf.cat
             self.shapes[ kategory ] += 1
             
-            self.lexicon.add(leaf.cat)
+            self.lexicon.add(str(leaf.cat))
