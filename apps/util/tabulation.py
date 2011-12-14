@@ -12,6 +12,10 @@ def Tabulation(table_var, reducer=lambda e:e, value_maker=int, limit=None):
             self.reducer = reducer
         
         def output(self):
+            self.do_output(self, reducer=reducer, limit=limit)
+                
+        @staticmethod
+        def do_output(self, reducer, limit):
             table = getattr(self, table_var)
             max_freq_length = decimal_length(reducer(max(table.values(), key=reducer)))
                 
