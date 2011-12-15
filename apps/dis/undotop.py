@@ -5,10 +5,14 @@ from apps.cn.fix_rc import get_trace_index_from_tag
 from munge.proc.tgrep.tgrep import find_all
 from munge.trees.traverse import leaves
 
+import re
+
+index_re = re.compile(r'\*T\*-(\d+)$')
 def find_coindexed_trace(parent, trace_node):
     index = get_trace_index_from_tag(trace_node.tag)
     for kid in leaves(parent):
-        if kid.lex.startswith('*T*') and (kid.lex.find(index) != -1): 
+        match = index_re.match(kid.lex)
+        if match and match.group(1) == index[1:]:
             return kid
     return None
     
