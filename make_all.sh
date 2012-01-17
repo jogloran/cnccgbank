@@ -53,8 +53,12 @@ apply "$corpus_dir" "filtered$dir_suffix" \
     apps.cn.clean Clean clean_errors \
     "Filtering derivations..."
 
+apply "filtered$dir_suffix" "undone$dir_suffix" \
+    apps.dis.undotop UndoTop undo_errors \
+    "Undoing gapped topicalisation..."
+
 # 1. Tag
-apply "filtered$dir_suffix" "tagged$dir_suffix" \
+apply "undone$dir_suffix" "tagged$dir_suffix" \
     apps.cn.tag TagStructures tag_errors \
     "Tagging derivations..."
 
