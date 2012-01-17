@@ -62,7 +62,9 @@ class CountPCTBRelatives(Filter):
                     self.rcderivs += 1
                     found_rc = True
 
-                self.parents[ trace_node.parent.tag ] += 1
+                parent_type = trace_node.parent.tag
+                parent_type = re.sub(r'-\d+$', '', parent_type)
+                self.parents[ parent_type ] += 1
         
         self.total += 1
         
