@@ -36,7 +36,7 @@ class CountPCTBRelatives(Filter):
     def accept_derivation(self, bundle):
         root = bundle.derivation
         for node, ctx in tgrep(root, r'/CP/ < { /CP/=CP < /DEC/ } < /WHNP/=WHNP', with_context=True):
-            trace_finder = r"/NP/ & ^/\*T\*-%s/" % extract_index(ctx.whnp)
+            trace_finder = r"^/\*T\*-%s/" % extract_index(ctx.whnp)
             if find_first(ctx.cp, trace_finder) is not None:
                 self.rcderivs += 1
                 break
