@@ -18,6 +18,9 @@ class Clean(Filter, OutputPrefacedPTBDerivation):
     # def accept_derivation(self, bundle):
     #     if self.accept(bundle.derivation):
     #         self.write_derivation(bundle)
+    #def accept(self, root):
+    #    return any(leaf.lex == '*pro*' for leaf in leaves(root))
+    def accept(self, root): return True
 
     MergedTags = { 'VCD', 'VNV', 'VPT' }
     def accept_derivation(self, bundle):
@@ -26,7 +29,8 @@ class Clean(Filter, OutputPrefacedPTBDerivation):
             for node in nodes(bundle.derivation):
                 if node.tag in self.MergedTags:
                     replace_kid(node.parent, node, Leaf(node.tag, ''.join(kid.lex for kid in leaves(node)), node.parent))
-        self.write_derivation(bundle)
+        if self.accept(bundle.derivation):
+            self.write_derivation(bundle)
             
     long_opt = 'clean'
     arg_names = 'OUTDIR'
