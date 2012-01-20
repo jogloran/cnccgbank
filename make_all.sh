@@ -6,12 +6,14 @@ config_file_arg=
 corpus_dir=corpora/cptb/bracketed
 dir_suffix=
 config_file=config.yml
-while getopts 'c:s:C:h' OPTION
+undo_topicalisation=false
+while getopts 'c:s:C:hT' OPTION
 do
     case $OPTION in
         C) config_file_arg="-C $OPTARG" ; config_file="$OPTARG" ;;
         c) corpus_dir_arg="-c $OPTARG" ; corpus_dir="$OPTARG" ;;
         s) dir_suffix_arg="-s $OPTARG" ; dir_suffix="$OPTARG" ;;
+        T) undo_topicalisation=true ;;
         h) echo "$0 [-c corpus_dir] [-s work_dir_suffix] [-C config_file] [SEC|all]"
            exit 1 ;;
     esac
@@ -53,9 +55,11 @@ apply "$corpus_dir" "filtered$dir_suffix" \
     apps.cn.clean Clean clean_errors \
     "Filtering derivations..."
 
-apply "filtered$dir_suffix" "undone$dir_suffix" \
-    apps.dis.undotop UndoTop undo_errors \
-    "Undoing gapped topicalisation..."
+if $undo_topicalisation; then
+    apply "filtered$dir_suffix" "undone$dir_suffix" \
+        apps.dis.undotop UndoTop undo_errors \
+        "Undoing gapped topicalisation..."
+fi
 
 # 1. Tag
 apply "undone$dir_suffix" "tagged$dir_suffix" \
