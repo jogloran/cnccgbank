@@ -43,17 +43,25 @@ class Node(object):
         return (text_without_traces if with_quotes else text_without_quotes_or_traces)(self)
 
     def __getitem__(self, index):
-        n = len(self.kids)
-        if not (-n <= index < n): 
-            raise RuntimeError("Invalid index %d into Node %s." % (index, self))
-        return self.kids[index]
+        try:
+            n = len(self.kids)
+            if not (-n <= index < n): 
+                raise RuntimeError("Invalid index %d into Node %s." % (index, self))
+            return self.kids[index]
+        except TypeError:
+            return self.kids[index.start:index.stop]
             
     def __setitem__(self, index, value):
-        n = len(self.kids)
-        if not (-n <= index < n): 
-            raise RuntimeError("Invalid index %d into Node %s." % (index, self))
-        self.kids[index] = value
-        value.parent = self
+        try:
+            n = len(self.kids)
+            if not (-n <= index < n): 
+                raise RuntimeError("Invalid index %d into Node %s." % (index, self))
+            self.kids[index] = value
+            value.parent = self
+        except TypeError:
+            self.kids[index.start:index.stop] = value
+            for node in value:
+                value.parent = self
                 
     def __delitem__(self, index):
         self.kids.__delitem__(index)
