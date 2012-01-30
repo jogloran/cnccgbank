@@ -4,10 +4,10 @@ from munge.util.tgrep_utils import get_first
 
 class NLDFinder(Filter, OutputPrefacedPTBDerivation):
     Patterns = [
-        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < { /CP/ < { /IP/ << { /NP-OBJ/ < "-NONE-" } } < /DEC/ }', 'objex'),
-        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < { /CP/ < { /IP/ << { /NP-SBJ/ < "-NONE-" } } < /DEC/ }', 'subjex'),
-        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < {          /IP/ << { /NP-OBJ/ < "-NONE-" } }', 'objex_null'),
-        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < {          /IP/ << { /NP-SBJ/ < "-NONE-" } }', 'subjex_null'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < { /CP/ < { /IP/ << { /NP-OBJ/ < "-NONE-" $ /V/=V } } < /DEC/ }', 'objex'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < { /CP/ < { /IP/ << { /NP-SBJ/ < "-NONE-" $ /V/=V } } < /DEC/ }', 'subjex'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < {          /IP/ << { /NP-OBJ/ < "-NONE-" $ /V/=V } }', 'objex_null'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < {          /IP/ << { /NP-SBJ/ < "-NONE-" $ /V/=V } }', 'subjex_null'),
         (r'/IP/ < /-TPC-\d+/a << { "-NONE-" & ^/\*T\*-\d+/ }', 'gaptop'),
         (r'/LB/ $ { /IP/ << { "-NONE-" & ^/\*-\d+/ } }', 'lb_gap'),
         (r'/LB/ $ /IP/', 'lb_nongap'),
