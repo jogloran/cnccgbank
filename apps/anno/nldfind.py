@@ -1,0 +1,29 @@
+from munge.proc.filter import Filter
+from apps.cn.output import *
+from munge.util.tgrep_utils import get_first
+
+class NLDFinder(Filter, OutputPrefacedPTBDerivation):
+    Patterns = [
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < { /CP/ < { /IP/ << { /NP-OBJ/ < "-NONE-" } } < /DEC/ }', 'objex'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < { /CP/ < { /IP/ << { /NP-SBJ/ < "-NONE-" } } < /DEC/ }', 'subjex'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < {          /IP/ << { /NP-OBJ/ < "-NONE-" } }', 'objex_null'),
+        (r'/CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/ } } < {          /IP/ << { /NP-SBJ/ < "-NONE-" } }', 'subjex_null'),
+        (r'/IP/ < /-TPC-\d+/a << { "-NONE-" & ^/\*T\*-\d+/ }', 'gaptop'),
+        (r'/LB/ $ { /IP/ << { "-NONE-" & ^/\*-\d+/ } }', 'lb_gap'),
+        (r'/LB/ $ /IP/', 'lb_nongap'),
+        (r'/SB/ $ { /IP/ << { "-NONE-" & ^/\*-\d+/ } }', 'sb_gap'),
+        (r'/SB/ $ /VP/', 'sb_nongap'),
+    ]
+    def matches(self, pattern, node):
+        match = get_first(node, pattern)
+        return match is not None
+        
+    def accept_derivation(self, bundle):
+        root = bundle.derivation
+        for (pattern, nldtype) in self.Patterns:
+            if self.matches(pattern, root):
+                self.write_derivation(bundle, subdir=nldtype)
+                
+    def __init__(self, outdir):
+        Filter.__init__(self)
+        OutputPrefacedPTBDerivation.__init__(self, outdir)
