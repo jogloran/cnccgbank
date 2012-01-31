@@ -150,6 +150,17 @@ class NLDFinder(Filter):
                 
             elif response == 's':
                 return None
+                
+            elif response == '?':
+                for command, meaning in {
+                    'u': 'Ascend to parent',
+                    'd N': 'Descend to child N (0-indexed)',
+                    'l': 'Show derivation label and text',
+                    's': 'Skip',
+                    '?': 'This text',
+                    '^C': 'Quit'
+                }.iteritems():
+                    print '% 5s | %s' % (command, meaning)
 
             else:
                 try:
@@ -157,8 +168,6 @@ class NLDFinder(Filter):
                     return head, arg
                 except ValueError:
                     print 'not an index'
-    
-    # what do we do with the output?
     
     def handle_match(self, pattern, node, bundle, nld_type, pprint_node_repr):
         pprint = pprint_with(pprint_node_repr)
