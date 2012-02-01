@@ -31,7 +31,7 @@ focus: a node, under which a highlighting colour is applied
 focused: whether a highlighting colour is being applied
 '''
         out = []
-        
+
         if bracket_outermost and level == 0:
             out.append(open)
         else: 
