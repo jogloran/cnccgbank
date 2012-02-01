@@ -10,18 +10,22 @@ from munge.trees.traverse import leaves
 from munge.trees.pprint import pprint_with
 from munge.util.colour_utils import bold, codes
 
-'''
-if (self.resumer.current_index_for(nld_type, bundle.label()) < match_index) and \
-   (not self.resumer.was_skipped(nld_type, match_index, bundle.label())): 
-   continue
+# what can we do with the annotator output?
+# * run the sentence through the process and make sure the dependency still holds
+# * convert into PARG and evaluate only over nlds of particular types
 
-indices = self.get_dep(match, ctx, nld_type=nld_type, pprint=pprint)
-if indices is not None:
-    head_index, arg_index = indices
-    print >>self.anno, self.Template % (bundle.label(), head_index, arg_index, nld_type)
-else:
-    self.resumer.add_skipped(bundle.label(), nld_type, match_index)
-    '''
+class Annotator(object):
+    Template = "%s %s %s %s"
+    def __init__(self, anno_fn):
+        self.fn = anno_fn
+        self.file = file(self.fn, 'a')
+    
+    def add_annotation(self, head_index, arg_index, nld_type, label):
+        print >>self.file, self.Template % (label, head_index, arg_index, nld_type)
+        
+    def save_state(self):
+        self.file.flush()
+
 class Resumer(object):
     def __init__(self, resumer_fn):
         self.fn   = resumer_fn
@@ -77,10 +81,12 @@ class NLDFinder(Filter):
     # F = filler
     # T = trace
     # V = verb
+    # MAKE SURE TO UNCONDITIONALLY BIND THE NAME 'V' TO A NODE IN THE EXPRESSION
         (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } < /DEC/ } }', 'objex'),
         (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } < /DEC/ } }', 'subjex'),
         (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } }', 'objex_null'),
         (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } }', 'subjex_null'),
+        # (r'/NP/=V', 'np'),
         # (r'/IP/ < /-TPC-\d+/a=F << { * < { "-NONE-" & ^/\*T\*-\d+/=T } $ /V/=V }', 'gaptop'),
         # (r'/LB/ $ { /IP/ << { "-NONE-" & ^/\*-\d+/=T } }', 'lb_gap'),
         # (r'/LB/ $ /IP/', 'lb_nongap'),
@@ -144,6 +150,17 @@ class NLDFinder(Filter):
                 
             elif response == 's':
                 return None
+                
+            elif response == '?':
+                for command, meaning in {
+                    'u': 'Ascend to parent',
+                    'd N': 'Descend to child N (0-indexed)',
+                    'l': 'Show derivation label and text',
+                    's': 'Skip',
+                    '?': 'This text',
+                    '^C': 'Quit'
+                }.iteritems():
+                    print '% 5s | %s' % (command, meaning)
 
             else:
                 try:
@@ -151,10 +168,6 @@ class NLDFinder(Filter):
                     return head, arg
                 except ValueError:
                     print 'not an index'
-    
-    Template = "%s %s %s %s"
-    ResumerTemplate = "%s %s %s"
-    # what do we do with the output?
     
     def handle_match(self, pattern, node, bundle, nld_type, pprint_node_repr):
         pprint = pprint_with(pprint_node_repr)
@@ -168,7 +181,7 @@ class NLDFinder(Filter):
         for match_index, (match, ctx) in enumerate(find_all(node, pattern, with_context=True)):
             was_skipped = self.resumer.was_skipped(nld_type, match_index, bundle.label())
             current_index = self.resumer.current_index_for(nld_type, bundle.label())
-            #                                               0         <= 0
+
             already_annotated = current_index != -1 and current_index <= match_index
             
             if already_annotated and not was_skipped:
@@ -177,7 +190,7 @@ class NLDFinder(Filter):
             indices = self.get_dep(match, ctx, nld_type=nld_type, pprint=pprint, bundle=bundle)
             if indices is not None:
                 head_index, arg_index = indices
-                print >>self.anno, self.Template % (bundle.label(), head_index, arg_index, nld_type)
+                self.anno.add_annotation(head_index, arg_index, nld_type, bundle.label())
                 
                 if was_skipped:
                     self.resumer.remove_skipped(nld_type, match_index, bundle.label())
@@ -204,9 +217,10 @@ class NLDFinder(Filter):
         except Exception, e:
             traceback.print_exc()
         finally:
+            self.anno.save_state()
             self.resumer.save_state()
             
     def __init__(self, anno_fn, resumer_fn):
         Filter.__init__(self)
-        self.anno = file(anno_fn, 'w')
+        self.anno = Annotator(anno_fn)
         self.resumer = Resumer(resumer_fn)
