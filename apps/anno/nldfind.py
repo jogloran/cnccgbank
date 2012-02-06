@@ -118,7 +118,7 @@ class NLDFinder(Filter):
 
         while True:
             print pprint(node, focus=ctx.v)
-            print '(head index, arg index) for head phrase %s' % self.one_node(ctx.v)
+            print '(head index arg index) for head phrase %s' % self.one_node(ctx.v)
             print 'head-arg relation: %s' % nld_type
             print '>',
             response = raw_input().rstrip()
@@ -157,15 +157,23 @@ class NLDFinder(Filter):
                     'd N': 'Descend to child N (0-indexed)',
                     'l': 'Show derivation label and text',
                     's': 'Skip',
+                    'n': 'Mark as unfilled dependency',
                     '?': 'This text',
                     '^C': 'Quit'
                 }.iteritems():
                     print '% 5s | %s' % (command, meaning)
 
+            elif response == 'n':
+                return []
+
+            elif response == 'w':
+                print pprint(bundle.derivation, focus=match)
+
             else:
                 try:
-                    head, arg = map(int, response.split(' ', 2))
-                    return head, arg
+                    bits = response.split(',')
+                    return [ map(int, bit.split(' ', 2)) for bit in bits ]
+
                 except ValueError:
                     print 'not an index'
     
@@ -189,8 +197,9 @@ class NLDFinder(Filter):
             
             indices = self.get_dep(match, ctx, nld_type=nld_type, pprint=pprint, bundle=bundle)
             if indices is not None:
-                head_index, arg_index = indices
-                self.anno.add_annotation(head_index, arg_index, nld_type, bundle.label())
+                for index_pair in indices:
+                    head_index, arg_index = index_pair
+                    self.anno.add_annotation(head_index, arg_index, nld_type, bundle.label())
                 
                 if was_skipped:
                     self.resumer.remove_skipped(nld_type, match_index, bundle.label())
