@@ -59,12 +59,17 @@ if $undo_topicalisation; then
     apply "filtered$dir_suffix" "undone$dir_suffix" \
         apps.dis.undotop UndoTop undo_errors \
         "Undoing gapped topicalisation..."
+    # 1. Tag
+    apply "undone$dir_suffix" "tagged$dir_suffix" \
+        apps.cn.tag TagStructures tag_errors \
+        "Tagging derivations..."
+else
+    # 1. Tag
+    apply "filtered$dir_suffix" "tagged$dir_suffix" \
+        apps.cn.tag TagStructures tag_errors \
+        "Tagging derivations..."
 fi
 
-# 1. Tag
-apply "undone$dir_suffix" "tagged$dir_suffix" \
-    apps.cn.tag TagStructures tag_errors \
-    "Tagging derivations..."
 
 # 2. Binarise
 apply "tagged$dir_suffix" "binarised$dir_suffix" \
