@@ -17,7 +17,11 @@ def IsParentOf(candidate, node, context):
 # ask: out of all nodes under A, does 'candidate' match any of them?
 def Dominates(candidate, node, context):
     if node.is_leaf(): return False
-    return any(candidate.is_satisfied_by(internal_node, context) for internal_node in nodes(node))
+    
+    # to exclude _node_ itself (which is first in the sequence):
+    internal_nodes = islice(nodes(node), 1, None)
+    
+    return any(candidate.is_satisfied_by(internal_node, context) for internal_node in internal_nodes)
 
 def IsChildOf(candidate, node, context):
     if node.parent is None: return False
