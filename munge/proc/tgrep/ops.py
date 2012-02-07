@@ -108,6 +108,22 @@ def ChildCount(n):
 
 def And(candidate, node, context):
     return candidate.is_satisfied_by(node, context)
+    
+def ImmediatelyHeadedBy(candidate, node, context):
+    if node.is_leaf(): return False
+    if node.head_index is None: return False
+    return candidate.is_satisfied_by(node[node.head_index], context)
+    
+def HeadedBy(candidate, node, context):
+    if node.is_leaf(): return False
+    if node.head_index is None: return False
+
+    cur = node
+    while not cur.is_leaf() and cur.head_index is not None:
+        cur = cur[cur.head_index]
+        
+        if candidate.is_satisfied_by(cur, context): return True
+    return False
 
 Operators = {
     '<': IsParentOf,
@@ -123,6 +139,8 @@ Operators = {
     '$.': IsSiblingOfAndImmediatelyPrecedes,
     '$..': IsSiblingOfAndPrecedes,
     '&': And,
+    '<#': ImmediatelyHeadedBy,
+    '<<#': HeadedBy,
 }
 
 IntArgOperators = {

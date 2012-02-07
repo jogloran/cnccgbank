@@ -82,6 +82,7 @@ class NLDFinder(Filter):
     # T = trace
     # V = verb
     # MAKE SURE TO UNCONDITIONALLY BIND THE NAME 'V' TO A NODE IN THE EXPRESSION
+    # You can bind the name 'TOP' to control which node to display to the annotator
         #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } < /DEC/ } }', 'objex'),
         #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } < /DEC/ } }', 'subjex'),
         #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } }', 'objex_null'),

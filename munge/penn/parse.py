@@ -52,7 +52,7 @@ class CategoryPennParser(PennParser):
         def body(toks):
             # HACK
             tag = "_"
-            head_index = "0" # head_index must be [01]; required by script convert_auto
+            head_index = 0 # head_index must be [01]; required by script convert_auto
 
             category = toks.next().replace('{', '(').replace('}', ')')
             kids = []
