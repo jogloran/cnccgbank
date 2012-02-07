@@ -82,16 +82,22 @@ class NLDFinder(Filter):
     # T = trace
     # V = verb
     # MAKE SURE TO UNCONDITIONALLY BIND THE NAME 'V' TO A NODE IN THE EXPRESSION
-        (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } < /DEC/ } }', 'objex'),
-        (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } < /DEC/ } }', 'subjex'),
-        (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } }', 'objex_null'),
-        (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } }', 'subjex_null'),
+        #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } < /DEC/ } }', 'objex'),
+        #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < { /CP/ < { /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } < /DEC/ } }', 'subjex'),
+        #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-OBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /V[VECA]|VRD|VSB|VCD/=V } } }', 'objex_null'),
+        #(r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } }', 'subjex_null'),
         # (r'/NP/=V', 'np'),
-        # (r'/IP/ < /-TPC-\d+/a=F << { * < { "-NONE-" & ^/\*T\*-\d+/=T } $ /V/=V }', 'gaptop'),
-        (r'/LB/=V $ { /[IC]P/ << { "-NONE-" & ^/\*-\d+/=T } }', 'lb_gap'),
-        (r'/LB/=V $ /[IC]P/', 'lb_nongap'),
-        # (r'/SB/=V $ { /[IC]P/ << { "-NONE-" & ^/\*-\d+/=T } }', 'sb_gap'),
-        # (r'/SB/=V $ /VP/', 'sb_nongap'),
+        (r'/IP/ < /-TPC-\d+/a=F << { * < { "-NONE-" & ^/\*T\*-\d+/=T } $ /V/=V }', 'top_gap'),
+        #(r'*=V < { /LB/ $ { /[IC]P/ << { /-SBJ/a < { "-NONE-" & ^/\*-\d+/=T } } } }', 'lb_vv_subj'),
+        #(r'*=V < { /LB/ $ { /[IC]P/ << { /-OBJ/a < { "-NONE-" & ^/\*-\d+/=T } } } }', 'lb_vv_obj'),
+        #(r'*=V < { /LB/=V $ /[IC]P/ }', 'lb_nongap'),
+        #(r'*=V < { * < { /SB/ $ { /VP/ << { /-SBJ/a < { "-NONE-" & ^/\*-\d+/=T } } } } }', 'sb_vv_subj'),
+        #(r'*=V < { * < { /SB/ $ { /VP/ << { /-OBJ/a < { "-NONE-" & ^/\*-\d+/=T } } } } }', 'sb_vv_obj'),
+        (r'*=V < { /BA/=BA $ { * << ^/\*-/ }=C }', 'ba'),
+        # (r'*=V < { /SB/ $ /VP/' }, 'sb_nongap'),
+        
+        # the syntax { *=V & *=TOP } simply binds two names to the same node
+        (r'^/\*RNR\*/ >> { * $ { /PU|CC/ > { *=V & *=TOP } } }', 'rnr'),
     ]
     # create an interface which shows you the context of the nld
     # asks you to identify the filler of V
@@ -117,7 +123,8 @@ class NLDFinder(Filter):
         node = match
 
         while True:
-            print pprint(node, focus=ctx.v)
+            printed_node = ctx.top if ctx.top else node
+            print pprint(printed_node, focus=ctx.v)
             print '(head index arg index) for head phrase %s' % self.one_node(ctx.v)
             print 'head-arg relation: %s' % nld_type
             print '>',
