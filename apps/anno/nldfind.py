@@ -88,10 +88,10 @@ class NLDFinder(Filter):
         (r'* < { /CP/ <1 { /WHNP/ < { "-NONE-" & ^/\*OP\*/=T } } < {          /IP/ << { /NP-SBJ/ < { "-NONE-" & ^/\*T\*-\d+/ } $ /VP/=V } } }', 'subjex_null'),
         # (r'/NP/=V', 'np'),
         # (r'/IP/ < /-TPC-\d+/a=F << { * < { "-NONE-" & ^/\*T\*-\d+/=T } $ /V/=V }', 'gaptop'),
-        # (r'/LB/ $ { /IP/ << { "-NONE-" & ^/\*-\d+/=T } }', 'lb_gap'),
-        # (r'/LB/ $ /IP/', 'lb_nongap'),
-        # (r'/SB/ $ { /IP/ << { "-NONE-" & ^/\*-\d+/=T } }', 'sb_gap'),
-        # (r'/SB/ $ /VP/', 'sb_nongap'),
+        (r'/LB/=V $ { /[IC]P/ << { "-NONE-" & ^/\*-\d+/=T } }', 'lb_gap'),
+        (r'/LB/=V $ /[IC]P/', 'lb_nongap'),
+        # (r'/SB/=V $ { /[IC]P/ << { "-NONE-" & ^/\*-\d+/=T } }', 'sb_gap'),
+        # (r'/SB/=V $ /VP/', 'sb_nongap'),
     ]
     # create an interface which shows you the context of the nld
     # asks you to identify the filler of V
@@ -233,3 +233,5 @@ class NLDFinder(Filter):
         Filter.__init__(self)
         self.anno = Annotator(anno_fn)
         self.resumer = Resumer(resumer_fn)
+
+    arg_names = "ANNO RESUMER"
