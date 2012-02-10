@@ -567,8 +567,8 @@ CCG analysis.'''
         else:
             index = ''
             
-        expr = r'/IP/=TOP << { *=PP < { *=P < { /NP-(OBJ|EXT)/=T << ^/\*T\*%s/ $ *=S } } }' % index
-
+        expr = r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-(OBJ|EXT)/=T << ^/\*T\*%s/ $ *=S } } }' % index
+        
         for trace_NP, ctx in find_all(node, expr, with_context=True):
             top, pp, p, t, s = ctx.top, ctx.pp, ctx.p, ctx.t, ctx.s
 
