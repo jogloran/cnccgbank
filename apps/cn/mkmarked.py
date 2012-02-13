@@ -26,6 +26,10 @@ def is_np_n(cat):
     
 C = parse_category
 Exceptions = (
+    # relcl categories with N/NP distinction
+    (C(r'(N/N)\(S[dcl]\NP)'), C(r'((N{%E}/N{%E}){%_}\(S[dcl]{%F}\NP{%E}){%F}){%_}')),
+    (C(r'(N/N)\(S[dcl]/NP)'), C(r'((N{%E}/N{%E}){%_}\(S[dcl]{%F}/NP{%E}){%F}){%_}')),
+    
     (C(r'(NP/NP)\(S[dcl]\NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}\NP{%E}){%F}){%_}')),
     (C(r'(NP/NP)\(S[dcl]/NP)'), C(r'((NP{%E}/NP{%E}){%_}\(S[dcl]{%F}/NP{%E}){%F}){%_}')),
     (C(r'((NP/NP)/(NP/NP))\(S[dcl]/NP)'), C(r'( ((NP{%G}/NP{%G}){%E}/(NP{%G}/NP{%G}){%E}){%_}   \(S[dcl]{%F}/NP{%E}){%F}){%_}')),

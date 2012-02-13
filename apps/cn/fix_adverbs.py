@@ -5,6 +5,12 @@ from apps.cn.fix_rc import is_rooted_in
 from munge.util.err_utils import debug
 
 from apps.cn.fix import Fix
+from munge.util.config import config
+
+use_sb_alias = config.use_sb_alias
+
+def is_modifier_category(cat):
+    return cat.is_complex() and cat.left == cat.right
 
 class FixAdverbs(Fix):
     def pattern(self):
@@ -12,10 +18,6 @@ class FixAdverbs(Fix):
     
     def __init__(self, outdir):
         Fix.__init__(self, outdir)
-        
-    @staticmethod
-    def is_modifier_category(cat):
-        return cat.is_complex() and cat.left == cat.right
     
     @staticmethod
     def is_bxcomp_candidate(L, R, P):
@@ -67,7 +69,7 @@ class FixAdverbs(Fix):
             L, R, P = (n.category for n in (l, r, p))
             
             if (not p.tag.startswith('VSB') and
-                C.is_modifier_category(R) and
+                is_modifier_category(R) and
                 L.is_complex() and
                 r is node):
                 
@@ -80,7 +82,8 @@ class FixAdverbs(Fix):
         
     def fix(self, node):
         # Add ~SB alias
-        if str(node.category) == '(S[dcl]\\NP)/(S[dcl]\\NP)' and node.tag.startswith('SB'):
+        global use_sb_alias
+        if use_sb_alias and str(node.category) == '(S[dcl]\\NP)/(S[dcl]\\NP)' and node.tag.startswith('SB'):
             node.category.alias = "SB"
             
         self.do_fix(node)

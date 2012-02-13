@@ -2,14 +2,19 @@
 
 corpus_dir_arg=
 dir_suffix_arg=
+config_file_arg=
 corpus_dir=corpora/cptb/bracketed
 dir_suffix=
-while getopts 'c:s:h' OPTION
+config_file=config.yml
+undo_topicalisation=false
+while getopts 'c:s:C:hT' OPTION
 do
     case $OPTION in
+        C) config_file_arg="-C $OPTARG" ; config_file="$OPTARG" ;;
         c) corpus_dir_arg="-c $OPTARG" ; corpus_dir="$OPTARG" ;;
         s) dir_suffix_arg="-s $OPTARG" ; dir_suffix="$OPTARG" ;;
-        h) echo "$0 [-c corpus_dir] [-s work_dir_suffix] [SEC|all]"
+        T) undo_topicalisation=true ;;
+        h) echo "$0 [-c corpus_dir] [-s work_dir_suffix] [-C config_file] [SEC|all]"
            exit 1 ;;
     esac
 done
@@ -40,7 +45,7 @@ apply() {
 
     msg "$comment -> $outdir"
     rm -rf $outdir/"$TARGET"
-    ./t -q $break_flag -l$lib -r $filter $outdir -0 $srcdir/"$TARGET" 2>&1 | tee $errfile
+    ./t -c $config_file -q $break_flag -l$lib -r $filter $outdir -0 $srcdir/"$TARGET" 2>&1 | tee $errfile
 }
 
 echo Started at: `date`
@@ -50,11 +55,21 @@ apply "$corpus_dir" "filtered$dir_suffix" \
     apps.cn.clean Clean clean_errors \
     "Filtering derivations..."
 
-# 1. Tag
-#apply "$corpus_dir" "tagged$dir_suffix" \
-apply "filtered$dir_suffix" "tagged$dir_suffix" \
-    apps.cn.tag TagStructures tag_errors \
-    "Tagging derivations..."
+if $undo_topicalisation; then
+    apply "filtered$dir_suffix" "undone$dir_suffix" \
+        apps.dis.undotop UndoTop undo_errors \
+        "Undoing gapped topicalisation..."
+    # 1. Tag
+    apply "undone$dir_suffix" "tagged$dir_suffix" \
+        apps.cn.tag TagStructures tag_errors \
+        "Tagging derivations..."
+else
+    # 1. Tag
+    apply "filtered$dir_suffix" "tagged$dir_suffix" \
+        apps.cn.tag TagStructures tag_errors \
+        "Tagging derivations..."
+fi
+
 
 # 2. Binarise
 apply "tagged$dir_suffix" "binarised$dir_suffix" \
@@ -81,6 +96,7 @@ apply "fixed_adverbs$dir_suffix" "fixed_np$dir_suffix" \
 msg "Outputting CCGbank format... -> final$dir_suffix"
 rm -rf ./final$dir_suffix/${TARGET}
 ./t -q -lapps.cn.output -r CCGbankStyleOutput final$dir_suffix -0 \
+    -c $config_file \
     -lapps.sanity -r SanityChecks -0 fixed_np$dir_suffix/${TARGET}
 
 echo Finished at: `date`

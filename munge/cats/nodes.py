@@ -5,7 +5,7 @@ from munge.util.config import config
 
 import re
 
-BACKWARD, FORWARD = range(2)
+BACKWARD, FORWARD, BAR = range(3)
 APPLY, ALL, COMP, NULL = range(4)
 
 ShowModes = config.use_modes
@@ -102,6 +102,7 @@ class ComplexCategory(Featured):
     
     # Index i into mode_symbols references the mode with integer representation i.
     mode_symbols = "*.@-"
+    slash_strings = r'\/|'
     @staticmethod
     def get_mode_symbol(mode_index):
         if mode_index is None: return '' # for when cat.mode is None
@@ -118,7 +119,7 @@ class ComplexCategory(Featured):
         self.mode = mode
         self.label = label
 
-        self.slash = "\\" if self.direction == BACKWARD else "/"
+        self.slash = self.slash_strings[self.direction]
         
     @property
     def left(self):
@@ -245,6 +246,9 @@ and its labelled index.'''
     def __div__(self, right):
         '''Constructs the complex category (self / right).'''
         return ComplexCategory(self, FORWARD, right)
+        
+    def __mod__(self, right):
+        return ComplexCategory(self, BAR, right)
 
 if __name__ == '__main__':
     from munge.cats.parse import parse_category

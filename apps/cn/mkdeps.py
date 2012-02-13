@@ -263,14 +263,25 @@ def mkdeps(root, postprocessor=identity):
         elif comb == 'null_relativiser_typechange': # Xy -> (Nf/Nf)y
             P.slot = L.slot
             
-            if P == parse_category(r'N/N'):
+            is_NfN = P == (
+                parse_category('N/N') 
+                if config.use_bare_N else 
+                parse_category('NP/NP') 
+            )
+            is_NfNfNfN = P == (
+                parse_category('(N/N)/(N/N)') 
+                if config.use_bare_N else 
+                parse_category('(NP/NP)/(NP/NP)')
+            )
+            
+            if is_NfN:
                 P.left.slot.var = fresh_var()
                 
                 P.right.slot = P.left.slot
                 
                 register_unary(unaries, p, L.slot.head.lex)
                 
-            elif P == parse_category(r'(N/N)/(N/N)'):
+            elif is_NfNfNfN:
                 P.left.slot.var = fresh_var()
                 P.left.left.slot.var = fresh_var(prefix="G")
                 

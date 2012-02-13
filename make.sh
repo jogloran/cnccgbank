@@ -12,14 +12,18 @@ fi
 
 corpus_dir_arg=
 dir_suffix_arg=
+config_file_arg=
+undo_topicalisation_arg=
 final_dir=data
-while getopts 'c:s:o:h' OPTION
+while getopts 'c:s:o:C:Th' OPTION
 do
     case $OPTION in
+        C) config_file_arg="-C $OPTARG" ;;
         c) corpus_dir_arg="-c $OPTARG" ;;
         s) dir_suffix_arg="-s $OPTARG" ;;
+        T) undo_topicalisation_arg="-T" ;;
         o) final_dir="$OPTARG" ;;
-        h) echo "$0 [-s dir-suffix] [-o output-dir] [-c corpus-dir]"
+        h) echo "$0 [-s dir-suffix] [-o output-dir] [-c corpus-dir] [-C config-file]"
            exit 1
         ;;
     esac
@@ -28,7 +32,7 @@ shift $(($OPTIND - 1))
 
 started=`date +%c`
 ./make_clean.sh
-time ./make_all.sh $corpus_dir_arg $dir_suffix_arg all && \
+time ./make_all.sh $corpus_dir_arg $dir_suffix_arg $config_file_arg $undo_topicalisation_arg all && \
 ./do_filter.sh && (python -m'apps.cn.find_unanalysed' '../terry/CCG/output/cn/filtered_corpus.txt' > unanalysed)
 
 # Filter out derivations with [conj] leaves

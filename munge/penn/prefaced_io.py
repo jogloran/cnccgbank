@@ -36,7 +36,8 @@ class PrefacedPTBReader(B.AugmentedPTBReader):
         if index:
             lines = nth_occurrence(base,
                                   N=1,
-                                  when=lambda line: re.match(r"^ID=wsj_%02d%02d.%d" % (self.sec_no, self.doc_no, index), line),
+                                  # put a space after the pattern to ensure we match the whole token
+                                  when=lambda line: re.match(r"^ID=wsj_%02d%02d.%d " % (self.sec_no, self.doc_no, index), line),
                                   until=lambda line: re.match(r"^ID", line))
             return iter(lines)
         else:

@@ -191,12 +191,17 @@ def postprocess(root):
             
     return root
     
+rewrite_lcp_as_np = config.rewrite_lcp_as_np
+    
 def preprocess(root):
     # IP < PP PU -> PP < PP PU (20:58(1))
     if root.count() == 2 and root[1].tag == 'PU' and root[0].tag.startswith('PP'): root.tag = root[0].tag
     
     for node in nodes(root):
         if node.is_leaf(): continue
+        
+        if rewrite_lcp_as_np and node.tag.startswith('LCP'):
+            node.tag = node.tag.replace('LCP', 'NP')
                 
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
@@ -390,7 +395,7 @@ def preprocess(root):
                 _, ctx = result
                 p = ctx.p
                 
-                if p.count() <= 3: break
+                if p.count() <= 3: continue
                 
                 cd_cc_cd, rest = p.kids[0:3], p.kids[3:]
                 del p.kids[0:3]
@@ -413,6 +418,7 @@ def is_argument_cluster(node):
 def is_trace(node):
     return node.count() == 1 and node[0].tag == "-NONE-"
 
+punct_cued_typechange = config.punct_cued_typechange
 def label(root):
     root = preprocess(root)
     
@@ -479,17 +485,17 @@ def label(root):
                 elif kid.tag not in ('PU', 'CC'):
                     tag(kid, 'a')
                     
-
-            for i, kid in enumerate(node):
-                try:
-                    # exclude IP-SBJ PU VP from having the PU tagged :h (1:53(9))
-                    if (kid.tag.startswith('IP-') or kid.tag.startswith('CP-')) and \
-                       kid.tag.find('-TPC') == -1 and \
-                       kid.tag.find('-SBJ') == -1 and \
-                       node[i+1].tag == 'PU':
-                        tag(node[i+1], 'h')
+            if punct_cued_typechange:
+                for i, kid in enumerate(node):
+                    try:
+                        # exclude IP-SBJ PU VP from having the PU tagged :h (1:53(9))
+                        if (kid.tag.startswith('IP-') or kid.tag.startswith('CP-')) and \
+                           kid.tag.find('-TPC') == -1 and \
+                           kid.tag.find('-SBJ') == -1 and \
+                           node[i+1].tag == 'PU':
+                            tag(node[i+1], 'h')
                         
-                except: continue
+                    except: continue
                     
         elif node.count() == 1 and node.tag.startswith('VP') and is_verb_compound(node[0]):
             pass

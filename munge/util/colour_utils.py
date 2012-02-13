@@ -74,3 +74,6 @@ def ansiformat(attr, text):
     result.append(text)
     result.append(codes['reset'])
     return ''.join(result)
+    
+def bold(text):
+    return codes['bold'] + text# + codes['reset']

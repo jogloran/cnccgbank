@@ -1,5 +1,5 @@
 from optparse import OptionParser, OptionGroup
-import sys, re
+import sys, re, os
 
 from munge.util.err_utils import warn, info, err
 from munge.proc.trace_core import TraceCore
@@ -80,8 +80,13 @@ def register_builtin_switches(parser):
     '''Registers the command-line switches which are always available as an option group.'''
     group = OptionGroup(parser, title='Built-in operations')
 
+    # This option is 'fake' in that filter_library_switches() ensures that optparser never sees
+    # switches beginning with -l: we filter them out early so that we can pass TraceCore a list
+    # of all filters to load (which in turn is used by optparser to populate its list of available filters)
     group.add_option("-l", "--load-package", help="Makes available all filters from the given package.",
                       action='append', dest='packages', metavar="PKG")
+    group.add_option("-I", "--load-path", help="Makes available all filters under the given path.",
+                      action='append', dest='autoload_paths', metavar="PKG")
     group.add_option("-L", "--list-filters", help="Lists all loaded filters.",
                       action='store_true', dest='do_list_filters')
     group.add_option("-r", "--run", help="Runs a filter.", type='string', nargs=1,
@@ -124,16 +129,41 @@ Python package exposing Filter subclasses, returning a pair (list of PACKAGE nam
 
     return new_argv, library_names
     
+def extract_python_files_under_path(path):
+    module_names = []
+    for (subpath, dirs, files) in os.walk(path):
+        for file in files:
+            if file.endswith('.py'):
+                subpath_bits = subpath.split(os.sep)
+                if subpath_bits[0] == '.': subpath_bits = subpath_bits[1:]
+                
+                module_names.append( '.'.join(subpath_bits + [file.replace('.py', '')]) )
+    return module_names
+    
+def filter_autoload_paths(argv):
+    new_argv = []
+    library_names = []
+    
+    for arg in argv:
+        matches = re.match(r'-I(.+)', arg)
+        if matches:
+            library_names += extract_python_files_under_path(matches.group(1))
+        else:
+            new_argv.append(arg)
+    
+    return new_argv, library_names
+    
 def main(argv):
     parser = OptionParser(conflict_handler='resolve') # Intelligently resolve switch collisions
     parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
 
     # If any library loading switches (-l) are given, collect their names and remove them from argv
     argv, user_defined_libraries = filter_library_switches(argv)
+    argv, autoloaded_libraries   = filter_autoload_paths(argv)
     
     # Load built-in filters (those under BuiltInPackages)
     # Load user-requested filters (passed by -l on the command line)
-    all_libraries = BuiltInPackages + user_defined_libraries
+    all_libraries = BuiltInPackages + user_defined_libraries + autoloaded_libraries
     tracer = TraceCore(libraries=all_libraries)
     
     # For each available filter, allow it to be invoked with switches on the command line

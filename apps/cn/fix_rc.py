@@ -418,7 +418,6 @@ CCG analysis.'''
                         new_category = typeraise(R, R, TR_BACKWARD, strip_features=False)#T/(T|L)
                         node.parent[1] = Node(r.tag, [r], new_category, head_index=0)
 
-                        debug("bxcomp(%s, %s)", L, new_category)
                         new_parent_category = bxcomp(L, new_category)
                         if new_parent_category:
                             debug("new parent category: %s", new_parent_category)
@@ -568,8 +567,8 @@ CCG analysis.'''
         else:
             index = ''
             
-        expr = r'/IP/=TOP << { *=PP < { *=P < { /NP-(OBJ|EXT)/=T << ^/\*T\*%s/ $ *=S } } }' % index
-
+        expr = r'/[IC]P/=TOP << { *=PP < { *=P < { /NP-(OBJ|EXT)/=T << ^/\*T\*%s/ $ *=S } } }' % index
+        
         for trace_NP, ctx in find_all(node, expr, with_context=True):
             top, pp, p, t, s = ctx.top, ctx.pp, ctx.p, ctx.t, ctx.s
 

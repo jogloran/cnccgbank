@@ -1,9 +1,10 @@
-import re
+import re, os
 from itertools import imap, islice
 
 from munge.util.exceptions import CCGbankParseException
 from munge.ccg.parse import parse_tree
 from munge.io.single import SingleReader
+from munge.util.str_utils import nth_occurrence
 
 class Derivation(object):
     '''Represents a single derivation inside a CCGbank document.'''
@@ -42,7 +43,13 @@ class Derivation(object):
 
 class CCGbankReader(SingleReader):
     '''An iterator over each derivation in a CCGbank document.'''
+    def determine_sec_and_doc(self, filename):
+        matches = re.match(r'chtb_(\d{4})\..+', os.path.basename(filename))
+        file_id = matches.group(1)
+        return int(file_id[:2]), int(file_id[2:])
+        
     def __init__(self, filename):
+        self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
         SingleReader.__init__(self, filename)
         
     def derivation_with_index(self, filename, index=None):
@@ -50,7 +57,12 @@ class CCGbankReader(SingleReader):
         
         base = imap(lambda line: line.rstrip(), self.file.xreadlines())
         if index:
-            return islice(base, 2*index - 2, 2*index)
+            lines = nth_occurrence(base,
+                                  N=1,
+                                  # put a space after the pattern to ensure we match the whole token
+                                  when=lambda line: re.match(r"^ID=wsj_%02d%02d.%d " % (self.sec_no, self.doc_no, index), line),
+                                  until=lambda line: re.match(r"^ID", line))
+            return iter(lines)
         else:
             return base
                           

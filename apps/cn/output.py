@@ -15,8 +15,12 @@ name and the bundle, and returning the directory name for that derivation.'''
         self.outdir_template = outdir_template or (lambda outdir, _: outdir)
         self.fn_template = fn_template or (lambda bundle: "chtb_%02d%02d.fid" % (bundle.sec_no, bundle.doc_no))
         
-    def write_derivation(self, bundle):
-        outdir_path = self.outdir_template(self.outdir, bundle)
+    def write_derivation(self, bundle, subdir=None):
+        outdir = self.outdir
+        if subdir:
+            outdir = os.path.join(outdir, subdir)
+        
+        outdir_path = self.outdir_template(outdir, bundle)
 
         if not os.path.exists(outdir_path): os.makedirs(outdir_path)
         output_filename = os.path.join(outdir_path, self.fn_template(bundle))
