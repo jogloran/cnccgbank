@@ -45,7 +45,7 @@ def try_unary_rules(l, r, cur):
         
         if cur == NP and l == NPfNP: return "de_nominalisation"
         if cur == NfN and (l == C('M') or l == QP): return "measure_word_number_elision"
-        if cur in (NfN, C('(N/N)/(N/N)')) and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
+        if cur in (NfN, C('(N/N)/(N/N)'), NPfNP, C('(NP/NP)/(NP/NP)')) and (l == SbNP or l == SfNP or l == S): return "null_relativiser_typechange"
 
     if l == SfNP and cur == NPbNP:
         return "lex_typechange"
