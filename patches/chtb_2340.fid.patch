@@ -1,0 +1,19 @@
+--- chtb_2340.orig.fid	2012-02-14 17:46:28.000000000 +1100
++++ cn/chtb_2340.fid	2012-02-14 17:44:13.000000000 +1100
+@@ -64,14 +64,14 @@
+ 			      (VP (VC 是)
+ 				  (VP (VV 百感交集)))))))
+       (PU 。))) 
+-( (IP (IP (IP-MNR (NP-SBJ (-NONE- *pro*)
++( (IP (IP (IP-MNR (NP-SBJ (-NONE- *pro*))
+ 			  (VP (VV 相对于)
+ 			      (NP-OBJ (DNP (LCP (NP (NN 总统府))
+ 						(LC 前))
+ 					   (DEG 的))
+ 				      (ADJP (JJ 热闹))
+ 				      (NP (NN 国庆)
+-					  (NN 大典))))))
++					  (NN 大典)))))
+ 	  (PU ，)
+ 	  (NP-TMP (DNP (LCP (IP (NP-PN-SBJ (NR 国民党))
+ 				(VP (VV 失去)
