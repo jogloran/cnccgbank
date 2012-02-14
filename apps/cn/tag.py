@@ -5,7 +5,7 @@ import os, re
 from munge.proc.filter import Filter
 from munge.trees.traverse import nodes, leaves
 from munge.util.tgrep_utils import get_first
-from munge.penn.nodes import Node
+from munge.penn.nodes import Node, Leaf
 
 from munge.util.dict_utils import sorted_by_value_desc
 from munge.util.list_utils import first_index_such_that, last_index_such_that
@@ -284,7 +284,13 @@ def preprocess(root):
             
         # fix mistaggings of the form ADVP < JJ (1:7(9)), NP < JJ (5:35(1))
         elif node.count() == 1:
-            if node[0].tag == 'JJ':
+            # fix IP < VP by adding *pro*
+            if node.tag.startswith('IP') and node[0].tag.startswith('VP'):  
+                leaf = Leaf('-NONE-', '*pro*', None)
+                pro = Node('NP-SBJ', [leaf])
+                
+                node.kids.insert(0, pro)
+            elif node[0].tag == 'JJ':
                 if node.tag.startswith('ADVP'):
                     node.tag = node.tag.replace('ADVP', 'ADJP')
                 elif node.tag.startswith('NP'):

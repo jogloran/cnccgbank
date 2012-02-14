@@ -6,6 +6,9 @@ from subprocess import Popen, PIPE
 import munge.ccg.nodes as ccg
 from munge.cats.trace import analyse
 from munge.util.config import config
+from munge.trees.traverse import leaves
+
+write_tree_indices = config.write_tree_indices
 
 id = 0
 def get_id():
@@ -29,11 +32,16 @@ Abbreviations = {
     "bwd_xsubst": "<Bx"
 }
 
-def make_derivation(deriv, assigned_id=None):
+def make_derivation(deriv, assigned_id=None, leaf_id=0):
     '''Generates the body of the DOT representation.'''
     
     if deriv.is_leaf():
-        return '''%s [shape="none",height=0.17,label="%s"]\n''' % (assigned_id, deriv.label_text())
+        if write_tree_indices:
+            label = "%d %s" % (leaf_id, deriv.label_text())
+        else:
+            label = deriv.label_text()
+
+        return '''%s [shape="none",height=0.17,label="%s"]\n''' % (assigned_id, label)
         
     else:
         ret = []
@@ -59,12 +67,14 @@ def make_derivation(deriv, assigned_id=None):
                 else:
                     ret.append("%s:o -> %s:o\n" % (root_id, child_id))
                     
-                ret.append(make_derivation(child, child_id))
+                ret.append(make_derivation(child, child_id, leaf_id=leaf_id))
+                leaf_id += len(list(leaves(child)))
                 
             else:
                 ret.append('''%s [shape="box",height=0.1,label="%s"]\n''' % (root_id, deriv.label_text()))
                 ret.append("%s -> %s\n" % (root_id, child_id)) 
-                ret.append(make_derivation(child, child_id))
+                ret.append(make_derivation(child, child_id, leaf_id=leaf_id))
+                leaf_id += len(list(leaves(child)))
 
         return ''.join(ret)
 
