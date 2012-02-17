@@ -32,26 +32,27 @@ shift $(($OPTIND - 1))
 
 started=`date +%c`
 ./make_clean.sh
-time ./make_all.sh $corpus_dir_arg $dir_suffix_arg $config_file_arg $undo_topicalisation_arg all && \
-./do_filter.sh && (python -m'apps.cn.find_unanalysed' '../terry/CCG/output/cn/filtered_corpus.txt' > unanalysed)
+time ./make_all.sh $corpus_dir_arg $dir_suffix_arg $config_file_arg $undo_topicalisation_arg all
+./do_filter.sh 
+(python -m'apps.cn.find_unanalysed' filtered_corpus > unanalysed)
 
 # Filter out derivations with [conj] leaves
 msg "Filtering out derivations with [conj] leaves..."
-./rmconj.py ../terry/CCG/output/cn/filtered_corpus.txt > filtered_corpus.noconj
+./rmconj.py filtered_corpus > filtered_corpus.noconj
 
 rm -rf ${final_dir}/{AUTO,PARG,train.piped}
 
 # Kill known bad sentences
 msg "Filtering rare categories and rules..."
-./filter.py filtered_corpus.noconj > filtered_corpus
+./filter.py filtered_corpus.noconj > filtered_corpus.norare
 
 msg "Creating directory structure..."
 # Regroup filtered_corpus into section directories
-./regroup.py filtered_corpus ${final_dir}/AUTO
+./regroup.py filtered_corpus.norare ${final_dir}/AUTO
 
 msg "Creating PARGs..."
 # Create PARGs
-./t -q -lapps.cn.mkdeps -9 ${final_dir}/PARG filtered_corpus 2> mkdeps_errors
+./t -q -lapps.cn.mkdeps -9 ${final_dir}/PARG filtered_corpus.norare 2> mkdeps_errors
 
 msg "Rebracketing (X|Y)[conj] -> X|Y[conj]..."
 # Rebracket [conj] as expected by C&C: (X|Y)[conj] becomes X|Y[conj]

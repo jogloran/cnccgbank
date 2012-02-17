@@ -1,6 +1,5 @@
 #! /bin/bash
 
-cur=`pwd`
-pushd ../terry/CCG
-./run_filter.sh output cn $cur/final/*/*
-popd
+rm -rf filtered
+./t -q -lapps.cn.badatom --bad-atom filtered final/*/*
+cat filtered/* > filtered_corpus
