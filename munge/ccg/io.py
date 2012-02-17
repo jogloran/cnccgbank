@@ -45,11 +45,16 @@ class CCGbankReader(SingleReader):
     '''An iterator over each derivation in a CCGbank document.'''
     def determine_sec_and_doc(self, filename):
         matches = re.match(r'chtb_(\d{4})\..+', os.path.basename(filename))
-        file_id = matches.group(1)
-        return int(file_id[:2]), int(file_id[2:])
+        if matches:
+            file_id = matches.group(1)
+            return int(file_id[:2]), int(file_id[2:])
+        return None
         
     def __init__(self, filename):
-        self.sec_no, self.doc_no = self.determine_sec_and_doc(filename)
+        sec_and_doc = self.determine_sec_and_doc(filename)
+        if sec_and_doc:
+            self.sec_no, self.doc_no = sec_and_doc
+
         SingleReader.__init__(self, filename)
         
     def derivation_with_index(self, filename, index=None):

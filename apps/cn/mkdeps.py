@@ -22,6 +22,13 @@ from apps.cn.mkmarked import naive_label_derivation, is_modifier
 from apps.util.mkdeps_utils import *
 from apps.cn.fix_rc import is_rooted_in
 
+if config.use_bare_N:
+    _NfN = parse_category('N/N')
+    _NfNfNfN = parse_category('(N/N)/(N/N)')
+else:
+    _NfN = parse_category('NP/NP')
+    _NfNfNfN = parse_category('(NP/NP)/(NP/NP)')
+
 def register_unary(unaries, node, filler):
     '''
     If _node_ represents the result (RHS) of a unary rule, this records that a new
@@ -263,25 +270,14 @@ def mkdeps(root, postprocessor=identity):
         elif comb == 'null_relativiser_typechange': # Xy -> (Nf/Nf)y
             P.slot = L.slot
             
-            is_NfN = P == (
-                parse_category('N/N') 
-                if config.use_bare_N else 
-                parse_category('NP/NP') 
-            )
-            is_NfNfNfN = P == (
-                parse_category('(N/N)/(N/N)') 
-                if config.use_bare_N else 
-                parse_category('(NP/NP)/(NP/NP)')
-            )
-            
-            if is_NfN:
+            if P == _NfN:
                 P.left.slot.var = fresh_var()
                 
                 P.right.slot = P.left.slot
                 
                 register_unary(unaries, p, L.slot.head.lex)
                 
-            elif is_NfNfNfN:
+            elif P == _NfNfNfN:
                 P.left.slot.var = fresh_var()
                 P.left.left.slot.var = fresh_var(prefix="G")
                 
