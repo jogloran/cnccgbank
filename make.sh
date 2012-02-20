@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -eu
 
 function msg {
     echo "[`date +%c`] $1"

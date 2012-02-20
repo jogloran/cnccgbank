@@ -29,3 +29,5 @@ lcp_to_np_typechange: true
 punct_cued_typechange: true
 merge_verb_compounds: true
 rewrite_lcp_as_np: false
+
+write_tree_indices: true

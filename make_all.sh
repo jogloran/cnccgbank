@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -eu
 
 corpus_dir_arg=
 dir_suffix_arg=
@@ -45,7 +45,9 @@ apply() {
 
     msg "$comment -> $outdir"
     rm -rf $outdir/"$TARGET"
-    ./t -c $config_file -q $break_flag -l$lib -r $filter $outdir -0 $srcdir/"$TARGET" 2>&1 | tee $errfile
+    ./t -c $config_file -q -l$lib -r $filter $outdir -0 $srcdir/"$TARGET" 2>&1 | tee $errfile
+
+    return ${PIPESTATUS[0]} # return the exit code of the first command in the pipe
 }
 
 echo Started at: `date`
