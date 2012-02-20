@@ -22,12 +22,13 @@ hatted_cats: false
 highlight_head_arrows: true
 fail_on_unassigned_variables: false
 use_csc: true
+punct_cued_typechange: true # eacl0 has false, eacl1 has true, eacl6b has false
+lcp_to_np_typechange: true # eacl3 has true
+use_bare_N: false # eacl6 has false 
 
-use_bare_N: false
+rewrite_lcp_as_np: false # eacl6 has false, eacl6.redo had true
+
 use_sb_alias: true
-lcp_to_np_typechange: true
-punct_cued_typechange: true
 merge_verb_compounds: true
-rewrite_lcp_as_np: false
 
 write_tree_indices: true
