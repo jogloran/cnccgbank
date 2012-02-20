@@ -187,6 +187,8 @@ class FixExtraction(Fix):
                 self.fix_object_gap(ctx.pp, ctx.p, ctx.t, ctx.s)
                 self.fix_categories_starting_from(ctx.s, g)
                 
+        # This breaks with the IP (LC CC LC) case in 9:19(11) -- last_conjunct returns None
+        # because the last conjunct has been shrunk
         last_conjunct = list(find_first(g, r'/:c/a', left_to_right=False))
         
         args = []
