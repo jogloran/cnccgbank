@@ -201,6 +201,7 @@ class TraceCore(object):
                     err("Processing failed on derivation %s of file %s:", bundle.label(), file)
                     sys.excepthook(*exception)
                 err("Processing failed with IOError: %s", e)
+                raise
 
         for filter in filters:
             filter.output()
