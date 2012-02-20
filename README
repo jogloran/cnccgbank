@@ -1,0 +1,49 @@
+Chinese CCGbank conversion
+==========================
+(c) 2008-2012 Daniel Tse <cncandc@gmail.com>
+University of Sydney
+
+Use of this software is governed by the attached "Chinese CCGbank converter Licence Agreement"
+supplied in the Chinese CCGbank conversion distribution. If the LICENCE file is missing, please
+notify the maintainer Daniel Tse <cncandc@gmail.com>.
+
+    Licensees shall acknowledge use of the Licensed Software and Derivative Works in all 
+    publications of research based in whole or in part on their use through citation of the following publication:
+
+    Chinese CCGbank: extracting CCG derivations from the Penn Chinese Treebank
+    Daniel Tse and James R. Curran
+    Proceedings of the 23rd International Conference on Computational Linguistics (COLING), pp. 1083-1091, 
+    Beijing, China, 2012.
+
+How to obtain a copy of Chinese CCGbank:
+----------------------------------------
+Obtaining a copy of Penn Chinese Treebank:
+    The Chinese CCGbank conversion process requires a copy of Penn Chinese Treebank (tested on PCTB 6.0,
+    may work on other versions; LDC catalog no. LDC2007T36), which can be obtained through the
+    Linguistic Data Consortium (LDC). The LDC catalogue page for this corpus is located at:
+        http://www.ldc.upenn.edu/Catalog/CatalogEntry.jsp?catalogId=LDC2007T36
+
+Installing required dependencies:
+    These Python packages are required by the conversion process:
+        PyYAML (tested on 3.10)
+        PLY (tested on 3.4)
+        cmd2 (tested on 0.6.2)
+
+    The easiest way to install these dependencies is through 'easy_install' (Python setuptools).
+    Instructions for installing setuptools can be found here:
+        http://pypi.python.org/pypi/setuptools
+
+    Once setuptools is installed, execute:
+        easy_install PyYAML
+        easy_install PLY
+        easy_install cmd2
+
+Generating the corpus:
+   While in the directory of the Chinese CCGbank converter distribution, execute:
+        ./make.sh -o <CHINESE CCGBANK DESTINATION DIRECTORY> -c <CHINESE PENN TREEBANK DIRECTORY>
+
+        where the argument of '-o' is the desired output directory, and
+              the argument of '-c' is the Penn Chinese Treebank directory containing '.fid' files.
+
+    Generating the corpus will also write debugging output to the screen. When the process is complete,
+    the CCGbank corpus will be output to the directory specified by the argument of '-o'.

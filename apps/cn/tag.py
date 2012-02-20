@@ -437,6 +437,8 @@ def label(root):
         first_kid, first_kid_index = get_nonpunct_kid(node, get_last=False)
         last_kid,  last_kid_index  = get_nonpunct_kid(node, get_last=True)
         
+        if first_kid is None: continue
+        
         for kid in node:
             if has_modification_tag(kid):
                 tag(kid, 'm')

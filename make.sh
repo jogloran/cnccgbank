@@ -70,8 +70,6 @@ rm latest; ln -sf ${final_dir} latest
 
 # Check for unequal texts
 msg "Checking for deleted leaves..."
-cat tagged/* | python leaves.py
-cat ${final_dir}/AUTO/*/* | python leaves.py
 python findcommon.py <(cat tagged/* | python leaves.py) <(cat ${final_dir}/AUTO/*/* | python leaves.py) 2> ${final_dir}/deleted
 
 ended=`date +%c`
