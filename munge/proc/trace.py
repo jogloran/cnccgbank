@@ -202,8 +202,10 @@ def main(argv):
     try:
         tracer.run(opts.filters_to_run, files)
     except RuntimeError, e:
-        err('%s', e)
+        err('RuntimeError: %s', e)
         sys.exit(1)
+    except IOError, e: # file not found, for instance
+        sys.exit(2)
 
 if __name__ == '__main__':
     #try:
