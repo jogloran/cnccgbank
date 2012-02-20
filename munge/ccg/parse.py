@@ -71,6 +71,6 @@ class CCGParser(object):
         cat_string, head_index, child_count = \
                 toks.next(), toks.next(), toks.next()
         cat = parse_category(cat_string)
-        head_index = int(head_index)
+        #head_index = int(head_index)
 
         return self.node_factory.node_class(cat, head_index, child_count, parent)
