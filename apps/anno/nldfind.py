@@ -197,11 +197,14 @@ class NLDFinder(Filter):
             was_skipped = self.resumer.was_skipped(nld_type, match_index, bundle.label())
             current_index = self.resumer.current_index_for(nld_type, bundle.label())
 
-            already_annotated = current_index != -1 and current_index <= match_index
+            # current_index == -1 when a given candidate has never been annotated
+            # otherwise, current_index is the index of the last annotated case
+            already_annotated = current_index != -1 and current_index >= match_index
             
+            # this skips forward to the first unannotated case
             if already_annotated and not was_skipped:
-               continue
-            
+                continue
+    
             indices = self.get_dep(match, ctx, nld_type=nld_type, pprint=pprint, bundle=bundle)
             if indices is not None:
                 for index_pair in indices:
