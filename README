@@ -38,6 +38,13 @@ Installing required dependencies:
         easy_install PLY
         easy_install cmd2
 
+Installing Python C extensions:
+    The tokeniser is written in C for speed. To build it, change to the directory of the
+    Chinese CCGbank converter distribution, then execute:
+        cd lib && python setup.py install
+        (sudo may be required for setup.py to install the library in a location accessible
+         to all users)
+
 Generating the corpus:
    While in the directory of the Chinese CCGbank converter distribution, execute:
         ./make.sh -o <CHINESE CCGBANK DESTINATION DIRECTORY> -c <CHINESE PENN TREEBANK DIRECTORY>
