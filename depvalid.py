@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import envoy
+import traceback
 from munge.io.guess import GuessReader
 from apps.cn.mkdeps import mkdeps, UnificationException
 from apps.cn.mkmarked import naive_label_derivation
@@ -120,9 +121,11 @@ for line in anno:
                     for a,b,c,d in deps:
                         print a,b
                     unmatched += 1
-            except:
+            except Exception, e:
                 skipped_sents += 1
                 print 'skipping %s' % deriv_id
+                print 'exception:'
+                traceback.print_exc(file=sys.stdout)
                 continue
         else: # mkdeps problem
             dep_error_sents += 1
@@ -132,6 +135,6 @@ for line in anno:
         print "not made: %s" % deriv_id
 
 print 'dependencies preserved: %d/%d=%.2f%%' % (matched, unmatched+matched, matched/float(unmatched+matched)*100.)
-print 'munge errors: %2d/% 3d=%.2f%%' % (munge_error_sents, total_sents, munge_error_sents/float(total_sents)*100.)
-print 'dep errors:   %2d/% 3d=%.2f%%' % (dep_error_sents, total_sents, dep_error_sents/float(total_sents)*100.)
-print 'skipped:      %2d/% 3d=%.2f%%' % (skipped_sents, total_sents, skipped_sents/float(total_sents)*100.)
+print 'munge errors: %2d/% 3d=%.2f%% of sents' % (munge_error_sents, total_sents, munge_error_sents/float(total_sents)*100.)
+print 'dep errors:   %2d/% 3d=%.2f%% of sents' % (dep_error_sents, total_sents, dep_error_sents/float(total_sents)*100.)
+print 'skipped:      %2d/% 3d=%.2f%% of sents' % (skipped_sents, total_sents, skipped_sents/float(total_sents)*100.)
