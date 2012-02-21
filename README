@@ -17,6 +17,10 @@ notify the maintainer Daniel Tse <cncandc@gmail.com>.
 
 How to obtain a copy of Chinese CCGbank:
 ----------------------------------------
+Python version:
+    The Chinese CCGbank conversion process has been tested on Python 2.7.1 and GNU bash 4.1.5.
+    The scripts will require a Unix environment with bash available.
+
 Obtaining a copy of Penn Chinese Treebank:
     The Chinese CCGbank conversion process requires a copy of Penn Chinese Treebank (tested on PCTB 6.0,
     may work on other versions; LDC catalog no. LDC2007T36), which can be obtained through the
