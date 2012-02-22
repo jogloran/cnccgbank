@@ -28,7 +28,7 @@ def atom_list(cat):
 def has_bad_subcat(cat):
     def f(subcat):
         if subcat not in GoodCats:
-            print '>',subcat
+            #print '>',subcat
             return True
         return False
     return any( f(subcat) for subcat in atom_list(cat) )
