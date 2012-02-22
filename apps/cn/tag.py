@@ -27,7 +27,6 @@ PredicationRegex = re.compile(r'''
     (?:(PU|FLR)\s+)* # FLR between NP and VP (20:8(7)). permit multiple PU/FLR in this position (26:84(7))
     VP # predicate
 ''', re.VERBOSE)
-#(?:[:\w-]+)?\s*(\s+[:\w-]+\s*)*\s*(?:(PU|FLR)\s+)?\s*(?:[\w-]+-(?:PN|SBJ|APP)(?:-\d+)?|NP)\s+\s*(?:(PU|FLR)\s+)?\s*VP
 def is_predication(node):
     kid_tags = ' '.join(kid.tag for kid in node)
     return node.tag.startswith('IP') and PredicationRegex.match(kid_tags)
@@ -181,7 +180,6 @@ def postprocess(root):
     
     for node in nodes(root):
         # Exclude the conjuncts in LCP coordination: we want the LCP->NP promotion to apply once to the result of the coordination
-#        if use_lcp_to_np and node.tag.startswith('LCP') and not (node.tag.endswith(':c') or node.tag.endswith(':h')):
         if use_lcp_to_np and node.tag.startswith('LCP') and has_tags(node, 'lr'):
             # if we're in LCP coordination then we want to protect the conjuncts from being converted
             new_node = Node('NP', [node])#, node.parent)
