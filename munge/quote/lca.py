@@ -1,3 +1,12 @@
+# Chinese CCGbank conversion
+# ==========================
+# (c) 2008-2012 Daniel Tse <cncandc@gmail.com>
+# University of Sydney
+
+# Use of this software is governed by the attached "Chinese CCGbank converter Licence Agreement"
+# supplied in the Chinese CCGbank conversion distribution. If the LICENCE file is missing, please
+# notify the maintainer Daniel Tse <cncandc@gmail.com>.
+
 from munge.ccg.nodes import Leaf, Node
 from munge.quote.base import BaseQuoter
 from munge.quote.utils import make_open_quote_leaf, make_closed_quote_leaf
