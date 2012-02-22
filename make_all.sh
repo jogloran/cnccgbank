@@ -72,7 +72,6 @@ else
         "Tagging derivations..."
 fi
 
-
 # 2. Binarise
 apply "tagged$dir_suffix" "binarised$dir_suffix" \
     apps.cn.binarise Binariser bin_errors \
