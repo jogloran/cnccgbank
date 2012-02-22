@@ -37,6 +37,7 @@ msg "Filtering out derivations with [conj] leaves..."
 ./rmconj.py $filtered_corpus > $filtered_corpus.noconj
 
 rm -rf ${final_dir}/{AUTO,PARG,train.piped}
+mkdir -p ${final_dir}
 
 # Kill known bad sentences
 msg "Filtering rare categories and rules..."
