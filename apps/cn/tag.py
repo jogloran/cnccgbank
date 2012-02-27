@@ -191,9 +191,11 @@ def postprocess(root):
         # Exclude the conjuncts in LCP coordination: we want the LCP->NP promotion to apply once to the result of the coordination
         if use_lcp_to_np and node.tag.startswith('LCP') and has_tags(node, 'lr'):
             # if we're in LCP coordination then we want to protect the conjuncts from being converted
-            new_node = Node('NP', [node])#, node.parent)
+            new_node = Node('NP', [node])
+            node.parent = new_node
+            
             inherit_tag(new_node, node)
-
+            
             replace_kid(node.parent, node, new_node)
             
     return root

@@ -53,6 +53,12 @@ class FixExtraction(Fix):
             # must come before object extraction
 #            (r'*=TOP $ /-SBJ-d+/a=N < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
 #            (r'*=TOP                < { * < /LB/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
+# RNR re-analysis
+# left_to_right: True, because if we have multiple coordinated verbs (0:28(6)), we want to find
+# the shallowest node which dominates a *RNR* trace to operate on. Otherwise, we find the deepest
+# node, which does not allow us to fix the entire RNR structure
+(r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr, { 'left_to_right': True }),
+
             (r'*=TOP < { /LB/=BEI $ { /IP/=S < { /VP/=VP < /V[PV]|VRD|VSB|VCD/=PRED < { /NP-OBJ/ < ^/\*/ } } }=BEIS }', self.fix_lb),
             
             # doesn't work for 1:34(8) where an additional PP adjunct intervenes
@@ -79,11 +85,6 @@ class FixExtraction(Fix):
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
 
-            # RNR re-analysis
-            # left_to_right: True, because if we have multiple coordinated verbs (0:28(6)), we want to find
-            # the shallowest node which dominates a *RNR* trace to operate on. Otherwise, we find the deepest
-            # node, which does not allow us to fix the entire RNR structure
-            (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr, { 'left_to_right': True }),
             # an argument cluster is defined as a VP, one conjunct of which has a verb, and one which does not
             (r'''/VP/
                     < { /VP:c/=PP
@@ -199,7 +200,6 @@ class FixExtraction(Fix):
                 
         # This breaks with the IP (LC CC LC) case in 9:19(11) -- last_conjunct returns None
         # because the last conjunct has been shrunk
-        # import pdb;pdb.set_trace()
         last_conjunct = list(find_first(g, r'/:c/a', left_to_right=False))
         
         args = []
