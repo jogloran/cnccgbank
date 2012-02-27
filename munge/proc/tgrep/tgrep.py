@@ -74,6 +74,7 @@ If the user wants to keep context around, a copy must be made.'''
         query = yacc.parse(expression)
         expression_cache[expression] = query
     
+    # Default traversal method is right to left
     traversal_method = (single if nonrecursive  else 
                         nodes  if left_to_right else 
                         nodes_reversed)

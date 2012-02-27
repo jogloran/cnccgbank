@@ -36,9 +36,9 @@ writes the modified derivations out in the prefaced PTB style.'''
         pass
         
     @staticmethod
-    def do_tgrep_with_callback(root, pattern, callback):
+    def do_tgrep_with_callback(root, pattern, callback, **kwargs):
         new_root = None
-        for match_node, context in tgrep(root, pattern, with_context=True):
+        for match_node, context in tgrep(root, pattern, with_context=True, **kwargs):
             debug("Callback %s matched", callback.__name__)
             if context: # only supply a context if the expression binds variables
                 # smash the case, variables in tgrep expressions are case insensitive
@@ -53,7 +53,7 @@ writes the modified derivations out in the prefaced PTB style.'''
     
     @staticmethod
     def is_valid_pattern_and_callback_tuple(v):
-        return len(v) == 2 and isinstance(v[0], basestring) and callable(v[1])
+        return len(v) >= 2 and isinstance(v[0], basestring) and callable(v[1])
         
     def accept_derivation(self, bundle):
         pattern = self.pattern()
@@ -68,8 +68,13 @@ writes the modified derivations out in the prefaced PTB style.'''
         elif isinstance(pattern, list):
             for pattern_and_callback in pattern:
                 if Fix.is_valid_pattern_and_callback_tuple(pattern_and_callback):
-                    pattern, callback = pattern_and_callback
-                    bundle.derivation = Fix.do_tgrep_with_callback(bundle.derivation, pattern, callback)
+                    if len(pattern_and_callback) == 2:
+                        pattern, callback = pattern_and_callback
+                        kwargs = {}
+                    elif len(pattern_and_callback) == 3:
+                        pattern, callback, kwargs = pattern_and_callback
+                        
+                    bundle.derivation = Fix.do_tgrep_with_callback(bundle.derivation, pattern, callback, **kwargs)
         
         # A string tgrep expression            
         # "pattern": fix
