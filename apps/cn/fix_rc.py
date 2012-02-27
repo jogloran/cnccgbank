@@ -79,10 +79,11 @@ class FixExtraction(Fix):
             # This should come first, otherwise we get incorrect results in cases like 0:5(7).
             (r'*=P <1 {/:m$/a=T $ *=S}', self.fix_modification),
 
-            # The node [CI]P will be CP for the normal relative clause construction (CP < IP DEC), and
-            # IP for the null relativiser construction.
-            # TODO: unary rule S[dcl]|NP -> N/N is only to apply in the null relativiser case.
-            (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr),
+            # RNR re-analysis
+            # left_to_right: True, because if we have multiple coordinated verbs (0:28(6)), we want to find
+            # the shallowest node which dominates a *RNR* trace to operate on. Otherwise, we find the deepest
+            # node, which does not allow us to fix the entire RNR structure
+            (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr, { 'left_to_right': True }),
             # an argument cluster is defined as a VP, one conjunct of which has a verb, and one which does not
             (r'''/VP/
                     < { /VP:c/=PP
@@ -198,10 +199,12 @@ class FixExtraction(Fix):
                 
         # This breaks with the IP (LC CC LC) case in 9:19(11) -- last_conjunct returns None
         # because the last conjunct has been shrunk
+        # import pdb;pdb.set_trace()
         last_conjunct = list(find_first(g, r'/:c/a', left_to_right=False))
         
         args = []
-        for index in rnr_tags:
+        # Here, we uniquify the rnr tags so that we excise each shared argument only once
+        for index in set(rnr_tags):
             # find_first, because we only want to find one match, the shallowest.
             # cf 7:27(10), if NP-OBJ-2(NN NP-OBJ-2(JJ NN)), then we only want to identify
             # one matching node for index -2 -- the shallowest -- and not two.
@@ -216,7 +219,7 @@ class FixExtraction(Fix):
                 # the tree by replace_kid (when ctx.p == last_conjunct)
                 replace_kid(ctx.p.parent, ctx.p, ctx.s)
                 self.fix_categories_starting_from(ctx.s, g)
-                
+                    
         # Because the find_all which retrieved the args is an in-order left-to-right traversal, it will find
         # shallower nodes before deeper nodes. Therefore, if a verb has two args V A1 A2, the _args_ list will
         # contain [A2, A1] because A2 is shallower (further from the head) than A1.
