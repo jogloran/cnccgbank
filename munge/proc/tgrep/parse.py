@@ -20,12 +20,16 @@ from munge.proc.tgrep.nodes import *
 from munge.util.exceptions import TgrepException
 
 tokens = ("LPAREN", "RPAREN", "ATOM", "REGEX", "REGEX_SPEC", "OP", "UNARY_OP", "QUESTION",
-          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET", "AT")
+          "QUOTED", "PIPE", "BANG", "LT", "GT", "EQUAL", "STAR", "TILDE", "CARET", "AT", "PERCENT")
 
 precedence = (
     ('right', 'PIPE'),
     ('right', 'BANG')
 )
+
+def t_PERCENT(t):
+    r'%'
+    return t
 
 def t_PIPE(t):
     r'\|'
@@ -192,6 +196,8 @@ def p_matcher(stk):
             | CARET ATOM
             | CARET QUOTED
             | CARET full_regex
+            | CARET EQUAL ATOM
+            | PERCENT EQUAL ATOM
             | AT ATOM
             | AT QUOTED
             | AT full_regex
@@ -222,7 +228,12 @@ def p_matcher(stk):
                 stk[0] = MatchCat(stk[2])
                 
     elif len(stk) == 4:
-        stk[0] = StoreAtom(stk[1], stk[3])
+        if stk[1] == '^':
+            stk[0] = GetLex(stk[3])
+        elif stk[1] == '%':
+            stk[0] = GetBaseTag(stk[3])
+        else:
+            stk[0] = StoreAtom(stk[1], stk[3])
     
 def p_atom(stk):
     '''

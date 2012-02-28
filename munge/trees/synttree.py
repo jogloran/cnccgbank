@@ -19,7 +19,10 @@ def latex_tag_for(lex):
         
 def process_lex_node_repr(node, compress=False):
     if compress:
-        return "\\Pos{%s} %s \\cjk{%s}" % (node.tag, "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
+        return "\\Pos{%s} %s \\cjk{%s}" % (
+            node.tag, 
+            "\\edge[roof]; " if node.count()>1 else '', 
+            ' '.join(latex_tag_for(leaf) for leaf in text(node)))
     if node.is_leaf():
         return "{\\Pos{%s} %s}" % (node.tag, latex_tag_for(node.lex))
     else:
@@ -31,7 +34,10 @@ def is_trace(tag):
 Lnode_id = 0
 def process_lex_node_reprL(node, compress=False):
     if compress:
-        return "\\Pos{%s} %s \\cjk{%s}" % (node.tag, "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
+        return "\\Pos{%s} %s \\cjk{%s}" % (
+            node.tag, 
+            "\\edge[roof]; " if node.count()>1 else '',
+            ' '.join(latex_tag_for(leaf) for leaf in text(node)))
     if node.is_leaf():
         if is_trace(node.tag):
             result = "\\node{\\Pos{%s} %s};" % (node.tag, latex_tag_for(node.lex))
@@ -46,7 +52,10 @@ def process_lex_node_reprL(node, compress=False):
 Rnode_id = 0
 def process_lex_node_reprR(node, compress=False):
     if compress:
-        return "\\cf{%s} %s \\cjk{%s}" % (sanitise_category(str(node.category)), "\\edge[roof]; " if node.count()>1 else '', ' '.join(text(node)))
+        return "\\cf{%s} %s \\cjk{%s}" % (
+            sanitise_category(str(node.category)),
+            "\\edge[roof]; " if node.count()>1 else '',
+            ' '.join(latex_tag_for(leaf) for leaf in text(node)))
     if node.is_leaf():
         global Rnode_id
         result = "\\node(r%s){\\cf{%s} %s};" % (Rnode_id, sanitise_category(str(node.category)), latex_tag_for(node.lex))
