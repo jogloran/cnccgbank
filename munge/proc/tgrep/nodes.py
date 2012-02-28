@@ -159,18 +159,34 @@ class AtomValue(object):
         #return atom.is_satisfied_by(node, context)
         # TODO: a node only matches against itself? or against something with the same label as itself?
         # XXX: This defines two nodes as equal if they are the same modulo features (which is what we often want)
-        return self.evaluate(stored_node.cat, node.cat)
+        return self.evaluate(stored_node, node)
+        
+class GetLex(AtomValue):
+    '''Matches tree nodes which have a lexical item identical to that of the captured tree node.'''
+    def __init__(self, var):
+        AtomValue.__init__(self, var, lambda a, b: a.lex == b.lex)
+    def __repr__(self):
+        return "^=%s" % self.var
+        
+from apps.cn.fix_utils import base_tag
+class GetBaseTag(AtomValue):
+    '''Matches tree nodes which are identical in category (with function and munge tags stripped) to
+the captured tree node.'''
+    def __init__(self, var):
+        AtomValue.__init__(self, var, lambda a, b: base_tag(a.cat) == base_tag(b.cat))
+    def __repr__(self, var):
+        return "%%=%s" % self.var
         
 class GetAtom(AtomValue):
-    '''Matches tree nodes which are identical to the captured tree node.'''
+    '''Matches tree nodes which are identical in category to the captured tree node.'''
     def __init__(self, var):
-        AtomValue.__init__(self, var, lambda a, b: a.equal_respecting_features(b))
+        AtomValue.__init__(self, var, lambda a, b: a.cat.equal_respecting_features(b.cat))
     def __repr__(self):
         return "=%s" % self.var
                 
 class NotAtom(AtomValue):
     def __init__(self, var):
-        AtomValue.__init__(self, var, operator.ne)
+        AtomValue.__init__(self, var, lambda a, b: not a.cat.equal_respecting_features(b.cat))
     def __repr__(self):
         return "~%s" % self.var
 
