@@ -36,6 +36,7 @@ shift $(($OPTIND - 1))
 started=`date +%c`
 ./make_clean.sh
 time ./make_all.sh $corpus_dir_arg $dir_suffix_arg $config_file_arg $undo_topicalisation_arg all
+mkdir -p $final_dir
 filtered_corpus="${final_dir}/filtered_corpus"
 unanalysed="${final_dir}/unanalysed"
 ./do_filter.sh $filtered_corpus
