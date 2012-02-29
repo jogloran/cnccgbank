@@ -59,10 +59,9 @@ yields a pair (node, context), and captured nodes are accessible by name using t
 If the user wants to keep context around, a copy must be made.'''
     if not expression: raise RuntimeError('No query expression given.')
 
-    if expression in expression_cache:
-        query = expression_cache[expression]
+    query = expression_cache.get(expression, None)
         
-    else:
+    if query is None:
         initialise()
             
         if _tgrep_debug:
