@@ -32,3 +32,5 @@ use_sb_alias: true
 merge_verb_compounds: true
 
 write_tree_indices: true
+
+normalise_foreign_names: true
