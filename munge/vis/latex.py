@@ -57,8 +57,8 @@ arrows = {
     'bwd_subst': 'bsubst',
     'fwd_xsubst': 'fxsubst',
     'bwd_xsubst': 'bxsubst',
-    'fwd_typeraise': 'ftype',
-    'bwd_typeraise': 'btype',
+    'fwd_raise': 'ftype',
+    'bwd_raise': 'btype',
 }
 def ccg2latex(root):
     def comb_symbol(comb):
