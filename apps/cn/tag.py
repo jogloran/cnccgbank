@@ -376,6 +376,13 @@ def preprocess(root):
         elif node.tag == 'CP-SBJ': node.tag = 'CP'
         
         else:
+            # Fix missing phrasal layer in NP < NN DEG (21:10(4))
+            result = get_first(node, r'/DNP/=P < { /N[NT]/=N $ /DEG/ }', with_context=True)
+            if result:
+                p, ctx = result
+                n = ctx.n
+                replace_kid(p, n, Node('NP', [n]))
+
             # Fix wrongly attached DEC (5:26(6))
             result = get_first(node, r'/CP/=TOP < { /IP/=P < { /NP/ $ /VP/ $ /DEC/=DEC } }', with_context=True)
             if result:
