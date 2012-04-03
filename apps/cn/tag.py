@@ -377,7 +377,14 @@ def preprocess(root):
         
         else:
             # Fix missing phrasal layer in NP < NN DEG (21:10(4))
-            result = get_first(node, r'/DNP/=P < { /N[NT]/=N $ /DEG/ }', with_context=True)
+            result = get_first(node, r'/DNP/=P < { /N[NRT]/=N $ /DEG/ }', with_context=True)
+            if result:
+                p, ctx = result
+                n = ctx.n
+                replace_kid(p, n, Node('NP', [n]))
+                
+            # Fix missing phrasal layer in LCP < NN LC (11:17(9))
+            result = get_first(node, r'/LCP/=P < { /N[NRT]/=N $ /LC/ }', with_context=True)
             if result:
                 p, ctx = result
                 n = ctx.n
