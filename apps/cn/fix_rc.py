@@ -131,8 +131,13 @@ class FixExtraction(Fix):
 #            (r'*=PP < { *=P < { /-TPC/a=T << ^/\*T\*/ $ *=S } }', self.remove_tpc_trace),
 #            (r'*=PP < { *=P < { { * < ^/\*-\d+/ }=T $ *=S } }', self.remove_tpc_trace),
             # Removes undischarged extraction traces (often associated with NP < WHNP CP(IP DEC), see 2:49(6))
-            (r'*=PP < { *=P < { { /WHNP-/ < ^/\*OP\*/ }=T $ *=S } }', self.remove_tpc_trace)
+            (r'*=PP < { *=P < { { /WHNP-/ < ^/\*OP\*/ }=T $ *=S } }', self.remove_tpc_trace),
+            (r'*=PP < { *=P < { *=T < /-NONE-/ $ *=S } }', self.shrink_none),
         ))
+        
+    def shrink_none(self, _, pp, p, t, s):
+        replace_kid(pp, p, s)
+        self.fix_categories_starting_from(s, until=None)
 
     def __init__(self, outdir):
         Fix.__init__(self, outdir)

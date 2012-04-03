@@ -11,6 +11,29 @@ import munge.cats.nodes as B
 from munge.util.config import config
 from copy import copy
 
+def replacing_repr_with(atomic_repr=None):
+    # Unfortunately, a bit complex.
+    # @replacing_repr_with(atomic_repr=A) decorates a repr implementation R so that
+    # for the duration of the call:
+    # * any sub-calls to __repr__ refer to R instead
+    # * any sub-calls to AtomicCategory.__repr__ refer to A instead
+    def __(f):
+        def _(self, *args, **kwargs):
+            old_repr = type(self).__repr__
+            old_atomic_repr = AtomicCategory.__repr__
+        
+            type(self).__repr__ = f
+            AtomicCategory.__repr__ = atomic_repr
+        
+            result = f(self, *args, **kwargs)
+        
+            type(self).__repr__ = old_repr
+            AtomicCategory.__repr__ = old_atomic_repr
+        
+            return result
+        return _
+    return __
+
 class Head(object):
     '''A Head represents an assigned lexical item.'''
     def __init__(self, lex=None, filler=None):
@@ -93,24 +116,28 @@ class AtomicCategory(B.AtomicCategory, Aliased):
         
         self.slot = Slot(var, value)
         
-    if config.show_vars:
-        def __repr__(self, *args, **kwargs):
-            r = B.AtomicCategory.__repr__(self, *args, **kwargs)
+    def repr_with_vars(self, *args, **kwargs):
+        r = B.AtomicCategory.__repr__(self, *args, **kwargs)
+        
+        if not kwargs.get('suppress_vars', False):                
+            if self.slot:
+                r += repr(self.slot)
             
-            if not kwargs.get('suppress_vars', False):                
-                if self.slot:
-                    r += repr(self.slot)
-                
-            if self.alias and not kwargs.get('suppress_alias', False):
-                r += '~'+self.alias
-                
-            return r
+        if self.alias and not kwargs.get('suppress_alias', False):
+            r += '~'+self.alias
+            
+        return r
+        
+    def repr_without_vars(self, *args, **kwargs):
+        r = B.AtomicCategory.__repr__(self, *args, **kwargs)
+        if self.alias and not kwargs.get('suppress_alias', False):
+            r += '~'+self.alias
+        return r
+        
+    if config.show_vars:
+        __repr__ = repr_with_vars
     else:
-        def __repr__(self, *args, **kwargs):
-            r = B.AtomicCategory.__repr__(self, *args, **kwargs)
-            if self.alias and not kwargs.get('suppress_alias', False):
-                r += '~'+self.alias
-            return r
+        __repr__ = repr_without_vars
     
     def equal_respecting_features_and_alias(self, other):
         return B.AtomicCategory.equal_respecting_features(self, other) and self.alias == other.alias
@@ -142,27 +169,33 @@ class ComplexCategory(B.ComplexCategory, Aliased):
         
         self.slot = Slot(var, value)
     
+    @replacing_repr_with(atomic_repr=AtomicCategory.repr_with_vars)
+    def repr_with_vars(self, *args, **kwargs):
+        r = B.ComplexCategory.__repr__(self, *args, **kwargs)
+        if not kwargs.get('suppress_vars', False):
+            if self.slot.var:
+                if kwargs.get('first', True):
+                    r = bracket_category(r)
+    
+            r += repr(self.slot)
+        
+        if self.alias and not kwargs.get('suppress_alias', False):
+            r += '~'+self.alias
+        
+        return r
+
+    @replacing_repr_with(atomic_repr=AtomicCategory.repr_without_vars)        
+    def repr_without_vars(self, *args, **kwargs):
+        r = B.ComplexCategory.__repr__(self, *args, **kwargs)
+        if self.alias and not kwargs.get('suppress_alias', False):
+            r += '~'+self.alias
+        return r
+    
     if config.show_vars:
-        def __repr__(self, *args, **kwargs):
-            r = B.ComplexCategory.__repr__(self, *args, **kwargs)
-            if not kwargs.get('suppress_vars', False):
-                if self.slot.var:
-                    if kwargs.get('first', True):
-                        r = bracket_category(r)
-        
-                r += repr(self.slot)
-            
-            if self.alias and not kwargs.get('suppress_alias', False):
-                r += '~'+self.alias
-        
-            return r
+        __repr__ = repr_with_vars
     else:
-        def __repr__(self, *args, **kwargs):
-            r = B.ComplexCategory.__repr__(self, *args, **kwargs)
-            if self.alias and not kwargs.get('suppress_alias', False):
-                r += '~'+self.alias
-            return r
-            
+        __repr__ = repr_without_vars
+        
     def equal_respecting_features_and_alias(self, other):
         return B.ComplexCategory.equal_respecting_features(self, other) and self.alias == other.alias
 
