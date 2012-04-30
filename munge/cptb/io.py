@@ -77,7 +77,12 @@ class CPTBReader(SingleReader):
                 text = file.read()
                 
             self.contents.feed(text)
-    
+        
+        # HACK HACK HACK:
+        # Sometimes <S>...</S> encloses more than one root (3:7 has some);
+        # in which case, counting <S> will undercount the number of sentences
+        if self.contents['s'] is None: return parse_tree('', AugmentedPennParser)
+        
         return parse_tree('\n'.join(self.contents['s']), AugmentedPennParser)
         
     def determine_sec_and_doc(self):
