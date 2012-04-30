@@ -38,6 +38,8 @@ class SanityChecks(Filter):
         self.nderivs = 0
         self.nwords = 0
         
+        self.tokens = set()
+        
         self.ec_types = defaultdict(int)
         self.ecs = 0
         self.depth = 0
@@ -52,6 +54,8 @@ class SanityChecks(Filter):
             if self.is_trace(leaf):
                 self.ecs += 1
                 self.ec_types[base_tag(leaf.lex)] += 1
+            else:
+                self.tokens.add(leaf.lex)
         # self.ecs += len([ leaf for leaf in leaves(bundle.derivation) if self.is_trace(leaf) ])
 
     def output(self):
@@ -60,6 +64,7 @@ class SanityChecks(Filter):
             self.nwords/float(self.nderivs),
             self.ecs   /float(self.nderivs)
         )
+        print "unique tokens: %d" % len(self.tokens)
         print "; ".join( "%s (%d)" % (kind, freq) for (kind, freq) in sorted(self.ec_types.iteritems(), key=lambda e: e[1], reverse=True) )
 
 class PUTokens(Filter):
