@@ -7,9 +7,13 @@
 # supplied in the Chinese CCGbank conversion distribution. If the LICENCE file is missing, please
 # notify the maintainer Daniel Tse <cncandc@gmail.com>.
 
+from collections import defaultdict
+
 from munge.proc.filter import Filter
 from munge.util.dict_utils import CountDict
 from munge.trees.traverse import leaves
+
+from apps.cn.fix_utils import base_tag
 
 def depth(root):
     if root.is_leaf(): return 0
@@ -34,6 +38,7 @@ class SanityChecks(Filter):
         self.nderivs = 0
         self.nwords = 0
         
+        self.ec_types = defaultdict(int)
         self.ecs = 0
         self.depth = 0
 
@@ -43,7 +48,11 @@ class SanityChecks(Filter):
     def accept_derivation(self, bundle):
         self.nderivs += 1
         self.nwords += len(bundle.derivation.text())
-        self.ecs += len([ leaf for leaf in leaves(bundle.derivation) if self.is_trace(leaf) ])
+        for leaf in leaves(bundle.derivation):
+            if self.is_trace(leaf):
+                self.ecs += 1
+                self.ec_types[base_tag(leaf.lex)] += 1
+        # self.ecs += len([ leaf for leaf in leaves(bundle.derivation) if self.is_trace(leaf) ])
 
     def output(self):
         print "nderivs: %d, nwords: %d, ecs: %d" % (self.nderivs, self.nwords, self.ecs)
@@ -51,6 +60,7 @@ class SanityChecks(Filter):
             self.nwords/float(self.nderivs),
             self.ecs   /float(self.nderivs)
         )
+        print "; ".join( "%s (%d)" % (kind, freq) for (kind, freq) in sorted(self.ec_types.iteritems(), key=lambda e: e[1], reverse=True) )
 
 class PUTokens(Filter):
     def __init__(self):
