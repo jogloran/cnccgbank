@@ -47,6 +47,10 @@ class SanityChecks(Filter):
 
     def output(self):
         print "nderivs: %d, nwords: %d, ecs: %d" % (self.nderivs, self.nwords, self.ecs)
+        print "avg words/sent: %.2f, ecs/sent: %.2f" % (
+            self.nwords/float(self.nderivs),
+            self.ecs   /float(self.nderivs)
+        )
 
 class PUTokens(Filter):
     def __init__(self):

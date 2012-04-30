@@ -1,5 +1,6 @@
 import glob, os, math
 from munge.proc.trace_core import TraceCore
+from munge.io.guess import GuessReader
 
 def as_slices(L, K):
     '''Yields slices from _L_ of length _K_ each.'''
@@ -12,9 +13,15 @@ def as_slices(L, K):
 def segmented_corpora(topdir, N):
     '''Divides the files under _topdir_ into N groups of approximately equal size.'''
     def all_files():
-        for file in glob.glob(os.path.join(topdir, '**')):
-            if not os.path.isfile(file): continue
-            yield file
+        file_list = (f for f in glob.glob(os.path.join(topdir, '**'))
+                     if os.path.isfile(f))
+        
+        for file in file_list:
+            reader = GuessReader(file)
+            L = list(reader)
+            for i in xrange(1,len(L)+1):
+                yield file + ':%d' % i
+            
     files = list(all_files())
     return as_slices(files, int(math.ceil(len(files)/N)))
 
