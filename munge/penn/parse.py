@@ -92,7 +92,7 @@ class AugmentedPennParser(PennParser):
             tag = toks.next()
             
             head_index = None
-            if toks.peek() == '<':
+            if toks.peek() == '<' and (not tag == 'PU'):
                 toks.next()
                 head_index = int(toks.next())
                 shift_and_check( '>', toks )
