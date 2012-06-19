@@ -138,12 +138,12 @@ except ImportError:
 def parse_tree(tree_string, _, split_chars="(){}<>", suppressors="{}"):
     return augpenn_parse(tree_string, "(){}<>", " \t\r\n", "{}")
 
-# def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
-#     penn_parser = parser_class()
-# 
-#     toks = preserving_split(tree_string, split_chars, suppressors=suppressors)
-# 
-#     docs = penn_parser.read_docs(toks)
-#     ensure_stream_exhausted(toks, 'penn.parse_tree')
-# 
-#     return docs
+#def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
+#    penn_parser = parser_class()
+#
+#    toks = preserving_split(tree_string, split_chars, suppressors=suppressors)
+#
+#    docs = penn_parser.read_docs(toks)
+#    ensure_stream_exhausted(toks, 'penn.parse_tree')
+#
+#    return docs
