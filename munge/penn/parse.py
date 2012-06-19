@@ -81,8 +81,16 @@ class CategoryPennParser(PennParser):
                 return ret
                 
         return with_parens(body, toks)
+        
+class CAugmentedPennParser(PennParser):
+    def read_docs(self, toks):
+        print 'toks', toks
+        result = augpenn_parse(toks, "(){}<>", " \t\r\n", "{}")
+        print 'result',result
+        toks.clear()
+        return result
             
-class AugmentedPennParser(PennParser):
+class PythonAugmentedPennParser(PennParser):
     def __init__(self):
         PennParser.__init__(self)
         
@@ -120,13 +128,22 @@ class AugmentedPennParser(PennParser):
                 return ret
                 
         return with_parens(body, toks)
+        
+try:
+    from pressplit2 import augpenn_parse
+    AugmentedPennParser = CAugmentedPennParser
+except ImportError:
+    AugmentedPennParser = PythonAugmentedPennParser
+    
+def parse_tree(tree_string, _, split_chars="(){}<>", suppressors="{}"):
+    return augpenn_parse(tree_string, "(){}<>", " \t\r\n", "{}")
 
-def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
-    penn_parser = parser_class()
-
-    toks = preserving_split(tree_string, split_chars, suppressors=suppressors)
-
-    docs = penn_parser.read_docs(toks)
-    ensure_stream_exhausted(toks, 'penn.parse_tree')
-
-    return docs
+# def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
+#     penn_parser = parser_class()
+# 
+#     toks = preserving_split(tree_string, split_chars, suppressors=suppressors)
+# 
+#     docs = penn_parser.read_docs(toks)
+#     ensure_stream_exhausted(toks, 'penn.parse_tree')
+# 
+#     return docs

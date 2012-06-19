@@ -10,5 +10,6 @@
 from distutils.core import setup, Extension
 
 setup(name='pressplit', ext_modules=[ Extension('pressplit', sources=['pressplit.c']) ])
+setup(name='pressplit2', ext_modules=[ Extension('pressplit2', sources=['pressplit2.cc']) ])
 #setup(name='exthash', ext_modules=[ Extension('exthash', sources=['hash.c']) ])
 
