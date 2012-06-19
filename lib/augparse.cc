@@ -6,9 +6,9 @@
 
 static PyObject* _parse_docs(PyObject* self, PyObject* args);
 static PyObject* _parse_doc(std::deque<std::string>& toks);
-static std::deque<std::string> pressplit2_split(PyObject* self, PyObject* args);
+static std::deque<std::string> augparse_split(PyObject* self, PyObject* args);
 static void shift_and_check(std::string must_match, std::deque<std::string>& toks);
-static PyObject* pressplit2_augpenn_parse(PyObject* self, PyObject* args);
+static PyObject* augparse_augpenn_parse(PyObject* self, PyObject* args);
 static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent=NULL);
 
 static PyObject* parse_category_f = NULL;
@@ -23,12 +23,12 @@ static void shift_and_check(std::string must_match, std::deque<std::string>& tok
     }
 }
 
-static PyObject* pressplit2_augpenn_parse(PyObject* self, PyObject* args) {
+static PyObject* augparse_augpenn_parse(PyObject* self, PyObject* args) {
     return _parse_docs(self, args);
 }
 
 static PyObject* _parse_docs(PyObject* self, PyObject* args) {
-    std::deque<std::string> toks = pressplit2_split(self, args);
+    std::deque<std::string> toks = augparse_split(self, args);
     
     PyObject* result = PyList_New((Py_ssize_t)0);
     while (toks.size() > 0 && toks.front() == "(") {
@@ -84,7 +84,7 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     if (category == NULL) {
         category = Py_None; Py_INCREF(Py_None);
     }
-// 
+
 //     kids = []
     PyObject* kids = PyList_New((Py_ssize_t)0);
 // 
@@ -144,7 +144,7 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     Py_RETURN_NONE;
 }
 
-static std::deque<std::string> pressplit2_split(PyObject* self, PyObject* args) {
+static std::deque<std::string> augparse_split(PyObject* self, PyObject* args) {
     const char* str;
     const char* split_chars;
     const char* skip_chars;
@@ -203,13 +203,13 @@ static std::deque<std::string> pressplit2_split(PyObject* self, PyObject* args) 
     return result;
 }
 
-static PyMethodDef pressplit2_methods[] = {
+static PyMethodDef augparse_methods[] = {
     /* name    ptr to function               flags         doc */
-    { "augpenn_parse", (PyCFunction)pressplit2_augpenn_parse, METH_VARARGS, "" },
+    { "augpenn_parse", (PyCFunction)augparse_augpenn_parse, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL }
 };
 
-extern "C" void initpressplit2(void) {
+extern "C" void initaugparse(void) {
     PyObject* module = PyImport_ImportModule("munge.cats.headed.parse");
         if (module == NULL) {
             PyErr_SetString(PyExc_ImportError, "Could not load munge.cats.headed.parse");
@@ -235,5 +235,5 @@ extern "C" void initpressplit2(void) {
         Py_DECREF(module_dict);
     Py_DECREF(module);
     
-    Py_InitModule("pressplit2", pressplit2_methods);
+    Py_InitModule("augparse", augparse_methods);
 }
