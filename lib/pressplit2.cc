@@ -30,12 +30,6 @@ static PyObject* pressplit2_augpenn_parse(PyObject* self, PyObject* args) {
 
 static PyObject* _parse_docs(PyObject* self, PyObject* args) {
     std::deque<std::string> toks = pressplit2_split(self, args);
-    // std::cout << "ntoks: " << toks.size() << std::endl;
-    for (std::deque<std::string>::const_iterator it = toks.begin();
-        it != toks.end(); ++it) {
-        // std::cout << *it << std::endl;
-    }
-    
     
     PyObject* result = PyList_New((Py_ssize_t)0);
     while (toks.size() > 0 && toks.front() == "(") {
@@ -43,6 +37,7 @@ static PyObject* _parse_docs(PyObject* self, PyObject* args) {
         PyObject* doc = _parse_doc(toks);
         // std::cout << "Read doc" << doc << std::endl;
         PyList_Append( result, doc );
+        Py_DECREF(doc);
         // std::cout << "Appended doc" << result << std::endl;
     }
     // std::cout << "done parsing docs" << std::endl;
@@ -90,7 +85,8 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         toks.pop_front();
 //         category = parse_category(toks.next())
         PyObject* cat = PyString_FromString(toks.front().c_str()); toks.pop_front();
-        category = PyObject_CallObject(parse_category_f, cat);
+        PyObject* args = Py_BuildValue("(O)", cat);
+        category = PyObject_CallObject(parse_category_f, args);
         // std::cout << "category " << category << std::endl;
 //         shift_and_check( '}', toks )
         shift_and_check("}", toks);
@@ -111,7 +107,9 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
 //         if toks.peek() == '(':
         if (toks.front() == "(") {
 //             kids.append( self.read_deriv(toks) )
-            PyList_Append( kids, _parse(toks) );
+            PyObject* node = _parse(toks);
+            PyList_Append( kids, node );
+            Py_DECREF(node);
 //         else:
         } else {
 //             lex = toks.next()
@@ -130,11 +128,13 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         // std::cout << "-1 args: " << args << std::endl;
         PyObject* result = PyObject_CallObject(Leaf_f, args);
         // std::cout << "-RR1" << std::endl;
-        // Py_DECREF(args); causes crash
+        Py_DECREF(args);
         // std::cout << "-R1" << std::endl;
                     
         shift_and_check(")", toks);
         
+        Py_DECREF(kids);
+        Py_DECREF(category);
         return result;
 //     else:
     } else {
@@ -143,7 +143,7 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         // std::cout << "-2 " << tag.c_str() << " " << kids << " " << category << " " << parent << " " <<  head_index << std::endl;
         // std::cout << "-2 args: " << args << std::endl;
         PyObject* result = PyObject_CallObject(Node_f, args);
-        // Py_DECREF(args); causes crash
+        Py_DECREF(args);
         // std::cout << "-R2" << toks.front() << std::endl;
 //         for kid in ret: kid.parent = ret
         PyObject *iterator = PyObject_GetIter(result);
@@ -151,11 +151,15 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         // if (iterator == NULL) {}
         while (kid = PyIter_Next(iterator)) {
             PyObject_SetAttrString(kid, "parent", result);
+            Py_DECREF(kid);
         }
+        Py_DECREF(iterator);
         
         // TODO:
         shift_and_check(")", toks);
         
+        Py_DECREF(kids);
+        Py_DECREF(category);
         return result;
     }
     
@@ -243,23 +247,25 @@ extern "C" void initpressplit2(void) {
         }
         // // std::cout << "here " << module << std::endl;
         PyObject* module_dict = PyModule_GetDict(module);
-        // // std::cout << "here" << std::endl;
-        parse_category_f = PyDict_GetItemString(module_dict, "parse_category");
-        Py_INCREF(parse_category_f);
+            // // std::cout << "here" << std::endl;
+            parse_category_f = PyDict_GetItemString(module_dict, "parse_category");
+            Py_INCREF(parse_category_f);
+        Py_DECREF(module_dict);
         // // std::cout << "Loaded parse_category: " << parse_category_f << std::endl;    
     Py_DECREF(module);
     
     module = PyImport_ImportModule("munge.penn.aug_nodes");
-    if (module == NULL) {
-        PyErr_SetString(PyExc_ImportError, "Could not load munge.penn.aug_nodes");
-        return;
-    }
-    module_dict = PyModule_GetDict(module);
-        Leaf_f = PyDict_GetItemString(module_dict, "Leaf");
-        Py_INCREF(Leaf_f);
-        Node_f = PyDict_GetItemString(module_dict, "Node");
-        Py_INCREF(Node_f);
-    Py_DECREF(module_dict);
+        if (module == NULL) {
+            PyErr_SetString(PyExc_ImportError, "Could not load munge.penn.aug_nodes");
+            return;
+        }
+        module_dict = PyModule_GetDict(module);
+            Leaf_f = PyDict_GetItemString(module_dict, "Leaf");
+            Py_INCREF(Leaf_f);
+            Node_f = PyDict_GetItemString(module_dict, "Node");
+            Py_INCREF(Node_f);
+        Py_DECREF(module_dict);
+    Py_DECREF(module);
     
     Py_InitModule("pressplit2", pressplit2_methods);
 }
