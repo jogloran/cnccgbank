@@ -25,6 +25,9 @@ class CPressplitIterator(object):
         if not self.toks: raise StopIteration
         return self.toks.pop(0)
         
+    def clear(self):
+        self.toks = []
+        
 class CStackbasedPressplitIterator(object):
     '''preserving_split implemented in C, with the backing reversed to avoid pop() operations from the front.'''
     def __init__(self, str, split_chars, skip_chars, suppressors):
@@ -41,6 +44,9 @@ class CStackbasedPressplitIterator(object):
     def next(self):
         if not self.toks: raise StopIteration
         return self.toks.pop()
+        
+    def clear(self):
+        self.toks = []
 
 class EagerPressplitIterator(object):
     '''preserving_split implemented in Python with the token stream as a list.'''
@@ -84,6 +90,9 @@ class EagerPressplitIterator(object):
     def next(self):
         if not self.backing: raise StopIteration
         return self.backing.pop(0)
+        
+    def clear(self):
+        self.backing = []
         
 class PressplitIterator(object):
     '''preserving_split implementation with the token stream as a generator.'''
@@ -133,6 +142,9 @@ class PressplitIterator(object):
             self.top = None
 
         return previous_top
+        
+    def clear(self):
+        self.generator = None
 
 def preserving_split(str, split_chars, skip_chars=" \t\r\n", suppressors='', lexer_class=CStackbasedPressplitIterator):
     '''Returns an iterator yielding successive tokens from _str_ as split on three
