@@ -136,7 +136,7 @@ except ImportError:
     AugmentedPennParser = PythonAugmentedPennParser
     
 def parse_tree(tree_string, _, split_chars="(){}<>", suppressors="{}"):
-    return augpenn_parse(tree_string, "(){}<>", " \t\r\n", "{}")
+    return augpenn_parse(tree_string, split_chars, " \t\r\n", suppressors)
 
 # def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
 #     penn_parser = parser_class()
