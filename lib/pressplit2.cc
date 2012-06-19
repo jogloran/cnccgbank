@@ -1,5 +1,4 @@
 #include "Python.h"
-
 #include <iostream>
 #include <deque>
 #include <string>
@@ -33,14 +32,10 @@ static PyObject* _parse_docs(PyObject* self, PyObject* args) {
     
     PyObject* result = PyList_New((Py_ssize_t)0);
     while (toks.size() > 0 && toks.front() == "(") {
-        // std::cout << "Reading doc" << std::endl;
         PyObject* doc = _parse_doc(toks);
-        // std::cout << "Read doc" << doc << std::endl;
         PyList_Append( result, doc );
         Py_DECREF(doc);
-        // std::cout << "Appended doc" << result << std::endl;
     }
-    // std::cout << "done parsing docs" << std::endl;
     return result;
 }
 
@@ -56,21 +51,16 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         parent = Py_None; Py_INCREF(Py_None);
     }
     
-    // std::cout << "-1" << toks.front() << std::endl;
     shift_and_check("(", toks);
-    // std::cout << "-1" << toks.front() << std::endl;    
     // tag = toks.next()
     std::string tag = toks.front(); toks.pop_front();
-    // std::cout << "-1a" << toks.front() << std::endl;    
     //     head_index = None
     //     if toks.peek() == '<':
     int head_index = -1;
     if (toks.front() == "<") {
-        // std::cout << "-2" << std::endl;
         //         toks.next()
         toks.pop_front();
         //         head_index = int(toks.next())
-        // std::cout << "atoi " << atoi(toks.front().c_str()) << std::endl;
         head_index = atoi(toks.front().c_str()); toks.pop_front();
         //         shift_and_check( '>', toks )
         shift_and_check(">", toks);
@@ -87,7 +77,6 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         PyObject* cat = PyString_FromString(toks.front().c_str()); toks.pop_front();
         PyObject* args = Py_BuildValue("(O)", cat);
         category = PyObject_CallObject(parse_category_f, args);
-        // std::cout << "category " << category << std::endl;
 //         shift_and_check( '}', toks )
         shift_and_check("}", toks);
     }
@@ -97,7 +86,6 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     }
 // 
 //     kids = []
-    // std::cout << "-M" << std::endl;
     PyObject* kids = PyList_New((Py_ssize_t)0);
 // 
 //     lex = None
@@ -113,23 +101,16 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
 //         else:
         } else {
 //             lex = toks.next()
-            // std::cout << "lex " << toks.front() << std::endl;
             lex = toks.front(); toks.pop_front();
         }
     }
     
-    // std::cout << "-P" << toks.front() << std::endl;
-// 
 //     if (not kids) and lex:
     if (PyList_Size(kids) == 0 && lex.length() != 0) {
 //         return A.Leaf(tag, lex, category, parent)
         PyObject* args = Py_BuildValue("(ssOO)", tag.c_str(), lex.c_str(), category, parent);
-        // std::cout << "-2 " << tag.c_str() << " " << lex.c_str() << " " << category << " " << parent << std::endl;        
-        // std::cout << "-1 args: " << args << std::endl;
         PyObject* result = PyObject_CallObject(Leaf_f, args);
-        // std::cout << "-RR1" << std::endl;
         Py_DECREF(args);
-        // std::cout << "-R1" << std::endl;
                     
         shift_and_check(")", toks);
         
@@ -140,11 +121,8 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     } else {
 //         ret = A.Node(tag, kids, category, parent, head_index)
         PyObject* args = Py_BuildValue("(sOOOi)", tag.c_str(), kids, category, parent, head_index);
-        // std::cout << "-2 " << tag.c_str() << " " << kids << " " << category << " " << parent << " " <<  head_index << std::endl;
-        // std::cout << "-2 args: " << args << std::endl;
         PyObject* result = PyObject_CallObject(Node_f, args);
         Py_DECREF(args);
-        // std::cout << "-R2" << toks.front() << std::endl;
 //         for kid in ret: kid.parent = ret
         PyObject *iterator = PyObject_GetIter(result);
         PyObject *kid;
@@ -166,7 +144,6 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     Py_RETURN_NONE;
 }
 
-// static PyObject* pressplit2_split(PyObject* self, PyObject* args) {
 static std::deque<std::string> pressplit2_split(PyObject* self, PyObject* args) {
     const char* str;
     const char* split_chars;
@@ -223,13 +200,7 @@ static std::deque<std::string> pressplit2_split(PyObject* self, PyObject* args) 
         result.push_back(cur);
     }
 
-    // for (std::deque<std::string>::const_iterator it = result.begin();
-    //     it != result.end(); ++it) {
-    //     // std::cout << *it << std::endl;
-    // }
-    
     return result;
-    // Py_RETURN_NONE;
 }
 
 static PyMethodDef pressplit2_methods[] = {
@@ -239,19 +210,16 @@ static PyMethodDef pressplit2_methods[] = {
 };
 
 extern "C" void initpressplit2(void) {
-    // std::cout << "initpressplit2" << std::endl;
     PyObject* module = PyImport_ImportModule("munge.cats.headed.parse");
         if (module == NULL) {
             PyErr_SetString(PyExc_ImportError, "Could not load munge.cats.headed.parse");
             return;
         }
-        // // std::cout << "here " << module << std::endl;
+        
         PyObject* module_dict = PyModule_GetDict(module);
-            // // std::cout << "here" << std::endl;
             parse_category_f = PyDict_GetItemString(module_dict, "parse_category");
             Py_INCREF(parse_category_f);
         Py_DECREF(module_dict);
-        // // std::cout << "Loaded parse_category: " << parse_category_f << std::endl;    
     Py_DECREF(module);
     
     module = PyImport_ImportModule("munge.penn.aug_nodes");
