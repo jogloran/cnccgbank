@@ -127,16 +127,23 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
             Py_RETURN_NONE;
         }
         Py_XDECREF(args);
-        
 //         for kid in ret: kid.parent = ret
-        PyObject* kids = PySequence_Fast(result, "result not iterable");
-        Py_ssize_t nitems = PySequence_Fast_GET_SIZE(kids);
-        PyObject** kidp = PySequence_Fast_ITEMS(kids);
-        while (nitems-- > 0) {
-            PyObject_SetAttrString(*kidp, "parent", result);
-            ++kidp;
+        PyObject *iterator = PyObject_GetIter(result);
+        if (iterator == NULL) {
+            Py_RETURN_NONE;
         }
 
+        PyObject *kid;
+        while (kid = PyIter_Next(iterator)) {
+            if (kid != Py_None) {
+                PyObject_SetAttrString(kid, "parent", result);
+            }
+            Py_XDECREF(kid);
+        }
+        Py_XDECREF(iterator);
+
+        if (PyErr_Occurred()) Py_RETURN_NONE;
+        
         // TODO:
         shift_and_check(")", toks);
         
