@@ -35,9 +35,6 @@ class IncrementalNCats(Tabulation('freqs'), Filter):
         self.growth_fn = growth_fn
         self.rank_fn = rank_fn
         
-    def accept_leaf(self, leaf):
-        self.freqs[str(leaf.cat)] += 1
-        
     def accept_derivation(self, bundle):
         self.ntokens += len(bundle.derivation.text())
         

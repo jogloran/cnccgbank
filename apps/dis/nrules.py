@@ -45,3 +45,20 @@ class NRules(Tabulation(['freqs', 'unary']), Filter):
         print
         
         self.do_output()
+
+class IncrementalNRules(NRules):
+    def __init__(self):
+        super(IncrementalNRules, self).__init__()
+
+        self.ntokens = 0
+        self.data_points = [ (0, 0) ]
+
+    def accept_derivation(self, bundle):
+        super(IncrementalNRules, self).accept_derivation(bundle)
+
+        self.ntokens += len(bundle.derivation.text())
+        self.data_points.append( (self.ntokens, len(self.freqs)) )
+
+    def output(self):
+        print '\n'.join( ' '.join(map(str, xy)) for xy in self.data_points )
+
