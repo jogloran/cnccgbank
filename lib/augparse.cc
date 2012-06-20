@@ -53,32 +53,22 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     }
     
     shift_and_check("(", toks);
-    // tag = toks.next()
     std::string tag = toks.front(); toks.pop_front();
-    //     head_index = None
-    //     if toks.peek() == '<':
+    
     int head_index = -1;
     if (toks.front() == "<") {
-        //         toks.next()
         toks.pop_front();
-        //         head_index = int(toks.next())
         head_index = atoi(toks.front().c_str()); toks.pop_front();
-        //         shift_and_check( '>', toks )
         shift_and_check(">", toks);
     }
         
-    //     category = None
     PyObject* category = NULL;
     
-//     if toks.peek() == '{':        
     if (toks.front() == "{") {
-//         toks.next()
         toks.pop_front();
-//         category = parse_category(toks.next())
         PyObject* cat = PyString_FromString(toks.front().c_str()); toks.pop_front();
         PyObject* args = Py_BuildValue("(O)", cat);
         category = PyObject_CallObject(parse_category_f, args);
-//         shift_and_check( '}', toks )
         shift_and_check("}", toks);
     }
     
@@ -86,29 +76,19 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         category = Py_None; Py_XINCREF(Py_None);
     }
 
-//     kids = []
     PyObject* kids = PyList_New((Py_ssize_t)0);
-// 
-//     lex = None
     std::string lex;
-//     while toks.peek() != ')':
     while (toks.front() != ")") {
-//         if toks.peek() == '(':
         if (toks.front() == "(") {
-//             kids.append( self.read_deriv(toks) )
             PyObject* node = _parse(toks);
             PyList_Append( kids, node );
             Py_XDECREF(node);
-//         else:
         } else {
-//             lex = toks.next()
             lex = toks.front(); toks.pop_front();
         }
     }
     
-//     if (not kids) and lex:
     if (PyList_Size(kids) == 0 && lex.length() != 0) {
-//         return A.Leaf(tag, lex, category, parent)
         PyObject* args = Py_BuildValue("(ssOO)", tag.c_str(), lex.c_str(), category, parent);
         PyObject* result = PyObject_CallObject(Leaf_f, args);
         Py_XDECREF(args);
@@ -118,16 +98,13 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         Py_XDECREF(kids);
         Py_XDECREF(category);
         return result;
-//     else:
     } else {
-//         ret = A.Node(tag, kids, category, parent, head_index)
         PyObject* args = Py_BuildValue("(sOOOi)", tag.c_str(), kids, category, parent, head_index);
         PyObject* result = PyObject_CallObject(Node_f, args);
         if (result == NULL) {
             Py_RETURN_NONE;
         }
         Py_XDECREF(args);
-//         for kid in ret: kid.parent = ret
         PyObject *iterator = PyObject_GetIter(result);
         if (iterator == NULL) {
             Py_RETURN_NONE;
@@ -143,8 +120,6 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         Py_XDECREF(iterator);
 
         if (PyErr_Occurred()) Py_RETURN_NONE;
-        
-        // TODO:
         shift_and_check(")", toks);
         
         Py_XDECREF(kids);
