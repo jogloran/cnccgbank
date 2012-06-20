@@ -11,5 +11,6 @@ from distutils.core import setup, Extension
 
 setup(name='pressplit', ext_modules=[ Extension('pressplit', sources=['pressplit.c']) ])
 setup(name='augparse', ext_modules=[ Extension('augparse', sources=['augparse.cc']) ])
+setup(name='cleaves', ext_modules=[ Extension('cleaves', sources=['cleaves.cc']) ])
 #setup(name='exthash', ext_modules=[ Extension('exthash', sources=['hash.c']) ])
 

@@ -1,6 +1,7 @@
 #include "Python.h"
 #include <iostream>
 #include <deque>
+#include <set>
 #include <string>
 #include <stdio.h>
 
@@ -133,7 +134,6 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
         }
 
         PyObject *kid;
-        // if (iterator == NULL) {}
         while (kid = PyIter_Next(iterator)) {
             if (kid != Py_None) {
                 PyObject_SetAttrString(kid, "parent", result);
