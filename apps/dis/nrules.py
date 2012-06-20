@@ -47,11 +47,14 @@ class NRules(Tabulation(['freqs', 'unary']), Filter):
         self.do_output()
 
 class IncrementalNRules(NRules):
-    def __init__(self):
+    def __init__(self, growth_fn, rank_fn):
         super(IncrementalNRules, self).__init__()
 
         self.ntokens = 0
         self.data_points = [ (0, 0) ]
+        
+        self.growth_fn = growth_fn
+        self.rank_fn = rank_fn
 
     def accept_derivation(self, bundle):
         super(IncrementalNRules, self).accept_derivation(bundle)
@@ -60,5 +63,11 @@ class IncrementalNRules(NRules):
         self.data_points.append( (self.ntokens, len(self.freqs)) )
 
     def output(self):
-        print '\n'.join( ' '.join(map(str, xy)) for xy in self.data_points )
+        with file(self.growth_fn, 'w') as f:
+            print >>f, '\n'.join( ' '.join(map(str, xy)) for xy in self.data_points )
 
+        with file(self.rank_fn, 'w') as f:
+            for k, freq in sorted_by_value_desc(self.freqs):
+                print >>f, freq
+
+    arg_names = "GROWTH_FILENAME RANK_FILENAME"

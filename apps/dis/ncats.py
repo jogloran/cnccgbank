@@ -25,7 +25,7 @@ class NCats(Tabulation('freqs'), Filter):
         print "#cats     : %d" % ncats
         print "#cats >=10: %d" % ncatsge10
         
-class IncrementalNCats(Tabulation('freqs'), Filter):
+class IncrementalNCats(NCats):
     def __init__(self, growth_fn, rank_fn):
         super(IncrementalNCats, self).__init__()
         
