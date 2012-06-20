@@ -10,6 +10,40 @@ static PyObject* cleaves_leaves(PyObject* self, PyObject* args) {
         PyErr_SetString(PyExc_RuntimeError, "leaves: error parsing arguments");
     }
     
+    PyObject* result = PyList_New((Py_ssize_t)0);
+    
+    PyObject* is_leaf_boolean = PyObject_CallMethod(deriv, "is_leaf", NULL);
+    bool is_leaf = PyBool_Check(is_leaf_boolean) && is_leaf_boolean == Py_True;
+    Py_XDECREF(is_leaf_boolean);
+    if (is_leaf) {
+        PyList_Append(result, deriv);
+    } else {
+        PyObject* kids = PySequence_Fast(deriv, "deriv not iterable");
+        
+        Py_ssize_t nitems = PySequence_Fast_GET_SIZE(kids);
+        PyObject** kidp = PySequence_Fast_ITEMS(kids);
+        while (nitems-- > 0) {
+            PyObject* args = Py_BuildValue("(O)", *kidp);
+            PyObject* sub_leaves = cleaves_leaves(NULL, args); 
+            Py_XDECREF(args);
+            
+            PySequence_InPlaceConcat(result, sub_leaves);      
+            Py_XDECREF(sub_leaves);            
+            
+            ++kidp;
+        }
+    }
+    
+    return result;
+}
+
+static PyObject* cleaves_nonrecursive_leaves(PyObject* self, PyObject* args) {
+    PyObject* deriv;
+    // PyObject* pred;
+    if (!PyArg_ParseTuple(args, "O", &deriv)) {
+        PyErr_SetString(PyExc_RuntimeError, "nonrecursive_leaves: error parsing arguments");
+    }
+    
     std::set<PyObject*> visited;
     PyObject* cur = deriv;
     Py_XINCREF(cur);
@@ -69,6 +103,7 @@ static PyObject* cleaves_leaves(PyObject* self, PyObject* args) {
 static PyMethodDef cleaves_methods[] = {
     /* name    ptr to function               flags         doc */
     { "leaves", (PyCFunction)cleaves_leaves, METH_VARARGS, "" },
+    { "nonrecursive_leaves", (PyCFunction)cleaves_nonrecursive_leaves, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL }
 };
 
