@@ -24,15 +24,12 @@ class NCats(Tabulation('freqs'), Filter):
         print "#cats     : %d" % ncats
         print "#cats >=10: %d" % ncatsge10
         
-class IncrementalNCats(Tabulation('freqs'), Filter):
+class IncrementalNCats(NCats):
     def __init__(self):
         super(IncrementalNCats, self).__init__()
         
         self.ntokens = 0
         self.data_points = [ (0, 0) ]
-        
-    def accept_leaf(self, leaf):
-        self.freqs[str(leaf.cat)] += 1
         
     def accept_derivation(self, bundle):
         self.ntokens += len(bundle.derivation.text())
@@ -42,3 +39,4 @@ class IncrementalNCats(Tabulation('freqs'), Filter):
         
     def output(self):
         print '\n'.join( ' '.join(map(str, xy)) for xy in self.data_points )
+
