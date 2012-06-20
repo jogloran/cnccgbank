@@ -34,7 +34,7 @@ static PyObject* _parse_docs(PyObject* self, PyObject* args) {
     while (toks.size() > 0 && toks.front() == "(") {
         PyObject* doc = _parse_doc(toks);
         PyList_Append( result, doc );
-        Py_DECREF(doc);
+        Py_XDECREF(doc);
     }
     return result;
 }
@@ -48,7 +48,7 @@ static PyObject* _parse_doc(std::deque<std::string>& toks) {
 
 static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     if (parent == NULL) {
-        parent = Py_None; Py_INCREF(Py_None);
+        parent = Py_None; Py_XINCREF(Py_None);
     }
     
     shift_and_check("(", toks);
@@ -82,7 +82,7 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
     }
     
     if (category == NULL) {
-        category = Py_None; Py_INCREF(Py_None);
+        category = Py_None; Py_XINCREF(Py_None);
     }
 
 //     kids = []
@@ -97,7 +97,7 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
 //             kids.append( self.read_deriv(toks) )
             PyObject* node = _parse(toks);
             PyList_Append( kids, node );
-            Py_DECREF(node);
+            Py_XDECREF(node);
 //         else:
         } else {
 //             lex = toks.next()
@@ -110,34 +110,45 @@ static PyObject* _parse(std::deque<std::string>& toks, PyObject* parent) {
 //         return A.Leaf(tag, lex, category, parent)
         PyObject* args = Py_BuildValue("(ssOO)", tag.c_str(), lex.c_str(), category, parent);
         PyObject* result = PyObject_CallObject(Leaf_f, args);
-        Py_DECREF(args);
+        Py_XDECREF(args);
                     
         shift_and_check(")", toks);
         
-        Py_DECREF(kids);
-        Py_DECREF(category);
+        Py_XDECREF(kids);
+        Py_XDECREF(category);
         return result;
 //     else:
     } else {
 //         ret = A.Node(tag, kids, category, parent, head_index)
         PyObject* args = Py_BuildValue("(sOOOi)", tag.c_str(), kids, category, parent, head_index);
         PyObject* result = PyObject_CallObject(Node_f, args);
-        Py_DECREF(args);
+        if (result == NULL) {
+            Py_RETURN_NONE;
+        }
+        Py_XDECREF(args);
 //         for kid in ret: kid.parent = ret
         PyObject *iterator = PyObject_GetIter(result);
+        if (iterator == NULL) {
+            Py_RETURN_NONE;
+        }
+
         PyObject *kid;
         // if (iterator == NULL) {}
         while (kid = PyIter_Next(iterator)) {
-            PyObject_SetAttrString(kid, "parent", result);
-            Py_DECREF(kid);
+            if (kid != Py_None) {
+                PyObject_SetAttrString(kid, "parent", result);
+            }
+            Py_XDECREF(kid);
         }
-        Py_DECREF(iterator);
+        Py_XDECREF(iterator);
+
+        if (PyErr_Occurred()) Py_RETURN_NONE;
         
         // TODO:
         shift_and_check(")", toks);
         
-        Py_DECREF(kids);
-        Py_DECREF(category);
+        Py_XDECREF(kids);
+        Py_XDECREF(category);
         return result;
     }
     
@@ -218,9 +229,9 @@ extern "C" void initaugparse(void) {
         
         PyObject* module_dict = PyModule_GetDict(module);
             parse_category_f = PyDict_GetItemString(module_dict, "parse_category");
-            Py_INCREF(parse_category_f);
-        Py_DECREF(module_dict);
-    Py_DECREF(module);
+            Py_XINCREF(parse_category_f);
+        Py_XDECREF(module_dict);
+    Py_XDECREF(module);
     
     module = PyImport_ImportModule("munge.penn.aug_nodes");
         if (module == NULL) {
@@ -229,11 +240,11 @@ extern "C" void initaugparse(void) {
         }
         module_dict = PyModule_GetDict(module);
             Leaf_f = PyDict_GetItemString(module_dict, "Leaf");
-            Py_INCREF(Leaf_f);
+            Py_XINCREF(Leaf_f);
             Node_f = PyDict_GetItemString(module_dict, "Node");
-            Py_INCREF(Node_f);
-        Py_DECREF(module_dict);
-    Py_DECREF(module);
+            Py_XINCREF(Node_f);
+        Py_XDECREF(module_dict);
+    Py_XDECREF(module);
     
     Py_InitModule("augparse", augparse_methods);
 }
