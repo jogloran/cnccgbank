@@ -130,7 +130,7 @@ class PythonAugmentedPennParser(PennParser):
         return with_parens(body, toks)
         
 try:
-    from pressplit2 import augpenn_parse
+    from augparse import augpenn_parse
     AugmentedPennParser = CAugmentedPennParser
 except ImportError:
     AugmentedPennParser = PythonAugmentedPennParser
