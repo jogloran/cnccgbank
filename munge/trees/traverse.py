@@ -81,14 +81,17 @@ def text(deriv, pred=lambda e: True):
     '''Returns a list of the tokens at the leaves of a derivation.'''
     return [node.lex for node in leaves(deriv) if pred(node)]
     
+NoneRegex = re.compile(r'-?NONE-?')
+OpenQuoteRegex = re.compile(r'^``?$')
+CloseQuoteRegex = re.compile(r'^``?$')
 def is_ignored(node, ignoring_quotes=True):
     '''Is true for a PTB node which corresponds to no CCGbank node (traces or quote symbols).'''
     # We check that the POS tag is not ':' to exclude the erroneous analysis in 21:61(24) 
     # (see munge.proc.quote.quotify spans())
-    return (re.match(r'-?NONE-?', node.tag) or
+    return (NoneRegex.match(node.tag) or
             (ignoring_quotes and
-               ((re.match(r'^``?$', node.lex) or
-                (node.tag not in ("POS", ":") and re.match(r"^''?$", node.lex)))) or
+               ((OpenQuoteRegex.match(node.lex) or
+                (node.tag not in ("POS", ":") and CloseQuoteRegex.match(node.lex)))) or
                 (node.lex in ("“", "”"))))
     
 def text_without_quotes_or_traces(deriv, pred=lambda e: True):
