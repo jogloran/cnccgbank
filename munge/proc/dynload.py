@@ -7,6 +7,7 @@
 # supplied in the Chinese CCGbank conversion distribution. If the LICENCE file is missing, please
 # notify the maintainer Daniel Tse <cncandc@gmail.com>.
 
+import inspect
 from types import TypeType
 
 import munge.proc.filter # Required to use the qualified name munge.proc.trace.Filter (just 'Filter' doesn't work)

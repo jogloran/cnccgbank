@@ -2,6 +2,7 @@ import sys, re
 
 seen_deriv = None
 
+print 'quiet'
 print 'load apps.rulechk'
 print 'into stdout'
 

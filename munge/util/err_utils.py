@@ -39,7 +39,9 @@ def info(msg, *fmts):
         
 def msg(msg, *fmts):
     '''Issues a _msg_ to stderr except in the muzzled state.'''
-    stream_report(sys.stderr, "msg", msg, *fmts)
+    global muzzled
+    if not muzzled:
+        stream_report(sys.stderr, "msg", msg, *fmts)
     
 def _make_debug(preface_maker):
     def debug(msg, *fmts):
