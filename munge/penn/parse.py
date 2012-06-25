@@ -22,10 +22,16 @@ import munge.penn.nodes as N
 import munge.penn.aug_nodes as A
     
 class PennParser(object):
+    def tokenise(self, tree_string, split_chars, suppressors):
+        return preserving_split(tree_string, split_chars=split_chars, suppressors=suppressors)
+        
     def read_docs(self, toks):
         docs = []
+        
         while toks.peek() == '(':
-            docs.append( self.read_paren(toks) )
+            docs.append( self.read_paren(toks) )           
+        ensure_stream_exhausted(toks, 'penn.parse_tree')
+        
         return docs
 
     def read_paren(self, toks):
@@ -56,6 +62,9 @@ class PennParser(object):
 class CategoryPennParser(PennParser):
     def __init__(self):
         PennParser.__init__(self)
+        
+    def tokenise(self, tree_string, split_chars, suppressors):
+        return preserving_split(tree_string, split_chars=split_chars, suppressors=suppressors)
 
     def read_deriv(self, toks, parent=None):
         def body(toks):
@@ -83,16 +92,18 @@ class CategoryPennParser(PennParser):
         return with_parens(body, toks)
         
 class CAugmentedPennParser(PennParser):
-    def read_docs(self, toks):
-        print 'toks', toks
-        result = augpenn_parse(toks, "(){}<>", " \t\r\n", "{}")
-        print 'result',result
-        toks.clear()
-        return result
+    def tokenise(self, tree_string, split_chars, suppressors):
+        self.result = augpenn_parse(tree_string, split_chars, " \t\r\n", suppressors)
+        return None # returning a dummy value -- CAugmentedPennParser tokenises and parses together
+    def read_docs(self, _):
+        return self.result
             
 class PythonAugmentedPennParser(PennParser):
     def __init__(self):
         PennParser.__init__(self)
+        
+    def tokenise(self, tree_string, split_chars, suppressors):
+        return preserving_split(tree_string, split_chars=split_chars, suppressors=suppressors)
         
     def read_deriv(self, toks, parent=None):
         def body(toks):
@@ -134,16 +145,11 @@ try:
     AugmentedPennParser = CAugmentedPennParser
 except ImportError:
     AugmentedPennParser = PythonAugmentedPennParser
-    
-def parse_tree(tree_string, _, split_chars="(){}<>", suppressors="{}"):
-    return augpenn_parse(tree_string, split_chars, " \t\r\n", suppressors)
 
-#def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
-#    penn_parser = parser_class()
-#
-#    toks = preserving_split(tree_string, split_chars, suppressors=suppressors)
-#
-#    docs = penn_parser.read_docs(toks)
-#    ensure_stream_exhausted(toks, 'penn.parse_tree')
-#
-#    return docs
+def parse_tree(tree_string, parser_class, split_chars="(){}<>", suppressors="{}"):
+   penn_parser = parser_class()
+
+   toks = penn_parser.tokenise(tree_string, split_chars, suppressors=suppressors)
+   docs = penn_parser.read_docs(toks)
+
+   return docs
