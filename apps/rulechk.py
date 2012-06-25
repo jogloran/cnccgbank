@@ -18,16 +18,22 @@ def rule_repr(l, r, p):
         return '%s %s -> %s' % (l, r, p)
 
 class CheckRules(Filter):
-    def __init__(self, index):
+    def __init__(self, indices):
         Filter.__init__(self)
-        self.index = int(index)
+        self.indices = set(map(int, indices.split(',')))
         
     def accept_derivation(self, bundle):
+        print bundle.label(),
+
+        error_found = False
         for i, leaf in enumerate(leaves(bundle.derivation)):
-            if i == self.index:
+            if i in self.indices:
                 # check rules starting from this leaf
                 for comb, (l, r, p) in combinators_and_path_from_node(leaf):
                     if comb is None:
-                        print rule_repr(l, r, p)
+                        error_found = True
+                        print i, rule_repr(l, r, p),
+
+        if not error_found: print 'none',
                     
-    arg_names = 'INDEX'
+    arg_names = 'INDICES'
