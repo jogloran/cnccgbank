@@ -23,7 +23,10 @@ from apps.util.echo import echo
 def variables():
     '''Returns an iterator over variable names. The first variable name returned is _,
 for the outermost variable.'''
-    return iter('_YZWVUTRQABCDEF')
+    # C&C only supports up to variable F
+    # We add variables G, H to prevent two failures
+    # (5:27(12) and 27:97(12)) which run out of variables
+    return iter('_YZWVUTRQABCDEFGH')
 
 def is_modifier(cat):
     '''Returns whether _cat_ is of the form X/X.'''
