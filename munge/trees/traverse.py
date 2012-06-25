@@ -68,6 +68,31 @@ def leaves(deriv, pred=None):
             for kid_node in leaves(kid, pred):
                 yield kid_node
                 
+# slower than recursive leaves
+def nonrecursive_leaves(deriv, pred=None):
+    visited = set()
+    cur = deriv
+    while True:
+        if cur is None: break
+
+        found = False
+        if not cur.is_leaf():
+            for kid in cur:
+                if kid not in visited:
+                    cur = kid
+                    found = True
+                    break
+                
+        if not found:
+            if cur not in visited:
+                if (cur.is_leaf() and
+                    (not pred) or (pred and pred(deriv))):
+                    yield cur                
+                    
+                visited.add(cur)
+            else:
+                cur = cur.parent
+                
 def leaves_reversed(deriv, pred=None):
     '''Iterates from right to left over the leaves of a derivation.'''
     if deriv.is_leaf():
