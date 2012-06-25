@@ -43,10 +43,10 @@ the path of a node and its sibling from the given _node_ up to the root.
 If f0 is true, then r0 is the 'focus' of the triple. Otherwise, l0 is. The focus
 is the node which actually lies on the sought path, the non-focus node is its sibling.'''
     while node.parent:
-        if node.parent.rch is node:
-            yield node.parent.lch, node, True
-        elif node.parent.lch is node:
-            yield node, node.parent.rch, False
+        if node.parent[1] is node:
+            yield node.parent[0], node, True
+        elif node.parent[0] is node:
+            yield node, node.parent[1], False
 
         node = node.parent
 
@@ -57,7 +57,7 @@ def category_path_to_root(node):
     '''Identical to path_to_root, except that the _categories_ of each node on
 the path are returned, instead of the nodes themselves.'''
     def extract_categories(left, right, was_flipped):
-        return (left.cat, right.cat if right else None, was_flipped)
+        return (left.category, right.category if right else None, was_flipped)
 
     return starmap(extract_categories, path_to_root(node))
     
@@ -65,7 +65,7 @@ def cloned_category_path_to_root(node):
     '''Identical to path_to_root, except that copies of the _categories_ of each node on
 the path are returned, instead of the nodes themselves.'''
     def extract_categories(left, right, was_flipped):
-        return (left.cat.clone(), right.cat.clone() if right else None, was_flipped)
+        return (left.category.clone(), right.category.clone() if right else None, was_flipped)
 
     return starmap(extract_categories, path_to_root(node))
 
@@ -82,7 +82,7 @@ def applications_per_slash(node, examine_modes=False):
     '''Returns a list of length _n_, the number of slashes in the category of _node_.
 Index _i_ in this list denotes the combinatory rule which consumed slash _i_.'''
     return applications_per_slash_with_path(cloned_category_path_to_root(node),
-                                            node.cat.slash_count(),
+                                            node.category.slash_count(),
                                             examine_modes)
 
 def applications_per_slash_with_path(orig_path, slash_count, examine_modes=False):
