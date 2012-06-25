@@ -9,7 +9,7 @@
 
 from munge.cats.trace import analyse
 from munge.trees.traverse import pairs_postorder, leaves
-from itertools import groupby
+from itertools import groupby, izip
 from apps.util.latex.table import sanitise_category
 
 def min_leaf_id(node, root):
@@ -60,7 +60,7 @@ arrows = {
     'fwd_raise': 'ftype',
     'bwd_raise': 'btype',
 }
-def ccg2latex(root):
+def ccg2latex(root, glosses=None):
     def comb_symbol(comb):
         return arrows.get(comb, 'uline')
     def cat_repr(cat):
@@ -70,7 +70,12 @@ def ccg2latex(root):
     all_leaves = list(leaves(root))
     
     # lex line
-    out.append( (' & '.join(("\\cjk{%s}"%leaf.lex) for leaf in all_leaves)) + '\\\\' )
+    if glosses is not None:
+        leaf_bits = ("\\glosN{%s}{%s}" % (leaf.lex, gloss) for (leaf, gloss) in izip(all_leaves, glosses))
+    else:
+        leaf_bits = (("\\cjk{%s}" % leaf.lex) for leaf in all_leaves)
+    out.append(' & '.join(leaf_bits) + '\\\\')
+    
     # underlines line
     out.append( ' & '.join(["\uline{1}"] * root.leaf_count()) + '\\\\' )
     # cats line
