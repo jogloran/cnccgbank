@@ -19,6 +19,7 @@ def g(x, y):
     return x + y
     
 g("2", "3") # => 5'''
+    # TODO: The resulting function _f_ doesn't have the same arity as the original function
     def f(func):
         tl = len(types)
         def _f(*args, **kwargs):
