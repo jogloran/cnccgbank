@@ -43,10 +43,10 @@ the path of a node and its sibling from the given _node_ up to the root.
 If f0 is true, then r0 is the 'focus' of the triple. Otherwise, l0 is. The focus
 is the node which actually lies on the sought path, the non-focus node is its sibling.'''
     while node.parent:
-        if node.parent[1] is node:
+        if node.parent.count() > 1 and node.parent[1] is node:
             yield node.parent[0], node, True
         elif node.parent[0] is node:
-            yield node, node.parent[1], False
+            yield node, node.parent[1] if node.parent.count() > 1 else None, False
 
         node = node.parent
 

@@ -23,7 +23,9 @@ g("2", "3") # => 5'''
         tl = len(types)
         def _f(*args, **kwargs):
             if tl != len(args): raise RuntimeError("%d args expected, %d args received" % (tl, len(args)))
-            return func(*(type(arg) for (type, arg) in zip(types, args)), **kwargs)
+            return func(*(
+                type(arg) if type is not None else arg
+                for (type, arg) in zip(types, args)), **kwargs)
         return update_wrapper(_f, func)
     return f
     

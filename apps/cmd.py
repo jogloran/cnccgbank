@@ -118,7 +118,15 @@ class Shell(HistorySavingDefaultShell):
         '''Changes or displays the working set.'''
         args = args.split()
         if args:
-            self.files = list(flatten(glob.glob(arg) for arg in args))
+            self.files = []
+            for arg in args:
+                # So that if arg is not a glob, it won't get removed
+                # because it doesn't exist on the fs:
+                globbed = list(flatten(glob.glob(arg)))
+                if globbed:
+                    self.files += globbed
+                else:
+                    self.files.append(arg)
 
         msg("Working set is: " + list_preview(self.files))
 

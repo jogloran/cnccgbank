@@ -51,4 +51,4 @@ def load_requested_packages(module_names):
 def get_argcount_for_method(method):
     '''Returns the number of arguments (excluding implicit self) expected by the given instance method.
     Assumes that _method_ is an instance and not a class or static method.'''
-    return method.im_func.func_code.co_argcount - 1
+    return len(inspect.getargspec(method).args) - 1
