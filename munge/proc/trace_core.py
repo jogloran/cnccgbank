@@ -138,6 +138,28 @@ class TraceCore(object):
         bits = file.split('~', 2)
         if len(bits) != 2: return False
         return is_file_or_dir(bits[0]) and is_file_or_dir(bits[1])
+        
+    @classmethod
+    def transform(cls, files):
+        '''Maps a sequence of derivation specifiers, each of the form sec:doc(deriv) or
+phase/sec:doc(deriv) to full PCTB paths.'''
+        def transform_element(fn):
+            # TODO: This is not robust and only works for PCTB
+            matches = (re.match(r'''(?:([^/]+)/)? # optional: phase name then '/'
+                                   (\d+):(\d+)\((\d+)\) # deriv id
+                                   ''', fn, flags=re.VERBOSE)
+                       or
+                       re.match(r'''(?:([^/]+)/)?
+                                    (\d{1,2}).*?(\d{1,2}).*?(\d+)
+                                    ''', fn, flags=re.VERBOSE))
+            if matches:
+                phase = matches.group(1) or 'cn'
+                sec, doc, deriv = map(int, matches.groups()[1:])
+                return os.path.join(phase, 'chtb_%02d%02d.fid:%d' % (
+                    sec, doc, deriv
+                ))
+            return fn
+        return (transform_element(fn) for fn in files)
 
     def run_filters(self, filters, files):
         # If all given filters were not found or had wrong argument count, do nothing
@@ -153,7 +175,7 @@ class TraceCore(object):
             except KeyError:
                 raise RuntimeError("Reader class %s not found." % self.reader_class_name)
         
-        for file in files:
+        for file in self.transform(files):
             if self.is_pair_spec(file):
                 meta_reader = PairedReader
             else:
