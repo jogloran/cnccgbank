@@ -150,7 +150,7 @@ phase/sec:doc(deriv) to full PCTB paths.'''
                                    ''', fn, flags=re.VERBOSE)
                        or
                        re.match(r'''(?:([^/]+)/)?
-                                    (\d{1,2}).*?(\d{1,2}).*?(\d+)
+                                    (\d{1,2}),(\d{1,2}),(\d+)
                                     ''', fn, flags=re.VERBOSE))
             if matches:
                 phase = matches.group(1) or 'cn'
