@@ -16,4 +16,4 @@ for line in sys.stdin:
     matches = re.findall(r'`(\d+)', line)
     if matches:
         print 'with fixed_np/%d,%d,%d' % seen_deriv
-        print '\n'.join( 'run CheckRules %s' % match for match in set(matches) )
+        print 'run CheckRules %s' % ','.join(set(matches))
