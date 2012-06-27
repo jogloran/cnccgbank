@@ -25,7 +25,7 @@ def Tabulation(table_vars, reducer=lambda e:e, value_maker=int, limit=None):
             self.reducer = reducer
         
         def output(self):
-            self.do_output(self, reducer=reducer, limit=limit)
+            self.do_output(reducer=reducer, limit=limit)
                 
         def do_output(self, reducer=lambda x:x, limit=None):
             for table_var in table_vars:
