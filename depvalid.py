@@ -86,6 +86,9 @@ for deriv_id in docs_to_make:
     if result.status_code != 0:
         print "Failed to make %s" % deriv_id
 
+nsents = len(docs_to_make)
+bad_sents = set()
+
 for line in anno:
     line = line.rstrip()
 
@@ -132,18 +135,24 @@ for line in anno:
                     unmatched += 1
             except Exception, e:
                 skipped_sents += 1
+                bad_sents.add(deriv_id)
                 print 'skipping %s' % deriv_id
                 print 'exception:'
                 traceback.print_exc(file=sys.stdout)
                 continue
         else: # mkdeps problem
             dep_error_sents += 1
+            bad_sents.add(deriv_id)
             
     except StopIteration:
         munge_error_sents += 1
         print "not made: %s" % deriv_id
 
 print 'dependencies preserved: %d/%d=%.2f%%' % (matched, unmatched+matched, matched/float(unmatched+matched)*100.)
-print 'munge errors: %2d/% 3d=%.2f%% of sents' % (munge_error_sents, total_sents, munge_error_sents/float(total_sents)*100.)
-print 'dep errors:   %2d/% 3d=%.2f%% of sents' % (dep_error_sents, total_sents, dep_error_sents/float(total_sents)*100.)
-print 'skipped:      %2d/% 3d=%.2f%% of sents' % (skipped_sents, total_sents, skipped_sents/float(total_sents)*100.)
+print 'munge errors: %2d/% 3d=%.2f%% of deps' % (munge_error_sents, total_sents, munge_error_sents/float(total_sents)*100.)
+print 'dep errors:   %2d/% 3d=%.2f%% of deps' % (dep_error_sents, total_sents, dep_error_sents/float(total_sents)*100.)
+print 'skipped:      %2d/% 3d=%.2f%% of deps' % (skipped_sents, total_sents, skipped_sents/float(total_sents)*100.)
+
+print
+nbad_sents = len(bad_sents)
+print 'annotated sents with problems: %2d/% 3d=%.2f%%' % (nbad_sents, nsents, nbad_sents/float(nsents)*100.)
