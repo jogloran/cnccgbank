@@ -132,11 +132,13 @@ for line in anno:
                     print "%d %d missing from mkdeps in %s" % (anno_head_index, anno_arg_index, deriv_id)
                     for a,b,c,d in deps:
                         print a,b
+                    bad_sents.add(deriv_id)
                     unmatched += 1
             except Exception, e:
                 skipped_sents += 1
                 bad_sents.add(deriv_id)
                 print 'skipping %s' % deriv_id
+                print 'remapper:', remappers[deriv_id]
                 print 'exception:'
                 traceback.print_exc(file=sys.stdout)
                 continue
