@@ -32,9 +32,10 @@ def atom_categories(cat):
     else:
         yield cat
 
+FeatureMatchingRegex = re.compile(r'\[[^]]+\]')
 def atom_list(cat):
     def canonicalise(C):
-        return re.sub(r'\[[^]]+\]', '', str(C))
+        return FeatureMatchingRegex.sub('', str(C))
     return set( canonicalise(C) for C in atom_categories(cat) )
 
 def has_bad_subcat(cat):

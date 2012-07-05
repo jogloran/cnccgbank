@@ -75,11 +75,12 @@ def shrink_left(node, parent):
     else: # is root
         return node[1]
      
+IndexRegex = re.compile(r'(-\d+)')
 def inherit_index(node, other):
     '''Gives _node_ the index that _other_ has, unless _node_ already has one, or _other_ doesn't.'''
-    matches = re.search(r'(-\d+)', other.tag)
+    matches = IndexRegex.search(other.tag)
     if matches:
-        if not re.search(r'-\d+', node.tag):
+        if not IndexRegex.search(node.tag):
             till_tag, after_tag = node.tag.split(':')
             index_to_inherit = matches.group(1)
             node.tag = till_tag + index_to_inherit + ":" + after_tag

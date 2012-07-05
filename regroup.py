@@ -19,17 +19,19 @@ lines = open(sys.argv[1], 'r').readlines()
 while lines:
     pairs.append( (lines.pop(0), lines.pop(0)) )
 
+SectionRegex = re.compile(r'wsj_(\d\d)\d\d')
 def extract_section(pair):
     header = pair[0]
-    matches = re.search(r'wsj_(\d\d)\d\d', header)
+    matches = SectionRegex.search(header)
     if matches:
         return matches.group(1)
     else:
         raise Exception, "Couldn't find section header in line %s" % header
 
+DocumentRegex = re.compile(r'wsj_\d\d(\d\d)')
 def extract_document(pair):
     header = pair[0]
-    matches = re.search(r'wsj_\d\d(\d\d)', header)
+    matches = DocumentRegex.search(header)
     if matches:
         return matches.group(1)
     else:

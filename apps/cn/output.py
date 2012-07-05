@@ -11,6 +11,8 @@ from __future__ import with_statement
 from munge.proc.filter import Filter
 import os, re
 
+IdRegex = re.compile(r'(\d+):(\d+)\((\d+)\)')
+
 class OutputDerivation(object):
     '''Writes out a derivation to disk.'''
     def __init__(self, outdir, transformer=None, fn_template=None, outdir_template=None):
@@ -42,7 +44,7 @@ class OutputPrefacedPTBDerivation(OutputDerivation):
 node's document ID.'''
     def __init__(self, outdir):
         def fix_label(label):
-            matches = re.match(r'(\d+):(\d+)\((\d+)\)', label)
+            matches = IdRegex.match(label)
             
             if matches and len(matches.groups()) == 3:
                 sec, doc, deriv = map(int, matches.groups())
@@ -64,7 +66,7 @@ class OutputCCGbankDerivation(OutputDerivation):
 subdirectory.'''
     def __init__(self, outdir):
         def fix_label(label):
-            matches = re.match(r'(\d+):(\d+)\((\d+)\)', label)
+            matches = IdRegex.match(label)
             
             if matches and len(matches.groups()) == 3:
                 sec, doc, deriv = map(int, matches.groups())
