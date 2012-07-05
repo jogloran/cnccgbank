@@ -71,7 +71,7 @@ class FixExtraction(Fix):
 
             (r'/VP/=P < {/-TPC-\d+:t$/a=T $ /VP/=S }', self.fix_whword_topicalisation),
             # TODO: needs to be tested with (!NP)-TPC
-            (r'/(IP|CP-CND)/=P < {/-TPC-\d+:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
+            (r'/(IP|CP-CND)/=P < {/:t$/a=T $ /(IP|CP-CND)/=S }', self.fix_topicalisation_with_gap),
             # if config.vp_nongap_topicalisation is set, this adds the unary rule NP -> VP/VP (10:6(36))
             # otherwise, 10:6(36) actually gets an incorrect analysis
             (
