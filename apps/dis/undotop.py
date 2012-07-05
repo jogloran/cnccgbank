@@ -16,11 +16,11 @@ from munge.trees.traverse import leaves
 
 import re
 
-index_re = re.compile(r'\*T\*-(\d+)$')
+IndexRegex = re.compile(r'\*T\*-(\d+)$')
 def find_coindexed_trace(parent, trace_node):
     index = get_trace_index_from_tag(trace_node.tag)
     for kid in leaves(parent):
-        match = index_re.match(kid.lex)
+        match = IndexRegex.match(kid.lex)
         if match and match.group(1) == index[1:]:
             return kid
     return None

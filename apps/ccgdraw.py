@@ -11,13 +11,13 @@ import re, sys
 from munge.util.list_utils import transpose
 from apps.util.latex.table import sanitise_category
     
-span_pat = re.compile(r'\S+')
+SpanRegex = re.compile(r'\S+')
 def get_spans_of(words):
-    for r in span_pat.finditer(words):
+    for r in SpanRegex.finditer(words):
         yield r.span()
         
 def get_spans_and_text_of(words):
-    for r in span_pat.finditer(words):
+    for r in SpanRegex.finditer(words):
         yield (r.span(), r.group())
     
 ESCAPED_NEWLINE = '\\\\\n'
@@ -50,7 +50,7 @@ def comb_lines(lines):
      
     return ''.join(''.join(line) for line in (arrow_line, cat_line))
     
-tail_pat = re.compile(r'-+(.*)')
+TailRegex = re.compile(r'-+(.*)')
 tails = {
     '?': 'whatcomb',
     '>': 'fapply',
@@ -75,7 +75,7 @@ tails = {
     'H': 'unhat',
 }
 def get_combinator_for_arrow(arrow):
-    match = tail_pat.match(arrow)
+    match = TailRegex.match(arrow)
     if match:
         tail_symbol = match.group(1)
         return tails[tail_symbol]

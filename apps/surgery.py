@@ -182,7 +182,7 @@ else:
     sys.exit(2)
 
 base = opts.base
-spec_re = re.compile(r'(\d+):(\d+)\((\d+)\)')
+SpecRegex = re.compile(r'(\d+):(\d+)\((\d+)\)')
 
 reading_spec = True
 cur_trees = None
@@ -239,7 +239,7 @@ def parse_instruction_lines(lines):
         if line[0] == '#': continue
 
         line = line.strip()
-        matches = spec_re.match(line)
+        matches = SpecRegex.match(line)
             
         if matches and len(matches.groups()) == 3:
             cur_spec = map(int, matches.groups())

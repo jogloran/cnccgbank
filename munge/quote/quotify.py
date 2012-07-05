@@ -80,13 +80,13 @@ with S and D padded by a zero to 2 digits if necessary, or with an absent S or D
         return '0' + secdoc
     return secdoc
     
-deriv_re = re.compile(r'([*\d]+)?:([*\d]+)?')
+DerivRegex = re.compile(r'([*\d]+)?:([*\d]+)?')
 def parse_requested_derivs(args):
     '''Makes each section/document specifier canonical using fix_secdoc_string.'''
     result = []
     
     for arg in args:
-        match = deriv_re.match(arg)
+        match = DerivRegex.match(arg)
         if match and len(match.groups()) == 2:
             sec, doc = map(fix_secdoc_string, match.groups())
             
@@ -275,7 +275,7 @@ def process(ptb_file, ccg_file, deps_file, ccg_auto_out, ccg_parg_out, higher, q
                 print >> parg_out, dep
                 print >> ccg_out,  ccg_bundle
     
-ptb_file_re = re.compile(r'(\d{2})/wsj_\d{2}(\d{2})\.mrg$')
+PTBFileRegex = re.compile(r'(\d{2})/wsj_\d{2}(\d{2})\.mrg$')
 def main(argv):
     parser = OptionParser()
 
@@ -307,7 +307,7 @@ def main(argv):
         for ptb_file in glob(os.path.join(opts.penn_in, sec_glob, "wsj_%s%s.mrg" % (sec_glob, doc_glob))):
             info("Processing %s", ptb_file)
             
-            matches = ptb_file_re.search(ptb_file)
+            matches = PTBFileRegex.search(ptb_file)
             if matches and len(matches.groups()) == 2:
                 sec, doc = matches.groups()
                 
