@@ -30,7 +30,9 @@ def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduc
     single_node_template = open + '%s' + close
     multi_node_template  = open + '%s %s' + close
     
-    def base_pprint(node, level=0, sep='   ', newline='\n', detail_level=-1, reduced_leaves=False, focus=None, focused=False, **kwargs):
+    def base_pprint(node, level=0, sep='   ', newline='\n', detail_level=-1, 
+                    reduced_leaves=False, focus=None, focused=False, 
+                    gloss_text=None, gloss_iter=None, **kwargs):
         '''Prertty prints _node_.
 sep: a string to use to indent a line by one level
 newline: a string to use at the end of each line
@@ -38,8 +40,12 @@ detail_level: a depth, beyond which node_repr is called with kwarg compress=True
 reduced_leaves: whether to use reduced leaves
 focus: a node, under which a highlighting colour is applied
 focused: whether a highlighting colour is being applied
+gloss_iter: an iterable of gloss words
 '''
         out = []
+        
+        if gloss_text is not None and gloss_iter is None:
+            gloss_iter = iter(gloss_text)
 
         if bracket_outermost and level == 0:
             out.append(open)
@@ -55,7 +61,7 @@ focused: whether a highlighting colour is being applied
         reached_detail_level = level==detail_level
     
         if node.is_leaf() or reached_detail_level:
-            leaf_repr = node_repr(node, compress=reached_detail_level)
+            leaf_repr = node_repr(node, compress=reached_detail_level, gloss_iter=gloss_iter)
             
             if reduced_leaves:
                 out.append(leaf_repr)
@@ -67,13 +73,13 @@ focused: whether a highlighting colour is being applied
                 # set level=0 so the text is not indented
                 kid_reprs = [base_pprint(child, 0, sep, '', 
                              reduced_leaves=True, detail_level=detail_level, 
-                             focus=focus, focused=focused) for child in node]
+                             focus=focus, focused=focused, gloss_iter=gloss_iter) for child in node]
                              
-                out.append( multi_node_template % (node_repr(node), ' '.join(kid_reprs)) )
+                out.append( multi_node_template % (node_repr(node, gloss_iter=gloss_iter), ' '.join(kid_reprs)) )
             else:
-                out.append( "%s%s%s" % (open, node_repr(node), newline) )
+                out.append( "%s%s%s" % (open, node_repr(node, gloss_iter=gloss_iter), newline) )
                 out += intersperse([base_pprint(child, level+1, sep, newline, detail_level=detail_level,
-                    focus=focus, focused=focused) for child in node], newline)
+                    focus=focus, focused=focused, gloss_iter=gloss_iter) for child in node], newline)
                 out.append( close )
 
         if bracket_outermost and level == 0:

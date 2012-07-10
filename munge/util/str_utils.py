@@ -41,7 +41,40 @@ The returned sub-sequence does not include the line where _until_ is True.'''
             
             
     return buffer
+    
+def gloss_tokenise(gloss_string):
+    '''
+>>> list(gloss_tokenise("This is a test ."))
+['This', 'is', 'a', 'test', '.']
+>>> list(gloss_tokenise("This is a {test of the function} ."))
+['This', 'is', 'a', 'test of the function', '.']
+>>> list(gloss_tokenise("{test of the function}"))
+['test of the function']
+>>> list(gloss_tokenise("{}"))
+['']
+>>> list(gloss_tokenise(""))
+[]
+>>> list(gloss_tokenise("a a {test of the function} b b"))
+['a', 'a', 'test of the function', 'b', 'b']
+'''
+    def _find(needle, haystack, start=None):
+        index = haystack.find(needle, start)
+        return None if index == -1 else index
+        
+    while gloss_string != '':
+        if gloss_string[0] == '{':
+            index_to_trim_to = _find('}', gloss_string) # missing } -> till end of line
+            yield gloss_string[1:index_to_trim_to]      # skip past opening {
             
+            # skip till after next ws token
+            index_to_trim_to = _find(' ', gloss_string, start=index_to_trim_to)
+        else:
+            index_to_trim_to = _find(' ', gloss_string)
+            yield gloss_string[:index_to_trim_to]
+            
+        if index_to_trim_to is None: raise StopIteration
+        gloss_string = gloss_string[index_to_trim_to+1:]
+
 if __name__ == '__main__':
-    # -> 9, 7, 8
-    print nth_occurrence(range(10) + range(7,14), 2, when=lambda n: n>=6, until=lambda n: n>8)
+    import doctest
+    doctest.testmod()

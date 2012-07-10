@@ -17,14 +17,25 @@ def latex_tag_for(lex):
     else:
         return r'\cjk{%s}' % lex
         
-def process_lex_node_repr(node, compress=False):
+def process_lex_node_repr(node, compress=False, gloss_iter=None):
     if compress:
-        return "\\Pos{%s} %s \\cjk{%s}" % (
+        gloss = gloss_iter.next() if gloss_iter else None
+        
+        lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
+        if gloss:
+            lex = r'\glosN{%s}{%s}' % (lex, gloss)
+        
+        return "\\Pos{%s} %s %s" % (
             node.tag, 
             "\\edge[roof]; " if node.count()>1 else '', 
-            ' '.join(latex_tag_for(leaf) for leaf in text(node)))
+            lex)
     if node.is_leaf():
-        return "{\\Pos{%s} %s}" % (node.tag, latex_tag_for(node.lex))
+        gloss = gloss_iter.next() if gloss_iter else None
+        lex = latex_tag_for(node.lex)
+        
+        if gloss:
+            lex = r'\glosN{%s}{%s}' % (lex, gloss)
+        return "{\\Pos{%s} %s}" % (node.tag, lex)
     else:
         return "\\Pos{%s}" % node.tag
         
