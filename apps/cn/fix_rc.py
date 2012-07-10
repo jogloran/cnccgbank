@@ -277,7 +277,7 @@ class FixExtraction(Fix):
         if result is not None:
             _, context = result
             s, relativiser = context.s, context.rel
-
+            
             relativiser.category = relativiser.category.clone_with(right=s.category)
             debug("New rel category: %s", relativiser.category)
 
