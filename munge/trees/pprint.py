@@ -13,7 +13,7 @@ from munge.util.colour_utils import codes
 
 use_colour = config.use_colour
     
-def default_node_repr(node, compress=False):
+def default_node_repr(node, compress=False, **kwargs):
     if hasattr(node, 'category') and node.category is not None:
         if node.is_leaf():
             return "%s {%s} %s" % (node.tag, node.category, node.lex)
