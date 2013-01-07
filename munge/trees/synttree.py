@@ -17,7 +17,7 @@ def latex_tag_for(lex):
     else:
         return r'\cjk{%s}' % lex
         
-def process_lex_node_repr(node, compress=False, gloss_iter=None):
+def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
     if compress:
         gloss = gloss_iter.next() if gloss_iter else None
         
@@ -43,7 +43,7 @@ def is_trace(tag):
     return tag == '-NONE-'
 
 Lnode_id = 0
-def process_lex_node_reprL(node, compress=False):
+def process_lex_node_reprL(node, compress=False, **kwargs):
     if compress:
         return "\\Pos{%s} %s \\cjk{%s}" % (
             node.tag, 
@@ -61,7 +61,7 @@ def process_lex_node_reprL(node, compress=False):
         return "\\Pos{%s}" % node.tag
         
 Rnode_id = 0
-def process_lex_node_reprR(node, compress=False):
+def process_lex_node_reprR(node, compress=False, **kwargs):
     if compress:
         return "\\cf{%s} %s \\cjk{%s}" % (
             sanitise_category(str(node.category)),
