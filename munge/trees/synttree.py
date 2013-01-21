@@ -45,10 +45,12 @@ def is_trace(tag):
 Lnode_id = 0
 def process_lex_node_reprL(node, compress=False, **kwargs):
     if compress:
-        return "\\Pos{%s} %s \\cjk{%s}" % (
-            node.tag, 
+        lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
+
+        return "\\Pos{%s} %s %s" % (
+            node.tag,
             "\\edge[roof]; " if node.count()>1 else '',
-            ' '.join(latex_tag_for(leaf) for leaf in text(node)))
+            lex)
     if node.is_leaf():
         if is_trace(node.tag):
             result = "\\node{\\Pos{%s} %s};" % (node.tag, latex_tag_for(node.lex))
@@ -56,20 +58,36 @@ def process_lex_node_reprL(node, compress=False, **kwargs):
             global Lnode_id
             result = "\\node(l%s){\\Pos{%s} %s};" % (Lnode_id, node.tag, latex_tag_for(node.lex))
             Lnode_id += 1
+
+
         return result
     else:
         return "\\Pos{%s}" % node.tag
-        
+
 Rnode_id = 0
-def process_lex_node_reprR(node, compress=False, **kwargs):
+def process_lex_node_reprR(node, compress=False, gloss_iter=None, **kwargs):
     if compress:
-        return "\\cf{%s} %s \\cjk{%s}" % (
+        gloss = gloss_iter.next() if gloss_iter else None
+
+        lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
+
+        if gloss:
+            lex = r'\glosE{%s}{%s}' % (lex, gloss)
+
+        return "\\cf{%s} %s %s" % (
             sanitise_category(str(node.category)),
             "\\edge[roof]; " if node.count()>1 else '',
-            ' '.join(latex_tag_for(leaf) for leaf in text(node)))
+            lex)
     if node.is_leaf():
         global Rnode_id
-        result = "\\node(r%s){\\cf{%s} %s};" % (Rnode_id, sanitise_category(str(node.category)), latex_tag_for(node.lex))
+
+        lex = latex_tag_for(node.lex)
+
+        gloss = gloss_iter.next() if gloss_iter else None
+        if gloss:
+            lex = r'\glosE{%s}{%s}' % (result, gloss)
+
+        result = "\\node(r%s){\\cf{%s} %s};" % (Rnode_id, sanitise_category(str(node.category)), lex)
         Rnode_id += 1
         return result
     else:
