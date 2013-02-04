@@ -10,6 +10,8 @@
 from munge.proc.filter import Filter
 from munge.cats.trace import analyse
 from munge.trees.traverse import nodes
+from munge.util.dict_utils import sorted_by_value_desc
+from collections import defaultdict
 
 class DerivCount(Filter):
     def __init__(self):
@@ -65,3 +67,15 @@ class AnalysisCount(Filter):
     def output(self):
         print "l: %s, r: %s, other: %s" % (self.l, self.r, self.other)
         print "total: %s" % self.total
+
+class LexCount(Filter):
+    def __init__(self):
+        Filter.__init__(self)
+        self.counts = defaultdict(int)
+
+    def accept_leaf(self, leaf):
+        self.counts[leaf.lex] += 1
+
+    def output(self):
+        for key, freq in sorted_by_value_desc(self.counts):
+            print '% 10d | %s' % (freq, key)
