@@ -14,14 +14,14 @@ from itertools import ifilter
 
 def summarise_reductions(reductions, unary=False):
     def reduction_type(head_index):
-        if unary: return 'UNARY'
         if head_index == 0: return 'LEFT'
         if head_index == 1: return 'RIGHT'
         
     return '[ %s ]' % (
         ' , '.join(
-            'REDUCE %(redtype)s %(p)s' % dict(
-                redtype=reduction_type(head_index),
+            'REDUCE %(arity)s%(redtype)s %(p)s' % dict(
+                arity=('UNARY' if unary else 'BINARY'),
+                redtype=('' if unary else ' ' + reduction_type(head_index)),
                 p=P
             ) for (head_index, P) in reductions
         )
