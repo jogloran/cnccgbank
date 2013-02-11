@@ -101,3 +101,18 @@ def reset_ids():
 pprint_synttree = pprint_with(process_lex_node_repr, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttreeL = pprint_with(process_lex_node_reprL, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttreeR = pprint_with(process_lex_node_reprR, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
+
+def process_lex_node_yz(node, **kwargs):
+    if node.is_leaf():
+        return '%s c %s %s' % (str(node.cat), node.pos1, node.lex)
+    else:
+        if node.count() == 1:
+            headedness = 's'
+        elif int(node.head_index) == 0:
+            headedness = 'l'
+        else:
+            headedness = 'r'
+        
+        return ' %s %s ' % (str(node.cat), headedness)
+
+pprint_yz = pprint_with(process_lex_node_yz, open='( ', close=' ) ', bracket_outermost=False, do_reduce=False)
