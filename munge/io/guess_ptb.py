@@ -9,6 +9,7 @@
 
 from munge.penn.io import AugmentedPTBReader
 from munge.penn.prefaced_io import PrefacedPTBReader
+from munge.penn.yz_io import YZPTBReader
 import re
 
 class PTBGuesser(object):
@@ -37,3 +38,14 @@ class PrefacedPTBGuesser(object):
         
     @staticmethod
     def reader_class(): return PrefacedPTBReader
+
+class YZPTBGuesser(object):
+    @staticmethod
+    def bytes_of_context_needed(): return 100
+    
+    @staticmethod
+    def identify(context):
+        return re.match(r'\( [^ ]+ [lrsec]', context)
+        
+    @staticmethod
+    def reader_class(): return YZPTBReader
