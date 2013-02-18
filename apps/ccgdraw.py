@@ -83,7 +83,7 @@ def get_combinator_for_arrow(arrow):
     return None
     
 def word_lines(words):
-    return (' & '.join('\\rm %s' % word for word in words) + '\\\\\n')
+    return (' & '.join('\\exm{%s}' % word for word in words) + '\\\\\n')
         
 
 def process(lines, out=sys.stdout):
