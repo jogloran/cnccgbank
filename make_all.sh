@@ -16,13 +16,15 @@ corpus_dir=corpora/cptb/bracketed
 dir_suffix=
 config_file=config.yml
 undo_topicalisation=false
-while getopts 'c:s:C:hT' OPTION
+undo_np_internal_structure=false
+while getopts 'c:s:C:hTN' OPTION
 do
     case $OPTION in
         C) config_file_arg="-C $OPTARG" ; config_file="$OPTARG" ;;
         c) corpus_dir_arg="-c $OPTARG" ; corpus_dir="$OPTARG" ;;
         s) dir_suffix_arg="-s $OPTARG" ; dir_suffix="$OPTARG" ;;
         T) undo_topicalisation=true ;;
+        N) undo_np_internal_structure=true ;;
         h) echo "$0 [-c corpus_dir] [-s work_dir_suffix] [-C config_file] [SEC|all]"
            exit 1 ;;
     esac
@@ -72,6 +74,14 @@ if $undo_topicalisation; then
         "Undoing gapped topicalisation..."
     # 1. Tag
     apply "undone$dir_suffix" "tagged$dir_suffix" \
+        apps.cn.tag TagStructures tag_errors \
+        "Tagging derivations..."
+elif $undo_np_internal_structure; then
+    apply "filtered$dir_suffix" "flattened$dir_suffix" \
+        apps.dis.flatnp FlattenNP flatten_errors \
+        "Undoing NP internal structure..."
+    # 1. Tag
+    apply "flattened$dir_suffix" "tagged$dir_suffix" \
         apps.cn.tag TagStructures tag_errors \
         "Tagging derivations..."
 else
