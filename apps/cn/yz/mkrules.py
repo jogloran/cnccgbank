@@ -32,11 +32,8 @@ def summarise_reductions(reductions, pred, unary=False):
     else:
         return None
     
-UnaryThreshold = 0
-BinaryThreshold = 0
-
 class YZRuleFileMaker(Filter):
-    def __init__(self, unary_fn, binary_fn):
+    def __init__(self, unary_fn, unary_threshold, binary_fn, binary_threshold):
         super(YZRuleFileMaker, self).__init__()
         
         self.unary = defaultdict(set)
@@ -47,6 +44,9 @@ class YZRuleFileMaker(Filter):
         
         self.unary_out = file(unary_fn, 'w')
         self.binary_out = file(binary_fn, 'w')
+
+        self.unary_threshold = int(unary_threshold)
+        self.binary_threshold = int(binary_threshold)
         
     # @staticmethod
     # def signature(node):
@@ -74,12 +74,12 @@ class YZRuleFileMaker(Filter):
         BinaryTemplate = '%(l)s , %(r)s\t:\t%(reductions)s'
         
         for L, reductions in self.unary.iteritems():
-            reduction_list = summarise_reductions(reductions, unary=True, pred=lambda head_index, P: self.unary_freqs[(L, (head_index, P))] > UnaryThreshold)
+            reduction_list = summarise_reductions(reductions, unary=True, pred=lambda head_index, P: self.unary_freqs[(L, (head_index, P))] > self.unary_threshold)
             if reduction_list:
                 print >>self.unary_out, UnaryTemplate % dict(l=L, reductions=reduction_list)
                 
         for (L, R), reductions in self.binary.iteritems():
-            reduction_list = summarise_reductions(reductions, pred=lambda head_index, P: self.binary_freqs[((L, R), (head_index, P))] > BinaryThreshold)
+            reduction_list = summarise_reductions(reductions, pred=lambda head_index, P: self.binary_freqs[((L, R), (head_index, P))] > self.binary_threshold)
             if reduction_list:
                 print >>self.binary_out, BinaryTemplate % dict(l=L, r=R, reductions=reduction_list)
             
