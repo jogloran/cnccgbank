@@ -17,6 +17,18 @@ def latex_tag_for(lex):
     else:
         return r'\cjk{%s}' % lex
         
+def process_lex_node_repr_ccg(node, compress=False, gloss_iter=None, **kwargs):
+    if node.is_leaf():
+        gloss = gloss_iter.next() if gloss_iter else None
+        lex = latex_tag_for(node.lex)
+
+        if gloss:
+            return r"\ensuremath{\raisebox{-\baselineskip}{\shortstack{\cf{%s} \\ \glosE{%s}{%s}}}}" % (sanitise_category(str(node.cat)), lex, gloss)
+        else:
+            return "{\\cf{%s} %s}" % (sanitise_category(str(node.cat)), lex)
+    else:
+        return "\\cf{%s}" % sanitise_category(str(node.cat))
+
 def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
     if compress:
         gloss = gloss_iter.next() if gloss_iter else None
@@ -98,6 +110,7 @@ def reset_ids():
     global Rnode_id
     Lnode_id = Rnode_id = 0
     
+pprint_synttree_ccg = pprint_with(process_lex_node_repr_ccg, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttree = pprint_with(process_lex_node_repr, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttreeL = pprint_with(process_lex_node_reprL, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttreeR = pprint_with(process_lex_node_reprR, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
