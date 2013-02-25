@@ -110,6 +110,14 @@ def ChildCount(n):
     def _ChildCount(candidate, node, context):
         return node.count() == n
     return _ChildCount
+    
+@cast_to(int)
+def HeadIndexIs(n):
+    print 'h'
+    def _HeadIndexIs(candidate, node, context):
+        if node.is_leaf(): return False
+        return int(node.head_index) == n
+    return _HeadIndexIs
 
 def And(candidate, node, context):
     return candidate.is_satisfied_by(node, context)
@@ -150,5 +158,6 @@ Operators = {
 
 IntArgOperators = {
     r'<(\d+)': IsNthChildOf,
-    r'\#<(\d+)': ChildCount
+    r'\#<(\d+)': ChildCount,
+    r'\#\#(\d+)': HeadIndexIs,
 }

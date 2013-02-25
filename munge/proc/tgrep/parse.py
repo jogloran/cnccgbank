@@ -99,7 +99,7 @@ def t_STAR(t):
     return t
     
 def t_UNARY_OP(t):
-    r'(\#<\d+)'
+    r'(\#?<\d+|\#\#\d+)'
     return t
 
 def t_ATOM(t):
