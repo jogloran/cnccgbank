@@ -7,7 +7,7 @@
 # supplied in the Chinese CCGbank conversion distribution. If the LICENCE file is missing, please
 # notify the maintainer Daniel Tse <cncandc@gmail.com>.
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from munge.proc.filter import Filter
 from munge.util.dict_utils import CountDict
@@ -71,11 +71,11 @@ class PUTokens(Filter):
     def __init__(self):
         Filter.__init__(self)
         
-        self.puncts = set()
+        self.puncts = Counter()
 
     def accept_leaf(self, leaf):
-        if leaf.tag == "PU": self.puncts.add(leaf.lex)
+        if leaf.tag == "PU": self.puncts[leaf.lex] += 1
 
     def output(self):
-        for punct in sorted(self.puncts):
-            print punct
+        for punct, freq in self.puncts.most_common():
+            print '% 6d | %s' % (freq, punct)
