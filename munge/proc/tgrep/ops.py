@@ -113,7 +113,6 @@ def ChildCount(n):
     
 @cast_to(int)
 def HeadIndexIs(n):
-    print 'h'
     def _HeadIndexIs(candidate, node, context):
         if node.is_leaf(): return False
         return int(node.head_index) == n
