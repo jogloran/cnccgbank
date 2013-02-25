@@ -9,6 +9,9 @@
 
 from functools import partial as curry
 
+from itertools import islice
+take = lambda n: lambda seq: islice(seq, n)
+
 const = lambda v: lambda: v
 const_ = lambda v: lambda self: v
 
