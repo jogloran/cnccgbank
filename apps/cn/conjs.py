@@ -25,6 +25,7 @@ class ConjAnalysis(Filter):
     def __init__(self):
         Filter.__init__(self)
         self.conjs = defaultdict(lambda: defaultdict(int))
+        self.inverse = defaultdict(lambda: defaultdict(int))
         
     def accept_derivation(self, bundle):        
         for node in nodes(bundle.derivation):
@@ -33,6 +34,7 @@ class ConjAnalysis(Filter):
                 ccs = list(where(lambda kid: kid.tag == 'CC', node.kids))
                 for cc in ccs:
                     self.conjs[base_tag(node.tag)][cc.lex] += 1
+                    self.inverse[cc.lex][base_tag(node.tag)] += 1
     
     def output(self):
         for top_tag, ccs in sorted(self.conjs.iteritems()):
@@ -47,4 +49,8 @@ class ConjAnalysis(Filter):
             #         first = False
             #     print '| % 5d %s' % (v, k)
             
-            
+        print
+        for top_tag, ccs in sorted(self.inverse.iteritems(), key=lambda (k, v): sum(v.values()), reverse=True):
+            sorted_by_freq = sorted(ccs.iteritems(), key=lambda e: e[1], reverse=True)
+            print '% 5s | %s' % (top_tag, '; '.join('%s (%s)' % (lex, freq) for (lex, freq) in sorted_by_freq))
+        
