@@ -229,7 +229,7 @@ class FixExtraction(Fix):
         # shallower nodes before deeper nodes. Therefore, if a verb has two args V A1 A2, the _args_ list will
         # contain [A2, A1] because A2 is shallower (further from the head) than A1.
         # We reverse the list of args, so that args are re-attached from the inside out (starting from A1).
-        args.reverse()
+        # args.reverse()
         
         new_g = g
         for arg in args:
