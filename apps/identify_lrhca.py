@@ -16,6 +16,10 @@ from apps.identify_pos import *
 from munge.util.config import config
 from munge.util.func_utils import satisfies_any
 
+def first_nonpunct_kid(node):
+    kid, index = get_nonpunct_kid(node, get_last=False)
+    return kid
+    
 def last_nonpunct_kid(node):
     kid, index = get_nonpunct_kid(node)
     return kid
@@ -57,7 +61,8 @@ def is_head_final(node):
     return (has_tag(lnpk, 'h') or has_tag(node[0], 'l')) if lnpk else False
 
 def is_head_initial(node):
-    return has_tag(node[0], 'h') or has_tag(node[1], 'r')
+    fnpk = first_nonpunct_kid(node)
+    return (has_tag(fnpk, 'h') or has_tag(node[1], 'r')) if fnpk else False
 
 def is_adjunction(node):
     return has_tag(node[0], 'a')
