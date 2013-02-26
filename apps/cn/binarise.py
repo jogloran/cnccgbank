@@ -54,7 +54,8 @@ def label_adjunction(node, inherit_tag=False, do_labelling=True, inside_np_inter
 
 def label_apposition(node, inherit_tag=False, inside_np_internal_structure=False):
     kid_tag = strip_tag_if(not inherit_tag, node.tag)
-    kids = node.kids
+    
+    kids = map(lambda node: label_node(node, inside_np_internal_structure=inside_np_internal_structure), node.kids)
     last_kid = get_kid_(kids)
     if kids:
         second_last_kid = get_kid_(kids)
