@@ -1,5 +1,5 @@
 import sys
-from collections import deque
+from collections import deque, Counter
 from itertools import islice, chain
 
 window_size = int(sys.argv[2])
@@ -24,14 +24,15 @@ i = 0
 for line in open(sys.argv[1]):
     toks = line.rstrip().split(' ')
     window.extend(toks)
-    n += len(toks)
-    if n % window_size == 0:
-        # left_intersection  = inter(window[:window_size], window[window_size:2*window_size])
-        # right_intersection = inter(window[window_size:2*window_size], window[2*window_size:])
-        left_intersection = 0
-        right_intersection = inter(chain(window[:window_size],window[2*window_size:]), window[window_size:2*window_size])
-        
-        data.append((left_intersection, right_intersection))
+    for t in toks:
+        if n % window_size == 0:
+            # left_intersection  = inter(window[:window_size], window[window_size:2*window_size])
+            # right_intersection = inter(window[window_size:2*window_size], window[2*window_size:])
+
+            left_intersection = sum(1 for k, v in Counter(window[window_size:2*window_size]).items() if v == 1)
+            right_intersection = inter(chain(window[:window_size],window[2*window_size:]), window[window_size:2*window_size])
+            data.append((left_intersection, right_intersection))
+        n += 1
 
 print """
 set terminal x11 persist
