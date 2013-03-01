@@ -13,7 +13,21 @@ from munge.util.dict_utils import CountDict, sorted_by_value_desc
 from munge.trees.traverse import nodes
 from munge.util.err_utils import *
 
-from collections import defaultdict
+from collections import defaultdict, Counter
+
+from apps.util.tabulation import Tabulation
+
+class LexiconStats(Tabulation('cats', value_maker=set, reducer=len, limit=20, additional_info_maker=lambda v: ' '.join(v)), Filter):
+    def __init__(self):
+        super(LexiconStats, self).__init__()
+        self.freq = Counter()
+        
+    def accept_leaf(self, leaf):
+        self.cats[leaf.lex].add(str(leaf.cat))
+        self.freq[leaf.lex] += 1
+        
+    # def output(self):
+    #     super(LexiconStats, self).output()
 
 class CountRules(Filter):
     def __init__(self):
