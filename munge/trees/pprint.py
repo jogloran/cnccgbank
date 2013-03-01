@@ -25,6 +25,16 @@ def default_node_repr(node, compress=False, **kwargs):
         else:
             return "%s" % node.tag
             
+import string
+def petrov_node_repr(node, **kwargs):
+    def make(c):
+        return str(c).translate(string.maketrans('()', '{}'))
+        
+    if node.is_leaf():
+        return "{%s} %s" % (make(node.category), node.lex)
+    else:
+        return "{%s}" % make(node.category)
+            
 LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
 def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduce=True):
     single_node_template = open + '%s' + close
@@ -94,6 +104,7 @@ gloss_iter: an iterable of gloss words
     return base_pprint
 
 pprint = pprint_with(default_node_repr)
+pprint_petrov = pprint_with(petrov_node_repr)
 
 if __name__ == '__main__':
     from munge.penn.parse import *
