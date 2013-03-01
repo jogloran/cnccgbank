@@ -36,7 +36,7 @@ from munge.util.config import config
 from munge.util.colour_utils import codes
 use_colour = config.use_colour
 
-_tgrep_debug = True
+_tgrep_debug = False
 _tgrep_initialised = False
 
 def initialise():

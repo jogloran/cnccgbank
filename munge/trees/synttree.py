@@ -97,7 +97,7 @@ def process_lex_node_reprR(node, compress=False, gloss_iter=None, **kwargs):
 
         gloss = gloss_iter.next() if gloss_iter else None
         if gloss:
-            lex = r'\glosE{%s}{%s}' % (result, gloss)
+            lex = r'\glosE{%s}{%s}' % (lex, gloss)
 
         result = "\\node(r%s){\\cf{%s} %s};" % (Rnode_id, sanitise_category(str(node.category)), lex)
         Rnode_id += 1
