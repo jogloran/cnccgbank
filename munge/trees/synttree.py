@@ -46,8 +46,8 @@ def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
         lex = latex_tag_for(node.lex)
         
         if gloss:
-            lex = r'\glosN{%s}{%s}' % (lex, gloss)
-        return "{\\Pos{%s} %s}" % (node.tag, lex)
+            lex = r'\glosE{%s}{%s}' % (lex, gloss)
+        return "\\Pos{%s} [ .%s ]" % (node.tag, lex)
     else:
         return "\\Pos{%s}" % node.tag
         
