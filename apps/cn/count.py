@@ -17,9 +17,7 @@ from collections import defaultdict, Counter
 
 from apps.util.tabulation import Tabulation
 
-class LexiconStats(Tabulation('cats', value_maker=set, reducer=len, limit=20,
- #additional_info_maker=lambda v: ' '.join(v)),
-  Filter):
+class LexiconStats(Tabulation('cats', value_maker=set, reducer=len, limit=20, additional_info_maker=lambda v: ' '.join(v)), Filter):
     def __init__(self):
         super(LexiconStats, self).__init__()
         self.freq = Counter()
