@@ -13,7 +13,6 @@ else:
 g = GuessReader(sys.argv[1])
 for bundle in g:
     if petrov:
-        print pprint_petrov(bundle.derivation)
+        print pprint_petrov(bundle.derivation, sep='', newline='')
     else:
         print pprint(bundle.derivation)
-    print

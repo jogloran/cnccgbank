@@ -31,9 +31,9 @@ def petrov_node_repr(node, **kwargs):
         return str(c).translate(string.maketrans('()', '{}'))
         
     if node.is_leaf():
-        return "{%s} %s" % (make(node.category), node.lex)
+        return "%s %s" % (make(node.category), node.lex)
     else:
-        return "{%s}" % make(node.category)
+        return "%s " % make(node.category)
             
 LeafCompressThreshold = 3 # Nodes with this number of all-leaf children will be printed on one line
 def pprint_with(node_repr, open='(', close=')', bracket_outermost=True, do_reduce=True):

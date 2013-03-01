@@ -24,7 +24,7 @@ class WordStats(object):
     def __len__(self):
         return len(self.cats)
 
-class LexiconStats(Tabulation('cats', value_maker=WordStats, reducer=len, limit=20, additional_info_maker=lambda e: str(e.freq)), Filter):
+class LexiconStats(Tabulation('cats', value_maker=WordStats, reducer=len, limit=20, additional_info_maker=lambda e: str(e.freq), separator='&', row_terminator='', additional_row_terminator="\\\\\n"), Filter):
     def __init__(self):
         super(LexiconStats, self).__init__()
         
