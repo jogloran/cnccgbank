@@ -37,18 +37,18 @@ for fn in sys.argv[2:]:
     del r
 
 print """
+set terminal epslatex input color size 19cm, 4cm
+set output 'corpusparts.tex'
 set terminal x11 persist
-set view map
-set xtics border in scale 0,0 mirror norotate  offset character 0, 0, 0 autojustify
-set ytics border in scale 0,0 mirror norotate  offset character 0, 0, 0 autojustify
-set ztics border in scale 0,0 nomirror norotate  offset character 0, 0, 0 autojustify
-set nocbtics
-set rtics axis in scale 0,0 nomirror norotate  offset character 0, 0, 0 autojustify
 set xrange [ -0.500000 : %(length)d ] noreverse nowriteback
 set yrange [ 0.500000 : 1.5000 ] noreverse nowriteback
-set cblabel "Score" 
-set cbrange [ 0.00000 : %(max_value)d ] noreverse nowriteback
-set palette rgbformulae 2, -7, -7
+set palette defined ( 0 'green', 1 'green', 1 'yellow', 2 'yellow', 2 'red', 3 'red', 3 'purple', 4 'purple', 4 'brown', 5 'brown')
+set cbtics ("" 0, "Xinhua" 1, "HKSAR" 2, "Sinorama" 3, "Broadcast" 4) scale 0
+set cbrange [ 1 : %(max_value)d ] noreverse nowriteback
+set xlabel "Number of words"
+set xtics ( "0" 0, "100000" 5000, "200000" 10000, "300000" 15000, "400000" 20000, "500000" 25000, "600000" 30000, "700000" 35000 )
+unset ytics
+unset key
 plot '-' using 2:1:3 with image
 """ % dict(
     length=len(data),
