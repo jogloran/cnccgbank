@@ -170,7 +170,7 @@ class TgrepCount(Filter):
     arg_names = 'EXPR'
     
 class TgrepCore(Filter):
-    '''Abstract filter class for a tgrep query. Subclasses must override match_generator and match_callback.'''
+    '''Abstract filter class for a tgrep query. Subclasses must override match_generator, match_callback and caption_generator.'''
     def __init__(self, expression):
         Filter.__init__(self)
         initialise()
@@ -180,7 +180,7 @@ class TgrepCore(Filter):
         self.nmatched = self.total = 0
         
     def _not_implemented(self, *args):
-        raise NotImplementedError('TgrepCore subclasses must implement match_generator and match_callback.')
+        raise NotImplementedError('TgrepCore subclasses must implement match_generator, match_callback and caption_generator.')
     match_generator = _not_implemented
     match_callback = _not_implemented
     caption_generator = _not_implemented
@@ -193,7 +193,10 @@ class TgrepCore(Filter):
             self.caption_generator(derivation_bundle)
             if use_colour: sys.stdout.write(codes['reset'])
             
-            self.match_callback(match_node, derivation_bundle)
+            if hasattr(self, 'match_callback_with_context'):
+                self.match_callback_with_context(match_node, derivation_bundle, context)
+            else:
+                self.match_callback(match_node, derivation_bundle)
             if not matched: matched = True
             
         if matched:
