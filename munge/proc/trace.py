@@ -164,7 +164,7 @@ def filter_autoload_paths(argv):
     
 def main(argv):
     parser = OptionParser(conflict_handler='resolve') # Intelligently resolve switch collisions
-    parser.set_defaults(verbose=True, filters_to_run=[], packages=BuiltInPackages)
+    parser.set_defaults(verbose=False, filters_to_run=[], packages=BuiltInPackages)
 
     # If any library loading switches (-l) are given, collect their names and remove them from argv
     argv, user_defined_libraries = filter_library_switches(argv)
