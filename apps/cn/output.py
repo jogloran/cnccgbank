@@ -38,7 +38,22 @@ name and the bundle, and returning the directory name for that derivation.'''
 
         with file(output_filename, 'a') as f:
             print >>f, self.transformer(bundle)
+            
+class OutputPTBDerivation(OutputDerivation):
+    def __init__(self, outdir):
+        def fix_label(label):
+            matches = IdRegex.match(label)
+            
+            if matches and len(matches.groups()) == 3:
+                sec, doc, deriv = map(int, matches.groups())
+                return "wsj_%02d%02d.%d" % (sec, doc, deriv)
+            raise Exception, "Invalid label %s" % label
+            
+        def printer(bundle):
+            return bundle.derivation.__repr__(suppress_head_index=True)
 
+        OutputDerivation.__init__(self, outdir=outdir, transformer=printer)
+        
 class OutputPrefacedPTBDerivation(OutputDerivation):
     '''Writes out PTB nodes one to a line, each preceded by a preface line with that
 node's document ID.'''

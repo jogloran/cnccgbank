@@ -20,14 +20,14 @@ class Node(N.Node):
         self.category = category
         self.head_index = head_index
         
-    def __repr__(self, first=True, suppress_lex=False):
+    def __repr__(self, first=True, suppress_lex=False, suppress_head_index=False):
         cat_string = "{%s} " % self.category if self.category else ''
-        head_index_string = '' if (self.head_index is None) else '<%d> ' % self.head_index
+        head_index_string = '' if (suppress_head_index or self.head_index is None) else '<%d> ' % self.head_index
         return "%s(%s %s%s%s)%s" % ("(" if first else "",
                                 self.tag,
                                 head_index_string,
                                 cat_string, 
-                                ' '.join(kid.__repr__(False, suppress_lex) for kid in self.kids), 
+                                ' '.join(kid.__repr__(False, suppress_lex, suppress_head_index) for kid in self.kids), 
                                 ")" if first else "")
                                 
     def label_text(self):
@@ -53,7 +53,7 @@ class Leaf(N.Leaf):
         N.Leaf.__init__(self, tag, lex, parent)
         self.category = category
         
-    def __repr__(self, first=True, suppress_lex=False):
+    def __repr__(self, first=True, suppress_lex=False, suppress_head_index=False):
         cat_string = "{%s} " % self.category if self.category else ''
         return ("%s(%s %s%s)%s" %
             ("(" if first else '',
