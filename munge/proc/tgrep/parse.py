@@ -63,7 +63,7 @@ def t_REGEX(t):
 # TODO: There's a bug with REGEX_SPEC; if the input is "a" then it gets lexed as REGEX_SPEC
 #       Need to make REGEX_SPEC part of the definition of the REGEX token
 def t_REGEX_SPEC(t):
-    r'[a]'
+    r'[au]'
     return t
 
 def t_LPAREN(t):
@@ -211,7 +211,8 @@ def p_matcher(stk):
             stk[0] = NotAtom(stk[2])
         elif stk[1] == '^':
             if isinstance(stk[2], tuple):
-                stk[0] = RELex(*stk[2])
+                expr, kwargs = stk[2]
+                stk[0] = RELex(expr, **kwargs)
                 
             elif stk[2].startswith('"'):
                 stk[0] = MatchLex(stk[2][1:-1], quoted=True)
@@ -220,7 +221,8 @@ def p_matcher(stk):
         elif stk[1] == '@':
             # TODO: refactor this with above
             if isinstance(stk[2], tuple):
-                stk[0] = RECat(*stk[2])
+                expr, kwargs = stk[2]
+                stk[0] = RECat(expr, **kwargs)
                 
             elif stk[2].startswith('"'):
                 stk[0] = MatchCat(stk[2][1:-1], quoted=True)
@@ -251,7 +253,8 @@ def p_regex(stk):
     '''
     regex : full_regex
     '''
-    stk[0] = RE(*stk[1])
+    expr, kwargs = stk[1]
+    stk[0] = RE(expr, **kwargs)
     
 def p_full_regex(stk):
     # unlike the other productions, this returns a tuple of arguments to be splatted and
@@ -261,14 +264,22 @@ def p_full_regex(stk):
                | REGEX REGEX_SPEC
     '''
     # Extract the regex between the slash delimiters
+    regex = stk[1][1:-1].decode('u8')
+    
     if len(stk) == 2:
-        stk[0] = (stk[1][1:-1], True) # anchor_at_start = True
+        stk[0] = (regex, {'anchor_at_start': True}) # anchor_at_start = True
     elif len(stk) == 3:
         spec = stk[2]
-        if spec == 'a':
-            stk[0] = (stk[1][1:-1], False) # anchor_at_start = False
-        else:
+        kwargs = {}
+        if 'a' in spec:
+            kwargs['anchor_at_start'] = False
+        if 'u' in spec:
+            kwargs['unicode'] = True
+            
+        if spec not in 'au':
             err('Invalid regex specifier %s.', spec)
+        
+        stk[0] = (regex, kwargs)
 
 def p_star(stk):
     '''
