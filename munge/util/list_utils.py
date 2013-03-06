@@ -8,6 +8,7 @@
 # notify the maintainer Daniel Tse <cncandc@gmail.com>.
 
 import random
+random.seed()
 
 def first_index_such_that(pred, l):
     '''Finds the first index satisfying the given predicate, or None if no index does.'''
