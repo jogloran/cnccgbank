@@ -212,23 +212,27 @@ class MatchCat(object):
         return str(node.category) == self.cat_to_match        
         
 class REValue(object):
-    def __init__(self, source, anchor_at_start=True):
+    def __init__(self, source, anchor_at_start=True, unicode=False):
         self.source = source
-        self.regex = re.compile(source)
+        self.unicode = unicode
+        self.regex = re.compile(source, re.UNICODE if unicode else 0)
         self.match_method = self.regex.match if anchor_at_start else self.regex.search
         
 class RELex(REValue):
-    def __init__(self, source, anchor_at_start=True):
-        REValue.__init__(self, source, anchor_at_start)
+    def __init__(self, source, anchor_at_start=True, unicode=False):
+        REValue.__init__(self, source, anchor_at_start, unicode)
     def __repr__(self):
         return "^/%s/" % self.source
     def is_satisfied_by(self, node, context):
         if not node.is_leaf(): return False
-        return self.match_method(node.lex) is not None
+        if self.unicode:
+            return self.match_method(node.lex.decode('u8')) is not None
+        else:
+            return self.match_method(node.lex) is not None
         
 class RECat(REValue):
-    def __init__(self, source, anchor_at_start=True):
-        REValue.__init__(self, source, anchor_at_start)
+    def __init__(self, source, anchor_at_start=True, unicode=False):
+        REValue.__init__(self, source, anchor_at_start, unicode)
     def __repr__(self):
         return "@/%s/" % self.source
     def is_satisfied_by(self, node, context):
@@ -236,8 +240,8 @@ class RECat(REValue):
         
 class RE(REValue):
     '''Matches tree nodes whose category labels satisfy a regex.'''
-    def __init__(self, source, anchor_at_start=True):
-        REValue.__init__(self, source, anchor_at_start)
+    def __init__(self, source, anchor_at_start=True, unicode=False):
+        REValue.__init__(self, source, anchor_at_start, unicode)
     def __repr__(self):
         return "/%s/" % self.source
     def is_satisfied_by(self, node, context):
