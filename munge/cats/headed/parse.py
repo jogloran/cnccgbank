@@ -52,6 +52,9 @@ def parse_atom(toks, vars):
         var = parse_var(toks)
         ret.slot = make_var(vars, var)
         
+    if toks.peek() and toks.peek().startswith('<'):
+        toks.next()
+        
     return ret
 
 def parse_direction(toks):
@@ -105,6 +108,9 @@ def parse_compound(toks, vars):
         if toks.peek() == '{':
             lvar = parse_var(toks)
             left.slot = make_var(vars, lvar)
+            
+        if toks.peek() and toks.peek().startswith('<'):
+            toks.next()
 
         if is_direction(toks.peek()):
             dir, mode, right = parse_compound_rhs(toks, vars)
