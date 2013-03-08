@@ -37,7 +37,7 @@ def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
         if gloss:
             lex = r'\glosN{%s}{%s}' % (lex, gloss)
         
-        return "\\Pos{%s} %s %s" % (
+        return "\\PTag{%s} %s %s" % (
             node.tag, 
             "\\edge[roof]; " if node.count()>1 else '', 
             lex)
@@ -47,9 +47,9 @@ def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
         
         if gloss:
             lex = r'\glosE{%s}{%s}' % (lex, gloss)
-        return "\\Pos{%s} [ .%s ]" % (node.tag, lex)
+        return "\\PTag{%s} [ .%s ]" % (node.tag, lex)
     else:
-        return "\\Pos{%s}" % node.tag
+        return "\\PTag{%s}" % node.tag
         
 def is_trace(tag):
     return tag == '-NONE-'
@@ -59,22 +59,22 @@ def process_lex_node_reprL(node, compress=False, **kwargs):
     if compress:
         lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
 
-        return "\\Pos{%s} %s %s" % (
+        return "\\PTag{%s} %s %s" % (
             node.tag,
             "\\edge[roof]; " if node.count()>1 else '',
             lex)
     if node.is_leaf():
         if is_trace(node.tag):
-            result = "\\node{\\Pos{%s} %s};" % (node.tag, latex_tag_for(node.lex))
+            result = "\\node{\\PTag{%s} %s};" % (node.tag, latex_tag_for(node.lex))
         else:
             global Lnode_id
-            result = "\\node(l%s){\\Pos{%s} %s};" % (Lnode_id, node.tag, latex_tag_for(node.lex))
+            result = "\\node(l%s){\\PTag{%s} %s};" % (Lnode_id, node.tag, latex_tag_for(node.lex))
             Lnode_id += 1
 
 
         return result
     else:
-        return "\\Pos{%s}" % node.tag
+        return "\\PTag{%s}" % node.tag
 
 Rnode_id = 0
 def process_lex_node_reprR(node, compress=False, gloss_iter=None, **kwargs):

@@ -2,7 +2,7 @@
 from munge.proc.filter import Filter
 from apps.cn.output import OutputPTBDerivation
 
-from munge.penn.nodes import Leaf, Node
+from munge.penn.aug_nodes import Leaf, Node
 from munge.trees.traverse import nodes, leaves
 from munge.proc.tgrep.tgrep import find_all
 
