@@ -21,6 +21,7 @@ class SplitNames(Filter, OutputPTBDerivation):
             if u[0] in baixing:
                 leaf = ctx.n
                 kids = [ Leaf(leaf.tag, u[0].encode('u8'), None), Leaf(leaf.tag, u[1:].encode('u8'), None) ]
-                node.kids = kids
+                replace_kid(ctx.n.parent, ctx.n, Node('NR', kids))
+                #node.kids = kids
                 
         self.write_derivation(bundle)

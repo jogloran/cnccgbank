@@ -1,3 +1,4 @@
+import sys
 from munge.proc.filter import Filter
 from itertools import imap
 from apps.anno.nldfind import NLDFinder
@@ -43,6 +44,7 @@ class CountDischargedTraces(Filter):
                 
                 if not (toks and cn_toks):
                     print >>sys.stderr, bundle.label()
+                    continue
                 
                 alignment = align(cn_toks, toks)
                 trace = ctx.t
@@ -57,6 +59,6 @@ class CountDischargedTraces(Filter):
                             
     def output(self):
         for (nld_type, results) in self.results.iteritems():
-            print '% 6d/% 6d = % 4.2f%% | %s' % (results.discharged, results.discharged + results.not_discharged, 
+            print '% 6d/% 6d = % 5.2f%% | %s' % (results.discharged, results.discharged + results.not_discharged, 
                 results.discharged/float(results.discharged + results.not_discharged)*100.0,
                 nld_type)
