@@ -2,7 +2,7 @@ from munge.proc.filter import Filter
 from itertools import imap
 from apps.anno.nldfind import NLDFinder
 from munge.proc.tgrep.tgrep import find_all
-from munge.trees.traverse import text, leaves
+from munge.trees.traverse import text, leaves, get_index_of_leaf
 from munge.trees.synttree import is_trace
 
 import difflib
@@ -45,12 +45,15 @@ class CountDischargedTraces(Filter):
                     print >>sys.stderr, bundle.label()
                 
                 alignment = align(cn_toks, toks)
-                for i, leaf in enumerate(leaves(root)):
-                    if is_trace(leaf.tag):
-                        if alignment.get(i, None) is not None:
-                            self.results[name].not_discharged += 1
-                        else:
-                            self.results[name].discharged += 1
+                trace = ctx.t
+                if trace is not None:
+                    trace_index = get_index_of_leaf(root, trace)
+                    if alignment.get(trace_index, None) is not None:
+                        self.results[name].not_discharged += 1
+                    else:
+                        self.results[name].discharged += 1
+                else:
+                    print >>sys.stderr, "t was not bound to a trace node"
                             
     def output(self):
         for (nld_type, results) in self.results.iteritems():
