@@ -42,12 +42,15 @@ class CountDischargedTraces(Filter):
                 toks = self.toks.get(bundle.label(), None)
                 cn_toks = text(root)
                 
+                trace = ctx.t
+                
                 if not (toks and cn_toks):
                     print >>sys.stderr, bundle.label()
-                    continue
+                    if trace:
+                        self.results[name].not_discharged += 1
                 
                 alignment = align(cn_toks, toks)
-                trace = ctx.t
+                
                 if trace is not None:
                     trace_index = get_index_of_leaf(root, trace)
                     if alignment.get(trace_index, None) is not None:
