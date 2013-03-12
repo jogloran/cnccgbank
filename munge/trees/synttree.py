@@ -22,7 +22,7 @@ def process_lex_node_repr_ccg(node, compress=False, gloss_iter=None, **kwargs):
         gloss = gloss_iter.next() if gloss_iter else None
         lex = latex_tag_for(node.lex)
 
-        if gloss:
+        if gloss: # with gloss, two lines: category \\ lex gloss
             return r"\ensuremath{\raisebox{-\baselineskip}{\shortstack{\cf{%s} \\ \glosE{%s}{%s}}}}" % (sanitise_category(str(node.cat)), lex, gloss)
         else:
             return "{\\cf{%s} %s}" % (sanitise_category(str(node.cat)), lex)
@@ -35,18 +35,19 @@ def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
         
         lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
         if gloss:
-            lex = r'\glosN{%s}{%s}' % (lex, gloss)
+            return r'\ensuremath{\raisebox{-1.4\baselineskip}{\shortstack{\PTag{%s} \\ \glosN{%s}{%s}}}}' % (node.tag, lex, gloss)
         
         return "\\PTag{%s} %s %s" % (
             node.tag, 
             "\\edge[roof]; " if node.count()>1 else '', 
             lex)
+            
     if node.is_leaf():
         gloss = gloss_iter.next() if gloss_iter else None
         lex = latex_tag_for(node.lex)
         
         if gloss:
-            lex = r'\glosE{%s}{%s}' % (lex, gloss)
+            return r'\ensuremath{\raisebox{-1.4\baselineskip}{\shortstack{\PTag{%s} \\ \glosN{%s}{%s}}}}' % (node.tag, lex, gloss)
         return "\\PTag{%s} [ .%s ]" % (node.tag, lex)
     else:
         return "\\PTag{%s}" % node.tag
