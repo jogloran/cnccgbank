@@ -22,5 +22,5 @@ def table_freqs(freqs):
     return '\n'.join(bits)
     
 def sanitise_category(cat):
-    return re.sub(r'\\', r'\\bs ', cat)
+    return re.sub(r'\\', r'\\bs ', cat).replace(r'~', '\\vartilde ')
         
