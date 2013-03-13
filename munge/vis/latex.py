@@ -61,13 +61,21 @@ arrows = {
     'bwd_raise': 'btype',
     'null_relativiser_typechange': 'typechange',
 }
-def ccg2latex(root, glosses=None):
+def abbr(cat_string):
+    return (cat_string.replace(r'(((S[dcl]\NP)/NP)/NP)', 'DTV')
+                     .replace(r'((S[dcl]\NP)/NP)/NP', 'DTV')
+                     .replace(r'((S[dcl]\NP)/NP)', 'TV')
+                     .replace(r'(S[dcl]\NP)/NP', 'TV')
+                     .replace(r'(S[dcl]\NP)', 'VP')
+                     .replace(r'S[dcl]\NP', 'VP'))
+def ccg2latex(root, glosses=None, abbreviate=False):
     def comb_symbol(comb):
         return arrows.get(comb, 'uline')
     def cat_repr(cat):
-        return sanitise_category(str(cat))
+        cat_str = abbr(str(cat)) if abbreviate else str(cat)
+        return sanitise_category(cat_str)
         
-    out = ['\deriv{%d}{' % root.leaf_count()]    
+    out = ['\deriv{%d}{' % root.leaf_count()]
     all_leaves = list(leaves(root))
     
     # lex line
