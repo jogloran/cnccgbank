@@ -59,7 +59,7 @@ class FixExtraction(Fix):
 # node, which does not allow us to fix the entire RNR structure
 (r'^/\*RNR\*/ >> { * < /:c$/a }=G', self.fix_rnr, { 'left_to_right': True }),
 
-            (r'*=TOP < { /LB/=BEI $ { /IP/=S < { /VP/=VP < /V[PV]|VRD|VSB|VCD/=PRED < { /NP-OBJ/ < ^/\*/ } } }=BEIS }', self.fix_lb),
+            (r'*=TOP < { /LB/=BEI $ { /IP/=S << { /VP/=VP < /V[PV]|VRD|VSB|VCD/=PRED < { /NP-OBJ/ < ^/\*/ } } }=BEIS }', self.fix_lb),
             
             # doesn't work for 1:34(8) where an additional PP adjunct intervenes
             (r'*=TOP < { /PP-LGS/ < /P/=BEI } << { /NP-(?:TPC|OBJ)/ < ^/\*/ $ /V[PV]|VRD|VSB|VCD/=PRED }', self.fix_reduced_long_bei_gap),
@@ -143,7 +143,7 @@ class FixExtraction(Fix):
         Fix.__init__(self, outdir)
         
     def fix_lb(self, _, top, vp, pred, s, bei, beis):
-        replace_kid(s, vp, pred)
+        replace_kid(vp.parent, vp, pred)
         self.fix_categories_starting_from(pred, until=s)
         self.relabel_lb(bei, beis)
         
