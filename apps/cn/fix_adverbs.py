@@ -63,7 +63,7 @@ class FixAdverbs(Fix):
                     P.direction == FORWARD)
         except AttributeError:
             return False
-    
+        
     @classmethod
     def do_fix(C, node):
         def bxcomp(L, R, P):
@@ -72,13 +72,19 @@ class FixAdverbs(Fix):
         def bxcomp2(L, R, P):
             A = featureless(L.left.left)
             return A|A
+        def innermost_VP(c):
+            while c.left.is_complex():
+                c = c.left
+            return c
             
         if node.parent and node.parent.count() > 1:
             l, r, p = node.parent[0], node.parent[1], node.parent
             L, R, P = (n.category for n in (l, r, p))
             
-            if (not p.tag.startswith('VSB') and
-                is_modifier_category(R) and
+            if p.tag.startswith('VSB'):
+                v = innermost_VP(L)
+                l.category = v/v
+            elif(is_modifier_category(R) and
                 L.is_complex() and
                 r is node):
                 

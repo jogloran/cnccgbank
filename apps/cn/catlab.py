@@ -337,6 +337,7 @@ consulted first.'''
     original_tag = base_tag(node.tag, strip_cptb_tag=False)
     stemmed_tag = base_tag(node.tag)
     
+    # TODO: copy on write Categories? categories are (meant to be) immutable but their slots aren't
     return copy((is_root and (RootMap.get(original_tag, None) or RootMap.get(stemmed_tag, None)))
              or Map.get(original_tag, None)
              or Map.get(stemmed_tag, None if return_none_when_unmatched else AtomicCategory(stemmed_tag)))
@@ -397,7 +398,7 @@ def label(node, inside_np=False):
         node[1].category = node.category
         node.kids[1] = label(node[1])
         
-        node[0].category = node.category / node[1].category
+        node[0].category = featureless(node.category) / featureless(node[1].category)
         node.kids[0] = label(node.kids[0])
         
         return node
