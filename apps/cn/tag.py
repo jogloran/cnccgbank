@@ -369,14 +369,15 @@ def preprocess(root):
             
         # elif False:
         elif first_kid and first_kid.tag == "BA":
-            expr = r'''* < { /BA/=LB
-                       [ $ { * < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED }=IP
-                       | $ { /CP/=CP < { *=IP < /-(SBJ|OBJ|PN)/a=SBJ < /(V[PV]|VRD|VSB)/=PRED } } ] }'''
-            top, ctx = get_first(node, expr, with_context=True)
+            expr = r'''* < { /BA/=LB $ { /IP/ < /NP/=SBJ < /VP/=PRED } }'''
+                
+            result = get_first(node, expr, with_context=True)
+            if result:
+                top, ctx = result
 
-            lb, sbj, pred, cp, ip = ctx.lb, ctx.sbj, ctx.pred, ctx.cp, ctx.ip
-#            top.kids = [lb, Node('IP', [sbj, pred])]
-            top.kids = [lb, sbj, pred]
+                lb, sbj, pred, ip = ctx.lb, ctx.sbj, ctx.pred, ctx.ip
+    #            top.kids = [lb, Node('IP', [sbj, pred])]
+                top.kids = [lb, sbj, pred]
 
         # single mistagging CP-SBJ for CP in 24:58(1)
         elif node.tag == 'CP-SBJ': node.tag = 'CP'
