@@ -119,7 +119,7 @@ class FixExtraction(Fix):
 
             # ba-construction object gap
             # (r'*=TOP < { /BA/=BA $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
-            ('/VP/ < { /BA/=BA $ /N[NP]/=C } $ /VP/=D', self.fix_ba_object_gap),
+            ('/VP/ < { /BA/=BA $ /N[NP]/=C } $ { /VP/=D << ^/\*-/ }', self.fix_ba_object_gap),
 
             # Removes the prodrop trace *pro*
             # Also removes control/raising traces *PRO* which we have chosen not to shrink in catlab
