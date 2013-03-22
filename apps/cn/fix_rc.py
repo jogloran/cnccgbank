@@ -118,7 +118,8 @@ class FixExtraction(Fix):
            # (r'* < { /IP-APP/=A $ /N[NRT]/=S }', self.fix_ip_app),
 
             # ba-construction object gap
-            (r'*=TOP < { /BA/=BA $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
+            # (r'*=TOP < { /BA/=BA $ { * << ^/\*-/ }=C }', self.fix_ba_object_gap),
+            ('/VP/ < { /BA/=BA $ /N[NP]/=C } $ /VP/=D', self.fix_ba_object_gap),
 
             # Removes the prodrop trace *pro*
             # Also removes control/raising traces *PRO* which we have chosen not to shrink in catlab
@@ -619,14 +620,19 @@ CCG analysis.'''
         debug("new bei category: %s", bei.category)
         return bei
         
-    def relabel_ba_category(self, top, ba):
-        _, ctx = get_first(top, r'*=S $ /BA/=BA', with_context=True)
-        s, ba = ctx.s, ctx.ba
-
-        ba.category = ba.category.clone_with(right=s.category)
+    def relabel_ba_category(self, top, ba, s):
+        ba.category._left._right = s.category
+        ba.parent.category = ba.category.left
+        # ba.parent.parent.category = ba.parent.category.left
         
-        debug("new ba category: %s", ba.category)
-        return ba
+        self.fix_categories_starting_from(ba, top)
+        # _, ctx = get_first(top, r'*=S $ /BA/=BA', with_context=True)
+        # s, ba = ctx.s, ctx.ba
+        # 
+        # ba.category = ba.category.clone_with(right=s.category)
+        # 
+        # debug("new ba category: %s", ba.category)
+        # return ba
 
     def fix_reduced_long_bei_gap(self, node, *args, **kwargs):
         debug("Fixing reduced long bei gap: %s", lrp_repr(node))
@@ -664,17 +670,26 @@ CCG analysis.'''
 
         debug("done %s", pprint(top))
 
-    def fix_ba_object_gap(self, node, top, c, ba):
-        debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
-
-        for trace_NP, ctx in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
+    def fix_ba_object_gap(self, top, ba, c, d):
+        # for trace_NP, ctx in find_all(d, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
+        for trace_NP, ctx in find_all(d, r'{ { { /NP-OBJ/=T < ^/\*-/ } $ *=S } > { *=P > *=PP } }', with_context=True):
+            print 'FOUND'
             debug("Found %s", trace_NP)
             pp, p, t, s = ctx.pp, ctx.p, ctx.t, ctx.s
 
             self.fix_object_gap(pp, p, t, s)
-            self.fix_categories_starting_from(s, until=c)
-            
-        self.relabel_ba_category(top, ba)
+            # self.fix_categories_starting_from(s, until=top)
+        
+        # debug("Fixing ba-construction object gap: %s" % lrp_repr(node))
+        # 
+        # for trace_NP, ctx in find_all(top, r'*=PP < {*=P < { /NP-OBJ/=T < ^/\*-/ $ *=S } }', with_context=True):
+        #     debug("Found %s", trace_NP)
+        #     pp, p, t, s = ctx.pp, ctx.p, ctx.t, ctx.s
+        # 
+        #     self.fix_object_gap(pp, p, t, s)
+        #     self.fix_categories_starting_from(s, until=c)
+        #     
+        self.relabel_ba_category(top, ba, s)
 
     @staticmethod
     def fix_object_gap(pp, p, t, s):
