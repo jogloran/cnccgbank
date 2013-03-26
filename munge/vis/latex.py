@@ -71,8 +71,19 @@ def abbr(cat_string):
 def ccg2latex(root, glosses=None, abbreviate=False):
     def comb_symbol(comb):
         return arrows.get(comb, 'uline')
-    def cat_repr(cat):
-        cat_str = abbr(str(cat)) if abbreviate else str(cat)
+    def cat_repr(cat, i):
+        cat_str = str(cat)
+        if abbreviate is not False:
+            if isinstance(abbreviate, xrange):
+                if isinstance(i, int):
+                    if i in abbreviate:
+                        cat_str = abbr(cat_str)
+                elif isinstance(i, xrange):
+                    if abbreviate.start <= i.start < i.end <= abbreviate.end:
+                        cat_str = abbr(cat_str)
+            else:
+                cat_str = abbr(cat_str)
+
         return sanitise_category(cat_str)
         
     out = ['\deriv{%d}{' % root.leaf_count()]
@@ -88,7 +99,7 @@ def ccg2latex(root, glosses=None, abbreviate=False):
     # underlines line
     out.append( ' & '.join(["\uline{1}"] * root.leaf_count()) + '\\\\' )
     # cats line
-    out.append( (' & '.join(("\\cf{%s}"%cat_repr(leaf.cat)) for leaf in all_leaves)) + '\\\\' )
+    out.append( (' & '.join(("\\cf{%s}"%cat_repr(leaf.cat, i) for i, leaf in enumerate(all_leaves)))) + '\\\\' )
     
     rows = []
     for l, r, p in pairs_postorder(root):
@@ -103,7 +114,8 @@ def ccg2latex(root, glosses=None, abbreviate=False):
         
         for leftmost_leaf_id, cat, comb, span in subrows:
             subline.append( "&"*(leftmost_leaf_id - last_span) + ("\%s{%s}" % (comb_symbol(comb), span)) )
-            subout.append(  "&"*(leftmost_leaf_id - last_span) + ("\mc{%d}{%s}" % (span, cat_repr(cat))) )
+            subout.append(  "&"*(leftmost_leaf_id - last_span) + ("\mc{%d}{%s}" % (span,
+                cat_repr(cat, range(leftmost_leaf_id, leftmost_leaf_id+span)))) )
             
             last_span = leftmost_leaf_id+span-1
 
