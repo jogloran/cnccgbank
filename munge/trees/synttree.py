@@ -36,9 +36,9 @@ def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
         lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
         if gloss:
             if node.count() > 1:
-                return r'\PTag{%s} \edge[roof]; \ensuremath{\raisebox{-1.4\baselineskip}{\shortstack{{%s} \\ \exm{%s}}}}' % (node.tag, lex, gloss)
+                return r'\PTag{%s} \edge[roof]; \ensuremath{\raisebox{-1.4\baselineskip}{\shortstack{{%s} \\ \\ \TGloss{%s}}}}' % (node.tag, lex, gloss)
             else:
-                return r'\PTag{%s} \ensuremath{\raisebox{-1\baselineskip}{\shortstack{{%s} \\ \exm{%s}}}}' % (node.tag, lex, gloss)
+                return r'\PTag{%s} \ensuremath{\raisebox{-1\baselineskip}{\shortstack{{%s} \\ \\ \TGloss{%s}}}}' % (node.tag, lex, gloss)
         
         return "\\PTag{%s} %s %s" % (
             node.tag, 
@@ -50,7 +50,7 @@ def process_lex_node_repr(node, compress=False, gloss_iter=None, **kwargs):
         lex = latex_tag_for(node.lex)
         
         if gloss:
-            return r'\PTag{%s} \ensuremath{\raisebox{-1\baselineskip}{\shortstack{{%s} \\ \exm{%s}}}}' % (node.tag, lex, gloss)
+            return r'\PTag{%s} \ensuremath{\raisebox{-1\baselineskip}{\shortstack{{%s} \\ \\ \TGloss{%s}}}}' % (node.tag, lex, gloss)
         else:
             return r'\PTag{%s}{%s}' % (node.tag, lex)
     else:
