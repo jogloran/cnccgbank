@@ -109,17 +109,51 @@ def process_lex_node_reprR(node, compress=False, gloss_iter=None, **kwargs):
         return result
     else:
         return "\\cf{%s}" % sanitise_category(str(node.category))
+        
+Snode_id = 0
+def process_lex_node_reprS(node, compress=False, gloss_iter=None, **kwargs):
+    if compress:
+        gloss = gloss_iter.next() if gloss_iter else None
+
+        lex = r'\cjk{%s}' % ' '.join(latex_tag_for(leaf) for leaf in text(node))
+
+        if gloss:
+            # lex = r'\glosE{%s}{%s}' % (lex, gloss)
+            return r'\ensuremath{\shortstack{\cf{%s}\smallskip\\ %s \smallskip\\ \textit{%s} }}' % (
+               sanitise_category(str(node.category)), lex, gloss)
+        else:
+            return "\\cf{%s} %s %s" % (
+                sanitise_category(str(node.category)),
+                "\\edge[roof]; " if node.count()>1 else '',
+                lex)
+    if node.is_leaf():
+        global Snode_id
+
+        lex = latex_tag_for(node.lex)
+
+        gloss = gloss_iter.next() if gloss_iter else None
+        if gloss:
+            # lex = r'\glosE{%s}{%s}' % (lex, gloss)
+            result = r'\node(r%s){\ensuremath{\shortstack{\cf{%s}\smallskip\\ %s \smallskip\\ \textit{%s}}}};' % (
+                Snode_id, sanitise_category(str(node.category)), lex, gloss)
+        else:
+            result = "\\node(r%s){\\cf{%s} %s};" % (Snode_id, sanitise_category(str(node.category)), lex)
+        Snode_id += 1
+        return result
+    else:
+        return "\\cf{%s}" % sanitise_category(str(node.category))
 
 def reset_ids():
     global Lnode_id
     global Rnode_id
-    Lnode_id = Rnode_id = 0
+    global Snode_id
+    Lnode_id = Rnode_id = Snode_id = 0
     
 pprint_synttree_ccg = pprint_with(process_lex_node_repr_ccg, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttree = pprint_with(process_lex_node_repr, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttreeL = pprint_with(process_lex_node_reprL, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 pprint_synttreeR = pprint_with(process_lex_node_reprR, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
-
+pprint_synttreeS = pprint_with(process_lex_node_reprS, open='[.', close=' ]', bracket_outermost=False, do_reduce=False)
 def process_lex_node_yz(node, **kwargs):
     if node.is_leaf():
         return '%s c %s %s' % (str(node.cat), node.pos1, node.lex)
