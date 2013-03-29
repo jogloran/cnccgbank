@@ -119,7 +119,7 @@ def process_lex_node_reprS(node, compress=False, gloss_iter=None, **kwargs):
 
         if gloss:
             # lex = r'\glosE{%s}{%s}' % (lex, gloss)
-            return r'\ensuremath{\shortstack{\cf{%s}\smallskip\\ %s \smallskip\\ \textit{%s} }}' % (
+            return r'\ensuremath{\shortstack{\cf{%s}\smallskip\\ %s \medskip\\ \textit{%s} }}' % (
                sanitise_category(str(node.category)), lex, gloss)
         else:
             return "\\cf{%s} %s %s" % (
@@ -134,7 +134,7 @@ def process_lex_node_reprS(node, compress=False, gloss_iter=None, **kwargs):
         gloss = gloss_iter.next() if gloss_iter else None
         if gloss:
             # lex = r'\glosE{%s}{%s}' % (lex, gloss)
-            result = r'\node(r%s){\ensuremath{\shortstack{\cf{%s}\smallskip\\ %s \smallskip\\ \textit{%s}}}};' % (
+            result = r'\node(r%s){\ensuremath{\shortstack{\cf{%s}\smallskip\\ %s \medskip\\ \textit{%s}}}};' % (
                 Snode_id, sanitise_category(str(node.category)), lex, gloss)
         else:
             result = "\\node(r%s){\\cf{%s} %s};" % (Snode_id, sanitise_category(str(node.category)), lex)
